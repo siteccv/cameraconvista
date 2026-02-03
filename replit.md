@@ -12,7 +12,7 @@ Preferred communication style: Simple, everyday language.
 
 **Automatic documentation update**: Always update `report/STATO_ATTUALE_PROGETTO.md` with the current project state after implementing new features or fixes.
 
-**Backup command**: When user says "esegui nuovo backup", save a timestamped copy of `report/STATO_ATTUALE_PROGETTO.md` to `report/backups/BACKUP_YYYY-MM-DD_HH-MM.md`.
+**Backup command**: When user says "esegui nuovo backup", create a new tar.gz archive of the entire project (excluding node_modules, .git, BACKUP folder) and save it to `BACKUP/backup_replit_DD_Mon_HH-MM.tar.gz` with current date and time.
 
 ## System Architecture
 
