@@ -14,33 +14,43 @@ export default function Home() {
   const { adminPreview, deviceView } = useAdmin();
   const { toast } = useToast();
 
-  const [heroTitle, setHeroTitle] = useState({ it: "Camera con Vista", en: "Camera con Vista" });
-  const [heroSubtitle, setHeroSubtitle] = useState({ it: "Ristorante & Cocktail Bar", en: "Restaurant & Cocktail Bar" });
+  const [heroTitle, setHeroTitle] = useState({ 
+    it: "Camera con Vista", en: "Camera con Vista",
+    fontSizeDesktop: 72, fontSizeMobile: 40
+  });
+  const [heroSubtitle, setHeroSubtitle] = useState({ 
+    it: "Ristorante & Cocktail Bar", en: "Restaurant & Cocktail Bar",
+    fontSizeDesktop: 28, fontSizeMobile: 20
+  });
   const [heroImage, setHeroImage] = useState({
     src: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     zoomDesktop: 100, zoomMobile: 100,
     offsetXDesktop: 0, offsetYDesktop: 0,
     offsetXMobile: 0, offsetYMobile: 0,
   });
-  const [conceptTitle, setConceptTitle] = useState({ it: "Il nostro concept", en: "Our Concept" });
+  const [conceptTitle, setConceptTitle] = useState({ 
+    it: "Il nostro concept", en: "Our Concept",
+    fontSizeDesktop: 36, fontSizeMobile: 28
+  });
   const [conceptBody, setConceptBody] = useState({
     it: "Camera con Vista è riconosciuto come uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti, l'innovazione nelle tecniche e la passione per l'ospitalità.",
     en: "Camera con Vista is recognized as one of the most renowned cocktail bars in Bologna. Our philosophy is based on the quality of ingredients, innovation in techniques, and passion for hospitality.",
+    fontSizeDesktop: 16, fontSizeMobile: 14
   });
 
-  const handleTextSave = (field: string, data: { textIt: string; textEn: string }) => {
+  const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     switch (field) {
       case "heroTitle":
-        setHeroTitle({ it: data.textIt, en: data.textEn });
+        setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
         break;
       case "heroSubtitle":
-        setHeroSubtitle({ it: data.textIt, en: data.textEn });
+        setHeroSubtitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
         break;
       case "conceptTitle":
-        setConceptTitle({ it: data.textIt, en: data.textEn });
+        setConceptTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
         break;
       case "conceptBody":
-        setConceptBody({ it: data.textIt, en: data.textEn });
+        setConceptBody({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
         break;
     }
     toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
@@ -78,19 +88,21 @@ export default function Home() {
           <EditableText
             textIt={heroTitle.it}
             textEn={heroTitle.en}
-            fontSizeDesktop={72}
-            fontSizeMobile={40}
+            fontSizeDesktop={heroTitle.fontSizeDesktop}
+            fontSizeMobile={heroTitle.fontSizeMobile}
             as="h1"
-            className="font-display text-4xl md:text-5xl lg:text-7xl mb-4 drop-shadow-lg"
+            className="font-display mb-4 drop-shadow-lg"
+            applyFontSize
             onSave={(data) => handleTextSave("heroTitle", data)}
           />
           <EditableText
             textIt={heroSubtitle.it}
             textEn={heroSubtitle.en}
-            fontSizeDesktop={28}
-            fontSizeMobile={20}
+            fontSizeDesktop={heroSubtitle.fontSizeDesktop}
+            fontSizeMobile={heroSubtitle.fontSizeMobile}
             as="p"
-            className="font-serif text-xl md:text-2xl lg:text-3xl italic mb-8 drop-shadow-md max-w-2xl mx-auto"
+            className="font-serif italic mb-8 drop-shadow-md max-w-2xl mx-auto"
+            applyFontSize
             onSave={(data) => handleTextSave("heroSubtitle", data)}
           />
           <div className="flex flex-wrap justify-center gap-4">
@@ -115,19 +127,21 @@ export default function Home() {
             <EditableText
               textIt={conceptTitle.it}
               textEn={conceptTitle.en}
-              fontSizeDesktop={36}
-              fontSizeMobile={28}
+              fontSizeDesktop={conceptTitle.fontSizeDesktop}
+              fontSizeMobile={conceptTitle.fontSizeMobile}
               as="h2"
-              className="font-display text-3xl md:text-4xl mb-4"
+              className="font-display mb-4"
+              applyFontSize
               onSave={(data) => handleTextSave("conceptTitle", data)}
             />
             <EditableText
               textIt={conceptBody.it}
               textEn={conceptBody.en}
-              fontSizeDesktop={16}
-              fontSizeMobile={14}
+              fontSizeDesktop={conceptBody.fontSizeDesktop}
+              fontSizeMobile={conceptBody.fontSizeMobile}
               as="p"
               className="text-muted-foreground leading-relaxed"
+              applyFontSize
               multiline
               onSave={(data) => handleTextSave("conceptBody", data)}
             />

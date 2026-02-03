@@ -157,7 +157,7 @@ export function EditableImage({
   return (
     <>
       <div 
-        className={`${containerClassName} relative cursor-pointer group`}
+        className={`${containerClassName} cursor-pointer group`}
         onClick={handleClick}
       >
         <img

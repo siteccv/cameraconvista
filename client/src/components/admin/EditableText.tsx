@@ -17,6 +17,7 @@ interface EditableTextProps {
   as?: "h1" | "h2" | "h3" | "p" | "span";
   className?: string;
   multiline?: boolean;
+  applyFontSize?: boolean;
   onSave?: (data: {
     textIt: string;
     textEn: string;
@@ -34,9 +35,10 @@ export function EditableText({
   as: Component = "span",
   className = "",
   multiline = false,
+  applyFontSize = false,
   onSave,
 }: EditableTextProps) {
-  const { adminPreview } = useAdmin();
+  const { adminPreview, deviceView } = useAdmin();
   const { t, language } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
   const [editTextIt, setEditTextIt] = useState(textIt);
@@ -45,6 +47,9 @@ export function EditableText({
   const [editFontMobile, setEditFontMobile] = useState(fontSizeMobile);
 
   const displayText = t(textIt, textEn);
+  
+  const currentFontSize = deviceView === "mobile" ? fontSizeMobile : fontSizeDesktop;
+  const fontStyle = applyFontSize ? { fontSize: `${currentFontSize}px` } : undefined;
 
   const handleClick = (e: React.MouseEvent) => {
     if (adminPreview) {
@@ -73,13 +78,14 @@ export function EditableText({
   const TextInput = multiline ? Textarea : Input;
 
   if (!adminPreview) {
-    return <Component className={className}>{displayText}</Component>;
+    return <Component className={className} style={fontStyle}>{displayText}</Component>;
   }
 
   return (
     <>
       <Component
         className={`${className} relative cursor-pointer group`}
+        style={fontStyle}
         onClick={handleClick}
       >
         {displayText}
