@@ -1,0 +1,95 @@
+Build a portable, production-grade web project that recreates the “Camera con Vista” site + interactive Admin (WYSIWYG click-to-edit) with enterprise foundations from day 1. The code must be exportable and runnable outside Replit (no Replit-only dependencies).
+
+Goal of this FIRST iteration (Step 1 only): implement the core architecture + scaffolding, not every feature. You must propose a multi-step plan (3–4 steps) and then implement Step 1 fully.
+
+Non-negotiable requirements (architecture must support these from the start)
+
+Public vs Admin Preview split
+
+Public mode = pure public rendering.
+
+Admin mode = same pages but with click-to-edit overlays/modals (WYSIWYG).
+
+Use a clear flag (e.g., adminPreview) and an authorization gate.
+
+Draft / Publish workflow
+
+Admin can edit content without publishing.
+
+Buttons: “Publish entire site” (admin sidebar) + “Publish this page” (per page).
+
+Each page has visibility toggle (ON/OFF for public). Always visible to admin.
+
+Bilingual everywhere (IT/EN)
+
+All text content supports IT + EN.
+
+Provide a “Regenerate EN translation from IT” action (integration can be stubbed but architecture must support it).
+
+Google Sheets sync (order must match sheet)
+
+Pages to support sync: Menu, Wine List, Cocktail Bar.
+
+Data must render in EXACT sheet order.
+
+Persistence: synced data and presets must be stored in Supabase Postgres.
+
+Media Library foundation
+
+Upload + categorize media (folders/tags).
+
+Must store metadata (alt IT/EN, category, tags).
+
+Architecture must allow image optimization (compression/format) and performance delivery.
+
+Images must be viewable full-size in a detail view (no forced cropping in the library).
+
+Security + Privacy compliance baseline
+
+Add standard hardening (headers, validation, auth boundaries, rate limiting where appropriate).
+
+Cookie/privacy consent banner + preference management (foundation now, details later).
+
+Enterprise SEO foundation
+
+Dynamic metadata per page (IT/EN), OpenGraph, sitemap/robots foundation, canonical/hreflang support.
+
+Mobile-first
+
+The UI must be responsive and optimized for modern phones (last ~5 years).
+
+Editing must support desktop vs mobile independent overrides:
+
+text sizes can differ on mobile vs desktop
+
+image placeholder crop/zoom/position can differ on mobile vs desktop
+
+Preferred stack (if compatible)
+
+Frontend: React + TypeScript + Vite
+
+Backend: Node/Express + TypeScript
+
+DB: Supabase Postgres
+
+ORM/migrations: Drizzle (or equivalent, but keep migrations clean and portable)
+
+Step breakdown (you propose it, but MUST follow this rule)
+
+Step 1: Core scaffolding + DB schema + auth gate + routing + content model (draft/publish ready) + minimal Admin shell + minimal Public pages skeleton (matching the current layout style), and documentation.
+
+Step 2+: Implement interactive overlays/modals (text + image placeholders) + device-specific overrides.
+
+Step 3+: Google Sheets ingestion pipelines + media library advanced features + SEO completion.
+
+Deliverables for Step 1
+
+Working dev server, build, and deploy-ready structure.
+
+DB migrations + schema prepared for Supabase.
+
+Clear folder structure, modular code, strong separation of concerns.
+
+A concise README and a docs/ folder describing architecture, data model, adminPreview, draft/publish, and future steps.
+
+Proceed now: first output the plan (3–4 steps). Then implement Step 1 only.
