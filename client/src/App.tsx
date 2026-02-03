@@ -21,6 +21,7 @@ import AdminSettings from "@/pages/admin/settings";
 import AdminPages from "@/pages/admin/pages";
 import AdminEvents from "@/pages/admin/events";
 import AdminMedia from "@/pages/admin/media";
+import AdminGallery from "@/pages/admin/gallery";
 import AdminSeo from "@/pages/admin/seo";
 import AdminPreview from "@/pages/admin/preview";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -71,6 +72,9 @@ function Router() {
       </Route>
       <Route path="/admina/media">
         {() => <ProtectedAdminRoute component={AdminMedia} />}
+      </Route>
+      <Route path="/admina/gallery">
+        {() => <ProtectedAdminRoute component={AdminGallery} />}
       </Route>
       <Route path="/admina/seo">
         {() => <ProtectedAdminRoute component={AdminSeo} />}
