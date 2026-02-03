@@ -378,6 +378,65 @@ export type FooterSocialLink = z.infer<typeof footerSocialLinkSchema>;
 export type FooterQuickLink = z.infer<typeof footerQuickLinkSchema>;
 export type FooterSettings = z.infer<typeof footerSettingsSchema>;
 
+// ============================================================================
+// GALLERIES (Album-based gallery system)
+// ============================================================================
+export const galleries = pgTable("galleries", {
+  id: serial("id").primaryKey(),
+  titleIt: text("title_it").notNull(),
+  titleEn: text("title_en").notNull(),
+  coverUrl: text("cover_url"),
+  coverZoom: integer("cover_zoom").default(100),
+  coverOffsetX: integer("cover_offset_x").default(0),
+  coverOffsetY: integer("cover_offset_y").default(0),
+  isVisible: boolean("is_visible").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const galleriesRelations = relations(galleries, ({ many }) => ({
+  images: many(galleryImages),
+}));
+
+export const insertGallerySchema = createInsertSchema(galleries).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertGallery = z.infer<typeof insertGallerySchema>;
+export type Gallery = typeof galleries.$inferSelect;
+
+// ============================================================================
+// GALLERY IMAGES (Images within albums, Instagram Story 9:16 format)
+// ============================================================================
+export const galleryImages = pgTable("gallery_images", {
+  id: serial("id").primaryKey(),
+  galleryId: integer("gallery_id").notNull().references(() => galleries.id, { onDelete: "cascade" }),
+  imageUrl: text("image_url").notNull(),
+  imageZoom: integer("image_zoom").default(100),
+  imageOffsetX: integer("image_offset_x").default(0),
+  imageOffsetY: integer("image_offset_y").default(0),
+  altIt: text("alt_it"),
+  altEn: text("alt_en"),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const galleryImagesRelations = relations(galleryImages, ({ one }) => ({
+  gallery: one(galleries, {
+    fields: [galleryImages.galleryId],
+    references: [galleries.id],
+  }),
+}));
+
+export const insertGalleryImageSchema = createInsertSchema(galleryImages).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertGalleryImage = z.infer<typeof insertGalleryImageSchema>;
+export type GalleryImage = typeof galleryImages.$inferSelect;
+
 export const defaultFooterSettings: FooterSettings = {
   about: {
     it: "Uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti, l'innovazione nelle tecniche e la passione per l'ospitalità.",

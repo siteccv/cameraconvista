@@ -8,6 +8,8 @@ import {
   type Event, type InsertEvent,
   type Media, type InsertMedia,
   type MediaCategory, type InsertMediaCategory,
+  type Gallery, type InsertGallery,
+  type GalleryImage, type InsertGalleryImage,
   type SiteSettings, type InsertSiteSettings,
   type AdminSession, type InsertAdminSession,
   users,
@@ -19,6 +21,8 @@ import {
   events,
   media,
   mediaCategories,
+  galleries,
+  galleryImages,
   siteSettings,
   adminSessions,
 } from "@shared/schema";
@@ -78,6 +82,18 @@ export interface IStorage {
   createMediaCategory(category: InsertMediaCategory): Promise<MediaCategory>;
   updateMediaCategory(id: number, category: Partial<InsertMediaCategory>): Promise<MediaCategory | undefined>;
   deleteMediaCategory(id: number): Promise<boolean>;
+  
+  getGalleries(): Promise<Gallery[]>;
+  getGallery(id: number): Promise<Gallery | undefined>;
+  createGallery(gallery: InsertGallery): Promise<Gallery>;
+  updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined>;
+  deleteGallery(id: number): Promise<boolean>;
+  
+  getGalleryImages(galleryId: number): Promise<GalleryImage[]>;
+  getGalleryImage(id: number): Promise<GalleryImage | undefined>;
+  createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage>;
+  updateGalleryImage(id: number, image: Partial<InsertGalleryImage>): Promise<GalleryImage | undefined>;
+  deleteGalleryImage(id: number): Promise<boolean>;
   
   getSiteSettings(): Promise<SiteSettings[]>;
   getSiteSetting(key: string): Promise<SiteSettings | undefined>;
@@ -301,6 +317,54 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMediaCategory(id: number): Promise<boolean> {
     const result = await db.delete(mediaCategories).where(eq(mediaCategories.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getGalleries(): Promise<Gallery[]> {
+    return db.select().from(galleries).orderBy(asc(galleries.sortOrder));
+  }
+
+  async getGallery(id: number): Promise<Gallery | undefined> {
+    const result = await db.select().from(galleries).where(eq(galleries.id, id));
+    return result[0];
+  }
+
+  async createGallery(gallery: InsertGallery): Promise<Gallery> {
+    const result = await db.insert(galleries).values(gallery).returning();
+    return result[0];
+  }
+
+  async updateGallery(id: number, gallery: Partial<InsertGallery>): Promise<Gallery | undefined> {
+    const result = await db.update(galleries).set({ ...gallery, updatedAt: new Date() }).where(eq(galleries.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteGallery(id: number): Promise<boolean> {
+    const result = await db.delete(galleries).where(eq(galleries.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getGalleryImages(galleryId: number): Promise<GalleryImage[]> {
+    return db.select().from(galleryImages).where(eq(galleryImages.galleryId, galleryId)).orderBy(asc(galleryImages.sortOrder));
+  }
+
+  async getGalleryImage(id: number): Promise<GalleryImage | undefined> {
+    const result = await db.select().from(galleryImages).where(eq(galleryImages.id, id));
+    return result[0];
+  }
+
+  async createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage> {
+    const result = await db.insert(galleryImages).values(image).returning();
+    return result[0];
+  }
+
+  async updateGalleryImage(id: number, image: Partial<InsertGalleryImage>): Promise<GalleryImage | undefined> {
+    const result = await db.update(galleryImages).set(image).where(eq(galleryImages.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteGalleryImage(id: number): Promise<boolean> {
+    const result = await db.delete(galleryImages).where(eq(galleryImages.id, id)).returning();
     return result.length > 0;
   }
 
