@@ -9,6 +9,7 @@ export default {
         lg: ".5625rem", /* 9px */
         md: ".375rem", /* 6px */
         sm: ".1875rem", /* 3px */
+        placeholder: "var(--radius-placeholder)", /* 12px - shared for all image placeholders */
       },
       colors: {
         // Flat / base colors (regular buttons)

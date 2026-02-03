@@ -235,22 +235,22 @@ function TeaserCard({ imageUrl, titleIt, titleEn, descriptionIt, descriptionEn, 
   const { t } = useLanguage();
 
   return (
-    <Link href={href}>
-      <div className="group cursor-pointer" data-testid={testId}>
-        <div className="aspect-[4/5] rounded-lg overflow-hidden mb-4">
-          <img
-            src={imageUrl}
-            alt={t(titleIt, titleEn) || titleIt}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-        <h3 className="font-display text-xl mb-2 group-hover:text-primary transition-colors">
+    <div className="group" data-testid={testId}>
+      <div className="aspect-[4/5] rounded-xl overflow-hidden mb-4">
+        <img
+          src={imageUrl}
+          alt={t(titleIt, titleEn) || titleIt}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <Link href={href}>
+        <h3 className="font-display text-xl mb-2 hover:text-primary transition-colors cursor-pointer">
           {t(titleIt, titleEn)}
         </h3>
-        <p className="text-sm text-muted-foreground">
-          {t(descriptionIt, descriptionEn)}
-        </p>
-      </div>
-    </Link>
+      </Link>
+      <p className="text-sm text-muted-foreground">
+        {t(descriptionIt, descriptionEn)}
+      </p>
+    </div>
   );
 }
