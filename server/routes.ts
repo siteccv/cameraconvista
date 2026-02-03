@@ -13,6 +13,9 @@ import {
   insertEventSchema,
   insertMediaSchema,
   insertSiteSettingsSchema,
+  footerSettingsSchema,
+  defaultFooterSettings,
+  type FooterSettings,
 } from "@shared/schema";
 
 const ADMIN_PASSWORD_KEY = "admin_password_hash";
@@ -739,6 +742,68 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error saving site setting:", error);
       res.status(500).json({ error: "Failed to save site setting" });
+    }
+  });
+
+  // ========================================
+  // Footer Settings (stored as JSON in site_settings)
+  // ========================================
+  const FOOTER_SETTINGS_KEY = "footer_settings";
+
+  // Public: Get footer settings
+  app.get("/api/footer-settings", async (req, res) => {
+    try {
+      const setting = await storage.getSiteSetting(FOOTER_SETTINGS_KEY);
+      if (setting?.valueIt) {
+        const parsed = footerSettingsSchema.safeParse(JSON.parse(setting.valueIt));
+        if (parsed.success) {
+          res.json(parsed.data);
+          return;
+        }
+      }
+      res.json(defaultFooterSettings);
+    } catch (error) {
+      console.error("Error fetching footer settings:", error);
+      res.json(defaultFooterSettings);
+    }
+  });
+
+  // Admin: Get footer settings
+  app.get("/api/admin/footer-settings", requireAuth, async (req, res) => {
+    try {
+      const setting = await storage.getSiteSetting(FOOTER_SETTINGS_KEY);
+      if (setting?.valueIt) {
+        const parsed = footerSettingsSchema.safeParse(JSON.parse(setting.valueIt));
+        if (parsed.success) {
+          res.json(parsed.data);
+          return;
+        }
+      }
+      res.json(defaultFooterSettings);
+    } catch (error) {
+      console.error("Error fetching footer settings:", error);
+      res.json(defaultFooterSettings);
+    }
+  });
+
+  // Admin: Update footer settings
+  app.put("/api/admin/footer-settings", requireAuth, async (req, res) => {
+    try {
+      const parsed = footerSettingsSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const jsonValue = JSON.stringify(parsed.data);
+      await storage.upsertSiteSetting({
+        key: FOOTER_SETTINGS_KEY,
+        valueIt: jsonValue,
+        valueEn: jsonValue,
+      });
+      res.json({ success: true, data: parsed.data });
+    } catch (error) {
+      console.error("Error saving footer settings:", error);
+      res.status(500).json({ error: "Failed to save footer settings" });
     }
   });
 

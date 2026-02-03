@@ -283,3 +283,84 @@ export const insertCocktailSchema = createInsertSchema(cocktails).omit({
 });
 export type InsertCocktail = z.infer<typeof insertCocktailSchema>;
 export type Cocktail = typeof cocktails.$inferSelect;
+
+// ============================================================================
+// FOOTER SETTINGS (Structured JSON for footer content)
+// ============================================================================
+export const footerHoursEntrySchema = z.object({
+  dayKeyIt: z.string(),
+  dayKeyEn: z.string(),
+  hours: z.string(),
+  isClosed: z.boolean().default(false),
+});
+
+export const footerSocialLinkSchema = z.object({
+  type: z.enum(["instagram", "facebook", "twitter", "linkedin", "youtube", "tiktok"]),
+  url: z.string().url(),
+});
+
+export const footerQuickLinkSchema = z.object({
+  labelIt: z.string(),
+  labelEn: z.string(),
+  url: z.string(),
+});
+
+export const footerSettingsSchema = z.object({
+  about: z.object({
+    it: z.string(),
+    en: z.string(),
+  }),
+  contacts: z.object({
+    address: z.string(),
+    phone: z.string(),
+    email: z.string(),
+  }),
+  hours: z.array(footerHoursEntrySchema),
+  social: z.array(footerSocialLinkSchema),
+  quickLinks: z.array(footerQuickLinkSchema),
+  legalLinks: z.object({
+    privacyUrl: z.string(),
+    privacyLabelIt: z.string().default("Privacy Policy"),
+    privacyLabelEn: z.string().default("Privacy Policy"),
+    cookieUrl: z.string(),
+    cookieLabelIt: z.string().default("Cookie Policy"),
+    cookieLabelEn: z.string().default("Cookie Policy"),
+  }),
+});
+
+export type FooterHoursEntry = z.infer<typeof footerHoursEntrySchema>;
+export type FooterSocialLink = z.infer<typeof footerSocialLinkSchema>;
+export type FooterQuickLink = z.infer<typeof footerQuickLinkSchema>;
+export type FooterSettings = z.infer<typeof footerSettingsSchema>;
+
+export const defaultFooterSettings: FooterSettings = {
+  about: {
+    it: "Uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti, l'innovazione nelle tecniche e la passione per l'ospitalità.",
+    en: "One of the most renowned cocktail bars in Bologna. Our philosophy is based on the quality of ingredients, innovation in techniques, and passion for hospitality.",
+  },
+  contacts: {
+    address: "Via del Pratello, 42\n40122 Bologna, Italia",
+    phone: "+39 051 234 5678",
+    email: "info@cameraconvista.it",
+  },
+  hours: [
+    { dayKeyIt: "Martedì - Domenica", dayKeyEn: "Tuesday - Sunday", hours: "18:00 - 02:00", isClosed: false },
+    { dayKeyIt: "Lunedì", dayKeyEn: "Monday", hours: "", isClosed: true },
+  ],
+  social: [
+    { type: "instagram", url: "https://instagram.com" },
+    { type: "facebook", url: "https://facebook.com" },
+  ],
+  quickLinks: [
+    { labelIt: "Prenota un evento", labelEn: "Book an event", url: "/eventi-privati" },
+    { labelIt: "Lavora con noi", labelEn: "Work with us", url: "/contatti" },
+  ],
+  legalLinks: {
+    privacyUrl: "/privacy",
+    privacyLabelIt: "Privacy Policy",
+    privacyLabelEn: "Privacy Policy",
+    cookieUrl: "/cookie",
+    cookieLabelIt: "Cookie Policy",
+    cookieLabelEn: "Cookie Policy",
+  },
+};
