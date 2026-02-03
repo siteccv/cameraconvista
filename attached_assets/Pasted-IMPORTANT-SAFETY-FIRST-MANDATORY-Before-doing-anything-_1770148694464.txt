@@ -1,0 +1,74 @@
+IMPORTANT — SAFETY FIRST (MANDATORY)
+Before doing anything else:
+1) Create a folder named `BACKUP` in the project root.
+2) Create a full backup of the entire project (source code + config + docs).
+3) The backup must be a single compressed archive (open-source standard, e.g. .zip or .tar.gz),
+   portable and reusable outside Replit (e.g. in Windsurf).
+4) Name the archive exactly:
+   backup_replit_3_Febbr_20-57
+
+Do NOT proceed with any analysis or implementation until this backup is completed and saved
+inside the `BACKUP/` folder.
+
+---
+
+Replit Agent — Google Sheets sync (Menu / Carta Vini / Cocktail)
+
+Obiettivo
+- Popolare automaticamente le pagine:
+  - /menu
+  - /carta-vini
+  - /cocktail-bar
+  usando Google Sheets come “single source of truth”, mantenendo ESATTAMENTE l’ordine del foglio.
+- Non introdurre logiche parallele o duplicati: una sola implementazione canonica.
+- Codice pulito + governance: no file doppi, no codice morto, no log/console residui, niente workaround.
+
+Dati (Sheet URL)
+- MENU: https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/edit?gid=1122482173#gid=1122482173
+- CARTA VINI: https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?gid=294419425#gid=294419425
+- COCKTAIL BAR: https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/edit?gid=1122482173#gid=1122482173
+
+Vincoli funzionali
+- IT/EN sempre presenti in output (bilingue).
+- Ordine identico al foglio (nessun sort lato codice).
+- Sincronizzazioni e preset DEVONO finire in Supabase (persistenza), non solo runtime.
+- Le pagine pubbliche devono leggere dati dal backend in modo stabile (API), non da chiamate dirette al foglio in client.
+
+Cosa voglio da te (step unico “valuta + implementa”, senza complicare)
+1) VALUTAZIONE MINIMA (prima di toccare codice)
+- Individua come nel progetto attuale sono gestiti:
+  - endpoint esistenti (/api/menu, /api/wines, /api/cocktails o simili)
+  - tabelle Supabase già previste/usate per questi contenuti
+  - eventuali env già presenti (es. SHEET_ID, CSV export url, ecc.)
+- Decidi il percorso più semplice e robusto:
+  A) Server-side fetch dei fogli → normalizzazione → upsert su Supabase → API read
+  (Percorso preferito)
+
+2) IMPLEMENTAZIONE (solo ciò che serve)
+- Sync server-side per i 3 fogli:
+  - estrazione dati (CSV export o Google Sheets API: scegli la via più semplice e stabile)
+  - mapping colonne → modello dati (incluso IT/EN)
+  - salvataggio su Supabase preservando l’ordine (order_index o equivalente)
+- Esporre API read-only canonicali.
+- Collegare le pagine /menu, /carta-vini, /cocktail-bar agli endpoint definitivi
+  senza alterare layout o UX esistenti.
+
+3) VERIFICHE OBBLIGATORIE
+- Endpoint attivi e funzionanti.
+- Ordine identico al foglio.
+- IT/EN corretti.
+- Build pulita, nessun errore console.
+- Nessuna logica duplicata o fallback ambiguo.
+
+Output richiesto (minimizzare iterazioni/costi)
+- Report sintetico: report/REPORT_SYNC_GOOGLE_SHEETS_STEP1.md con:
+  - stato iniziale rilevato
+  - scelta architetturale e motivazione
+  - file e tabelle coinvolte
+  - env realmente necessari
+  - checklist di verifica (≤ 2 minuti)
+
+Nota finale
+- Evita frasi introduttive inutili.
+- Nessuna feature extra.
+- Un’unica implementazione canonica.

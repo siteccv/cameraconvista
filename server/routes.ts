@@ -4,6 +4,7 @@ import { storage } from "./storage";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import { syncMenuFromSheets, syncWinesFromSheets, syncCocktailsFromSheets, syncAllFromSheets } from "./sheets-sync";
 import {
   insertPageSchema,
   insertPageBlockSchema,
@@ -820,6 +821,62 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting media category:", error);
       res.status(500).json({ error: "Failed to delete media category" });
+    }
+  });
+
+  // ========================================
+  // Google Sheets Sync Routes (Admin Protected)
+  // ========================================
+  
+  app.post("/api/admin/sync/menu", requireAuth, async (req, res) => {
+    try {
+      const result = await syncMenuFromSheets();
+      if (result.error) {
+        res.status(500).json({ success: false, error: result.error });
+        return;
+      }
+      res.json({ success: true, count: result.count });
+    } catch (error) {
+      console.error("Error syncing menu:", error);
+      res.status(500).json({ success: false, error: "Failed to sync menu from Google Sheets" });
+    }
+  });
+
+  app.post("/api/admin/sync/wines", requireAuth, async (req, res) => {
+    try {
+      const result = await syncWinesFromSheets();
+      if (result.error) {
+        res.status(500).json({ success: false, error: result.error });
+        return;
+      }
+      res.json({ success: true, count: result.count });
+    } catch (error) {
+      console.error("Error syncing wines:", error);
+      res.status(500).json({ success: false, error: "Failed to sync wines from Google Sheets" });
+    }
+  });
+
+  app.post("/api/admin/sync/cocktails", requireAuth, async (req, res) => {
+    try {
+      const result = await syncCocktailsFromSheets();
+      if (result.error) {
+        res.status(500).json({ success: false, error: result.error });
+        return;
+      }
+      res.json({ success: true, count: result.count });
+    } catch (error) {
+      console.error("Error syncing cocktails:", error);
+      res.status(500).json({ success: false, error: "Failed to sync cocktails from Google Sheets" });
+    }
+  });
+
+  app.post("/api/admin/sync/all", requireAuth, async (req, res) => {
+    try {
+      const result = await syncAllFromSheets();
+      res.json({ success: true, ...result });
+    } catch (error) {
+      console.error("Error syncing all:", error);
+      res.status(500).json({ success: false, error: "Failed to sync from Google Sheets" });
     }
   });
 
