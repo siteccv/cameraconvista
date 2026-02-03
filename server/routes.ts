@@ -324,6 +324,58 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/admin/pages/:id/publish", requireAuth, async (req, res) => {
+    try {
+      const pageId = parseInt(req.params.id);
+      const page = await storage.updatePage(pageId, { isDraft: false, publishedAt: new Date() });
+      if (!page) {
+        res.status(404).json({ error: "Page not found" });
+        return;
+      }
+      const blocks = await storage.getPageBlocks(pageId);
+      for (const block of blocks) {
+        await storage.updatePageBlock(block.id, { isDraft: false });
+      }
+      res.json({ success: true, page });
+    } catch (error) {
+      console.error("Error publishing page:", error);
+      res.status(500).json({ error: "Failed to publish page" });
+    }
+  });
+
+  app.post("/api/admin/pages/:id/toggle-visibility", requireAuth, async (req, res) => {
+    try {
+      const pageId = parseInt(req.params.id);
+      const currentPage = await storage.getPage(pageId);
+      if (!currentPage) {
+        res.status(404).json({ error: "Page not found" });
+        return;
+      }
+      const page = await storage.updatePage(pageId, { isVisible: !currentPage.isVisible });
+      res.json({ success: true, page });
+    } catch (error) {
+      console.error("Error toggling page visibility:", error);
+      res.status(500).json({ error: "Failed to toggle visibility" });
+    }
+  });
+
+  app.post("/api/admin/publish-all", requireAuth, async (req, res) => {
+    try {
+      const pages = await storage.getPages();
+      for (const page of pages) {
+        await storage.updatePage(page.id, { isDraft: false, publishedAt: new Date() });
+        const blocks = await storage.getPageBlocks(page.id);
+        for (const block of blocks) {
+          await storage.updatePageBlock(block.id, { isDraft: false });
+        }
+      }
+      res.json({ success: true, message: "All pages published" });
+    } catch (error) {
+      console.error("Error publishing all pages:", error);
+      res.status(500).json({ error: "Failed to publish all pages" });
+    }
+  });
+
   // Admin Page Blocks
   app.get("/api/admin/pages/:pageId/blocks", requireAuth, async (req, res) => {
     try {

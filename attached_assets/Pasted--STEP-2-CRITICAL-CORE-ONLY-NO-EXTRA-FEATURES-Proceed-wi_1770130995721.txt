@@ -1,0 +1,103 @@
+# STEP 2 — CRITICAL CORE ONLY (NO EXTRA FEATURES)
+
+Proceed with implementation, but with STRICT LIMITS.
+
+## Objective of this step
+Complete ONLY the core missing foundations required to turn the Admin into a REAL visual CMS (WYSIWYG).
+Do NOT implement secondary features.
+
+This step must focus EXCLUSIVELY on:
+1) Interactive Admin Preview (click-to-edit)
+2) Image editing (desktop vs mobile)
+3) Draft / Publish UI logic
+
+Nothing else.
+
+---
+
+## SCOPE — MUST IMPLEMENT
+
+### 1) Real WYSIWYG Admin Preview
+- Admin must see the REAL public pages rendered inside Admin.
+- Same components as public site.
+- Enable an explicit `adminPreview = true` mode.
+
+In adminPreview:
+- Clicking on a TEXT opens a modal to edit:
+  - IT text
+  - EN text
+  - font size (desktop)
+  - font size (mobile, independent)
+- Clicking on an IMAGE / PLACEHOLDER opens controls for:
+  - replace image
+  - zoom
+  - pan / drag
+  - reset
+- Editing happens directly ON the preview, not via cards or lists.
+
+NO side dashboards.
+NO indirect editors.
+
+---
+
+### 2) Desktop vs Mobile Independent Overrides
+- Text:
+  - Desktop font size ≠ Mobile font size
+- Images:
+  - Desktop zoom/position ≠ Mobile zoom/position
+- Switching device in admin must switch the active editing context.
+- Changes must persist correctly to the existing schema.
+
+---
+
+### 3) Draft / Publish — UI wiring
+Database fields already exist.
+Now wire the UI:
+
+- Page-level:
+  - toggle visibility (on/off)
+  - “Publish this page” button
+- Global:
+  - “Publish entire site” button (admin sidebar)
+- Public site must render ONLY published content.
+- Admin must always see draft content.
+
+---
+
+## HARD CONSTRAINTS (VERY IMPORTANT)
+
+- DO NOT:
+  - implement Media Library advanced features
+  - implement Google Sheets sync
+  - implement SEO UI
+  - implement OpenAI translation
+  - redesign layouts
+  - refactor unrelated code
+  - introduce new CMS abstractions
+
+- USE existing schema and components whenever possible.
+- Minimal code changes.
+- No speculative features.
+
+---
+
+## DELIVERABLES FOR THIS STEP
+
+1) Working WYSIWYG admin preview:
+   - texts editable
+   - images editable
+2) Desktop / mobile overrides proven working
+3) Draft / publish working end-to-end
+4) Short report:
+   - what was implemented
+   - which files were touched
+   - what is still intentionally NOT implemented
+
+---
+
+## WORK METHOD
+- Implement incrementally.
+- Prefer clarity over completeness.
+- If something is unclear, STOP and ask before proceeding.
+
+Proceed now with STEP 2 only.

@@ -2,6 +2,9 @@ import { type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import {
   SidebarProvider,
   Sidebar,
@@ -27,6 +30,7 @@ import {
   Upload,
   Globe,
   LogOut,
+  Loader2,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -46,7 +50,28 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { t, language, setLanguage } = useLanguage();
   const { logout } = useAdmin();
+  const { toast } = useToast();
   const [location, setLocation] = useLocation();
+
+  const publishAllMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest("POST", "/api/admin/publish-all", {});
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      toast({ 
+        title: t("Sito Pubblicato", "Site Published"),
+        description: t("Tutte le pagine sono state pubblicate.", "All pages have been published.")
+      });
+    },
+    onError: () => {
+      toast({ 
+        title: t("Errore", "Error"),
+        description: t("Impossibile pubblicare il sito.", "Failed to publish site."),
+        variant: "destructive"
+      });
+    },
+  });
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -93,9 +118,15 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     variant="default"
                     size="sm"
                     className="w-full justify-start gap-2"
+                    onClick={() => publishAllMutation.mutate()}
+                    disabled={publishAllMutation.isPending}
                     data-testid="button-publish-site"
                   >
-                    <Upload className="h-4 w-4" />
+                    {publishAllMutation.isPending ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
                     {t("Pubblica Sito", "Publish Site")}
                   </Button>
                   <Button

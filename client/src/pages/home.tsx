@@ -1,31 +1,98 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
+import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const { t } = useLanguage();
+  const { adminPreview, deviceView } = useAdmin();
+  const { toast } = useToast();
+
+  const [heroTitle, setHeroTitle] = useState({ it: "Camera con Vista", en: "Camera con Vista" });
+  const [heroSubtitle, setHeroSubtitle] = useState({ it: "Ristorante & Cocktail Bar", en: "Restaurant & Cocktail Bar" });
+  const [heroImage, setHeroImage] = useState({
+    src: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    zoomDesktop: 100, zoomMobile: 100,
+    offsetXDesktop: 0, offsetYDesktop: 0,
+    offsetXMobile: 0, offsetYMobile: 0,
+  });
+  const [conceptTitle, setConceptTitle] = useState({ it: "Il nostro concept", en: "Our Concept" });
+  const [conceptBody, setConceptBody] = useState({
+    it: "Camera con Vista è riconosciuto come uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti, l'innovazione nelle tecniche e la passione per l'ospitalità.",
+    en: "Camera con Vista is recognized as one of the most renowned cocktail bars in Bologna. Our philosophy is based on the quality of ingredients, innovation in techniques, and passion for hospitality.",
+  });
+
+  const handleTextSave = (field: string, data: { textIt: string; textEn: string }) => {
+    switch (field) {
+      case "heroTitle":
+        setHeroTitle({ it: data.textIt, en: data.textEn });
+        break;
+      case "heroSubtitle":
+        setHeroSubtitle({ it: data.textIt, en: data.textEn });
+        break;
+      case "conceptTitle":
+        setConceptTitle({ it: data.textIt, en: data.textEn });
+        break;
+      case "conceptBody":
+        setConceptBody({ it: data.textIt, en: data.textEn });
+        break;
+    }
+    toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
+  };
+
+  const handleHeroImageSave = (data: typeof heroImage) => {
+    setHeroImage(data);
+    toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
+  };
+
+  const displayZoom = deviceView === "desktop" ? heroImage.zoomDesktop : heroImage.zoomMobile;
+  const displayOffsetX = deviceView === "desktop" ? heroImage.offsetXDesktop : heroImage.offsetXMobile;
+  const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
   return (
     <PublicLayout>
       <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
+        <EditableImage
+          src={heroImage.src}
+          zoomDesktop={heroImage.zoomDesktop}
+          zoomMobile={heroImage.zoomMobile}
+          offsetXDesktop={heroImage.offsetXDesktop}
+          offsetYDesktop={heroImage.offsetYDesktop}
+          offsetXMobile={heroImage.offsetXMobile}
+          offsetYMobile={heroImage.offsetYMobile}
+          deviceView={deviceView}
+          containerClassName="absolute inset-0"
+          className="w-full h-full object-cover"
+          onSave={handleHeroImageSave}
+        />
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(30,25,20,0.5), rgba(30,25,20,0.7)), url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
-          }}
+          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
         />
         <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <h1 className="font-display text-4xl md:text-5xl lg:text-7xl mb-4 drop-shadow-lg" data-testid="text-hero-title">
-            Camera con Vista
-          </h1>
-          <p className="font-serif text-xl md:text-2xl lg:text-3xl italic mb-8 drop-shadow-md max-w-2xl mx-auto" data-testid="text-hero-subtitle">
-            {t(
-              "Ristorante & Cocktail Bar",
-              "Restaurant & Cocktail Bar"
-            )}
-          </p>
+          <EditableText
+            textIt={heroTitle.it}
+            textEn={heroTitle.en}
+            fontSizeDesktop={72}
+            fontSizeMobile={40}
+            as="h1"
+            className="font-display text-4xl md:text-5xl lg:text-7xl mb-4 drop-shadow-lg"
+            onSave={(data) => handleTextSave("heroTitle", data)}
+          />
+          <EditableText
+            textIt={heroSubtitle.it}
+            textEn={heroSubtitle.en}
+            fontSizeDesktop={28}
+            fontSizeMobile={20}
+            as="p"
+            className="font-serif text-xl md:text-2xl lg:text-3xl italic mb-8 drop-shadow-md max-w-2xl mx-auto"
+            onSave={(data) => handleTextSave("heroSubtitle", data)}
+          />
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/menu">
               <Button size="lg" className="bg-white/10 backdrop-blur border border-white/20 text-white hover:bg-white/20" data-testid="button-cta-menu">
@@ -45,15 +112,25 @@ export default function Home() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4">
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-concept-title">
-              {t("Il nostro concept", "Our Concept")}
-            </h2>
-            <p className="text-muted-foreground leading-relaxed" data-testid="text-concept-body">
-              {t(
-                "Camera con Vista è riconosciuto come uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti, l'innovazione nelle tecniche e la passione per l'ospitalità.",
-                "Camera con Vista is recognized as one of the most renowned cocktail bars in Bologna. Our philosophy is based on the quality of ingredients, innovation in techniques, and passion for hospitality."
-              )}
-            </p>
+            <EditableText
+              textIt={conceptTitle.it}
+              textEn={conceptTitle.en}
+              fontSizeDesktop={36}
+              fontSizeMobile={28}
+              as="h2"
+              className="font-display text-3xl md:text-4xl mb-4"
+              onSave={(data) => handleTextSave("conceptTitle", data)}
+            />
+            <EditableText
+              textIt={conceptBody.it}
+              textEn={conceptBody.en}
+              fontSizeDesktop={16}
+              fontSizeMobile={14}
+              as="p"
+              className="text-muted-foreground leading-relaxed"
+              multiline
+              onSave={(data) => handleTextSave("conceptBody", data)}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">

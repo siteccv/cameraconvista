@@ -4,6 +4,8 @@ import { apiRequest } from "@/lib/queryClient";
 interface AdminContextValue {
   adminPreview: boolean;
   setAdminPreview: (value: boolean) => void;
+  deviceView: "desktop" | "mobile";
+  setDeviceView: (value: "desktop" | "mobile") => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
   logout: () => Promise<void>;
@@ -14,6 +16,7 @@ const AdminContext = createContext<AdminContextValue | null>(null);
 
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [adminPreview, setAdminPreview] = useState(false);
+  const [deviceView, setDeviceView] = useState<"desktop" | "mobile">("desktop");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkSession = async (): Promise<boolean> => {
@@ -42,7 +45,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdminContext.Provider
-      value={{ adminPreview, setAdminPreview, isAuthenticated, setIsAuthenticated, logout, checkSession }}
+      value={{ adminPreview, setAdminPreview, deviceView, setDeviceView, isAuthenticated, setIsAuthenticated, logout, checkSession }}
     >
       {children}
     </AdminContext.Provider>
