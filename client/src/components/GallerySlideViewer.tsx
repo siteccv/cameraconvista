@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { Gallery, GalleryImage } from "@shared/schema";
@@ -20,9 +21,8 @@ export function GallerySlideViewer({
   images,
   initialIndex = 0,
 }: GallerySlideViewerProps) {
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
@@ -80,10 +80,14 @@ export function GallerySlideViewer({
       <DialogContent 
         className="max-w-none w-screen h-screen p-0 bg-black border-none [&>button]:hidden"
         data-testid="gallery-slide-viewer"
+        aria-describedby={undefined}
       >
+        <VisuallyHidden>
+          <DialogTitle>{language === "it" ? gallery.titleIt : gallery.titleEn}</DialogTitle>
+        </VisuallyHidden>
+        
         <div 
-          ref={containerRef}
-          className="relative w-full h-full flex items-center justify-center"
+          className="relative w-full h-full flex flex-col items-center justify-center"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -98,8 +102,8 @@ export function GallerySlideViewer({
             <X className="h-6 w-6" />
           </Button>
 
-          <div className="absolute top-4 left-4 z-50 text-white">
-            <h2 className="font-display text-xl">
+          <div className="text-center text-white mb-4 z-50">
+            <h2 className="font-display text-2xl md:text-3xl">
               {language === "it" ? gallery.titleIt : gallery.titleEn}
             </h2>
             <p className="text-sm text-white/70 mt-1">
@@ -107,34 +111,26 @@ export function GallerySlideViewer({
             </p>
           </div>
 
-          {currentIndex > 0 && (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute left-4 z-50 text-white hover:bg-white/20 hidden md:flex"
-              onClick={goToPrevious}
-              data-testid="button-previous-slide"
-            >
-              <ChevronLeft className="h-8 w-8" />
-            </Button>
-          )}
+          <div className="relative flex items-center justify-center w-full max-w-4xl px-4">
+            {currentIndex > 0 && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute left-2 md:left-4 z-50 text-white hover:bg-white/20 h-12 w-12 hidden md:flex"
+                onClick={goToPrevious}
+                data-testid="button-previous-slide"
+              >
+                <ChevronLeft className="h-8 w-8" />
+              </Button>
+            )}
 
-          {currentIndex < sortedImages.length - 1 && (
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-4 z-50 text-white hover:bg-white/20 hidden md:flex"
-              onClick={goToNext}
-              data-testid="button-next-slide"
-            >
-              <ChevronRight className="h-8 w-8" />
-            </Button>
-          )}
-
-          <div className="relative h-full w-full flex items-center justify-center px-4 md:px-16">
             <div 
-              className="relative max-h-[90vh] aspect-[9/16] overflow-hidden rounded-lg"
-              style={{ maxWidth: "min(90vw, 450px)" }}
+              className="relative aspect-[9/16] overflow-hidden rounded-lg mx-auto"
+              style={{ 
+                maxHeight: "calc(100vh - 180px)", 
+                maxWidth: "min(85vw, 400px)",
+                width: "100%"
+              }}
             >
               <img
                 src={currentImage.imageUrl}
@@ -147,9 +143,21 @@ export function GallerySlideViewer({
                 data-testid={`slide-image-${currentIndex}`}
               />
             </div>
+
+            {currentIndex < sortedImages.length - 1 && (
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute right-2 md:right-4 z-50 text-white hover:bg-white/20 h-12 w-12 hidden md:flex"
+                onClick={goToNext}
+                data-testid="button-next-slide"
+              >
+                <ChevronRight className="h-8 w-8" />
+              </Button>
+            )}
           </div>
 
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-50">
+          <div className="flex justify-center gap-2 mt-6 z-50">
             {sortedImages.map((_, index) => (
               <button
                 key={index}
