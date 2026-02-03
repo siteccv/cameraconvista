@@ -125,7 +125,7 @@ function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
                     data-testid="input-gallery-title-it"
                   />
                   <TranslateButton
-                    textToTranslate={titleIt}
+                    textIt={titleIt}
                     onTranslated={handleTranslate}
                     context="gallery album title"
                   />
