@@ -45,6 +45,13 @@ Preferred communication style: Simple, everyday language.
 6. **WYSIWYG Editing**: All public pages use `EditableText` and `EditableImage` components for click-to-edit functionality in admin preview mode. Components are located in `client/src/components/admin/`.
 7. **Footer Management**: Footer content is database-driven and editable via Admin → Impostazioni. Settings include about text (IT/EN), contacts, opening hours, social links, quick links, and legal links. Stored as JSON in `site_settings` table under key `footer_settings`.
 8. **Media Categories Management**: Dynamic folder/category system for media library. Categories stored in `media_categories` table with slug, labelIt, labelEn, sortOrder. Admin can create/edit/delete categories via "Gestisci cartelle" button. Uploaded media automatically assigned to selected category filter or first available.
+9. **Events Management**: Complete events system with admin CRUD and public display.
+   - **Admin**: `/admina/events` - Create/edit/delete events with max 10 concurrent events
+   - **Public**: `/eventi` - Events listing with Instagram Story-style poster cards (9:16 aspect ratio)
+   - **Detail**: `/eventi/:id` - Individual event page with poster, description, and booking button
+   - **Fields**: titleIt/En, descriptionIt/En, detailsIt/En, posterUrl with zoom/offset controls
+   - **Visibility**: Two modes - ACTIVE_ONLY (manual control) or UNTIL_DAYS_AFTER (auto-hide after event ends)
+   - **Booking**: Optional integration with configurable URL (default: https://cameraconvista.resos.com/booking)
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
