@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +13,8 @@ import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -24,7 +28,28 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 export default function Contatti() {
   const { t } = useLanguage();
+  const { deviceView } = useAdmin();
   const { toast } = useToast();
+
+  const [heroTitle, setHeroTitle] = useState({
+    it: "Contatti", en: "Contact",
+    fontSizeDesktop: 72, fontSizeMobile: 40
+  });
+  const [heroImage, setHeroImage] = useState({
+    src: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    zoomDesktop: 100, zoomMobile: 100,
+    offsetXDesktop: 0, offsetYDesktop: 0,
+    offsetXMobile: 0, offsetYMobile: 0,
+  });
+  const [sectionTitle, setSectionTitle] = useState({
+    it: "Vieni a trovarci", en: "Come visit us",
+    fontSizeDesktop: 36, fontSizeMobile: 28
+  });
+  const [introText, setIntroText] = useState({
+    it: "Siamo sempre felici di accoglierti. Contattaci per informazioni, prenotazioni o per organizzare il tuo evento privato.",
+    en: "We are always happy to welcome you. Contact us for information, reservations, or to organize your private event.",
+    fontSizeDesktop: 16, fontSizeMobile: 14
+  });
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
@@ -36,6 +61,26 @@ export default function Contatti() {
       message: "",
     },
   });
+
+  const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    switch (field) {
+      case "heroTitle":
+        setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+      case "sectionTitle":
+        setSectionTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+      case "introText":
+        setIntroText({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+    }
+    toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
+  };
+
+  const handleHeroImageSave = (data: typeof heroImage) => {
+    setHeroImage(data);
+    toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
+  };
 
   const onSubmit = async (data: ContactFormData) => {
     toast({
@@ -51,16 +96,33 @@ export default function Contatti() {
   return (
     <PublicLayout>
       <section className="relative h-[40vh] md:h-[50vh] flex items-center justify-center overflow-hidden">
+        <EditableImage
+          src={heroImage.src}
+          zoomDesktop={heroImage.zoomDesktop}
+          zoomMobile={heroImage.zoomMobile}
+          offsetXDesktop={heroImage.offsetXDesktop}
+          offsetYDesktop={heroImage.offsetYDesktop}
+          offsetXMobile={heroImage.offsetXMobile}
+          offsetYMobile={heroImage.offsetYMobile}
+          deviceView={deviceView}
+          containerClassName="absolute inset-0"
+          className="w-full h-full object-cover"
+          onSave={handleHeroImageSave}
+        />
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(30,25,20,0.5), rgba(30,25,20,0.7)), url('https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
-          }}
+          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
         />
         <div className="relative z-10 text-center text-white">
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl drop-shadow-lg" data-testid="text-contact-hero">
-            {t("Contatti", "Contact")}
-          </h1>
+          <EditableText
+            textIt={heroTitle.it}
+            textEn={heroTitle.en}
+            fontSizeDesktop={heroTitle.fontSizeDesktop}
+            fontSizeMobile={heroTitle.fontSizeMobile}
+            as="h1"
+            className="font-display drop-shadow-lg"
+            applyFontSize
+            onSave={(data) => handleTextSave("heroTitle", data)}
+          />
         </div>
       </section>
 
@@ -68,15 +130,27 @@ export default function Contatti() {
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             <div>
-              <h2 className="font-display text-3xl md:text-4xl mb-6" data-testid="text-contact-title">
-                {t("Vieni a trovarci", "Come visit us")}
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                {t(
-                  "Siamo sempre felici di accoglierti. Contattaci per informazioni, prenotazioni o per organizzare il tuo evento privato.",
-                  "We are always happy to welcome you. Contact us for information, reservations, or to organize your private event."
-                )}
-              </p>
+              <EditableText
+                textIt={sectionTitle.it}
+                textEn={sectionTitle.en}
+                fontSizeDesktop={sectionTitle.fontSizeDesktop}
+                fontSizeMobile={sectionTitle.fontSizeMobile}
+                as="h2"
+                className="font-display mb-6"
+                applyFontSize
+                onSave={(data) => handleTextSave("sectionTitle", data)}
+              />
+              <EditableText
+                textIt={introText.it}
+                textEn={introText.en}
+                fontSizeDesktop={introText.fontSizeDesktop}
+                fontSizeMobile={introText.fontSizeMobile}
+                as="p"
+                className="text-muted-foreground mb-8"
+                multiline
+                applyFontSize
+                onSave={(data) => handleTextSave("introText", data)}
+              />
 
               <div className="space-y-6">
                 <div className="flex items-start gap-4">

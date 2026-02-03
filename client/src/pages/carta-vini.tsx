@@ -1,12 +1,35 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Wine as WineIcon } from "lucide-react";
+import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
+import { useToast } from "@/hooks/use-toast";
 import type { Wine } from "@shared/schema";
 
 export default function CartaVini() {
   const { t } = useLanguage();
+  const { deviceView } = useAdmin();
+  const { toast } = useToast();
+
+  const [heroTitle, setHeroTitle] = useState({
+    it: "Carta dei Vini", en: "Wine List",
+    fontSizeDesktop: 72, fontSizeMobile: 40
+  });
+  const [heroImage, setHeroImage] = useState({
+    src: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    zoomDesktop: 100, zoomMobile: 100,
+    offsetXDesktop: 0, offsetYDesktop: 0,
+    offsetXMobile: 0, offsetYMobile: 0,
+  });
+  const [introText, setIntroText] = useState({
+    it: "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
+    en: "A curated selection of Italian and international labels, chosen to accompany every moment of your experience.",
+    fontSizeDesktop: 16, fontSizeMobile: 14
+  });
 
   const { data: wines, isLoading } = useQuery<Wine[]>({
     queryKey: ["/api/wines"],
@@ -20,19 +43,53 @@ export default function CartaVini() {
     return acc;
   }, {} as Record<string, Wine[]>) ?? {};
 
+  const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    switch (field) {
+      case "heroTitle":
+        setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+      case "introText":
+        setIntroText({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+    }
+    toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
+  };
+
+  const handleHeroImageSave = (data: typeof heroImage) => {
+    setHeroImage(data);
+    toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
+  };
+
   return (
     <PublicLayout>
       <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
+        <EditableImage
+          src={heroImage.src}
+          zoomDesktop={heroImage.zoomDesktop}
+          zoomMobile={heroImage.zoomMobile}
+          offsetXDesktop={heroImage.offsetXDesktop}
+          offsetYDesktop={heroImage.offsetYDesktop}
+          offsetXMobile={heroImage.offsetXMobile}
+          offsetYMobile={heroImage.offsetYMobile}
+          deviceView={deviceView}
+          containerClassName="absolute inset-0"
+          className="w-full h-full object-cover"
+          onSave={handleHeroImageSave}
+        />
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(30,25,20,0.5), rgba(30,25,20,0.7)), url('https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
-          }}
+          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
         />
         <div className="relative z-10 text-center text-white">
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl drop-shadow-lg" data-testid="text-wines-hero">
-            {t("Carta dei Vini", "Wine List")}
-          </h1>
+          <EditableText
+            textIt={heroTitle.it}
+            textEn={heroTitle.en}
+            fontSizeDesktop={heroTitle.fontSizeDesktop}
+            fontSizeMobile={heroTitle.fontSizeMobile}
+            as="h1"
+            className="font-display drop-shadow-lg"
+            applyFontSize
+            onSave={(data) => handleTextSave("heroTitle", data)}
+          />
         </div>
       </section>
 
@@ -42,12 +99,17 @@ export default function CartaVini() {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
               <WineIcon className="h-6 w-6" />
             </div>
-            <p className="text-muted-foreground max-w-2xl mx-auto" data-testid="text-wines-intro">
-              {t(
-                "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
-                "A curated selection of Italian and international labels, chosen to accompany every moment of your experience."
-              )}
-            </p>
+            <EditableText
+              textIt={introText.it}
+              textEn={introText.en}
+              fontSizeDesktop={introText.fontSizeDesktop}
+              fontSizeMobile={introText.fontSizeMobile}
+              as="p"
+              className="text-muted-foreground max-w-2xl mx-auto"
+              multiline
+              applyFontSize
+              onSave={(data) => handleTextSave("introText", data)}
+            />
           </div>
 
           {isLoading ? (

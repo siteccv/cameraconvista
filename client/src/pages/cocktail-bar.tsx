@@ -1,12 +1,39 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Martini } from "lucide-react";
+import { EditableText } from "@/components/admin/EditableText";
+import { EditableImage } from "@/components/admin/EditableImage";
+import { useToast } from "@/hooks/use-toast";
 import type { Cocktail } from "@shared/schema";
 
 export default function CocktailBar() {
   const { t } = useLanguage();
+  const { deviceView } = useAdmin();
+  const { toast } = useToast();
+
+  const [heroTitle, setHeroTitle] = useState({
+    it: "Cocktail Bar", en: "Cocktail Bar",
+    fontSizeDesktop: 72, fontSizeMobile: 40
+  });
+  const [heroImage, setHeroImage] = useState({
+    src: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    zoomDesktop: 100, zoomMobile: 100,
+    offsetXDesktop: 0, offsetYDesktop: 0,
+    offsetXMobile: 0, offsetYMobile: 0,
+  });
+  const [sectionTitle, setSectionTitle] = useState({
+    it: "Cocktails", en: "Cocktails",
+    fontSizeDesktop: 36, fontSizeMobile: 28
+  });
+  const [introText, setIntroText] = useState({
+    it: "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
+    en: "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience.",
+    fontSizeDesktop: 16, fontSizeMobile: 14
+  });
 
   const { data: cocktails, isLoading } = useQuery<Cocktail[]>({
     queryKey: ["/api/cocktails"],
@@ -20,19 +47,56 @@ export default function CocktailBar() {
     return acc;
   }, {} as Record<string, Cocktail[]>) ?? {};
 
+  const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    switch (field) {
+      case "heroTitle":
+        setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+      case "sectionTitle":
+        setSectionTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+      case "introText":
+        setIntroText({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
+        break;
+    }
+    toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
+  };
+
+  const handleHeroImageSave = (data: typeof heroImage) => {
+    setHeroImage(data);
+    toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
+  };
+
   return (
     <PublicLayout>
       <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
+        <EditableImage
+          src={heroImage.src}
+          zoomDesktop={heroImage.zoomDesktop}
+          zoomMobile={heroImage.zoomMobile}
+          offsetXDesktop={heroImage.offsetXDesktop}
+          offsetYDesktop={heroImage.offsetYDesktop}
+          offsetXMobile={heroImage.offsetXMobile}
+          offsetYMobile={heroImage.offsetYMobile}
+          deviceView={deviceView}
+          containerClassName="absolute inset-0"
+          className="w-full h-full object-cover"
+          onSave={handleHeroImageSave}
+        />
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: "linear-gradient(to bottom, rgba(30,25,20,0.5), rgba(30,25,20,0.7)), url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')",
-          }}
+          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
         />
         <div className="relative z-10 text-center text-white">
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl drop-shadow-lg" data-testid="text-cocktail-hero">
-            Cocktail Bar
-          </h1>
+          <EditableText
+            textIt={heroTitle.it}
+            textEn={heroTitle.en}
+            fontSizeDesktop={heroTitle.fontSizeDesktop}
+            fontSizeMobile={heroTitle.fontSizeMobile}
+            as="h1"
+            className="font-display drop-shadow-lg"
+            applyFontSize
+            onSave={(data) => handleTextSave("heroTitle", data)}
+          />
         </div>
       </section>
 
@@ -42,15 +106,27 @@ export default function CocktailBar() {
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
               <Martini className="h-6 w-6" />
             </div>
-            <h2 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-cocktails-title">
-              Cocktails
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto" data-testid="text-cocktails-intro">
-              {t(
-                "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
-                "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience."
-              )}
-            </p>
+            <EditableText
+              textIt={sectionTitle.it}
+              textEn={sectionTitle.en}
+              fontSizeDesktop={sectionTitle.fontSizeDesktop}
+              fontSizeMobile={sectionTitle.fontSizeMobile}
+              as="h2"
+              className="font-display mb-4"
+              applyFontSize
+              onSave={(data) => handleTextSave("sectionTitle", data)}
+            />
+            <EditableText
+              textIt={introText.it}
+              textEn={introText.en}
+              fontSizeDesktop={introText.fontSizeDesktop}
+              fontSizeMobile={introText.fontSizeMobile}
+              as="p"
+              className="text-muted-foreground max-w-2xl mx-auto"
+              multiline
+              applyFontSize
+              onSave={(data) => handleTextSave("introText", data)}
+            />
           </div>
 
           {isLoading ? (
