@@ -413,8 +413,8 @@ export class DatabaseStorage implements IStorage {
     }
 
     const seedEvents: InsertEvent[] = [
-      { titleIt: "Jazz Night", titleEn: "Jazz Night", descriptionIt: "Serata di musica jazz dal vivo con aperitivo", descriptionEn: "Live jazz music evening with aperitif", eventDate: new Date("2026-02-14"), isVisible: true, isDraft: false, sortOrder: 1 },
-      { titleIt: "Degustazione Vini Emiliani", titleEn: "Emilian Wine Tasting", descriptionIt: "Scopri i migliori vini della nostra regione", descriptionEn: "Discover the best wines of our region", eventDate: new Date("2026-02-21"), isVisible: true, isDraft: false, sortOrder: 2 },
+      { titleIt: "Jazz Night", titleEn: "Jazz Night", descriptionIt: "Serata di musica jazz dal vivo con aperitivo", descriptionEn: "Live jazz music evening with aperitif", startAt: new Date("2026-02-14T19:00:00"), active: true, sortOrder: 1 },
+      { titleIt: "Degustazione Vini Emiliani", titleEn: "Emilian Wine Tasting", descriptionIt: "Scopri i migliori vini della nostra regione", descriptionEn: "Discover the best wines of our region", startAt: new Date("2026-02-21T18:00:00"), active: true, sortOrder: 2 },
     ];
 
     for (const event of seedEvents) {

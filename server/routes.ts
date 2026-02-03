@@ -183,14 +183,48 @@ export async function registerRoutes(
     }
   });
 
-  // Events (public - filtered for visible and published)
+  // Events (public - filtered for active and visible)
   app.get("/api/events", async (req, res) => {
     try {
       const events = await storage.getEvents();
-      res.json(events.filter(event => event.isVisible && !event.isDraft));
+      const now = new Date();
+      
+      const visibleEvents = events.filter(event => {
+        if (!event.active || !event.posterUrl) return false;
+        
+        if (event.visibilityMode === "ACTIVE_ONLY") {
+          return true;
+        }
+        
+        if (event.visibilityMode === "UNTIL_DAYS_AFTER" && event.startAt && event.visibilityDaysAfter) {
+          const hideAfterDate = new Date(event.startAt);
+          hideAfterDate.setDate(hideAfterDate.getDate() + event.visibilityDaysAfter);
+          return now <= hideAfterDate;
+        }
+        
+        return true;
+      });
+      
+      visibleEvents.sort((a, b) => a.sortOrder - b.sortOrder);
+      res.json(visibleEvents);
     } catch (error) {
       console.error("Error fetching events:", error);
       res.status(500).json({ error: "Failed to fetch events" });
+    }
+  });
+
+  // Single event (public)
+  app.get("/api/events/:id", async (req, res) => {
+    try {
+      const event = await storage.getEvent(parseInt(req.params.id));
+      if (!event || !event.active) {
+        res.status(404).json({ error: "Event not found" });
+        return;
+      }
+      res.json(event);
+    } catch (error) {
+      console.error("Error fetching event:", error);
+      res.status(500).json({ error: "Failed to fetch event" });
     }
   });
 

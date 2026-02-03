@@ -1,0 +1,141 @@
+Sezione Eventi — Riepilogo logico/funcionale (neutro, Replit-ready)
+Scopo
+
+Gestire e mostrare Eventi pubblici in programmazione con aggiornamento automatico dalla sezione admin.
+
+1) Lato utente (pagina Eventi)
+Struttura visiva
+
+Hero/placeholder principale della pagina Eventi: rimane (immutato).
+
+Sotto l’hero:
+
+Lista di cards evento (mobile-first), predisposta per fino a ~6 eventi (ma non hard-coded).
+
+Se non ci sono eventi visibili: mostrare un messaggio “coming soon / nessun evento in programmazione” (tono gentile).
+
+Card evento (contenuti)
+
+Ogni card mostra:
+
+Locandina (1 sola, verticale tipo stories) obbligatoria
+
+angoli arrotondati
+
+Titolo
+
+Descrizione
+
+Pulsante “Prenota” opzionale (solo se abilitato per quell’evento)
+
+Prenota
+
+Link esterno fisso: https://cameraconvista.resos.com/booking
+
+Il pulsante appare solo se l’evento ha booking_enabled = true
+
+2) Lato admin (gestione eventi)
+UI generale
+
+Lista eventi (card/tabella) con azioni:
+
+Crea nuovo evento
+
+Modifica (via modale)
+
+Elimina
+
+Toggle Attivo (pubblicazione logica)
+
+Modale evento (campi)
+
+Titolo IT/EN
+
+Descrizione IT/EN
+
+Locandina (1 sola) — necessaria per rendere pubblicabile l’evento
+
+Data + Ora (richieste in UI) → salvate come un unico start_at timestamp
+
+Visibilità:
+
+ACTIVE_ONLY (visibile finché attivo)
+
+UNTIL_DAYS_AFTER + N giorni (1–40) “nascondi dopo N giorni dall’evento”
+
+Toggle:
+
+active (Attivo)
+
+booking_enabled (Mostra Prenota)
+
+Validazioni chiave (admin)
+
+Se active = true e locandina mancante → bloccare pubblicazione (messaggio chiaro).
+
+Se visibility_mode = UNTIL_DAYS_AFTER → visibility_days_after obbligatorio (1–40).
+
+Se data/ora mancanti → consentire salvataggio, e lato visibilità usare fallback “visibile finché attivo”.
+
+3) Backend (logica e funzioni)
+Modello evento (minimo)
+
+Contenuti: title_it, title_en, desc_it, desc_en
+
+Media: poster (1 locandina verticale; campo non vuoto per pubblicazione)
+
+Stato: active, booking_enabled
+
+Ordinamento: order
+
+Tempo:
+
+start_at (timestamp, nullable)
+
+visibility_mode = ACTIVE_ONLY | UNTIL_DAYS_AFTER
+
+visibility_days_after (int 1–40, nullable)
+
+Funzioni/operazioni core
+
+CRUD eventi:
+
+listEvents() (admin: tutti)
+
+getEvent(id)
+
+createEvent(payload)
+
+updateEvent(id, payload)
+
+deleteEvent(id)
+
+Query pubblica:
+
+listVisibleEvents(now) → restituisce solo eventi visibili ordinati
+
+Regola canonica di visibilità (unica)
+
+Un evento è visibile nella pagina utente se:
+
+active = true
+
+locandina presente
+
+visibility_mode:
+
+ACTIVE_ONLY → visibile
+
+UNTIL_DAYS_AFTER:
+
+se start_at è null → fallback: visibile (finché attivo)
+
+se start_at esiste → visibile finché now <= start_at + visibility_days_after giorni
+
+Ordinamento
+
+Lista pubblica ordinata per order (stabile e controllabile da admin).
+
+4) Confini (importante)
+
+Questa sezione riguarda solo Eventi pubblici “in programmazione”.

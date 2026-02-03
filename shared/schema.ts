@@ -213,18 +213,28 @@ export const updateMediaSchema = z.object({
 export type UpdateMedia = z.infer<typeof updateMediaSchema>;
 
 // ============================================================================
-// EVENTS (Restaurant events)
+// EVENTS (Public events with admin management)
 // ============================================================================
+export const visibilityModeEnum = ["ACTIVE_ONLY", "UNTIL_DAYS_AFTER"] as const;
+
 export const events = pgTable("events", {
   id: serial("id").primaryKey(),
   titleIt: text("title_it").notNull(),
   titleEn: text("title_en").notNull(),
   descriptionIt: text("description_it"),
   descriptionEn: text("description_en"),
-  imageUrl: text("image_url"),
-  eventDate: timestamp("event_date"),
-  isVisible: boolean("is_visible").notNull().default(true),
-  isDraft: boolean("is_draft").notNull().default(true),
+  detailsIt: text("details_it"),
+  detailsEn: text("details_en"),
+  posterUrl: text("poster_url"),
+  posterZoom: integer("poster_zoom").default(100),
+  posterOffsetX: integer("poster_offset_x").default(0),
+  posterOffsetY: integer("poster_offset_y").default(0),
+  startAt: timestamp("start_at"),
+  active: boolean("active").notNull().default(false),
+  bookingEnabled: boolean("booking_enabled").notNull().default(false),
+  bookingUrl: text("booking_url").default("https://cameraconvista.resos.com/booking"),
+  visibilityMode: text("visibility_mode").notNull().default("ACTIVE_ONLY"),
+  visibilityDaysAfter: integer("visibility_days_after"),
   sortOrder: integer("sort_order").notNull().default(0),
   createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
   updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
