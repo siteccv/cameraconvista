@@ -275,6 +275,7 @@ export const wines = pgTable("wines", {
   region: text("region"),
   year: text("year"),
   price: text("price"),
+  priceGlass: text("price_glass"),
   descriptionIt: text("description_it"),
   descriptionEn: text("description_en"),
   isAvailable: boolean("is_available").notNull().default(true),

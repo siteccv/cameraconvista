@@ -35,6 +35,15 @@ export default function CartaVini() {
     queryKey: ["/api/wines"],
   });
 
+  const CATEGORY_ORDER = [
+    "Bollicine Italiane",
+    "Bollicine Francesi", 
+    "Bianchi",
+    "Rossi",
+    "Rosati",
+    "Vini Dolci",
+  ];
+
   const categorizedWines = wines?.reduce((acc, wine) => {
     if (!acc[wine.category]) {
       acc[wine.category] = [];
@@ -42,6 +51,8 @@ export default function CartaVini() {
     acc[wine.category].push(wine);
     return acc;
   }, {} as Record<string, Wine[]>) ?? {};
+
+  const orderedCategories = CATEGORY_ORDER.filter(cat => categorizedWines[cat]?.length > 0);
 
   const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     switch (field) {
@@ -125,7 +136,7 @@ export default function CartaVini() {
                 </div>
               ))}
             </div>
-          ) : Object.keys(categorizedWines).length === 0 ? (
+          ) : orderedCategories.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground" data-testid="text-wines-empty">
                 {t("La carta dei vini sarà disponibile a breve.", "The wine list will be available soon.")}
@@ -133,13 +144,16 @@ export default function CartaVini() {
             </div>
           ) : (
             <div className="space-y-16">
-              {Object.entries(categorizedWines).map(([category, wines]) => (
+              {orderedCategories.map((category) => (
                 <div key={category}>
-                  <h2 className="font-display text-2xl md:text-3xl text-center mb-8" data-testid={`text-wine-category-${category}`}>
-                    {category}
-                  </h2>
-                  <div className="space-y-6">
-                    {wines.map((wine) => (
+                  <div className="flex items-center justify-center gap-3 mb-8">
+                    <WineIcon className="h-5 w-5 text-primary" />
+                    <h2 className="font-display text-2xl md:text-3xl text-foreground" data-testid={`text-wine-category-${category}`}>
+                      {category}
+                    </h2>
+                  </div>
+                  <div className="space-y-4">
+                    {categorizedWines[category].map((wine) => (
                       <WineCard key={wine.id} wine={wine} />
                     ))}
                   </div>
@@ -155,26 +169,36 @@ export default function CartaVini() {
 
 function WineCard({ wine }: { wine: Wine }) {
   const { t } = useLanguage();
+  
+  const hasGlassPrice = wine.priceGlass && wine.priceGlass !== "";
+  const hasBottlePrice = wine.price && wine.price !== "";
 
   return (
-    <div className="pb-4 border-b border-border last:border-0" data-testid={`wine-item-${wine.id}`}>
+    <div className="pb-4 border-b border-border/50 last:border-0" data-testid={`wine-item-${wine.id}`}>
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
-          <h3 className="font-medium text-lg">{t(wine.nameIt, wine.nameEn)}</h3>
-          <div className="flex flex-wrap gap-2 text-sm text-muted-foreground mt-1">
-            {wine.region && <span>{wine.region}</span>}
-            {wine.region && wine.year && <span>•</span>}
-            {wine.year && <span>{wine.year}</span>}
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h3 className="font-semibold text-foreground uppercase tracking-wide">
+              {t(wine.nameIt, wine.nameEn)}
+            </h3>
+            {wine.year && (
+              <span className="text-sm text-muted-foreground">{wine.year}</span>
+            )}
           </div>
           {(wine.descriptionIt || wine.descriptionEn) && (
-            <p className="text-sm text-muted-foreground mt-2">
+            <p className="text-sm text-muted-foreground mt-0.5">
               {t(wine.descriptionIt, wine.descriptionEn)}
             </p>
           )}
         </div>
-        {wine.price && (
-          <span className="text-primary font-medium shrink-0">{wine.price}</span>
-        )}
+        <div className="flex items-center gap-3 shrink-0">
+          {hasGlassPrice && (
+            <span className="text-primary font-medium">€{wine.priceGlass}</span>
+          )}
+          {hasBottlePrice && (
+            <span className="text-primary font-medium">€{wine.price}</span>
+          )}
+        </div>
       </div>
     </div>
   );
