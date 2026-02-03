@@ -1,0 +1,46 @@
+Replit Agent — next step (no backup, no key rotation)
+
+Context
+- Supabase project already created.
+- Project URL: https://pjrdnfbfpogvztfjuxya.supabase.co
+- I will paste the keys ONLY into Replit Secrets (never in code). Do not print keys in chat/output.
+
+Goal
+1) Make sure Supabase keys are wired safely (anon can be used client-side, service_role must be server-only).
+2) Generate a single Markdown file with ALL Supabase SQL Editor prompts needed to create the complete DB (schema + RLS + Storage + functions/triggers if needed) for THIS project, in priority order, based on the current codebase + the file STATO_ATTUALE_PROGETTO.md.
+3) Save the file to: report/SETUP_SUPABASE.md
+
+Hard constraints
+- Keep code clean: no dead code, no duplicate logic/files, no debug logs left behind.
+- Respect governance/modularity: if a file grows too much, split into modules without changing UX/layout.
+- Security: service_role key must NEVER be exposed to the browser, never in VITE_/NEXT_PUBLIC_ vars, never embedded in client bundle.
+
+What to do (analysis + implementation)
+A) Quick audit (must be done before changing anything)
+- Scan repo for any existing Supabase URL/keys usage (search: supabase.co, SUPABASE_, anon, service_role, VITE_, NEXT_PUBLIC_).
+- Identify where data is currently stored/loaded (content sections, pages, admin edits, media library, footer/settings, SEO/metadata, Google Sheets sync outputs).
+
+B) Safe Supabase wiring (minimal changes)
+- Define a single server-side Supabase client using service_role (for privileged writes, sync jobs, admin-only operations).
+- Define a single client-side Supabase client using anon (read-only public data, or authenticated user-scoped reads depending on RLS).
+- Ensure any write endpoints used by the app go through server routes (never direct service_role from client).
+- Add a small “config guard” that throws early if service_role is accidentally used in client code.
+
+C) Produce the SQL plan file (main deliverable)
+Create report/SETUP_SUPABASE.md containing:
+1) “How to create the Supabase project” checklist (short, concrete): region choice, where to copy Project URL + anon key, where to store them in Replit Secrets, which values the app expects (ENV var names you recommend).
+2) SQL Editor scripts in strict priority order, each in its own fenced SQL block and with a one-line purpose:
+   - Extensions (uuid, pgcrypto, etc if needed)
+   - Core tables for all synchronized content (based on code + STATO_ATTUALE_PROGETTO.md): pages/sections/blocks, translations IT/EN, media library metadata (folders/tags/alt), footer/settings, SEO/metadata, events if present, any sync snapshots for Google Sheets outputs, etc.
+   - Indexes + constraints
+   - RLS enablement + policies (public read where needed, admin write gated properly)
+   - Storage buckets + storage policies (public vs private, admin upload/delete)
+   - Functions/RPC + triggers only if clearly needed (e.g., publish/draft, sync helpers, ordering stability)
+   - Minimal seed data only if required for boot (e.g., default settings row)
+
+D) Output requirement
+- At the end, include a short “Validation checklist” (how I can verify everything works: what pages to open, what should load, what admin edit should persist).
+- Then stop. Do not attempt to run the SQL yourself.
+
+Note
+- Use STATO_ATTUALE_PROGETTO.md as the source of truth for what must exist in Supabase, plus what you infer from the current codebase structure/endpoints. If something is ambiguous, make the safest assumption and document it explicitly inside SETUP_SUPABASE.md.
