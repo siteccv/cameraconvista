@@ -51,6 +51,7 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
       >
         <div 
           className="absolute top-[14px] left-[14px] right-[14px] bottom-[14px] bg-background rounded-[48px] overflow-hidden"
+          style={{ isolation: "isolate" }}
         >
           <div 
             className="absolute top-0 left-1/2 -translate-x-1/2 w-[126px] h-[37px] bg-black rounded-b-[24px] z-50"
@@ -62,7 +63,13 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
             <div className="absolute top-[13px] right-[20px] w-[6px] h-[6px] rounded-full bg-[#0a84ff]" />
           </div>
 
-          <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+          <div 
+            className="w-full h-full overflow-y-auto overflow-x-hidden rounded-[48px]"
+            style={{ 
+              clipPath: "inset(0 round 48px)",
+              WebkitClipPath: "inset(0 round 48px)"
+            }}
+          >
             {children}
           </div>
 
