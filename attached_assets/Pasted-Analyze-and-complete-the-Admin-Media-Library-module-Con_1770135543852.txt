@@ -1,0 +1,55 @@
+Analyze and complete the Admin “Media Library” module.
+
+Context (current state)
+- In the current project, /admina/media is a non-functional shell: UI placeholder only, actions like “Carica File” are disabled and no real upload / listing works. This is confirmed in the latest diagnostic report. :contentReference[oaicite:1]{index=1}
+- We already have the visual direction for the Media Library (grid of images, category/folder pills, search, and a “Dettagli immagine” modal with IT/EN alt text, folder, tag, delete, save). Implement something equivalent or better (more webapp-friendly), but keep the site elegant and consistent with existing design tokens.
+
+Goal (final outcome)
+Deliver a fully functional Media Library in admin that:
+1) Lists uploaded media in a responsive grid (admin web), with:
+   - Search (by filename / alt text / tag)
+   - Folder/category filtering (e.g., “Tutte le cartelle”, “Varie”, “interni”, “food”, “drink”, “eventi”)
+   - Optional tag filtering (if tags exist)
+2) Supports real actions:
+   - Upload image/file (from admin UI) and store it in the configured storage (preferred: Supabase Storage if already configured; otherwise keep current storage architecture but make it production-grade).
+   - Create folder/category (if folders are an entity) OR manage folder list safely (if folders are predefined, clarify and enforce).
+   - Open “Image Details” modal from a grid item:
+     - Preview image
+     - Edit alt text IT and alt text EN
+     - Set folder/category
+     - Set tag (single or multiple — choose what fits the existing DB model)
+     - Save details (persist in DB)
+     - Delete (remove both DB record and stored object, with safe confirmation)
+3) Produces clean, modular code, no dead code, no duplicate logic/files, no leftover debug logs, no broken UI states.
+
+Constraints / Governance
+- Keep codebase modular and scalable.
+- Avoid files growing too large; split into components/services where appropriate.
+- No parallel/duplicated implementations: converge to one canonical Media Library.
+- No “fluff” text in outputs. No generic intro lines.
+- Must not break existing admin auth (/admina) and must respect IT/EN language handling pattern used in the app.
+
+What I want from you first (analysis/diagnosis before finalizing)
+A) Confirm what backend primitives already exist and what is missing:
+   - DB tables/fields used for media (e.g., media table columns: id, url/path, folder, tags, altIt, altEn, createdAt, size, mime, etc.)
+   - Any existing API routes for media (list/upload/update/delete)
+   - Any existing storage integration (Supabase Storage vs local/app storage)
+B) Produce a short “Media Library Implementation Plan” that lists:
+   - Data model decisions (folders + tags)
+   - Storage strategy (how files are stored and referenced)
+   - API endpoints needed (exact routes and payloads)
+   - UI states (loading/empty/error)
+   - How this will later integrate with page placeholders as an image picker (do not implement picker now unless it is already partially present; just ensure the library’s API and data shape are ready)
+C) Then implement the missing parts to make Media Library fully functional.
+
+Definition of done (verification)
+- /admina/media shows real uploaded items (not mock).
+- Upload works end-to-end: file appears in grid after upload.
+- Editing details persists and reload shows updated IT/EN alt texts, folder, tags.
+- Delete removes the item from grid and underlying storage.
+- Build passes and no console errors.
+
+Deliverables
+- A concise report of what you found (A) and what you implemented (C).
+- List of files changed.
+- If you introduce/modify DB schema, provide the exact SQL migration snippet compatible with Supabase SQL editor.

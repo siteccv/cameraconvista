@@ -700,6 +700,22 @@ export async function registerRoutes(
     }
   });
 
+  app.put("/api/admin/media/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { altIt, altEn, category, tags } = req.body;
+      const updated = await storage.updateMedia(id, { altIt, altEn, category, tags });
+      if (!updated) {
+        res.status(404).json({ error: "Media not found" });
+        return;
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating media:", error);
+      res.status(500).json({ error: "Failed to update media" });
+    }
+  });
+
   app.delete("/api/admin/media/:id", requireAuth, async (req, res) => {
     try {
       const deleted = await storage.deleteMedia(parseInt(req.params.id));

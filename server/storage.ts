@@ -68,6 +68,7 @@ export interface IStorage {
   getMedia(): Promise<Media[]>;
   getMediaItem(id: number): Promise<Media | undefined>;
   createMedia(mediaItem: InsertMedia): Promise<Media>;
+  updateMedia(id: number, mediaItem: Partial<InsertMedia>): Promise<Media | undefined>;
   deleteMedia(id: number): Promise<boolean>;
   
   getSiteSettings(): Promise<SiteSettings[]>;
@@ -258,6 +259,11 @@ export class DatabaseStorage implements IStorage {
 
   async createMedia(mediaItem: InsertMedia): Promise<Media> {
     const result = await db.insert(media).values(mediaItem).returning();
+    return result[0];
+  }
+
+  async updateMedia(id: number, mediaItem: Partial<InsertMedia>): Promise<Media | undefined> {
+    const result = await db.update(media).set(mediaItem).where(eq(media.id, id)).returning();
     return result[0];
   }
 
