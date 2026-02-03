@@ -25,6 +25,7 @@
 | **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
 | **Scroll to Top Navigation** | ✅ Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
 | **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI, hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
+| **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
 
 ---
 
@@ -59,6 +60,7 @@
 | Admin Sezioni Pagine | 85% |
 | Admin Eventi | 100% |
 | Admin Media | 95% |
+| Admin Galleria Album | 100% |
 | Click-to-Edit WYSIWYG | 95% |
 | Device Image Controls | 90% |
 | Footer Management | 100% |
@@ -67,7 +69,7 @@
 | Traduzione Automatica | 100% |
 | Admin SEO | 40% |
 
-**Completamento globale stimato: ~92%** rispetto ai requisiti originali completi.
+**Completamento globale stimato: ~94%** rispetto ai requisiti originali completi.
 
 ---
 
@@ -88,7 +90,7 @@
 - `client/src/pages/cocktail-bar.tsx` - Pagina cocktail con dati da DB
 - `client/src/pages/eventi.tsx` - Pagina eventi con card Instagram Story 9:16
 - `client/src/pages/event-detail.tsx` - Dettaglio singolo evento con prenotazione
-- `client/src/pages/galleria.tsx` - Galleria con EditableImage
+- `client/src/pages/galleria.tsx` - Galleria album-based con copertine e GallerySlideViewer
 - `client/src/pages/contatti.tsx` - Contatti con layout responsive
 
 ### Frontend Admin
@@ -98,6 +100,7 @@
 - `client/src/pages/admin/preview.tsx` - Anteprima homepage con IPhoneFrame mobile
 - `client/src/pages/admin/events.tsx` - Gestione eventi (COMPLETO)
 - `client/src/pages/admin/media.tsx` - Media library (COMPLETO)
+- `client/src/pages/admin/gallery.tsx` - Gestione album galleria (COMPLETO)
 - `client/src/pages/admin/seo.tsx` - Gestione SEO
 - `client/src/pages/admin/settings.tsx` - Impostazioni e cambio password
 
@@ -110,6 +113,8 @@
 - `client/src/components/admin/ManageCategoriesModal.tsx` - Gestione categorie media con traduzione automatica
 - `client/src/components/admin/IPhoneFrame.tsx` - Frame iPhone 15 Pro per preview mobile con clipPath
 - `client/src/components/admin/TranslateButton.tsx` - Pulsante traduzione IT→EN riutilizzabile
+- `client/src/components/admin/MediaPickerModal.tsx` - Modale selezione immagini dalla media library
+- `client/src/components/GallerySlideViewer.tsx` - Viewer immagini 9:16 con swipe e navigazione
 
 ### Hooks
 - `client/src/hooks/useTranslation.ts` - Hook per chiamate API traduzione con loading/error states
@@ -165,6 +170,23 @@
 - Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView
 - Integrato IPhoneFrame nella pagina Sezioni Pagine
 - Ora entrambe le pagine admin usano lo stesso sistema di preview mobile
+
+### Galleria Album System (3 Feb 2026 - notte)
+- Implementato sistema galleria basato su album con copertine e titoli centrati
+- Schema DB: tabelle `galleries` e `gallery_images` con supporto bilingue IT/EN
+- API admin e pubbliche per CRUD album e immagini
+- Pagina admin `/admina/gallery` con:
+  - Creazione/modifica/eliminazione album
+  - MediaPickerModal per selezione immagini dalla libreria
+  - Controlli zoom/offset per copertine
+  - Switch visibilità album
+- Componente GallerySlideViewer per visualizzazione pubblica:
+  - Immagini formato Instagram Story (9:16)
+  - Navigazione swipe touch su mobile
+  - Navigazione frecce su desktop
+  - Indicatori dot per posizione corrente
+- Pagina pubblica `/galleria` con griglia album e titoli centrati
+- Test E2E completato con successo
 
 ### Traduzione Automatica IT→EN (3 Feb 2026 - notte)
 - Implementato endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)

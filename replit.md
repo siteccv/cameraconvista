@@ -52,7 +52,12 @@ Preferred communication style: Simple, everyday language.
    - **Fields**: titleIt/En, descriptionIt/En, detailsIt/En, posterUrl with zoom/offset controls
    - **Visibility**: Two modes - ACTIVE_ONLY (manual control) or UNTIL_DAYS_AFTER (auto-hide after event ends)
    - **Booking**: Optional integration with configurable URL (default: https://cameraconvista.resos.com/booking)
-10. **Mobile Responsive System**: Complete mobile-first responsive design.
+10. **Gallery Album System**: Album-based photo gallery with covers and centered title overlays.
+   - **Admin**: `/admina/gallery` - Create/edit/delete albums with MediaPickerModal for image selection
+   - **Public**: `/galleria` - Album grid with covers, clicking opens GallerySlideViewer
+   - **Viewer**: Instagram Story format (9:16), swipe navigation on mobile, arrow keys on desktop
+   - **Fields**: titleIt/En, coverUrl with zoom/offset, gallery_images with individual zoom/offset
+11. **Mobile Responsive System**: Complete mobile-first responsive design.
    - **Admin Preview**: iPhone 15 Pro frame simulation (430x932px) with Dynamic Island
    - **IPhoneFrame Component**: `client/src/components/admin/IPhoneFrame.tsx` - Scalable frame that adapts to smaller viewports
    - **forceMobileLayout**: AdminContext state that forces mobile layout regardless of viewport (used in admin preview)
