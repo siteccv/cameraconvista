@@ -1,18 +1,43 @@
 import { 
   type User, type InsertUser,
+  type Page, type InsertPage,
+  type PageBlock, type InsertPageBlock,
   type MenuItem, type InsertMenuItem,
   type Wine, type InsertWine,
   type Cocktail, type InsertCocktail,
   type Event, type InsertEvent,
   type Media, type InsertMedia,
   type SiteSettings, type InsertSiteSettings,
+  users,
+  pages,
+  pageBlocks,
+  menuItems,
+  wines,
+  cocktails,
+  events,
+  media,
+  siteSettings,
 } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { db } from "./db";
+import { eq, asc } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  
+  getPages(): Promise<Page[]>;
+  getPage(id: number): Promise<Page | undefined>;
+  getPageBySlug(slug: string): Promise<Page | undefined>;
+  createPage(page: InsertPage): Promise<Page>;
+  updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined>;
+  deletePage(id: number): Promise<boolean>;
+  
+  getPageBlocks(pageId: number): Promise<PageBlock[]>;
+  getPageBlock(id: number): Promise<PageBlock | undefined>;
+  createPageBlock(block: InsertPageBlock): Promise<PageBlock>;
+  updatePageBlock(id: number, block: Partial<InsertPageBlock>): Promise<PageBlock | undefined>;
+  deletePageBlock(id: number): Promise<boolean>;
   
   getMenuItems(): Promise<MenuItem[]>;
   getMenuItem(id: number): Promise<MenuItem | undefined>;
@@ -40,268 +65,296 @@ export interface IStorage {
   
   getMedia(): Promise<Media[]>;
   getMediaItem(id: number): Promise<Media | undefined>;
-  createMedia(media: InsertMedia): Promise<Media>;
+  createMedia(mediaItem: InsertMedia): Promise<Media>;
   deleteMedia(id: number): Promise<boolean>;
   
   getSiteSettings(): Promise<SiteSettings[]>;
   getSiteSetting(key: string): Promise<SiteSettings | undefined>;
   upsertSiteSetting(setting: InsertSiteSettings): Promise<SiteSettings>;
+  
+  seedInitialData(): Promise<void>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-  private menuItems: Map<number, MenuItem>;
-  private wines: Map<number, Wine>;
-  private cocktails: Map<number, Cocktail>;
-  private events: Map<number, Event>;
-  private media: Map<number, Media>;
-  private siteSettings: Map<string, SiteSettings>;
-  private nextId: { [key: string]: number };
-
-  constructor() {
-    this.users = new Map();
-    this.menuItems = new Map();
-    this.wines = new Map();
-    this.cocktails = new Map();
-    this.events = new Map();
-    this.media = new Map();
-    this.siteSettings = new Map();
-    this.nextId = { menuItems: 1, wines: 1, cocktails: 1, events: 1, media: 1, siteSettings: 1 };
-  }
-
+export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    const result = await db.select().from(users).where(eq(users.id, id));
+    return result[0];
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const result = await db.select().from(users).where(eq(users.username, username));
+    return result[0];
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const now = new Date();
-    const user: User = { 
-      ...insertUser, 
-      id, 
-      role: "admin",
-      createdAt: now 
-    };
-    this.users.set(id, user);
-    return user;
+  async createUser(user: InsertUser): Promise<User> {
+    const result = await db.insert(users).values(user).returning();
+    return result[0];
+  }
+
+  async getPages(): Promise<Page[]> {
+    return db.select().from(pages).orderBy(asc(pages.sortOrder));
+  }
+
+  async getPage(id: number): Promise<Page | undefined> {
+    const result = await db.select().from(pages).where(eq(pages.id, id));
+    return result[0];
+  }
+
+  async getPageBySlug(slug: string): Promise<Page | undefined> {
+    const result = await db.select().from(pages).where(eq(pages.slug, slug));
+    return result[0];
+  }
+
+  async createPage(page: InsertPage): Promise<Page> {
+    const result = await db.insert(pages).values(page).returning();
+    return result[0];
+  }
+
+  async updatePage(id: number, page: Partial<InsertPage>): Promise<Page | undefined> {
+    const result = await db.update(pages).set({ ...page, updatedAt: new Date() }).where(eq(pages.id, id)).returning();
+    return result[0];
+  }
+
+  async deletePage(id: number): Promise<boolean> {
+    const result = await db.delete(pages).where(eq(pages.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getPageBlocks(pageId: number): Promise<PageBlock[]> {
+    return db.select().from(pageBlocks).where(eq(pageBlocks.pageId, pageId)).orderBy(asc(pageBlocks.sortOrder));
+  }
+
+  async getPageBlock(id: number): Promise<PageBlock | undefined> {
+    const result = await db.select().from(pageBlocks).where(eq(pageBlocks.id, id));
+    return result[0];
+  }
+
+  async createPageBlock(block: InsertPageBlock): Promise<PageBlock> {
+    const result = await db.insert(pageBlocks).values(block).returning();
+    return result[0];
+  }
+
+  async updatePageBlock(id: number, block: Partial<InsertPageBlock>): Promise<PageBlock | undefined> {
+    const result = await db.update(pageBlocks).set({ ...block, updatedAt: new Date() }).where(eq(pageBlocks.id, id)).returning();
+    return result[0];
+  }
+
+  async deletePageBlock(id: number): Promise<boolean> {
+    const result = await db.delete(pageBlocks).where(eq(pageBlocks.id, id)).returning();
+    return result.length > 0;
   }
 
   async getMenuItems(): Promise<MenuItem[]> {
-    return Array.from(this.menuItems.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+    return db.select().from(menuItems).orderBy(asc(menuItems.sortOrder));
   }
 
   async getMenuItem(id: number): Promise<MenuItem | undefined> {
-    return this.menuItems.get(id);
+    const result = await db.select().from(menuItems).where(eq(menuItems.id, id));
+    return result[0];
   }
 
   async createMenuItem(item: InsertMenuItem): Promise<MenuItem> {
-    const id = this.nextId.menuItems++;
-    const now = new Date();
-    const menuItem: MenuItem = { 
-      ...item, 
-      id, 
-      isAvailable: item.isAvailable ?? true,
-      sortOrder: item.sortOrder ?? 0,
-      sheetRowIndex: item.sheetRowIndex ?? null,
-      descriptionIt: item.descriptionIt ?? null,
-      descriptionEn: item.descriptionEn ?? null,
-      price: item.price ?? null,
-      createdAt: now,
-      updatedAt: now 
-    };
-    this.menuItems.set(id, menuItem);
-    return menuItem;
+    const result = await db.insert(menuItems).values(item).returning();
+    return result[0];
   }
 
   async updateMenuItem(id: number, item: Partial<InsertMenuItem>): Promise<MenuItem | undefined> {
-    const existing = this.menuItems.get(id);
-    if (!existing) return undefined;
-    const updated: MenuItem = { ...existing, ...item, updatedAt: new Date() };
-    this.menuItems.set(id, updated);
-    return updated;
+    const result = await db.update(menuItems).set({ ...item, updatedAt: new Date() }).where(eq(menuItems.id, id)).returning();
+    return result[0];
   }
 
   async deleteMenuItem(id: number): Promise<boolean> {
-    return this.menuItems.delete(id);
+    const result = await db.delete(menuItems).where(eq(menuItems.id, id)).returning();
+    return result.length > 0;
   }
 
   async getWines(): Promise<Wine[]> {
-    return Array.from(this.wines.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+    return db.select().from(wines).orderBy(asc(wines.sortOrder));
   }
 
   async getWine(id: number): Promise<Wine | undefined> {
-    return this.wines.get(id);
+    const result = await db.select().from(wines).where(eq(wines.id, id));
+    return result[0];
   }
 
   async createWine(wine: InsertWine): Promise<Wine> {
-    const id = this.nextId.wines++;
-    const now = new Date();
-    const wineItem: Wine = { 
-      ...wine, 
-      id,
-      isAvailable: wine.isAvailable ?? true,
-      sortOrder: wine.sortOrder ?? 0,
-      sheetRowIndex: wine.sheetRowIndex ?? null,
-      region: wine.region ?? null,
-      year: wine.year ?? null,
-      price: wine.price ?? null,
-      descriptionIt: wine.descriptionIt ?? null,
-      descriptionEn: wine.descriptionEn ?? null,
-      createdAt: now,
-      updatedAt: now 
-    };
-    this.wines.set(id, wineItem);
-    return wineItem;
+    const result = await db.insert(wines).values(wine).returning();
+    return result[0];
   }
 
   async updateWine(id: number, wine: Partial<InsertWine>): Promise<Wine | undefined> {
-    const existing = this.wines.get(id);
-    if (!existing) return undefined;
-    const updated: Wine = { ...existing, ...wine, updatedAt: new Date() };
-    this.wines.set(id, updated);
-    return updated;
+    const result = await db.update(wines).set({ ...wine, updatedAt: new Date() }).where(eq(wines.id, id)).returning();
+    return result[0];
   }
 
   async deleteWine(id: number): Promise<boolean> {
-    return this.wines.delete(id);
+    const result = await db.delete(wines).where(eq(wines.id, id)).returning();
+    return result.length > 0;
   }
 
   async getCocktails(): Promise<Cocktail[]> {
-    return Array.from(this.cocktails.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+    return db.select().from(cocktails).orderBy(asc(cocktails.sortOrder));
   }
 
   async getCocktail(id: number): Promise<Cocktail | undefined> {
-    return this.cocktails.get(id);
+    const result = await db.select().from(cocktails).where(eq(cocktails.id, id));
+    return result[0];
   }
 
   async createCocktail(cocktail: InsertCocktail): Promise<Cocktail> {
-    const id = this.nextId.cocktails++;
-    const now = new Date();
-    const cocktailItem: Cocktail = { 
-      ...cocktail, 
-      id,
-      isAvailable: cocktail.isAvailable ?? true,
-      sortOrder: cocktail.sortOrder ?? 0,
-      sheetRowIndex: cocktail.sheetRowIndex ?? null,
-      descriptionIt: cocktail.descriptionIt ?? null,
-      descriptionEn: cocktail.descriptionEn ?? null,
-      price: cocktail.price ?? null,
-      createdAt: now,
-      updatedAt: now 
-    };
-    this.cocktails.set(id, cocktailItem);
-    return cocktailItem;
+    const result = await db.insert(cocktails).values(cocktail).returning();
+    return result[0];
   }
 
   async updateCocktail(id: number, cocktail: Partial<InsertCocktail>): Promise<Cocktail | undefined> {
-    const existing = this.cocktails.get(id);
-    if (!existing) return undefined;
-    const updated: Cocktail = { ...existing, ...cocktail, updatedAt: new Date() };
-    this.cocktails.set(id, updated);
-    return updated;
+    const result = await db.update(cocktails).set({ ...cocktail, updatedAt: new Date() }).where(eq(cocktails.id, id)).returning();
+    return result[0];
   }
 
   async deleteCocktail(id: number): Promise<boolean> {
-    return this.cocktails.delete(id);
+    const result = await db.delete(cocktails).where(eq(cocktails.id, id)).returning();
+    return result.length > 0;
   }
 
   async getEvents(): Promise<Event[]> {
-    return Array.from(this.events.values()).sort((a, b) => a.sortOrder - b.sortOrder);
+    return db.select().from(events).orderBy(asc(events.sortOrder));
   }
 
   async getEvent(id: number): Promise<Event | undefined> {
-    return this.events.get(id);
+    const result = await db.select().from(events).where(eq(events.id, id));
+    return result[0];
   }
 
   async createEvent(event: InsertEvent): Promise<Event> {
-    const id = this.nextId.events++;
-    const now = new Date();
-    const eventItem: Event = { 
-      ...event, 
-      id,
-      isVisible: event.isVisible ?? true,
-      isDraft: event.isDraft ?? true,
-      sortOrder: event.sortOrder ?? 0,
-      descriptionIt: event.descriptionIt ?? null,
-      descriptionEn: event.descriptionEn ?? null,
-      imageUrl: event.imageUrl ?? null,
-      eventDate: event.eventDate ?? null,
-      createdAt: now,
-      updatedAt: now 
-    };
-    this.events.set(id, eventItem);
-    return eventItem;
+    const result = await db.insert(events).values(event).returning();
+    return result[0];
   }
 
   async updateEvent(id: number, event: Partial<InsertEvent>): Promise<Event | undefined> {
-    const existing = this.events.get(id);
-    if (!existing) return undefined;
-    const updated: Event = { ...existing, ...event, updatedAt: new Date() };
-    this.events.set(id, updated);
-    return updated;
+    const result = await db.update(events).set({ ...event, updatedAt: new Date() }).where(eq(events.id, id)).returning();
+    return result[0];
   }
 
   async deleteEvent(id: number): Promise<boolean> {
-    return this.events.delete(id);
+    const result = await db.delete(events).where(eq(events.id, id)).returning();
+    return result.length > 0;
   }
 
   async getMedia(): Promise<Media[]> {
-    return Array.from(this.media.values());
+    return db.select().from(media);
   }
 
   async getMediaItem(id: number): Promise<Media | undefined> {
-    return this.media.get(id);
+    const result = await db.select().from(media).where(eq(media.id, id));
+    return result[0];
   }
 
-  async createMedia(media: InsertMedia): Promise<Media> {
-    const id = this.nextId.media++;
-    const now = new Date();
-    const mediaItem: Media = { 
-      ...media, 
-      id,
-      width: media.width ?? null,
-      height: media.height ?? null,
-      altIt: media.altIt ?? null,
-      altEn: media.altEn ?? null,
-      category: media.category ?? null,
-      tags: media.tags ?? null,
-      createdAt: now 
-    };
-    this.media.set(id, mediaItem);
-    return mediaItem;
+  async createMedia(mediaItem: InsertMedia): Promise<Media> {
+    const result = await db.insert(media).values(mediaItem).returning();
+    return result[0];
   }
 
   async deleteMedia(id: number): Promise<boolean> {
-    return this.media.delete(id);
+    const result = await db.delete(media).where(eq(media.id, id)).returning();
+    return result.length > 0;
   }
 
   async getSiteSettings(): Promise<SiteSettings[]> {
-    return Array.from(this.siteSettings.values());
+    return db.select().from(siteSettings);
   }
 
   async getSiteSetting(key: string): Promise<SiteSettings | undefined> {
-    return this.siteSettings.get(key);
+    const result = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return result[0];
   }
 
   async upsertSiteSetting(setting: InsertSiteSettings): Promise<SiteSettings> {
-    const existing = this.siteSettings.get(setting.key);
-    const now = new Date();
-    const settingItem: SiteSettings = { 
-      id: existing?.id ?? this.nextId.siteSettings++,
-      key: setting.key,
-      valueIt: setting.valueIt ?? null,
-      valueEn: setting.valueEn ?? null,
-      updatedAt: now 
-    };
-    this.siteSettings.set(setting.key, settingItem);
-    return settingItem;
+    const existing = await this.getSiteSetting(setting.key);
+    if (existing) {
+      const result = await db.update(siteSettings)
+        .set({ valueIt: setting.valueIt, valueEn: setting.valueEn, updatedAt: new Date() })
+        .where(eq(siteSettings.key, setting.key))
+        .returning();
+      return result[0];
+    }
+    const result = await db.insert(siteSettings).values(setting).returning();
+    return result[0];
+  }
+
+  async seedInitialData(): Promise<void> {
+    const existingPages = await this.getPages();
+    if (existingPages.length > 0) {
+      return;
+    }
+
+    const seedPages: InsertPage[] = [
+      { slug: "home", titleIt: "Home", titleEn: "Home", isVisible: true, isDraft: false, sortOrder: 0 },
+      { slug: "menu", titleIt: "Menu", titleEn: "Menu", isVisible: true, isDraft: false, sortOrder: 1 },
+      { slug: "carta-vini", titleIt: "Carta dei Vini", titleEn: "Wine List", isVisible: true, isDraft: false, sortOrder: 2 },
+      { slug: "cocktail-bar", titleIt: "Cocktail Bar", titleEn: "Cocktail Bar", isVisible: true, isDraft: false, sortOrder: 3 },
+      { slug: "eventi", titleIt: "Eventi", titleEn: "Events", isVisible: true, isDraft: false, sortOrder: 4 },
+      { slug: "eventi-privati", titleIt: "Eventi Privati", titleEn: "Private Events", isVisible: true, isDraft: false, sortOrder: 5 },
+      { slug: "galleria", titleIt: "Galleria", titleEn: "Gallery", isVisible: true, isDraft: false, sortOrder: 6 },
+      { slug: "contatti", titleIt: "Contatti", titleEn: "Contacts", isVisible: true, isDraft: false, sortOrder: 7 },
+    ];
+
+    for (const page of seedPages) {
+      await this.createPage(page);
+    }
+
+    const seedMenuItems: InsertMenuItem[] = [
+      { category: "Antipasti", nameIt: "Tartare di Manzo", nameEn: "Beef Tartare", descriptionIt: "Con tuorlo d'uovo, capperi e senape", descriptionEn: "With egg yolk, capers and mustard", price: "18", sortOrder: 1 },
+      { category: "Antipasti", nameIt: "Burrata Pugliese", nameEn: "Apulian Burrata", descriptionIt: "Con pomodorini e basilico fresco", descriptionEn: "With cherry tomatoes and fresh basil", price: "16", sortOrder: 2 },
+      { category: "Primi", nameIt: "Tagliatelle al Ragù", nameEn: "Tagliatelle with Ragù", descriptionIt: "Pasta fresca con ragù bolognese tradizionale", descriptionEn: "Fresh pasta with traditional Bolognese ragù", price: "16", sortOrder: 3 },
+      { category: "Primi", nameIt: "Tortellini in Brodo", nameEn: "Tortellini in Broth", descriptionIt: "Tortellini fatti a mano in brodo di cappone", descriptionEn: "Handmade tortellini in capon broth", price: "18", sortOrder: 4 },
+      { category: "Secondi", nameIt: "Filetto di Manzo", nameEn: "Beef Fillet", descriptionIt: "Con riduzione al Sangiovese", descriptionEn: "With Sangiovese reduction", price: "32", sortOrder: 5 },
+      { category: "Secondi", nameIt: "Branzino al Forno", nameEn: "Baked Sea Bass", descriptionIt: "Con patate e olive taggiasche", descriptionEn: "With potatoes and Taggiasca olives", price: "28", sortOrder: 6 },
+      { category: "Dolci", nameIt: "Tiramisù", nameEn: "Tiramisù", descriptionIt: "Ricetta tradizionale della casa", descriptionEn: "Traditional house recipe", price: "10", sortOrder: 7 },
+      { category: "Dolci", nameIt: "Panna Cotta", nameEn: "Panna Cotta", descriptionIt: "Con coulis di frutti di bosco", descriptionEn: "With berry coulis", price: "9", sortOrder: 8 },
+    ];
+
+    for (const item of seedMenuItems) {
+      await this.createMenuItem(item);
+    }
+
+    const seedWines: InsertWine[] = [
+      { category: "Bollicine", nameIt: "Franciacorta Brut", nameEn: "Franciacorta Brut", region: "Lombardia", year: "NV", price: "45", sortOrder: 1 },
+      { category: "Bollicine", nameIt: "Champagne Veuve Clicquot", nameEn: "Champagne Veuve Clicquot", region: "Champagne", year: "NV", price: "85", sortOrder: 2 },
+      { category: "Bianchi", nameIt: "Pignoletto Classico", nameEn: "Pignoletto Classico", region: "Emilia-Romagna", year: "2022", price: "28", sortOrder: 3 },
+      { category: "Bianchi", nameIt: "Verdicchio dei Castelli di Jesi", nameEn: "Verdicchio dei Castelli di Jesi", region: "Marche", year: "2021", price: "32", sortOrder: 4 },
+      { category: "Rossi", nameIt: "Sangiovese di Romagna Superiore", nameEn: "Sangiovese di Romagna Superiore", region: "Emilia-Romagna", year: "2020", price: "30", sortOrder: 5 },
+      { category: "Rossi", nameIt: "Brunello di Montalcino", nameEn: "Brunello di Montalcino", region: "Toscana", year: "2018", price: "95", sortOrder: 6 },
+      { category: "Rossi", nameIt: "Barolo DOCG", nameEn: "Barolo DOCG", region: "Piemonte", year: "2017", price: "120", sortOrder: 7 },
+    ];
+
+    for (const wine of seedWines) {
+      await this.createWine(wine);
+    }
+
+    const seedCocktails: InsertCocktail[] = [
+      { category: "Signature", nameIt: "Vista Sunset", nameEn: "Vista Sunset", descriptionIt: "Aperol, prosecco, succo d'arancia, soda", descriptionEn: "Aperol, prosecco, orange juice, soda", price: "12", sortOrder: 1 },
+      { category: "Signature", nameIt: "Bologna Negroni", nameEn: "Bologna Negroni", descriptionIt: "Gin, Campari, Vermouth rosso, scorza d'arancia", descriptionEn: "Gin, Campari, red Vermouth, orange peel", price: "14", sortOrder: 2 },
+      { category: "Classici", nameIt: "Martini Dry", nameEn: "Dry Martini", descriptionIt: "Gin, Vermouth dry, oliva", descriptionEn: "Gin, dry Vermouth, olive", price: "12", sortOrder: 3 },
+      { category: "Classici", nameIt: "Old Fashioned", nameEn: "Old Fashioned", descriptionIt: "Bourbon, zucchero, Angostura, scorza d'arancia", descriptionEn: "Bourbon, sugar, Angostura, orange peel", price: "13", sortOrder: 4 },
+      { category: "Classici", nameIt: "Mojito", nameEn: "Mojito", descriptionIt: "Rum bianco, lime, menta, zucchero, soda", descriptionEn: "White rum, lime, mint, sugar, soda", price: "11", sortOrder: 5 },
+      { category: "Analcolici", nameIt: "Virgin Mojito", nameEn: "Virgin Mojito", descriptionIt: "Lime, menta, zucchero, soda", descriptionEn: "Lime, mint, sugar, soda", price: "8", sortOrder: 6 },
+    ];
+
+    for (const cocktail of seedCocktails) {
+      await this.createCocktail(cocktail);
+    }
+
+    const seedEvents: InsertEvent[] = [
+      { titleIt: "Jazz Night", titleEn: "Jazz Night", descriptionIt: "Serata di musica jazz dal vivo con aperitivo", descriptionEn: "Live jazz music evening with aperitif", eventDate: new Date("2026-02-14"), isVisible: true, isDraft: false, sortOrder: 1 },
+      { titleIt: "Degustazione Vini Emiliani", titleEn: "Emilian Wine Tasting", descriptionIt: "Scopri i migliori vini della nostra regione", descriptionEn: "Discover the best wines of our region", eventDate: new Date("2026-02-21"), isVisible: true, isDraft: false, sortOrder: 2 },
+    ];
+
+    for (const event of seedEvents) {
+      await this.createEvent(event);
+    }
+
+    console.log("Database seeded with initial Camera con Vista data");
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
