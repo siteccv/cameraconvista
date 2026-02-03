@@ -1,7 +1,7 @@
 # RIEPILOGO STATO PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 3 Febbraio 2026 (sera)
+**Ultimo aggiornamento:** 3 Febbraio 2026 (notte)
 
 ---
 
@@ -21,6 +21,9 @@
 | **Admin Media Library** | Completo | Upload file su Object Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
 | **Footer Management** | Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
 | **Media Categories** | Completo | Sistema cartelle dinamico per media library con CRUD categorie |
+| **Mobile Responsive System** | Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
+| **Admin Mobile Preview** | Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island scalabile |
+| **Scroll to Top Navigation** | Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
 
 ---
 
@@ -50,18 +53,20 @@
 | Modulo | Completamento |
 |--------|---------------|
 | Backend API & Database | 95% |
-| Pagine Pubbliche | 95% |
+| Pagine Pubbliche | 98% |
 | Admin Authentication | 100% |
 | Admin Dashboard | 75% |
 | Admin Sezioni Pagine | 70% |
 | Admin Eventi | 100% |
 | Admin Media | 95% |
 | Click-to-Edit WYSIWYG | 90% |
-| Device Image Controls | 80% |
+| Device Image Controls | 85% |
 | Footer Management | 100% |
+| Mobile Responsive | 95% |
+| Admin Mobile Preview | 95% |
 | Admin SEO | 40% |
 
-**Completamento globale stimato: ~85%** rispetto ai requisiti originali completi.
+**Completamento globale stimato: ~88%** rispetto ai requisiti originali completi.
 
 ---
 
@@ -82,13 +87,13 @@
 - `client/src/pages/eventi.tsx` - Pagina eventi con card Instagram Story 9:16
 - `client/src/pages/event-detail.tsx` - Dettaglio singolo evento con prenotazione
 - `client/src/pages/galleria.tsx` - Galleria con EditableImage
-- `client/src/pages/contatti.tsx` - Contatti con EditableText
+- `client/src/pages/contatti.tsx` - Contatti con layout responsive
 
 ### Frontend Admin
 - `client/src/pages/admin/login.tsx` - Login admin
 - `client/src/pages/admin/dashboard.tsx` - Dashboard con statistiche
 - `client/src/pages/admin/pages.tsx` - Anteprima pagine con editing
-- `client/src/pages/admin/preview.tsx` - Anteprima homepage
+- `client/src/pages/admin/preview.tsx` - Anteprima homepage con IPhoneFrame mobile
 - `client/src/pages/admin/events.tsx` - Gestione eventi (COMPLETO)
 - `client/src/pages/admin/media.tsx` - Media library (COMPLETO)
 - `client/src/pages/admin/seo.tsx` - Gestione SEO
@@ -101,10 +106,20 @@
 - `client/src/components/admin/FooterSettingsForm.tsx` - Form impostazioni footer
 - `client/src/components/admin/ImageDetailsModal.tsx` - Dettagli immagine media library
 - `client/src/components/admin/ManageCategoriesModal.tsx` - Gestione categorie media
+- `client/src/components/admin/IPhoneFrame.tsx` - Frame iPhone 15 Pro per preview mobile
+
+### Layout
+- `client/src/components/layout/Header.tsx` - Header responsive con supporto forceMobileLayout
+- `client/src/components/layout/Footer.tsx` - Footer responsive con layout stacked mobile
+- `client/src/components/layout/PublicLayout.tsx` - Layout pubblico con Header, Footer, CookieConsent
+- `client/src/components/layout/AdminLayout.tsx` - Layout admin con sidebar
+
+### Utilities
+- `client/src/components/ScrollToTop.tsx` - Scroll to top su cambio route
 
 ### Context
 - `client/src/contexts/LanguageContext.tsx` - Gestione lingua IT/EN
-- `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin e preview mode
+- `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin, preview mode, deviceView, forceMobileLayout
 
 ---
 
@@ -121,9 +136,27 @@
 - **Object Storage** - Funzionante per upload media
 - **OpenAI** - Configurato (non ancora usato per traduzioni automatiche)
 
+### Sistema Responsive Mobile
+- **Breakpoints:** Tailwind md: (768px) e lg: (1024px)
+- **forceMobileLayout:** Stato in AdminContext per forzare layout mobile in admin preview
+- **deviceView:** Sincronizzato con forceMobileLayout per EditableImage e altri componenti
+- **IPhoneFrame:** Componente scalabile che simula iPhone 15 Pro con Dynamic Island
+- **ScrollToTop:** Componente che resetta scroll position ad ogni navigazione
+
 ---
 
 ## PROGRESSI RECENTI
+
+### Scroll to Top Fix (3 Feb 2026 - notte)
+- Aggiunto componente ScrollToTop che resetta lo scroll ad ogni cambio pagina
+- Risolto problema pagine che si aprivano a fondo pagina invece che all'inizio
+
+### Mobile Responsive (3 Feb 2026 - sera)
+- Implementato sistema responsive mobile-first completo
+- IPhoneFrame con Dynamic Island per preview admin
+- Header e Footer rispettano forceMobileLayout
+- Sincronizzazione deviceView con forceMobileLayout in AdminPreview
+- Padding ottimizzati per mobile (py-10 vs py-20)
 
 ### Eventi (3 Feb 2026 - sera)
 - Implementato sistema eventi completo con:
@@ -143,6 +176,17 @@
 - Upload funzionante su Object Storage
 - Sistema categorie/cartelle dinamico
 - Gestione dettagli immagine con zoom/offset
+
+---
+
+## PROBLEMI RISOLTI
+
+| Problema | Soluzione | Data |
+|----------|-----------|------|
+| Pagine si aprono a fondo pagina | Aggiunto ScrollToTop component | 3 Feb 2026 |
+| Preview mobile non forza layout mobile | Sincronizzato deviceView con forceMobileLayout | 3 Feb 2026 |
+| IPhoneFrame overflow in viewport piccoli | Aggiunto scaling dinamico | 3 Feb 2026 |
+| Header/Footer non rispettano preview mobile | Aggiunto check forceMobileLayout | 3 Feb 2026 |
 
 ---
 

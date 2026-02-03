@@ -23,6 +23,7 @@ import AdminEvents from "@/pages/admin/events";
 import AdminMedia from "@/pages/admin/media";
 import AdminSeo from "@/pages/admin/seo";
 import AdminPreview from "@/pages/admin/preview";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAdmin();
@@ -46,7 +47,9 @@ function AdminLoginRoute() {
 
 function Router() {
   return (
-    <Switch>
+    <>
+      <ScrollToTop />
+      <Switch>
       <Route path="/" component={Home} />
       <Route path="/menu" component={Menu} />
       <Route path="/carta-vini" component={CartaVini} />
@@ -80,6 +83,7 @@ function Router() {
       </Route>
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
 
