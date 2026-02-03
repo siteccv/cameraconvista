@@ -11,6 +11,7 @@ import Menu from "@/pages/menu";
 import CartaVini from "@/pages/carta-vini";
 import CocktailBar from "@/pages/cocktail-bar";
 import Eventi from "@/pages/eventi";
+import EventDetail from "@/pages/event-detail";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
 import Contatti from "@/pages/contatti";
@@ -51,6 +52,7 @@ function Router() {
       <Route path="/carta-vini" component={CartaVini} />
       <Route path="/cocktail-bar" component={CocktailBar} />
       <Route path="/eventi" component={Eventi} />
+      <Route path="/eventi/:id" component={EventDetail} />
       <Route path="/eventi-privati" component={EventiPrivati} />
       <Route path="/galleria" component={Galleria} />
       <Route path="/contatti" component={Contatti} />

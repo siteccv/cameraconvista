@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar } from "lucide-react";
+import { Calendar, ExternalLink } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { useToast } from "@/hooks/use-toast";
@@ -34,9 +36,6 @@ export default function Eventi() {
   const { data: events, isLoading } = useQuery<Event[]>({
     queryKey: ["/api/events"],
   });
-
-  const upcomingEvents = events?.filter(e => e.eventDate && new Date(e.eventDate) >= new Date()) ?? [];
-  const pastEvents = events?.filter(e => e.eventDate && new Date(e.eventDate) < new Date()) ?? [];
 
   const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     switch (field) {
@@ -105,45 +104,23 @@ export default function Eventi() {
           </div>
 
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-80 w-full rounded-lg" />
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="aspect-[9/16] w-full rounded-lg" />
               ))}
             </div>
-          ) : upcomingEvents.length === 0 && pastEvents.length === 0 ? (
+          ) : !events || events.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground" data-testid="text-events-empty">
                 {t("Nessun evento in programma al momento.", "No events scheduled at the moment.")}
               </p>
             </div>
           ) : (
-            <>
-              {upcomingEvents.length > 0 && (
-                <div className="mb-16">
-                  <h2 className="font-display text-2xl md:text-3xl text-center mb-8" data-testid="text-upcoming-events">
-                    {t("Prossimi Eventi", "Upcoming Events")}
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {upcomingEvents.map((event) => (
-                      <EventCard key={event.id} event={event} />
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {pastEvents.length > 0 && (
-                <div>
-                  <h2 className="font-display text-2xl md:text-3xl text-center mb-8 text-muted-foreground" data-testid="text-past-events">
-                    {t("Eventi Passati", "Past Events")}
-                  </h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 opacity-75">
-                    {pastEvents.slice(0, 6).map((event) => (
-                      <EventCard key={event.id} event={event} isPast />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {events.map((event) => (
+                <EventCard key={event.id} event={event} />
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -151,49 +128,84 @@ export default function Eventi() {
   );
 }
 
-function EventCard({ event, isPast = false }: { event: Event; isPast?: boolean }) {
+function EventCard({ event }: { event: Event }) {
   const { t, language } = useLanguage();
 
   const formatDate = (dateStr: string | Date | null) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
     return date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", {
-      weekday: "long",
       day: "numeric",
-      month: "long",
+      month: "short",
+    });
+  };
+
+  const formatTime = (dateStr: string | Date | null) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    return date.toLocaleTimeString(language === "it" ? "it-IT" : "en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   return (
-    <div 
-      className={`group rounded-placeholder overflow-hidden border border-border bg-card ${isPast ? "" : "hover-elevate"}`}
-      data-testid={`event-card-${event.id}`}
-    >
-      {event.imageUrl && (
-        <div className="aspect-[16/9] overflow-hidden">
-          <img
-            src={event.imageUrl}
-            alt={t(event.titleIt, event.titleEn) || ""}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      )}
-      <div className="p-4 md:p-6">
-        <h3 className="font-display text-xl mb-2">{t(event.titleIt, event.titleEn)}</h3>
-        {(event.descriptionIt || event.descriptionEn) && (
-          <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-            {t(event.descriptionIt, event.descriptionEn)}
-          </p>
-        )}
-        {event.eventDate && (
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              <span>{formatDate(event.eventDate)}</span>
-            </div>
+    <Link href={`/eventi/${event.id}`}>
+      <div 
+        className="group relative aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border cursor-pointer hover-elevate"
+        data-testid={`event-card-${event.id}`}
+      >
+        {event.posterUrl ? (
+          <div className="w-full h-full overflow-hidden">
+            <img
+              src={event.posterUrl}
+              alt={language === "it" ? event.titleIt : event.titleEn}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+              style={{
+                transformOrigin: "center center",
+              }}
+            />
+          </div>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-muted">
+            <Calendar className="h-12 w-12 text-muted-foreground" />
           </div>
         )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
+          <h3 className="font-display text-sm md:text-base mb-1 line-clamp-2">
+            {language === "it" ? event.titleIt : event.titleEn}
+          </h3>
+          
+          {event.startAt && (
+            <div className="flex items-center gap-1 text-xs text-white/80">
+              <Calendar className="h-3 w-3" />
+              <span>{formatDate(event.startAt)}</span>
+              <span className="ml-1">{formatTime(event.startAt)}</span>
+            </div>
+          )}
+
+          {event.bookingEnabled && (
+            <div className="mt-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                className="w-full text-xs h-7"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.open(event.bookingUrl || "https://cameraconvista.resos.com/booking", "_blank");
+                }}
+                data-testid={`button-book-${event.id}`}
+              >
+                <ExternalLink className="h-3 w-3 mr-1" />
+                {t("Prenota", "Book")}
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 }
