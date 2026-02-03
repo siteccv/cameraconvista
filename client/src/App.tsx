@@ -17,6 +17,11 @@ import Contatti from "@/pages/contatti";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminSettings from "@/pages/admin/settings";
+import AdminPages from "@/pages/admin/pages";
+import AdminEvents from "@/pages/admin/events";
+import AdminMedia from "@/pages/admin/media";
+import AdminSeo from "@/pages/admin/seo";
+import AdminPreview from "@/pages/admin/preview";
 
 function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAdmin();
@@ -53,10 +58,22 @@ function Router() {
       <Route path="/admina/settings">
         {() => <ProtectedAdminRoute component={AdminSettings} />}
       </Route>
-      <Route path="/admina">
-        {() => <ProtectedAdminRoute component={AdminDashboard} />}
+      <Route path="/admina/pages">
+        {() => <ProtectedAdminRoute component={AdminPages} />}
       </Route>
-      <Route path="/admina/:rest*">
+      <Route path="/admina/events">
+        {() => <ProtectedAdminRoute component={AdminEvents} />}
+      </Route>
+      <Route path="/admina/media">
+        {() => <ProtectedAdminRoute component={AdminMedia} />}
+      </Route>
+      <Route path="/admina/seo">
+        {() => <ProtectedAdminRoute component={AdminSeo} />}
+      </Route>
+      <Route path="/admina/preview">
+        {() => <ProtectedAdminRoute component={AdminPreview} />}
+      </Route>
+      <Route path="/admina">
         {() => <ProtectedAdminRoute component={AdminDashboard} />}
       </Route>
       <Route component={NotFound} />
