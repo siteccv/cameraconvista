@@ -130,7 +130,7 @@ export default function Contatti() {
                 </div>
               </div>
 
-              <div className="mt-8 aspect-[16/9] rounded-lg overflow-hidden bg-muted">
+              <div className="mt-8 aspect-[16/9] rounded-placeholder overflow-hidden bg-muted">
                 <iframe
                   src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2846.0661234567!2d11.3333!3d44.4944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI5JzM5LjgiTiAxMcKwMTknNTkuOSJF!5e0!3m2!1sen!2sit!4v1234567890"
                   width="100%"

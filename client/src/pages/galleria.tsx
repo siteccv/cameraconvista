@@ -67,7 +67,7 @@ export default function Galleria() {
                 <button
                   key={image.id}
                   onClick={() => setSelectedImage(image.url)}
-                  className="aspect-square rounded-lg overflow-hidden group cursor-pointer"
+                  className="aspect-square rounded-placeholder overflow-hidden group cursor-pointer"
                   data-testid={`gallery-image-${image.id}`}
                 >
                   <img

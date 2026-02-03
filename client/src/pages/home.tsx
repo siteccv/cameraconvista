@@ -207,7 +207,7 @@ export default function Home() {
                 </Button>
               </Link>
             </div>
-            <div className="aspect-[4/3] rounded-lg overflow-hidden">
+            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt={t("Il nostro bar", "Our bar") || "Bar interior"}
@@ -236,7 +236,7 @@ function TeaserCard({ imageUrl, titleIt, titleEn, descriptionIt, descriptionEn, 
 
   return (
     <div className="group" data-testid={testId}>
-      <div className="aspect-[4/5] rounded-xl overflow-hidden mb-4">
+      <div className="aspect-[4/5] rounded-placeholder overflow-hidden mb-4">
         <img
           src={imageUrl}
           alt={t(titleIt, titleEn) || titleIt}

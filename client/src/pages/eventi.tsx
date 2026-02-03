@@ -104,7 +104,7 @@ function EventCard({ event, isPast = false }: { event: Event; isPast?: boolean }
 
   return (
     <div 
-      className={`group rounded-lg overflow-hidden border border-border bg-card ${isPast ? "" : "hover-elevate"}`}
+      className={`group rounded-placeholder overflow-hidden border border-border bg-card ${isPast ? "" : "hover-elevate"}`}
       data-testid={`event-card-${event.id}`}
     >
       {event.imageUrl && (

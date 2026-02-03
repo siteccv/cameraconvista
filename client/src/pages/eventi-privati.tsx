@@ -119,21 +119,21 @@ export default function EventiPrivati() {
             {t("I nostri spazi", "Our Spaces")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden">
+            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt={t("Sala principale", "Main hall") || "Main hall"}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="aspect-[4/3] rounded-lg overflow-hidden">
+            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt={t("Sala privata", "Private room") || "Private room"}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="aspect-[4/3] rounded-lg overflow-hidden">
+            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
               <img
                 src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt={t("Bar", "Bar") || "Bar"}
