@@ -40,7 +40,7 @@ Preferred communication style: Simple, everyday language.
 1. **Shared Schema**: Types and schema definitions in `shared/` are used by both frontend and backend
 2. **Path Aliases**: `@/*` maps to client source, `@shared/*` to shared modules
 3. **Language Context**: React Context provides `t(it, en)` translation helper throughout the app
-4. **Admin Context**: Manages authentication state, admin preview mode, and device view (desktop/mobile)
+4. **Admin Context**: Manages authentication state, admin preview mode, device view (desktop/mobile), and forceMobileLayout for true mobile emulation in admin preview
 5. **Bilingual Content**: All content fields support IT/EN variants (e.g., `valueIt`, `valueEn`)
 6. **WYSIWYG Editing**: All public pages use `EditableText` and `EditableImage` components for click-to-edit functionality in admin preview mode. Components are located in `client/src/components/admin/`.
 7. **Footer Management**: Footer content is database-driven and editable via Admin → Impostazioni. Settings include about text (IT/EN), contacts, opening hours, social links, quick links, and legal links. Stored as JSON in `site_settings` table under key `footer_settings`.
@@ -52,6 +52,13 @@ Preferred communication style: Simple, everyday language.
    - **Fields**: titleIt/En, descriptionIt/En, detailsIt/En, posterUrl with zoom/offset controls
    - **Visibility**: Two modes - ACTIVE_ONLY (manual control) or UNTIL_DAYS_AFTER (auto-hide after event ends)
    - **Booking**: Optional integration with configurable URL (default: https://cameraconvista.resos.com/booking)
+10. **Mobile Responsive System**: Complete mobile-first responsive design.
+   - **Admin Preview**: iPhone 15 Pro frame simulation (430x932px) with Dynamic Island
+   - **IPhoneFrame Component**: `client/src/components/admin/IPhoneFrame.tsx` - Scalable frame that adapts to smaller viewports
+   - **forceMobileLayout**: AdminContext state that forces mobile layout regardless of viewport (used in admin preview)
+   - **deviceView**: Synchronized with forceMobileLayout to ensure EditableImage and other components respond correctly
+   - **Header/Footer**: Respect forceMobileLayout to switch between desktop/mobile layouts
+   - **Responsive Breakpoints**: Uses Tailwind md: (768px) and lg: (1024px) with optimized mobile padding (py-10 vs py-20)
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
