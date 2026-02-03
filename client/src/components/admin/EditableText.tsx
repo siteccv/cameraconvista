@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Pencil } from "lucide-react";
+import { TranslateButton } from "./TranslateButton";
 
 interface EditableTextProps {
   blockId?: number;
@@ -98,59 +99,105 @@ export function EditableText({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>{t("Modifica Testo", "Edit Text")}</DialogTitle>
+            <DialogTitle>{t("Modifica testo", "Edit Text")}</DialogTitle>
+            <DialogDescription>
+              {t("Modifica il contenuto (IT/EN) e la dimensione del testo.", "Edit the content (IT/EN) and text size.")}
+            </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Italiano</Label>
+              <Label>{t("Testo IT", "Text IT")}</Label>
               <TextInput
                 value={editTextIt}
                 onChange={(e) => setEditTextIt(e.target.value)}
                 placeholder="Testo italiano..."
                 className={multiline ? "min-h-[100px]" : ""}
+                data-testid="input-text-it"
               />
             </div>
             
             <div className="space-y-2">
-              <Label>English</Label>
+              <div className="flex items-center gap-2">
+                <Label className="flex-1">{t("Testo EN", "Text EN")}</Label>
+                <TranslateButton
+                  textIt={editTextIt}
+                  onTranslated={setEditTextEn}
+                  context="website content for a restaurant and cocktail bar"
+                />
+              </div>
               <TextInput
                 value={editTextEn}
                 onChange={(e) => setEditTextEn(e.target.value)}
                 placeholder="English text..."
                 className={multiline ? "min-h-[100px]" : ""}
+                data-testid="input-text-en"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>{t("Font Desktop (px)", "Desktop Font (px)")}</Label>
+            <div className="space-y-2">
+              <Label>{t("Dimensione testo (px)", "Text Size (px)")}</Label>
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    const newSize = Math.max(8, editFontDesktop - 1);
+                    setEditFontDesktop(newSize);
+                    setEditFontMobile(Math.max(8, newSize - 2));
+                  }}
+                  data-testid="button-decrease-font"
+                >
+                  -
+                </Button>
                 <Input
                   type="number"
                   value={editFontDesktop}
-                  onChange={(e) => setEditFontDesktop(Number(e.target.value))}
+                  onChange={(e) => {
+                    const val = Number(e.target.value);
+                    setEditFontDesktop(val);
+                    setEditFontMobile(Math.max(8, val - 2));
+                  }}
                   min={8}
                   max={200}
+                  className="w-20 text-center"
+                  data-testid="input-font-size"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label>{t("Font Mobile (px)", "Mobile Font (px)")}</Label>
-                <Input
-                  type="number"
-                  value={editFontMobile}
-                  onChange={(e) => setEditFontMobile(Number(e.target.value))}
-                  min={8}
-                  max={200}
-                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => {
+                    const newSize = Math.min(200, editFontDesktop + 1);
+                    setEditFontDesktop(newSize);
+                    setEditFontMobile(Math.max(8, newSize - 2));
+                  }}
+                  data-testid="button-increase-font"
+                >
+                  +
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setEditFontDesktop(16);
+                    setEditFontMobile(14);
+                  }}
+                  data-testid="button-reset-font"
+                >
+                  Reset px
+                </Button>
               </div>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="outline" onClick={() => setIsOpen(false)} data-testid="button-cancel">
               {t("Annulla", "Cancel")}
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={handleSave} data-testid="button-save">
               {t("Salva", "Save")}
             </Button>
           </DialogFooter>

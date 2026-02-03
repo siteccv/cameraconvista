@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, Check, X, Loader2 } from "lucide-react";
+import { TranslateButton } from "./TranslateButton";
 import type { MediaCategory, InsertMediaCategory } from "@shared/schema";
 
 interface ManageCategoriesModalProps {
@@ -153,13 +154,22 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                             className="h-8"
                             data-testid="input-edit-label-it"
                           />
-                          <Input
-                            value={editLabelEn}
-                            onChange={(e) => setEditLabelEn(e.target.value)}
-                            placeholder="Name EN"
-                            className="h-8"
-                            data-testid="input-edit-label-en"
-                          />
+                          <div className="flex items-center gap-1">
+                            <Input
+                              value={editLabelEn}
+                              onChange={(e) => setEditLabelEn(e.target.value)}
+                              placeholder="Name EN"
+                              className="h-8 flex-1"
+                              data-testid="input-edit-label-en"
+                            />
+                            <TranslateButton
+                              textIt={editLabelIt}
+                              onTranslated={setEditLabelEn}
+                              context="media folder name for restaurant website"
+                              size="icon"
+                              className="h-8 w-8 shrink-0"
+                            />
+                          </div>
                         </div>
                         <Button 
                           size="icon" 
@@ -231,7 +241,16 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                     />
                   </div>
                   <div>
-                    <Label className="text-xs">{t("Nome inglese", "English name")}</Label>
+                    <div className="flex items-center gap-1">
+                      <Label className="text-xs flex-1">{t("Nome inglese", "English name")}</Label>
+                      <TranslateButton
+                        textIt={newLabelIt}
+                        onTranslated={setNewLabelEn}
+                        context="media folder name for restaurant website"
+                        size="icon"
+                        className="h-6 w-6"
+                      />
+                    </div>
                     <Input
                       value={newLabelEn}
                       onChange={(e) => setNewLabelEn(e.target.value)}

@@ -25,6 +25,7 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { TranslateButton } from "./TranslateButton";
 import type { Event, InsertEvent, Media } from "@shared/schema";
 
 interface EventModalProps {
@@ -211,7 +212,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="titleEn">{t("Titolo (Inglese)", "Title (English)")} *</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="titleEn" className="flex-1">{t("Titolo (Inglese)", "Title (English)")} *</Label>
+                    <TranslateButton
+                      textIt={formData.titleIt || ""}
+                      onTranslated={(text) => setFormData({ ...formData, titleEn: text })}
+                      context="event title for a restaurant and cocktail bar"
+                    />
+                  </div>
                   <Input
                     id="titleEn"
                     value={formData.titleEn}
@@ -235,7 +243,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="descriptionEn">{t("Descrizione (Inglese)", "Description (English)")}</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="descriptionEn" className="flex-1">{t("Descrizione (Inglese)", "Description (English)")}</Label>
+                    <TranslateButton
+                      textIt={formData.descriptionIt || ""}
+                      onTranslated={(text) => setFormData({ ...formData, descriptionEn: text })}
+                      context="event description for a restaurant and cocktail bar"
+                    />
+                  </div>
                   <Textarea
                     id="descriptionEn"
                     value={formData.descriptionEn ?? ""}
@@ -260,7 +275,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="detailsEn">{t("Dettagli (Inglese)", "Details (English)")}</Label>
+                  <div className="flex items-center gap-2">
+                    <Label htmlFor="detailsEn" className="flex-1">{t("Dettagli (Inglese)", "Details (English)")}</Label>
+                    <TranslateButton
+                      textIt={formData.detailsIt || ""}
+                      onTranslated={(text) => setFormData({ ...formData, detailsEn: text })}
+                      context="event details for a restaurant and cocktail bar"
+                    />
+                  </div>
                   <Textarea
                     id="detailsEn"
                     value={formData.detailsEn ?? ""}

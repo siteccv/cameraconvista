@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Save, Plus, Trash2, Globe, MapPin, Clock, Share2, Link as LinkIcon, FileText, Loader2 } from "lucide-react";
+import { TranslateButton } from "./TranslateButton";
 import type { FooterSettings, FooterHoursEntry, FooterSocialLink, FooterQuickLink } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
@@ -181,7 +182,14 @@ export function FooterSettingsForm() {
               />
             </div>
             <div className="space-y-2">
-              <Label>{t("Inglese", "English")}</Label>
+              <div className="flex items-center gap-2">
+                <Label className="flex-1">{t("Inglese", "English")}</Label>
+                <TranslateButton
+                  textIt={formData.about.it}
+                  onTranslated={(text) => updateAbout("en", text)}
+                  context="restaurant description for website footer"
+                />
+              </div>
               <Textarea
                 value={formData.about.en}
                 onChange={(e) => updateAbout("en", e.target.value)}
@@ -273,7 +281,16 @@ export function FooterSettingsForm() {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Giorno (EN)", "Day (EN)")}</Label>
+                <div className="flex items-center gap-1">
+                  <Label className="text-xs text-muted-foreground flex-1">{t("Giorno (EN)", "Day (EN)")}</Label>
+                  <TranslateButton
+                    textIt={entry.dayKeyIt}
+                    onTranslated={(text) => updateHours(index, "dayKeyEn", text)}
+                    context="day of week for restaurant opening hours"
+                    size="icon"
+                    className="h-6 w-6"
+                  />
+                </div>
                 <Input
                   value={entry.dayKeyEn}
                   onChange={(e) => updateHours(index, "dayKeyEn", e.target.value)}
@@ -409,7 +426,16 @@ export function FooterSettingsForm() {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Etichetta (EN)", "Label (EN)")}</Label>
+                <div className="flex items-center gap-1">
+                  <Label className="text-xs text-muted-foreground flex-1">{t("Etichetta (EN)", "Label (EN)")}</Label>
+                  <TranslateButton
+                    textIt={link.labelIt}
+                    onTranslated={(text) => updateQuickLink(index, "labelEn", text)}
+                    context="navigation link label for restaurant website"
+                    size="icon"
+                    className="h-6 w-6"
+                  />
+                </div>
                 <Input
                   value={link.labelEn}
                   onChange={(e) => updateQuickLink(index, "labelEn", e.target.value)}
