@@ -41,6 +41,16 @@ export function Header() {
         <div className="flex h-14 items-center justify-between gap-2">
           {isMobile ? (
             <>
+              <div className="w-9" />
+
+              <Link href="/" className="absolute left-1/2 -translate-x-1/2" data-testid="link-home-logo">
+                <img 
+                  src={logoImg} 
+                  alt="Camera con Vista" 
+                  className="h-7 w-auto object-contain"
+                />
+              </Link>
+
               <Button
                 variant="ghost"
                 size="icon"
@@ -49,16 +59,6 @@ export function Header() {
               >
                 {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
-
-              <Link href="/" className="absolute left-1/2 -translate-x-1/2" data-testid="link-home-logo">
-                <img 
-                  src={logoImg} 
-                  alt="Camera con Vista" 
-                  className="h-6 w-auto object-contain"
-                />
-              </Link>
-
-              <div className="w-9" />
             </>
           ) : (
             <>
@@ -66,7 +66,7 @@ export function Header() {
                 <img 
                   src={logoImg} 
                   alt="Camera con Vista" 
-                  className="h-6 w-auto object-contain"
+                  className="h-7 w-auto object-contain"
                 />
               </Link>
 
