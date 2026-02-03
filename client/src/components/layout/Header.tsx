@@ -120,7 +120,7 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && isMobile && (
-          <nav className="absolute left-0 right-0 top-14 z-40 bg-background/95 backdrop-blur-sm border-b border-border shadow-lg py-6">
+          <nav className="absolute left-0 right-0 top-14 z-40 bg-background border-b border-border shadow-lg py-6">
             <div className="container mx-auto px-4 flex flex-col gap-2">
               {navItems.map((item) => {
                 const isActive = location === item.slug;
