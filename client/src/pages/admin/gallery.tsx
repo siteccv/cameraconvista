@@ -19,10 +19,13 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragEndEvent,
+  DragStartEvent,
+  DragOverlay,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -341,11 +344,18 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
   const { toast } = useToast();
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+  const [activeId, setActiveId] = useState<number | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 5,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -436,15 +446,21 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
     }
   };
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
+    
     if (!over || active.id === over.id) return;
 
-    const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-    const oldIndex = sortedImages.findIndex((img) => img.id === active.id);
-    const newIndex = sortedImages.findIndex((img) => img.id === over.id);
+    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+    const oldIndex = sorted.findIndex((img) => img.id === active.id);
+    const newIndex = sorted.findIndex((img) => img.id === over.id);
 
-    const reordered = arrayMove(sortedImages, oldIndex, newIndex);
+    const reordered = arrayMove(sorted, oldIndex, newIndex);
     const updates = reordered.map((img, index) => ({
       id: img.id,
       sortOrder: index,
@@ -454,6 +470,7 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
   };
 
   const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+  const activeImage = activeId ? sortedImages.find((img) => img.id === activeId) : null;
 
   return (
     <>
@@ -496,6 +513,7 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
@@ -513,6 +531,20 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
                     ))}
                   </div>
                 </SortableContext>
+                <DragOverlay>
+                  {activeImage && (
+                    <div className="aspect-[9/16] rounded-lg overflow-hidden bg-muted shadow-2xl ring-2 ring-primary opacity-90">
+                      <img
+                        src={activeImage.imageUrl}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        style={{
+                          transform: `scale(${(activeImage.imageZoom || 100) / 100}) translate(${activeImage.imageOffsetX || 0}%, ${activeImage.imageOffsetY || 0}%)`,
+                        }}
+                      />
+                    </div>
+                  )}
+                </DragOverlay>
               </DndContext>
             )}
           </div>
