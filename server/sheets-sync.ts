@@ -68,7 +68,7 @@ function parseCSV(csvText: string): string[][] {
 
 async function fetchSheetData(sheetId: string, gid: string): Promise<string[][]> {
   const url = getCsvUrl(sheetId, gid);
-  const response = await fetch(url);
+  const response = await fetch(url, { redirect: "follow" });
   if (!response.ok) {
     throw new Error(`Failed to fetch sheet: ${response.statusText}`);
   }
@@ -85,8 +85,8 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
 
     const headers = rows[0].map(h => h.toLowerCase().trim());
     const categoryIdx = headers.findIndex(h => h.includes("categoria") || h.includes("category"));
-    const nameItIdx = headers.findIndex(h => h === "nome_it" || h === "nome" || h.includes("name_it"));
-    const nameEnIdx = headers.findIndex(h => h === "nome_en" || h.includes("name_en"));
+    const nameItIdx = headers.findIndex(h => h.includes("titolo it") || h === "nome_it" || h === "nome" || h.includes("name_it"));
+    const nameEnIdx = headers.findIndex(h => h.includes("titolo en") || h === "nome_en" || h.includes("name_en"));
     const descItIdx = headers.findIndex(h => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"));
     const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
     const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
@@ -102,11 +102,11 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
 
       items.push({
         category,
-        nameIt,
-        nameEn,
-        descriptionIt: descItIdx >= 0 ? row[descItIdx] : null,
-        descriptionEn: descEnIdx >= 0 ? row[descEnIdx] : null,
-        price: priceIdx >= 0 ? row[priceIdx] : null,
+        nameIt: nameIt.trim(),
+        nameEn: nameEn.trim(),
+        descriptionIt: descItIdx >= 0 ? (row[descItIdx] || null) : null,
+        descriptionEn: descEnIdx >= 0 ? (row[descEnIdx] || null) : null,
+        price: priceIdx >= 0 ? (row[priceIdx] || null) : null,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,
@@ -133,33 +133,36 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
     }
 
     const headers = rows[0].map(h => h.toLowerCase().trim());
-    const categoryIdx = headers.findIndex(h => h.includes("categoria") || h.includes("category"));
-    const nameItIdx = headers.findIndex(h => h === "nome_it" || h === "nome" || h.includes("name_it"));
-    const nameEnIdx = headers.findIndex(h => h === "nome_en" || h.includes("name_en"));
-    const regionIdx = headers.findIndex(h => h.includes("regione") || h.includes("region"));
+    const nameIdx = headers.findIndex(h => h.includes("nome vino") || h.includes("nome") || h.includes("name"));
     const yearIdx = headers.findIndex(h => h.includes("anno") || h.includes("year") || h.includes("annata"));
-    const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
-    const descItIdx = headers.findIndex(h => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"));
-    const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
+    const regionIdx = headers.findIndex(h => h.includes("provenienza") || h.includes("regione") || h.includes("region"));
+    const glassIdx = headers.findIndex(h => h.includes("calice") || h.includes("glass"));
+    const bottleIdx = headers.findIndex(h => h.includes("bottiglia") || h.includes("bottle"));
 
+    let currentCategory = "Vini";
     const items: InsertWine[] = [];
+    
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      const category = row[categoryIdx] || "";
-      const nameIt = row[nameItIdx] || "";
-      const nameEn = nameEnIdx >= 0 ? (row[nameEnIdx] || nameIt) : nameIt;
+      const wineName = nameIdx >= 0 ? (row[nameIdx] || "").trim() : "";
       
-      if (!category || !nameIt) continue;
+      if (!wineName) continue;
+
+      const glassPrice = glassIdx >= 0 ? (row[glassIdx] || "").replace(/[€\s]/g, "").trim() : "";
+      const bottlePrice = bottleIdx >= 0 ? (row[bottleIdx] || "").replace(/[€\s]/g, "").trim() : "";
+      const priceDisplay = glassPrice && bottlePrice 
+        ? `€${glassPrice} / €${bottlePrice}` 
+        : bottlePrice ? `€${bottlePrice}` : glassPrice ? `€${glassPrice}` : null;
 
       items.push({
-        category,
-        nameIt,
-        nameEn,
-        region: regionIdx >= 0 ? row[regionIdx] : null,
-        year: yearIdx >= 0 ? row[yearIdx] : null,
-        price: priceIdx >= 0 ? row[priceIdx] : null,
-        descriptionIt: descItIdx >= 0 ? row[descItIdx] : null,
-        descriptionEn: descEnIdx >= 0 ? row[descEnIdx] : null,
+        category: currentCategory,
+        nameIt: wineName,
+        nameEn: wineName,
+        region: regionIdx >= 0 ? (row[regionIdx] || null) : null,
+        year: yearIdx >= 0 ? (row[yearIdx] || null) : null,
+        price: priceDisplay,
+        descriptionIt: null,
+        descriptionEn: null,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,
@@ -187,28 +190,26 @@ export async function syncCocktailsFromSheets(): Promise<{ count: number; error?
 
     const headers = rows[0].map(h => h.toLowerCase().trim());
     const categoryIdx = headers.findIndex(h => h.includes("categoria") || h.includes("category"));
-    const nameItIdx = headers.findIndex(h => h === "nome_it" || h === "nome" || h.includes("name_it"));
-    const nameEnIdx = headers.findIndex(h => h === "nome_en" || h.includes("name_en"));
-    const descItIdx = headers.findIndex(h => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"));
-    const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
+    const nameIdx = headers.findIndex(h => h.includes("titolo") || h === "nome" || h.includes("name"));
+    const descItIdx = headers.findIndex(h => h.includes("ingredienti it") || h.includes("descrizione_it") || h.includes("desc_it"));
+    const descEnIdx = headers.findIndex(h => h.includes("ingredienti en") || h.includes("ingredienti eng") || h.includes("descrizione_en") || h.includes("desc_en"));
     const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
 
     const items: InsertCocktail[] = [];
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      const category = row[categoryIdx] || "";
-      const nameIt = row[nameItIdx] || "";
-      const nameEn = nameEnIdx >= 0 ? (row[nameEnIdx] || nameIt) : nameIt;
+      const category = categoryIdx >= 0 ? (row[categoryIdx] || "").trim() : "";
+      const name = nameIdx >= 0 ? (row[nameIdx] || "").trim() : "";
       
-      if (!category || !nameIt) continue;
+      if (!category || !name) continue;
 
       items.push({
         category,
-        nameIt,
-        nameEn,
-        descriptionIt: descItIdx >= 0 ? row[descItIdx] : null,
-        descriptionEn: descEnIdx >= 0 ? row[descEnIdx] : null,
-        price: priceIdx >= 0 ? row[priceIdx] : null,
+        nameIt: name,
+        nameEn: name,
+        descriptionIt: descItIdx >= 0 ? (row[descItIdx] || null) : null,
+        descriptionEn: descEnIdx >= 0 ? (row[descEnIdx] || null) : null,
+        price: priceIdx >= 0 ? (row[priceIdx] || null) : null,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,
