@@ -1,7 +1,7 @@
-# RIEPILOGO STATO PROGETTO - Camera con Vista CMS
+# STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 3 Febbraio 2026 (notte)
+**Ultimo aggiornamento:** 3 Febbraio 2026 (ore 23:20)
 
 ---
 
@@ -9,21 +9,22 @@
 
 | Area | Stato | Dettagli |
 |------|-------|----------|
-| **Database PostgreSQL** | Completo | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions |
-| **Contenuti bilingui IT/EN** | Completo | Tutti i campi supportano italiano e inglese con helper `t(it, en)` |
-| **Autenticazione Admin** | Completo | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password |
-| **Pagine pubbliche con dati reali** | Completo | Menu, Carta Vini, Cocktail Bar, Eventi, Galleria, Contatti - tutte collegano al database via React Query |
-| **Cambio lingua pubblico** | Completo | Toggle IT/EN funzionante su tutte le pagine |
-| **Schema draft/publish** | Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema |
-| **Device-specific overrides** | Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
-| **Click-to-Edit WYSIWYG** | Completo | Componenti `EditableText` e `EditableImage` usati su tutte le pagine pubbliche con editing inline in modalità admin preview |
-| **Admin Eventi** | Completo | CRUD completo con max 10 eventi, poster Instagram Story (9:16), controlli zoom/offset, modalità visibilità (ACTIVE_ONLY/UNTIL_DAYS_AFTER), integrazione prenotazioni |
-| **Admin Media Library** | Completo | Upload file su Object Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
-| **Footer Management** | Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
-| **Media Categories** | Completo | Sistema cartelle dinamico per media library con CRUD categorie |
-| **Mobile Responsive System** | Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
-| **Admin Mobile Preview** | Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island scalabile |
-| **Scroll to Top Navigation** | Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
+| **Database PostgreSQL** | ✅ Completo | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions |
+| **Contenuti bilingui IT/EN** | ✅ Completo | Tutti i campi supportano italiano e inglese con helper `t(it, en)` |
+| **Autenticazione Admin** | ✅ Completo | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password |
+| **Pagine pubbliche con dati reali** | ✅ Completo | Menu, Carta Vini, Cocktail Bar, Eventi, Galleria, Contatti - tutte collegano al database via React Query |
+| **Cambio lingua pubblico** | ✅ Completo | Toggle IT/EN funzionante su tutte le pagine |
+| **Schema draft/publish** | ✅ Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema |
+| **Device-specific overrides** | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
+| **Click-to-Edit WYSIWYG** | ✅ Completo | Componenti `EditableText` e `EditableImage` usati su tutte le pagine pubbliche con editing inline in modalità admin preview |
+| **Admin Eventi** | ✅ Completo | CRUD completo con max 10 eventi, poster Instagram Story (9:16), controlli zoom/offset, modalità visibilità (ACTIVE_ONLY/UNTIL_DAYS_AFTER), integrazione prenotazioni |
+| **Admin Media Library** | ✅ Completo | Upload file su Object Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
+| **Footer Management** | ✅ Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
+| **Media Categories** | ✅ Completo | Sistema cartelle dinamico per media library con CRUD categorie |
+| **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
+| **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
+| **Scroll to Top Navigation** | ✅ Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
+| **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI, hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
 
 ---
 
@@ -31,10 +32,10 @@
 
 | Area | Stato | Cosa manca |
 |------|-------|------------|
-| **Anteprima in Sezioni Pagine** (`/admina/pages`) | Parziale | Mostra anteprima delle pagine pubbliche embedded. L'editing click-to-edit funziona in admin preview mode. |
-| **Pagina Anteprima** (`/admina/preview`) | Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine |
-| **Workflow Draft/Publish** | Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish |
-| **Admin SEO** (`/admina/seo`) | Parziale | Pagina esiste, visualizza metadati ma editing limitato |
+| **Anteprima in Sezioni Pagine** (`/admina/pages`) | 🟡 Parziale | Mostra anteprima delle pagine pubbliche embedded con IPhoneFrame. L'editing click-to-edit funziona in admin preview mode. |
+| **Pagina Anteprima** (`/admina/preview`) | 🟡 Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine |
+| **Workflow Draft/Publish** | 🟡 Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish |
+| **Admin SEO** (`/admina/seo`) | 🟡 Parziale | Pagina esiste, visualizza metadati ma editing limitato |
 
 ---
 
@@ -42,9 +43,8 @@
 
 | Requisito | Stato | Note |
 |-----------|-------|------|
-| **Editing blocchi pagina avanzato** | Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
-| **Traduzione automatica con OpenAI** | ✅ Completato | Endpoint `/api/admin/translate` con hook `useTranslation` e componente `TranslateButton` integrato in EditableText, EventModal, FooterSettingsForm, ManageCategoriesModal |
-| **Sincronizzazione Google Sheets** | Non implementato | Schema prevede `sheetRowIndex` ma nessuna logica di sync implementata |
+| **Editing blocchi pagina avanzato** | ❌ Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
+| **Sincronizzazione Google Sheets** | ❌ Non implementato | Schema prevede `sheetRowIndex` ma nessuna logica di sync implementata |
 
 ---
 
@@ -56,17 +56,18 @@
 | Pagine Pubbliche | 98% |
 | Admin Authentication | 100% |
 | Admin Dashboard | 75% |
-| Admin Sezioni Pagine | 70% |
+| Admin Sezioni Pagine | 85% |
 | Admin Eventi | 100% |
 | Admin Media | 95% |
-| Click-to-Edit WYSIWYG | 90% |
-| Device Image Controls | 85% |
+| Click-to-Edit WYSIWYG | 95% |
+| Device Image Controls | 90% |
 | Footer Management | 100% |
-| Mobile Responsive | 95% |
-| Admin Mobile Preview | 95% |
+| Mobile Responsive | 98% |
+| Admin Mobile Preview | 100% |
+| Traduzione Automatica | 100% |
 | Admin SEO | 40% |
 
-**Completamento globale stimato: ~88%** rispetto ai requisiti originali completi.
+**Completamento globale stimato: ~92%** rispetto ai requisiti originali completi.
 
 ---
 
@@ -77,10 +78,11 @@
 
 ### Backend
 - `server/storage.ts` - DatabaseStorage con CRUD operations (eventi, media categories, footer settings)
-- `server/routes.ts` - API endpoints Express (eventi pubblici/admin, footer settings, media categories)
+- `server/routes.ts` - API endpoints Express (eventi pubblici/admin, footer settings, media categories, traduzione)
 - `server/db.ts` - Connessione PostgreSQL
 
 ### Frontend Pubblico
+- `client/src/pages/home.tsx` - Homepage con classi responsive condizionali per forceMobileLayout
 - `client/src/pages/menu.tsx` - Pagina menu con dati da DB e EditableText/EditableImage
 - `client/src/pages/carta-vini.tsx` - Pagina vini con dati da DB
 - `client/src/pages/cocktail-bar.tsx` - Pagina cocktail con dati da DB
@@ -92,7 +94,7 @@
 ### Frontend Admin
 - `client/src/pages/admin/login.tsx` - Login admin
 - `client/src/pages/admin/dashboard.tsx` - Dashboard con statistiche
-- `client/src/pages/admin/pages.tsx` - Anteprima pagine con editing
+- `client/src/pages/admin/pages.tsx` - Anteprima pagine con IPhoneFrame e forceMobileLayout
 - `client/src/pages/admin/preview.tsx` - Anteprima homepage con IPhoneFrame mobile
 - `client/src/pages/admin/events.tsx` - Gestione eventi (COMPLETO)
 - `client/src/pages/admin/media.tsx` - Media library (COMPLETO)
@@ -106,7 +108,7 @@
 - `client/src/components/admin/FooterSettingsForm.tsx` - Form impostazioni footer con traduzione automatica
 - `client/src/components/admin/ImageDetailsModal.tsx` - Dettagli immagine media library
 - `client/src/components/admin/ManageCategoriesModal.tsx` - Gestione categorie media con traduzione automatica
-- `client/src/components/admin/IPhoneFrame.tsx` - Frame iPhone 15 Pro per preview mobile
+- `client/src/components/admin/IPhoneFrame.tsx` - Frame iPhone 15 Pro per preview mobile con clipPath
 - `client/src/components/admin/TranslateButton.tsx` - Pulsante traduzione IT→EN riutilizzabile
 
 ### Hooks
@@ -125,6 +127,9 @@
 - `client/src/contexts/LanguageContext.tsx` - Gestione lingua IT/EN
 - `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin, preview mode, deviceView, forceMobileLayout
 
+### Assets
+- `LOGOS/` - Cartella per loghi e icone del ristorante
+
 ---
 
 ## NOTE TECNICHE
@@ -135,21 +140,31 @@
 - **Database:** PostgreSQL con Drizzle ORM
 - **Autenticazione:** Sessioni httpOnly cookies, bcrypt per hash password
 - **Storage:** Object Storage per media (configurato e funzionante)
+- **AI:** OpenAI gpt-4o-mini per traduzioni IT→EN
 
 ### Integrazioni Attive
 - **Object Storage** - Funzionante per upload media
-- **OpenAI** - Configurato (non ancora usato per traduzioni automatiche)
+- **OpenAI** - Attivo per traduzioni automatiche IT→EN con prompt contestuali hospitality
 
 ### Sistema Responsive Mobile
 - **Breakpoints:** Tailwind md: (768px) e lg: (1024px)
 - **forceMobileLayout:** Stato in AdminContext per forzare layout mobile in admin preview
 - **deviceView:** Sincronizzato con forceMobileLayout per EditableImage e altri componenti
-- **IPhoneFrame:** Componente scalabile che simula iPhone 15 Pro con Dynamic Island
+- **IPhoneFrame:** Componente scalabile che simula iPhone 15 Pro con Dynamic Island e clipPath per contenere il contenuto
 - **ScrollToTop:** Componente che resetta scroll position ad ogni navigazione
 
 ---
 
 ## PROGRESSI RECENTI
+
+### IPhoneFrame Content Clipping (3 Feb 2026 - notte)
+- Aggiunto `clipPath: "inset(0 round 48px)"` per contenere il contenuto nei bordi arrotondati
+- Il contenuto non deborda più dalla sagoma dell'iPhone
+
+### Sezioni Pagine Mobile Preview (3 Feb 2026 - notte)
+- Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView
+- Integrato IPhoneFrame nella pagina Sezioni Pagine
+- Ora entrambe le pagine admin usano lo stesso sistema di preview mobile
 
 ### Traduzione Automatica IT→EN (3 Feb 2026 - notte)
 - Implementato endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)
@@ -200,6 +215,7 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Contenuto deborda da IPhoneFrame | Aggiunto clipPath con bordi arrotondati | 3 Feb 2026 |
 | Sezioni Pagine non usava forceMobileLayout | Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView + IPhoneFrame | 3 Feb 2026 |
 | Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
 | Footer in preview mobile mostra layout desktop | Aggiornato gridClass con isMobile condition | 3 Feb 2026 |
