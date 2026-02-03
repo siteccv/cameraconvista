@@ -47,7 +47,7 @@ export function Header() {
                 <img 
                   src={logoImg} 
                   alt="Camera con Vista" 
-                  className="h-[22px] w-auto object-contain"
+                  className="h-[18px] w-auto object-contain"
                 />
               </Link>
 
@@ -66,7 +66,7 @@ export function Header() {
                 <img 
                   src={logoImg} 
                   alt="Camera con Vista" 
-                  className="h-[22px] w-auto object-contain"
+                  className="h-[18px] w-auto object-contain"
                 />
               </Link>
 
