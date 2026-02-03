@@ -7,6 +7,7 @@ import {
   type Cocktail, type InsertCocktail,
   type Event, type InsertEvent,
   type Media, type InsertMedia,
+  type MediaCategory, type InsertMediaCategory,
   type SiteSettings, type InsertSiteSettings,
   type AdminSession, type InsertAdminSession,
   users,
@@ -17,6 +18,7 @@ import {
   cocktails,
   events,
   media,
+  mediaCategories,
   siteSettings,
   adminSessions,
 } from "@shared/schema";
@@ -70,6 +72,12 @@ export interface IStorage {
   createMedia(mediaItem: InsertMedia): Promise<Media>;
   updateMedia(id: number, mediaItem: Partial<InsertMedia>): Promise<Media | undefined>;
   deleteMedia(id: number): Promise<boolean>;
+  
+  getMediaCategories(): Promise<MediaCategory[]>;
+  getMediaCategory(id: number): Promise<MediaCategory | undefined>;
+  createMediaCategory(category: InsertMediaCategory): Promise<MediaCategory>;
+  updateMediaCategory(id: number, category: Partial<InsertMediaCategory>): Promise<MediaCategory | undefined>;
+  deleteMediaCategory(id: number): Promise<boolean>;
   
   getSiteSettings(): Promise<SiteSettings[]>;
   getSiteSetting(key: string): Promise<SiteSettings | undefined>;
@@ -269,6 +277,30 @@ export class DatabaseStorage implements IStorage {
 
   async deleteMedia(id: number): Promise<boolean> {
     const result = await db.delete(media).where(eq(media.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async getMediaCategories(): Promise<MediaCategory[]> {
+    return db.select().from(mediaCategories).orderBy(asc(mediaCategories.sortOrder));
+  }
+
+  async getMediaCategory(id: number): Promise<MediaCategory | undefined> {
+    const result = await db.select().from(mediaCategories).where(eq(mediaCategories.id, id));
+    return result[0];
+  }
+
+  async createMediaCategory(category: InsertMediaCategory): Promise<MediaCategory> {
+    const result = await db.insert(mediaCategories).values(category).returning();
+    return result[0];
+  }
+
+  async updateMediaCategory(id: number, category: Partial<InsertMediaCategory>): Promise<MediaCategory | undefined> {
+    const result = await db.update(mediaCategories).set(category).where(eq(mediaCategories.id, id)).returning();
+    return result[0];
+  }
+
+  async deleteMediaCategory(id: number): Promise<boolean> {
+    const result = await db.delete(mediaCategories).where(eq(mediaCategories.id, id)).returning();
     return result.length > 0;
   }
 

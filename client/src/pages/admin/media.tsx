@@ -11,18 +11,10 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import { ImageDetailsModal } from "@/components/admin/ImageDetailsModal";
-import { Upload, Search, Image, FolderOpen, Loader2 } from "lucide-react";
-import type { Media, InsertMedia } from "@shared/schema";
+import { ManageCategoriesModal } from "@/components/admin/ManageCategoriesModal";
+import { Upload, Search, Image, Settings, Loader2 } from "lucide-react";
+import type { Media, InsertMedia, MediaCategory } from "@shared/schema";
 import type { UppyFile, UploadResult } from "@uppy/core";
-
-const CATEGORIES = [
-  { id: "all", labelIt: "Tutte le cartelle", labelEn: "All folders" },
-  { id: "varie", labelIt: "Varie", labelEn: "Various" },
-  { id: "interni", labelIt: "Interni", labelEn: "Interiors" },
-  { id: "food", labelIt: "Food", labelEn: "Food" },
-  { id: "drink", labelIt: "Drink", labelEn: "Drink" },
-  { id: "eventi", labelIt: "Eventi", labelEn: "Events" },
-];
 
 export default function AdminMedia() {
   const { t, language } = useLanguage();
@@ -32,10 +24,25 @@ export default function AdminMedia() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [manageCategoriesOpen, setManageCategoriesOpen] = useState(false);
 
   const { data: mediaItems = [], isLoading } = useQuery<Media[]>({
     queryKey: ["/api/admin/media"],
   });
+
+  const { data: dbCategories = [] } = useQuery<MediaCategory[]>({
+    queryKey: ["/api/admin/media-categories"],
+  });
+
+  const categories = useMemo(() => {
+    const allOption = { id: "all", labelIt: "Tutte le cartelle", labelEn: "All folders" };
+    const mapped = dbCategories.map(c => ({
+      id: c.slug,
+      labelIt: c.labelIt,
+      labelEn: c.labelEn,
+    }));
+    return [allOption, ...mapped];
+  }, [dbCategories]);
 
   const createMediaMutation = useMutation({
     mutationFn: async (data: InsertMedia) => {
@@ -159,9 +166,13 @@ export default function AdminMedia() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" data-testid="button-create-folder" disabled>
-              <FolderOpen className="h-4 w-4 mr-2" />
-              {t("Crea cartella", "Create folder")}
+            <Button 
+              variant="outline" 
+              onClick={() => setManageCategoriesOpen(true)}
+              data-testid="button-manage-folders"
+            >
+              <Settings className="h-4 w-4 mr-2" />
+              {t("Gestisci cartelle", "Manage folders")}
             </Button>
             <ObjectUploader
               maxNumberOfFiles={10}
@@ -188,7 +199,7 @@ export default function AdminMedia() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map((cat) => (
+            {categories.map((cat) => (
               <Badge
                 key={cat.id}
                 variant={selectedCategory === cat.id ? "default" : "outline"}
@@ -267,6 +278,11 @@ export default function AdminMedia() {
         media={selectedMedia}
         open={detailsOpen}
         onOpenChange={setDetailsOpen}
+      />
+
+      <ManageCategoriesModal
+        open={manageCategoriesOpen}
+        onOpenChange={setManageCategoriesOpen}
       />
     </AdminLayout>
   );

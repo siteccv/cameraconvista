@@ -154,6 +154,32 @@ export type InsertPageBlock = z.infer<typeof insertPageBlockSchema>;
 export type PageBlock = typeof pageBlocks.$inferSelect;
 
 // ============================================================================
+// MEDIA CATEGORIES (Folder management)
+// ============================================================================
+export const mediaCategories = pgTable("media_categories", {
+  id: serial("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  labelIt: text("label_it").notNull(),
+  labelEn: text("label_en").notNull(),
+  sortOrder: integer("sort_order").notNull().default(0),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const insertMediaCategorySchema = createInsertSchema(mediaCategories).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertMediaCategory = z.infer<typeof insertMediaCategorySchema>;
+export type MediaCategory = typeof mediaCategories.$inferSelect;
+
+export const updateMediaCategorySchema = z.object({
+  labelIt: z.string().optional(),
+  labelEn: z.string().optional(),
+  sortOrder: z.number().optional(),
+});
+export type UpdateMediaCategory = z.infer<typeof updateMediaCategorySchema>;
+
+// ============================================================================
 // MEDIA (Media library)
 // ============================================================================
 export const media = pgTable("media", {

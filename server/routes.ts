@@ -13,6 +13,8 @@ import {
   insertEventSchema,
   insertMediaSchema,
   updateMediaSchema,
+  insertMediaCategorySchema,
+  updateMediaCategorySchema,
   insertSiteSettingsSchema,
   footerSettingsSchema,
   defaultFooterSettings,
@@ -758,6 +760,66 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error generating upload URL:", error);
       res.status(500).json({ error: "Failed to generate upload URL" });
+    }
+  });
+
+  // Admin Media Categories
+  app.get("/api/admin/media-categories", requireAuth, async (req, res) => {
+    try {
+      const categories = await storage.getMediaCategories();
+      res.json(categories);
+    } catch (error) {
+      console.error("Error fetching media categories:", error);
+      res.status(500).json({ error: "Failed to fetch media categories" });
+    }
+  });
+
+  app.post("/api/admin/media-categories", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertMediaCategorySchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const category = await storage.createMediaCategory(parsed.data);
+      res.json(category);
+    } catch (error) {
+      console.error("Error creating media category:", error);
+      res.status(500).json({ error: "Failed to create media category" });
+    }
+  });
+
+  app.put("/api/admin/media-categories/:id", requireAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const parsed = updateMediaCategorySchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const updated = await storage.updateMediaCategory(id, parsed.data);
+      if (!updated) {
+        res.status(404).json({ error: "Category not found" });
+        return;
+      }
+      res.json(updated);
+    } catch (error) {
+      console.error("Error updating media category:", error);
+      res.status(500).json({ error: "Failed to update media category" });
+    }
+  });
+
+  app.delete("/api/admin/media-categories/:id", requireAuth, async (req, res) => {
+    try {
+      const deleted = await storage.deleteMediaCategory(parseInt(req.params.id));
+      if (!deleted) {
+        res.status(404).json({ error: "Category not found" });
+        return;
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting media category:", error);
+      res.status(500).json({ error: "Failed to delete media category" });
     }
   });
 
