@@ -18,7 +18,7 @@ import {
 const ADMIN_PASSWORD_KEY = "admin_password_hash";
 const DEFAULT_PASSWORD = "1909";
 const SESSION_COOKIE_NAME = "ccv_admin_session";
-const activeSessions = new Map<string, { createdAt: number }>();
+const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
 function generateSessionToken(): string {
   return crypto.randomBytes(32).toString("hex");
@@ -52,21 +52,15 @@ async function verifyPassword(password: string): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
-function isAuthenticated(req: Request): boolean {
+async function isAuthenticated(req: Request): Promise<boolean> {
   const sessionToken = req.cookies?.[SESSION_COOKIE_NAME];
   if (!sessionToken) return false;
-  const session = activeSessions.get(sessionToken);
-  if (!session) return false;
-  const maxAge = 24 * 60 * 60 * 1000;
-  if (Date.now() - session.createdAt > maxAge) {
-    activeSessions.delete(sessionToken);
-    return false;
-  }
-  return true;
+  const session = await storage.getAdminSession(sessionToken);
+  return !!session;
 }
 
-function requireAuth(req: Request, res: Response, next: NextFunction): void {
-  if (!isAuthenticated(req)) {
+async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
+  if (!(await isAuthenticated(req))) {
     res.status(401).json({ error: "Unauthorized" });
     return;
   }
@@ -88,13 +82,14 @@ export async function registerRoutes(
       
       if (isValid) {
         const sessionToken = generateSessionToken();
-        activeSessions.set(sessionToken, { createdAt: Date.now() });
+        const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_MS);
+        await storage.createAdminSession({ id: sessionToken, expiresAt });
         
         res.cookie(SESSION_COOKIE_NAME, sessionToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           sameSite: "lax",
-          maxAge: 24 * 60 * 60 * 1000,
+          maxAge: SESSION_MAX_AGE_MS,
           path: "/",
         });
         
@@ -108,17 +103,17 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/admin/logout", (req, res) => {
+  app.post("/api/admin/logout", async (req, res) => {
     const sessionToken = req.cookies?.[SESSION_COOKIE_NAME];
     if (sessionToken) {
-      activeSessions.delete(sessionToken);
+      await storage.deleteAdminSession(sessionToken);
     }
     res.clearCookie(SESSION_COOKIE_NAME, { path: "/" });
     res.json({ success: true });
   });
 
-  app.get("/api/admin/check-session", (req, res) => {
-    res.json({ authenticated: isAuthenticated(req) });
+  app.get("/api/admin/check-session", async (req, res) => {
+    res.json({ authenticated: await isAuthenticated(req) });
   });
 
   app.post("/api/admin/change-password", requireAuth, async (req, res) => {

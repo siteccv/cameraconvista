@@ -25,6 +25,19 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 // ============================================================================
+// ADMIN SESSIONS (Persistent admin authentication sessions)
+// ============================================================================
+export const adminSessions = pgTable("admin_sessions", {
+  id: varchar("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+});
+
+export const insertAdminSessionSchema = createInsertSchema(adminSessions);
+export type InsertAdminSession = z.infer<typeof insertAdminSessionSchema>;
+export type AdminSession = typeof adminSessions.$inferSelect;
+
+// ============================================================================
 // SITE SETTINGS (Global configuration)
 // ============================================================================
 export const siteSettings = pgTable("site_settings", {

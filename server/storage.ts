@@ -8,6 +8,7 @@ import {
   type Event, type InsertEvent,
   type Media, type InsertMedia,
   type SiteSettings, type InsertSiteSettings,
+  type AdminSession, type InsertAdminSession,
   users,
   pages,
   pageBlocks,
@@ -17,9 +18,10 @@ import {
   events,
   media,
   siteSettings,
+  adminSessions,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, asc } from "drizzle-orm";
+import { eq, asc, lt } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -71,6 +73,11 @@ export interface IStorage {
   getSiteSettings(): Promise<SiteSettings[]>;
   getSiteSetting(key: string): Promise<SiteSettings | undefined>;
   upsertSiteSetting(setting: InsertSiteSettings): Promise<SiteSettings>;
+  
+  getAdminSession(id: string): Promise<AdminSession | undefined>;
+  createAdminSession(session: InsertAdminSession): Promise<AdminSession>;
+  deleteAdminSession(id: string): Promise<boolean>;
+  cleanupExpiredSessions(): Promise<void>;
   
   seedInitialData(): Promise<void>;
 }
@@ -279,6 +286,29 @@ export class DatabaseStorage implements IStorage {
     }
     const result = await db.insert(siteSettings).values(setting).returning();
     return result[0];
+  }
+
+  async getAdminSession(id: string): Promise<AdminSession | undefined> {
+    const result = await db.select().from(adminSessions).where(eq(adminSessions.id, id));
+    if (result[0] && new Date(result[0].expiresAt) < new Date()) {
+      await this.deleteAdminSession(id);
+      return undefined;
+    }
+    return result[0];
+  }
+
+  async createAdminSession(session: InsertAdminSession): Promise<AdminSession> {
+    const result = await db.insert(adminSessions).values(session).returning();
+    return result[0];
+  }
+
+  async deleteAdminSession(id: string): Promise<boolean> {
+    const result = await db.delete(adminSessions).where(eq(adminSessions.id, id)).returning();
+    return result.length > 0;
+  }
+
+  async cleanupExpiredSessions(): Promise<void> {
+    await db.delete(adminSessions).where(lt(adminSessions.expiresAt, new Date()));
   }
 
   async seedInitialData(): Promise<void> {
