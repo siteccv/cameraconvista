@@ -88,23 +88,25 @@ export default function EventiPrivati() {
 
   return (
     <PublicLayout>
-      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
-        <EditableImage
-          src={heroImage.src}
-          zoomDesktop={heroImage.zoomDesktop}
-          zoomMobile={heroImage.zoomMobile}
-          offsetXDesktop={heroImage.offsetXDesktop}
-          offsetYDesktop={heroImage.offsetYDesktop}
-          offsetXMobile={heroImage.offsetXMobile}
-          offsetYMobile={heroImage.offsetYMobile}
-          deviceView={deviceView}
-          containerClassName="absolute inset-0"
-          className="w-full h-full object-cover"
-          onSave={handleHeroImageSave}
-        />
-        <div 
-          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
-        />
+      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center">
+        <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
+          <EditableImage
+            src={heroImage.src}
+            zoomDesktop={heroImage.zoomDesktop}
+            zoomMobile={heroImage.zoomMobile}
+            offsetXDesktop={heroImage.offsetXDesktop}
+            offsetYDesktop={heroImage.offsetYDesktop}
+            offsetXMobile={heroImage.offsetXMobile}
+            offsetYMobile={heroImage.offsetYMobile}
+            deviceView={deviceView}
+            containerClassName="absolute inset-0"
+            className="w-full h-full object-cover"
+            onSave={handleHeroImageSave}
+          />
+          <div 
+            className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
+          />
+        </div>
         <div className="relative z-10 text-center text-white">
           <EditableText
             textIt={heroTitle.it}
