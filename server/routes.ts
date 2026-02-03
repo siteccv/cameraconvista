@@ -16,6 +16,8 @@ import {
   updateMediaSchema,
   insertMediaCategorySchema,
   updateMediaCategorySchema,
+  insertGallerySchema,
+  insertGalleryImageSchema,
   insertSiteSettingsSchema,
   footerSettingsSchema,
   defaultFooterSettings,
@@ -709,6 +711,184 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting event:", error);
       res.status(500).json({ error: "Failed to delete event" });
+    }
+  });
+
+  // ========================================
+  // Admin Galleries (Album-based gallery system)
+  // ========================================
+  app.get("/api/admin/galleries", requireAuth, async (req, res) => {
+    try {
+      const galleries = await storage.getGalleries();
+      res.json(galleries);
+    } catch (error) {
+      console.error("Error fetching galleries:", error);
+      res.status(500).json({ error: "Failed to fetch galleries" });
+    }
+  });
+
+  app.get("/api/admin/galleries/:id", requireAuth, async (req, res) => {
+    try {
+      const gallery = await storage.getGallery(parseInt(req.params.id));
+      if (!gallery) {
+        res.status(404).json({ error: "Gallery not found" });
+        return;
+      }
+      res.json(gallery);
+    } catch (error) {
+      console.error("Error fetching gallery:", error);
+      res.status(500).json({ error: "Failed to fetch gallery" });
+    }
+  });
+
+  app.post("/api/admin/galleries", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertGallerySchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const gallery = await storage.createGallery(parsed.data);
+      res.status(201).json(gallery);
+    } catch (error) {
+      console.error("Error creating gallery:", error);
+      res.status(500).json({ error: "Failed to create gallery" });
+    }
+  });
+
+  app.patch("/api/admin/galleries/:id", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertGallerySchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const gallery = await storage.updateGallery(parseInt(req.params.id), parsed.data);
+      if (!gallery) {
+        res.status(404).json({ error: "Gallery not found" });
+        return;
+      }
+      res.json(gallery);
+    } catch (error) {
+      console.error("Error updating gallery:", error);
+      res.status(500).json({ error: "Failed to update gallery" });
+    }
+  });
+
+  app.delete("/api/admin/galleries/:id", requireAuth, async (req, res) => {
+    try {
+      const deleted = await storage.deleteGallery(parseInt(req.params.id));
+      if (!deleted) {
+        res.status(404).json({ error: "Gallery not found" });
+        return;
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting gallery:", error);
+      res.status(500).json({ error: "Failed to delete gallery" });
+    }
+  });
+
+  // Gallery Images (within albums)
+  app.get("/api/admin/galleries/:galleryId/images", requireAuth, async (req, res) => {
+    try {
+      const images = await storage.getGalleryImages(parseInt(req.params.galleryId));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching gallery images:", error);
+      res.status(500).json({ error: "Failed to fetch gallery images" });
+    }
+  });
+
+  app.post("/api/admin/galleries/:galleryId/images", requireAuth, async (req, res) => {
+    try {
+      const galleryId = parseInt(req.params.galleryId);
+      const parsed = insertGalleryImageSchema.safeParse({ ...req.body, galleryId });
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const image = await storage.createGalleryImage(parsed.data);
+      res.status(201).json(image);
+    } catch (error) {
+      console.error("Error creating gallery image:", error);
+      res.status(500).json({ error: "Failed to create gallery image" });
+    }
+  });
+
+  app.patch("/api/admin/galleries/:galleryId/images/:id", requireAuth, async (req, res) => {
+    try {
+      const parsed = insertGalleryImageSchema.partial().safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const image = await storage.updateGalleryImage(parseInt(req.params.id), parsed.data);
+      if (!image) {
+        res.status(404).json({ error: "Gallery image not found" });
+        return;
+      }
+      res.json(image);
+    } catch (error) {
+      console.error("Error updating gallery image:", error);
+      res.status(500).json({ error: "Failed to update gallery image" });
+    }
+  });
+
+  app.delete("/api/admin/galleries/:galleryId/images/:id", requireAuth, async (req, res) => {
+    try {
+      const deleted = await storage.deleteGalleryImage(parseInt(req.params.id));
+      if (!deleted) {
+        res.status(404).json({ error: "Gallery image not found" });
+        return;
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting gallery image:", error);
+      res.status(500).json({ error: "Failed to delete gallery image" });
+    }
+  });
+
+  // ========================================
+  // Public Galleries API
+  // ========================================
+  app.get("/api/galleries", async (req, res) => {
+    try {
+      const galleries = await storage.getGalleries();
+      const visibleGalleries = galleries.filter(g => g.isVisible);
+      res.json(visibleGalleries);
+    } catch (error) {
+      console.error("Error fetching public galleries:", error);
+      res.status(500).json({ error: "Failed to fetch galleries" });
+    }
+  });
+
+  app.get("/api/galleries/:id", async (req, res) => {
+    try {
+      const gallery = await storage.getGallery(parseInt(req.params.id));
+      if (!gallery || !gallery.isVisible) {
+        res.status(404).json({ error: "Gallery not found" });
+        return;
+      }
+      res.json(gallery);
+    } catch (error) {
+      console.error("Error fetching public gallery:", error);
+      res.status(500).json({ error: "Failed to fetch gallery" });
+    }
+  });
+
+  app.get("/api/galleries/:id/images", async (req, res) => {
+    try {
+      const gallery = await storage.getGallery(parseInt(req.params.id));
+      if (!gallery || !gallery.isVisible) {
+        res.status(404).json({ error: "Gallery not found" });
+        return;
+      }
+      const images = await storage.getGalleryImages(parseInt(req.params.id));
+      res.json(images);
+    } catch (error) {
+      console.error("Error fetching public gallery images:", error);
+      res.status(500).json({ error: "Failed to fetch gallery images" });
     }
   });
 
