@@ -43,6 +43,7 @@ Preferred communication style: Simple, everyday language.
 4. **Admin Context**: Manages authentication state, admin preview mode, and device view (desktop/mobile)
 5. **Bilingual Content**: All content fields support IT/EN variants (e.g., `valueIt`, `valueEn`)
 6. **WYSIWYG Editing**: All public pages use `EditableText` and `EditableImage` components for click-to-edit functionality in admin preview mode. Components are located in `client/src/components/admin/`.
+7. **Footer Management**: Footer content is database-driven and editable via Admin → Impostazioni. Settings include about text (IT/EN), contacts, opening hours, social links, quick links, and legal links. Stored as JSON in `site_settings` table under key `footer_settings`.
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
