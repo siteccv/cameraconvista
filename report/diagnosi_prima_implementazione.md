@@ -200,6 +200,7 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Sezioni Pagine non usava forceMobileLayout | Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView + IPhoneFrame | 3 Feb 2026 |
 | Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
 | Footer in preview mobile mostra layout desktop | Aggiornato gridClass con isMobile condition | 3 Feb 2026 |
 | Pagine si aprono a fondo pagina | Aggiunto ScrollToTop component | 3 Feb 2026 |

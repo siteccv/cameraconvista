@@ -5,6 +5,7 @@ import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Monitor, Smartphone, Pencil, Eye, Upload, EyeOff, Check } from "lucide-react";
+import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -32,7 +33,7 @@ const pageComponents = [
 export default function AdminPages() {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const { adminPreview, setAdminPreview, deviceView, setDeviceView } = useAdmin();
+  const { adminPreview, setAdminPreview, deviceView, setDeviceView, setForceMobileLayout } = useAdmin();
   const [activePage, setActivePage] = useState("home");
   const [editMode, setEditMode] = useState(true);
 
@@ -70,6 +71,12 @@ export default function AdminPages() {
     setAdminPreview(editMode);
     return () => setAdminPreview(false);
   }, [editMode, setAdminPreview]);
+
+  // Sincronizza forceMobileLayout con deviceView per forzare il layout mobile
+  useEffect(() => {
+    setForceMobileLayout(deviceView === "mobile");
+    return () => setForceMobileLayout(false);
+  }, [deviceView, setForceMobileLayout]);
 
   const activePageData = dbPages.find(p => p.slug === activePage);
   const ActivePageComponent = pageComponents.find(p => p.slug === activePage)?.component || Home;
@@ -187,23 +194,19 @@ export default function AdminPages() {
         </div>
 
         <div 
-          className="border border-border rounded-md bg-background overflow-hidden"
+          className="border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center p-8"
+          style={{ minHeight: deviceView === "mobile" ? "1000px" : "auto" }}
           data-testid="preview-container"
         >
-          <div 
-            className={`mx-auto transition-all duration-300 overflow-auto ${
-              deviceView === "mobile" 
-                ? "max-w-[375px] h-[667px]" 
-                : "w-full h-[calc(100vh-280px)] min-h-[500px]"
-            }`}
-            style={{
-              boxShadow: deviceView === "mobile" ? "0 0 20px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            <div className="admin-preview-wrapper">
+          {deviceView === "mobile" ? (
+            <IPhoneFrame>
+              <ActivePageComponent />
+            </IPhoneFrame>
+          ) : (
+            <div className="w-full h-[calc(100vh-280px)] min-h-[500px] overflow-auto bg-background rounded-lg border border-border">
               <ActivePageComponent />
             </div>
-          </div>
+          )}
         </div>
       </div>
     </AdminLayout>
