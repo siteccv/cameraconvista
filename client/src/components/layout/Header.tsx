@@ -37,7 +37,7 @@ export function Header() {
             />
           </Link>
 
-          <nav className={`items-center gap-1 ${isMobile ? "hidden" : "hidden lg:flex"}`}>
+          <nav className={isMobile ? "hidden" : "hidden lg:flex items-center gap-1"}>
             {navItems.map((item) => {
               const isActive = location === item.slug;
               return (
@@ -87,7 +87,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className={isMobile ? "" : "lg:hidden"}
+              className={isMobile ? "flex" : "flex lg:hidden"}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
@@ -97,7 +97,7 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <nav className={`py-4 border-t border-border ${isMobile ? "" : "lg:hidden"}`}>
+          <nav className={isMobile ? "py-4 border-t border-border" : "py-4 border-t border-border lg:hidden"}>
             <div className="flex flex-col gap-1">
               {navItems.map((item) => {
                 const isActive = location === item.slug;

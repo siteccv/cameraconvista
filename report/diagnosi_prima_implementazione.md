@@ -43,7 +43,7 @@
 | Requisito | Stato | Note |
 |-----------|-------|------|
 | **Editing blocchi pagina avanzato** | Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
-| **Traduzione automatica con OpenAI** | Non implementato | Integrazione OpenAI configurata ma nessun endpoint di traduzione automatica attivo |
+| **Traduzione automatica con OpenAI** | ✅ Completato | Endpoint `/api/admin/translate` con hook `useTranslation` e componente `TranslateButton` integrato in EditableText, EventModal, FooterSettingsForm, ManageCategoriesModal |
 | **Sincronizzazione Google Sheets** | Non implementato | Schema prevede `sheetRowIndex` ma nessuna logica di sync implementata |
 
 ---
@@ -100,13 +100,17 @@
 - `client/src/pages/admin/settings.tsx` - Impostazioni e cambio password
 
 ### Componenti Admin WYSIWYG
-- `client/src/components/admin/EditableText.tsx` - Editing inline testi
+- `client/src/components/admin/EditableText.tsx` - Editing inline testi con traduzione automatica
 - `client/src/components/admin/EditableImage.tsx` - Editing inline immagini con zoom/offset
-- `client/src/components/admin/EventModal.tsx` - Modal creazione/modifica eventi
-- `client/src/components/admin/FooterSettingsForm.tsx` - Form impostazioni footer
+- `client/src/components/admin/EventModal.tsx` - Modal creazione/modifica eventi con traduzione automatica
+- `client/src/components/admin/FooterSettingsForm.tsx` - Form impostazioni footer con traduzione automatica
 - `client/src/components/admin/ImageDetailsModal.tsx` - Dettagli immagine media library
-- `client/src/components/admin/ManageCategoriesModal.tsx` - Gestione categorie media
+- `client/src/components/admin/ManageCategoriesModal.tsx` - Gestione categorie media con traduzione automatica
 - `client/src/components/admin/IPhoneFrame.tsx` - Frame iPhone 15 Pro per preview mobile
+- `client/src/components/admin/TranslateButton.tsx` - Pulsante traduzione IT→EN riutilizzabile
+
+### Hooks
+- `client/src/hooks/useTranslation.ts` - Hook per chiamate API traduzione con loading/error states
 
 ### Layout
 - `client/src/components/layout/Header.tsx` - Header responsive con supporto forceMobileLayout
@@ -147,6 +151,19 @@
 
 ## PROGRESSI RECENTI
 
+### Traduzione Automatica IT→EN (3 Feb 2026 - notte)
+- Implementato endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)
+- Creato hook `useTranslation` e componente `TranslateButton` riutilizzabili
+- Integrazione in: EditableText, EventModal, FooterSettingsForm, ManageCategoriesModal
+- Prompt contestuali per traduzioni mirate (hospitality, concise, elegant)
+- Autenticazione protetta con requireAuth
+
+### Mobile Preview Admin Fix (3 Feb 2026 - notte)
+- Corretto problema: media queries CSS non funzionano in contenitori IPhoneFrame
+- Aggiunto `forceMobileLayout` per forzare classi mobile senza media queries responsive
+- Aggiornati: Footer.tsx, Header.tsx, home.tsx con classi condizionali
+- Ora l'anteprima mobile admin mostra correttamente il layout a colonna singola
+
 ### Scroll to Top Fix (3 Feb 2026 - notte)
 - Aggiunto componente ScrollToTop che resetta lo scroll ad ogni cambio pagina
 - Risolto problema pagine che si aprivano a fondo pagina invece che all'inizio
@@ -183,6 +200,8 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
+| Footer in preview mobile mostra layout desktop | Aggiornato gridClass con isMobile condition | 3 Feb 2026 |
 | Pagine si aprono a fondo pagina | Aggiunto ScrollToTop component | 3 Feb 2026 |
 | Preview mobile non forza layout mobile | Sincronizzato deviceView con forceMobileLayout | 3 Feb 2026 |
 | IPhoneFrame overflow in viewport piccoli | Aggiunto scaling dinamico | 3 Feb 2026 |

@@ -11,8 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 
 export default function Home() {
   const { t } = useLanguage();
-  const { adminPreview, deviceView } = useAdmin();
+  const { adminPreview, deviceView, forceMobileLayout } = useAdmin();
   const { toast } = useToast();
+
+  // Quando forceMobileLayout è true, forza layout mobile senza media queries
+  const isMobile = forceMobileLayout;
 
   const [heroTitle, setHeroTitle] = useState({ 
     it: "Camera con Vista", en: "Camera con Vista",
@@ -65,9 +68,17 @@ export default function Home() {
   const displayOffsetX = deviceView === "desktop" ? heroImage.offsetXDesktop : heroImage.offsetXMobile;
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
+  // Classi responsive condizionali
+  const heroHeight = isMobile ? "min-h-[60vh]" : "min-h-[60vh] md:min-h-[80vh]";
+  const sectionPadding = isMobile ? "py-10" : "py-10 md:py-20";
+  const titleMargin = isMobile ? "mb-8" : "mb-8 md:mb-12";
+  const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8";
+  const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center";
+  const titleSize = isMobile ? "text-3xl" : "text-3xl md:text-4xl";
+
   return (
     <PublicLayout>
-      <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className={`relative ${heroHeight} flex items-center justify-center overflow-hidden`}>
         <EditableImage
           src={heroImage.src}
           zoomDesktop={heroImage.zoomDesktop}
@@ -121,9 +132,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-10 md:py-20">
+      <section className={sectionPadding}>
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-8 md:mb-12">
+          <div className={`text-center max-w-3xl mx-auto ${titleMargin}`}>
             <EditableText
               textIt={conceptTitle.it}
               textEn={conceptTitle.en}
@@ -147,7 +158,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+          <div className={cardGrid}>
             <TeaserCard
               imageUrl="https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80"
               titleIt="Cocktail Bar"
@@ -179,11 +190,11 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-10 md:py-20 bg-card">
+      <section className={`${sectionPadding} bg-card`}>
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
+          <div className={twoColGrid}>
             <div>
-              <h2 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-philosophy-title">
+              <h2 className={`font-display ${titleSize} mb-4`} data-testid="text-philosophy-title">
                 {t("La nostra filosofia", "Our Philosophy")}
               </h2>
               <div className="space-y-4 text-muted-foreground leading-relaxed">

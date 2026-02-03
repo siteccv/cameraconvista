@@ -28,10 +28,17 @@ export function Footer() {
   const footer = settings || defaultFooterSettings;
   const isMobile = forceMobileLayout;
 
+  // Quando forceMobileLayout è true, forza layout mobile senza media queries
+  const gridClass = isMobile 
+    ? "grid grid-cols-1 gap-6" 
+    : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12";
+  
+  const containerPadding = isMobile ? "py-6" : "py-8 md:py-12";
+
   return (
     <footer className="bg-foreground text-background">
-      <div className="container mx-auto px-4 py-8 md:py-12">
-        <div className={`grid gap-8 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:gap-12"}`}>
+      <div className={`container mx-auto px-4 ${containerPadding}`}>
+        <div className={gridClass}>
           <div>
             <h3 className="font-display text-2xl mb-4">Camera con Vista</h3>
             <p className="text-background/70 text-sm leading-relaxed">
@@ -123,7 +130,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className={`mt-8 pt-6 border-t border-background/10 flex flex-col items-center gap-3 text-xs text-background/50 ${isMobile ? "" : "md:flex-row md:justify-between"}`}>
+        <div className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}>
           <p className="text-center">© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
           <div className="flex gap-4">
             <Link href={footer.legalLinks.privacyUrl} className="hover:text-background transition-colors">
