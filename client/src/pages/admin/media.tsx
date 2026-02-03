@@ -94,12 +94,15 @@ export default function AdminMedia() {
       for (const file of result.successful) {
         const pending = pendingUploads.current.get(file.id);
         if (pending) {
+          const uploadCategory = selectedCategory !== "all" 
+            ? selectedCategory 
+            : (dbCategories.length > 0 ? dbCategories[0].slug : null);
           const mediaData: InsertMedia = {
             filename: pending.name,
             url: pending.objectPath,
             mimeType: pending.mimeType,
             size: pending.size,
-            category: "varie",
+            category: uploadCategory,
           };
           createMediaMutation.mutate(mediaData);
           pendingUploads.current.delete(file.id);
