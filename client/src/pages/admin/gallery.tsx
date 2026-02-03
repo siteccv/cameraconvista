@@ -267,7 +267,7 @@ interface SortableImageProps {
 }
 
 function SortableImage({ image, onEdit, onDelete }: SortableImageProps) {
-  const { language } = useLanguage();
+  const { t, language } = useLanguage();
   const {
     attributes,
     listeners,
@@ -288,30 +288,31 @@ function SortableImage({ image, onEdit, onDelete }: SortableImageProps) {
     <div
       ref={setNodeRef}
       style={style}
-      className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group"
+      {...attributes}
+      {...listeners}
+      className={`relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group cursor-grab active:cursor-grabbing touch-none ${isDragging ? 'ring-2 ring-primary shadow-lg' : ''}`}
       data-testid={`album-image-${image.id}`}
     >
       <img
         src={image.imageUrl}
         alt={language === "it" ? image.altIt || "" : image.altEn || ""}
-        className="w-full h-full object-cover"
+        className="w-full h-full object-cover pointer-events-none"
         style={{
           transform: `scale(${(image.imageZoom || 100) / 100}) translate(${image.imageOffsetX || 0}%, ${image.imageOffsetY || 0}%)`,
         }}
+        draggable={false}
       />
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 left-2 cursor-grab active:cursor-grabbing p-1.5 rounded bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-        data-testid={`drag-handle-${image.id}`}
-      >
+      <div className="absolute top-2 left-2 p-1.5 rounded bg-black/60 text-white">
         <GripVertical className="h-4 w-4" />
       </div>
-      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+      <div 
+        className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+        onPointerDown={(e) => e.stopPropagation()}
+      >
         <Button
           size="icon"
           variant="secondary"
-          onClick={onEdit}
+          onClick={(e) => { e.stopPropagation(); onEdit(); }}
           data-testid={`button-edit-image-${image.id}`}
         >
           <Edit2 className="h-4 w-4" />
@@ -319,7 +320,7 @@ function SortableImage({ image, onEdit, onDelete }: SortableImageProps) {
         <Button
           size="icon"
           variant="destructive"
-          onClick={onDelete}
+          onClick={(e) => { e.stopPropagation(); onDelete(); }}
           data-testid={`button-delete-image-${image.id}`}
         >
           <Trash2 className="h-4 w-4" />
