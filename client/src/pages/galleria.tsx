@@ -4,29 +4,21 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { X } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { GallerySlideViewer } from "@/components/GallerySlideViewer";
 import { useToast } from "@/hooks/use-toast";
-import type { Media } from "@shared/schema";
-
-const defaultImages = [
-  { id: 1, url: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Cocktail" },
-  { id: 2, url: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Cocktail" },
-  { id: 3, url: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Bar" },
-  { id: 4, url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Restaurant" },
-  { id: 5, url: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Event" },
-  { id: 6, url: "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Interior" },
-  { id: 7, url: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Wine" },
-  { id: 8, url: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Event" },
-  { id: 9, url: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", alt: "Party" },
-];
+import { Images } from "lucide-react";
+import type { Gallery, GalleryImage } from "@shared/schema";
 
 export default function Galleria() {
-  const { t } = useLanguage();
-  const { deviceView } = useAdmin();
+  const { t, language } = useLanguage();
+  const { deviceView, forceMobileLayout } = useAdmin();
   const { toast } = useToast();
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedGallery, setSelectedGallery] = useState<Gallery | null>(null);
+  const [viewerOpen, setViewerOpen] = useState(false);
+
+  const isMobile = forceMobileLayout || deviceView === "mobile";
 
   const [heroTitle, setHeroTitle] = useState({
     it: "Galleria", en: "Gallery",
@@ -39,16 +31,28 @@ export default function Galleria() {
     offsetXMobile: 0, offsetYMobile: 0,
   });
   const [introText, setIntroText] = useState({
-    it: "Scopri l'atmosfera unica di Camera con Vista attraverso i nostri scatti.",
-    en: "Discover the unique atmosphere of Camera con Vista through our photos.",
+    it: "Scopri l'atmosfera unica di Camera con Vista attraverso i nostri album fotografici.",
+    en: "Discover the unique atmosphere of Camera con Vista through our photo albums.",
     fontSizeDesktop: 16, fontSizeMobile: 14
   });
 
-  const { data: media, isLoading } = useQuery<Media[]>({
-    queryKey: ["/api/media"],
+  const { data: galleries = [], isLoading: galleriesLoading } = useQuery<Gallery[]>({
+    queryKey: ["/api/galleries"],
   });
 
-  const images = media?.length ? media.map(m => ({ id: m.id, url: m.url, alt: m.altIt || m.altEn || "" })) : defaultImages;
+  const { data: galleryImages = [], isLoading: imagesLoading } = useQuery<GalleryImage[]>({
+    queryKey: ["/api/galleries", selectedGallery?.id, "images"],
+    queryFn: async () => {
+      if (!selectedGallery) return [];
+      const response = await fetch(`/api/galleries/${selectedGallery.id}/images`);
+      return response.json();
+    },
+    enabled: !!selectedGallery,
+  });
+
+  const visibleGalleries = galleries
+    .filter(g => g.isVisible)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
 
   const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     switch (field) {
@@ -67,6 +71,11 @@ export default function Galleria() {
     toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
   };
 
+  const handleAlbumClick = (gallery: Gallery) => {
+    setSelectedGallery(gallery);
+    setViewerOpen(true);
+  };
+
   return (
     <PublicLayout>
       <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center overflow-hidden">
@@ -83,9 +92,7 @@ export default function Galleria() {
           className="w-full h-full object-cover"
           onSave={handleHeroImageSave}
         />
-        <div 
-          className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none" />
         <div className="relative z-10 text-center text-white">
           <EditableText
             textIt={heroTitle.it}
@@ -116,27 +123,47 @@ export default function Galleria() {
             />
           </div>
 
-          {isLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {[...Array(8)].map((_, i) => (
+          {galleriesLoading ? (
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"}`}>
+              {[...Array(3)].map((_, i) => (
                 <Skeleton key={i} className="aspect-square rounded-lg" />
               ))}
             </div>
+          ) : visibleGalleries.length === 0 ? (
+            <div className="text-center py-16 text-muted-foreground">
+              <Images className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <p>{t("La galleria sarà presto disponibile.", "Gallery coming soon.")}</p>
+            </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {images.map((image, index) => (
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"}`}>
+              {visibleGalleries.map((gallery) => (
                 <button
-                  key={image.id}
-                  onClick={() => setSelectedImage(image.url)}
-                  className="aspect-square rounded-placeholder overflow-hidden group cursor-pointer"
-                  data-testid={`gallery-image-${image.id}`}
+                  key={gallery.id}
+                  onClick={() => handleAlbumClick(gallery)}
+                  className="group relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer"
+                  data-testid={`album-cover-${gallery.id}`}
                 >
-                  <img
-                    src={image.url}
-                    alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading={index > 3 ? "lazy" : "eager"}
-                  />
+                  {gallery.coverUrl ? (
+                    <img
+                      src={gallery.coverUrl}
+                      alt={language === "it" ? gallery.titleIt : gallery.titleEn}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      style={{
+                        transform: `scale(${(gallery.coverZoom || 100) / 100}) translate(${gallery.coverOffsetX || 0}%, ${gallery.coverOffsetY || 0}%)`,
+                      }}
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Images className="h-16 w-16 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <h3 className="font-display text-2xl md:text-3xl text-white text-center px-4 drop-shadow-lg">
+                      {language === "it" ? gallery.titleIt : gallery.titleEn}
+                    </h3>
+                  </div>
                 </button>
               ))}
             </div>
@@ -144,25 +171,16 @@ export default function Galleria() {
         </div>
       </section>
 
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
-          onClick={() => setSelectedImage(null)}
-        >
-          <button
-            onClick={() => setSelectedImage(null)}
-            className="absolute top-4 right-4 text-white hover:text-white/80 transition-colors"
-            data-testid="button-close-lightbox"
-          >
-            <X className="h-8 w-8" />
-          </button>
-          <img
-            src={selectedImage}
-            alt="Gallery image"
-            className="max-w-full max-h-[90vh] object-contain rounded-lg"
-            onClick={(e) => e.stopPropagation()}
-          />
-        </div>
+      {selectedGallery && (
+        <GallerySlideViewer
+          open={viewerOpen}
+          onClose={() => {
+            setViewerOpen(false);
+            setSelectedGallery(null);
+          }}
+          gallery={selectedGallery}
+          images={galleryImages}
+        />
       )}
     </PublicLayout>
   );
