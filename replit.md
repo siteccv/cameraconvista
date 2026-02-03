@@ -12,6 +12,8 @@ Preferred communication style: Simple, everyday language.
 
 **Automatic documentation update**: Always update `report/STATO_ATTUALE_PROGETTO.md` with the current project state after implementing new features or fixes.
 
+**Backup command**: When user says "esegui nuovo backup", save a timestamped copy of `report/STATO_ATTUALE_PROGETTO.md` to `report/backups/BACKUP_YYYY-MM-DD_HH-MM.md`.
+
 ## System Architecture
 
 ### Frontend Architecture
