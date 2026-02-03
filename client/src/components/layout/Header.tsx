@@ -120,17 +120,17 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && isMobile && (
-          <nav className="py-4 border-t border-border">
-            <div className="flex flex-col gap-1">
+          <nav className="absolute left-0 right-0 top-14 z-40 bg-background/95 backdrop-blur-sm border-b border-border shadow-lg py-6">
+            <div className="container mx-auto px-4 flex flex-col gap-2">
               {navItems.map((item) => {
                 const isActive = location === item.slug;
                 return (
                   <Link key={item.slug} href={item.slug}>
                     <span
-                      className={`block px-4 py-3 text-sm font-medium tracking-wide uppercase transition-colors cursor-pointer ${
+                      className={`block px-4 py-3 font-display text-lg tracking-wide transition-colors cursor-pointer ${
                         isActive
-                          ? "text-primary bg-accent"
-                          : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                       data-testid={`nav-mobile-${item.slug.replace("/", "") || "home"}`}
@@ -142,7 +142,7 @@ export function Header() {
               })}
 
               <div className="mt-4 pt-4 border-t border-border px-4">
-                <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-3 font-display text-base">
                   <span className="text-muted-foreground">{t("Lingua:", "Language:")}</span>
                   <button
                     onClick={() => { setLanguage("it"); setMobileMenuOpen(false); }}
