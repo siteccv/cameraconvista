@@ -26,16 +26,17 @@ import {
   Search,
   Upload,
   Globe,
+  LogOut,
 } from "lucide-react";
 
 const adminNavItems = [
-  { slug: "/admin", icon: LayoutDashboard, labelIt: "Dashboard", labelEn: "Dashboard" },
-  { slug: "/admin/pages", icon: FileText, labelIt: "Sezioni Pagine", labelEn: "Page Sections" },
-  { slug: "/admin/events", icon: Calendar, labelIt: "Eventi", labelEn: "Events" },
-  { slug: "/admin/media", icon: Image, labelIt: "Libreria Media", labelEn: "Media Library" },
-  { slug: "/admin/preview", icon: Eye, labelIt: "Anteprima", labelEn: "Preview" },
-  { slug: "/admin/seo", icon: Search, labelIt: "SEO & Metadata", labelEn: "SEO & Metadata" },
-  { slug: "/admin/settings", icon: Settings, labelIt: "Impostazioni Sito", labelEn: "Site Settings" },
+  { slug: "/admina", icon: LayoutDashboard, labelIt: "Dashboard", labelEn: "Dashboard" },
+  { slug: "/admina/pages", icon: FileText, labelIt: "Sezioni Pagine", labelEn: "Page Sections" },
+  { slug: "/admina/events", icon: Calendar, labelIt: "Eventi", labelEn: "Events" },
+  { slug: "/admina/media", icon: Image, labelIt: "Libreria Media", labelEn: "Media Library" },
+  { slug: "/admina/preview", icon: Eye, labelIt: "Anteprima", labelEn: "Preview" },
+  { slug: "/admina/seo", icon: Search, labelIt: "SEO & Metadata", labelEn: "SEO & Metadata" },
+  { slug: "/admina/settings", icon: Settings, labelIt: "Impostazioni", labelEn: "Settings" },
 ];
 
 interface AdminLayoutProps {
@@ -44,8 +45,8 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { t, language, setLanguage } = useLanguage();
-  const { setAdminPreview } = useAdmin();
-  const [location] = useLocation();
+  const { logout } = useAdmin();
+  const [location, setLocation] = useLocation();
 
   const sidebarStyle = {
     "--sidebar-width": "16rem",
@@ -68,7 +69,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <SidebarMenu>
                   {adminNavItems.map((item) => {
                     const isActive = location === item.slug || 
-                      (item.slug !== "/admin" && location.startsWith(item.slug));
+                      (item.slug !== "/admina" && location.startsWith(item.slug));
                     return (
                       <SidebarMenuItem key={item.slug}>
                         <SidebarMenuButton asChild isActive={isActive}>
@@ -106,6 +107,19 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   >
                     <Globe className="h-4 w-4" />
                     {t("Vedi Sito", "View Site")}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start gap-2 text-muted-foreground"
+                    onClick={async () => {
+                      await logout();
+                      setLocation("/admina/login");
+                    }}
+                    data-testid="button-logout"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    {t("Esci", "Logout")}
                   </Button>
                 </div>
               </SidebarGroupContent>
