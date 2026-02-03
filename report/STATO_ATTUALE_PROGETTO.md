@@ -171,7 +171,7 @@
 - Integrato IPhoneFrame nella pagina Sezioni Pagine
 - Ora entrambe le pagine admin usano lo stesso sistema di preview mobile
 
-### Galleria Album System (3 Feb 2026 - notte)
+### Galleria Album System (3-4 Feb 2026)
 - Implementato sistema galleria basato su album con copertine e titoli centrati
 - Schema DB: tabelle `galleries` e `gallery_images` con supporto bilingue IT/EN
 - API admin e pubbliche per CRUD album e immagini
@@ -180,12 +180,15 @@
   - MediaPickerModal per selezione immagini dalla libreria
   - Controlli zoom/offset per copertine
   - Switch visibilità album
+  - **Riordino immagini**: Pulsanti su/giù per modificare l'ordine delle immagini nell'album
+  - **Drag a 360°**: Trascinamento diretto sull'anteprima immagine per posizionamento libero (attivo quando zoom > 100%)
 - Componente GallerySlideViewer per visualizzazione pubblica:
   - Immagini formato Instagram Story (9:16)
   - Navigazione swipe touch su mobile
   - Navigazione frecce su desktop
   - Indicatori dot per posizione corrente
 - Pagina pubblica `/galleria` con griglia album e titoli centrati
+- 4 gallerie test create: Il Locale, La Cucina, Cocktails, Eventi (5 foto ciascuna)
 - Test E2E completato con successo
 
 ### Traduzione Automatica IT→EN (3 Feb 2026 - notte)

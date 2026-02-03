@@ -10,6 +10,8 @@ The stack is **Vite + React + Express + Drizzle ORM** with PostgreSQL as the dat
 
 Preferred communication style: Simple, everyday language.
 
+**Automatic documentation update**: Always update `report/STATO_ATTUALE_PROGETTO.md` with the current project state after implementing new features or fixes.
+
 ## System Architecture
 
 ### Frontend Architecture

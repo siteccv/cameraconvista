@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -26,6 +26,8 @@ import {
   X,
   ZoomIn,
   Move,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import type { Gallery, InsertGallery, GalleryImage, InsertGalleryImage, Media } from "@shared/schema";
 
@@ -321,6 +323,18 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
     }
   };
 
+  const handleMoveImage = (image: GalleryImage, direction: "up" | "down") => {
+    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+    const currentIndex = sorted.findIndex(img => img.id === image.id);
+    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
+    
+    if (newIndex < 0 || newIndex >= sorted.length) return;
+    
+    const otherImage = sorted[newIndex];
+    updateImageMutation.mutate({ id: image.id, data: { sortOrder: otherImage.sortOrder } });
+    updateImageMutation.mutate({ id: otherImage.id, data: { sortOrder: image.sortOrder } });
+  };
+
   const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
@@ -380,6 +394,28 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
                       <Badge variant="secondary" className="text-xs">
                         {index + 1}
                       </Badge>
+                    </div>
+                    <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-7 w-7"
+                        onClick={() => handleMoveImage(image, "up")}
+                        disabled={index === 0}
+                        data-testid={`button-move-up-${image.id}`}
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-7 w-7"
+                        onClick={() => handleMoveImage(image, "down")}
+                        disabled={index === sortedImages.length - 1}
+                        data-testid={`button-move-down-${image.id}`}
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
                     </div>
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <Button
@@ -441,11 +477,71 @@ function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalProps) {
   const [zoom, setZoom] = useState(image.imageZoom || 100);
   const [offsetX, setOffsetX] = useState(image.imageOffsetX || 0);
   const [offsetY, setOffsetY] = useState(image.imageOffsetY || 0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, offsetX: 0, offsetY: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const handleSave = () => {
     onSave({ imageZoom: zoom, imageOffsetX: offsetX, imageOffsetY: offsetY });
     onClose();
   };
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (zoom <= 100) return;
+    setIsDragging(true);
+    dragStartRef.current = { x: e.clientX, y: e.clientY, offsetX, offsetY };
+    e.preventDefault();
+  }, [zoom, offsetX, offsetY]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const rect = container.getBoundingClientRect();
+    const sensitivity = 100 / rect.width;
+    
+    const deltaX = (e.clientX - dragStartRef.current.x) * sensitivity;
+    const deltaY = (e.clientY - dragStartRef.current.y) * sensitivity;
+    
+    const maxOffset = (zoom - 100) / 2;
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
+    
+    setOffsetX(Math.round(newX));
+    setOffsetY(Math.round(newY));
+  }, [isDragging, zoom]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (zoom <= 100) return;
+    const touch = e.touches[0];
+    setIsDragging(true);
+    dragStartRef.current = { x: touch.clientX, y: touch.clientY, offsetX, offsetY };
+  }, [zoom, offsetX, offsetY]);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging) return;
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const touch = e.touches[0];
+    const rect = container.getBoundingClientRect();
+    const sensitivity = 100 / rect.width;
+    
+    const deltaX = (touch.clientX - dragStartRef.current.x) * sensitivity;
+    const deltaY = (touch.clientY - dragStartRef.current.y) * sensitivity;
+    
+    const maxOffset = (zoom - 100) / 2;
+    const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
+    const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
+    
+    setOffsetX(Math.round(newX));
+    setOffsetY(Math.round(newY));
+  }, [isDragging, zoom]);
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -455,16 +551,33 @@ function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalProps) {
         </DialogHeader>
 
         <div className="py-4 space-y-6">
-          <div className="aspect-[9/16] rounded-lg overflow-hidden bg-muted mx-auto max-w-[200px]">
+          <div 
+            ref={containerRef}
+            className={`aspect-[9/16] rounded-lg overflow-hidden bg-muted mx-auto max-w-[200px] ${zoom > 100 ? "cursor-grab" : ""} ${isDragging ? "cursor-grabbing" : ""}`}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleMouseUp}
+            data-testid="image-drag-area"
+          >
             <img
               src={image.imageUrl}
               alt=""
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover pointer-events-none select-none"
               style={{
                 transform: `scale(${zoom / 100}) translate(${offsetX}%, ${offsetY}%)`,
               }}
+              draggable={false}
             />
           </div>
+          {zoom > 100 && (
+            <p className="text-xs text-muted-foreground text-center">
+              {t("Trascina l'immagine per regolare la posizione", "Drag the image to adjust position")}
+            </p>
+          )}
 
           <div className="space-y-4">
             <div className="space-y-2">
