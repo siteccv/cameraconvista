@@ -16,6 +16,23 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { TranslateButton } from "@/components/admin/TranslateButton";
 import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
 import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
   Plus,
   Images,
   Trash2,
@@ -26,8 +43,7 @@ import {
   X,
   ZoomIn,
   Move,
-  ChevronUp,
-  ChevronDown,
+  GripVertical,
 } from "lucide-react";
 import type { Gallery, InsertGallery, GalleryImage, InsertGalleryImage, Media } from "@shared/schema";
 
@@ -244,6 +260,75 @@ function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
   );
 }
 
+interface SortableImageProps {
+  image: GalleryImage;
+  onEdit: () => void;
+  onDelete: () => void;
+}
+
+function SortableImage({ image, onEdit, onDelete }: SortableImageProps) {
+  const { language } = useLanguage();
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group"
+      data-testid={`album-image-${image.id}`}
+    >
+      <img
+        src={image.imageUrl}
+        alt={language === "it" ? image.altIt || "" : image.altEn || ""}
+        className="w-full h-full object-cover"
+        style={{
+          transform: `scale(${(image.imageZoom || 100) / 100}) translate(${image.imageOffsetX || 0}%, ${image.imageOffsetY || 0}%)`,
+        }}
+      />
+      <div
+        {...attributes}
+        {...listeners}
+        className="absolute top-2 left-2 cursor-grab active:cursor-grabbing p-1.5 rounded bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+        data-testid={`drag-handle-${image.id}`}
+      >
+        <GripVertical className="h-4 w-4" />
+      </div>
+      <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+        <Button
+          size="icon"
+          variant="secondary"
+          onClick={onEdit}
+          data-testid={`button-edit-image-${image.id}`}
+        >
+          <Edit2 className="h-4 w-4" />
+        </Button>
+        <Button
+          size="icon"
+          variant="destructive"
+          onClick={onDelete}
+          data-testid={`button-delete-image-${image.id}`}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 interface AlbumImagesModalProps {
   open: boolean;
   onClose: () => void;
@@ -255,6 +340,17 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
   const { toast } = useToast();
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const { data: images = [], isLoading } = useQuery<GalleryImage[]>({
     queryKey: ["/api/admin/galleries", gallery.id, "images"],
@@ -293,6 +389,22 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
     },
   });
 
+  const reorderImagesMutation = useMutation({
+    mutationFn: async (updates: { id: number; sortOrder: number }[]) => {
+      await Promise.all(
+        updates.map(({ id, sortOrder }) =>
+          apiRequest("PATCH", `/api/admin/galleries/${gallery.id}/images/${id}`, { sortOrder })
+        )
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries", gallery.id, "images"] });
+    },
+    onError: () => {
+      toast({ title: t("Errore", "Error"), description: t("Impossibile riordinare le immagini.", "Failed to reorder images."), variant: "destructive" });
+    },
+  });
+
   const deleteImageMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await apiRequest("DELETE", `/api/admin/galleries/${gallery.id}/images/${id}`);
@@ -323,16 +435,21 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
     }
   };
 
-  const handleMoveImage = (image: GalleryImage, direction: "up" | "down") => {
-    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-    const currentIndex = sorted.findIndex(img => img.id === image.id);
-    const newIndex = direction === "up" ? currentIndex - 1 : currentIndex + 1;
-    
-    if (newIndex < 0 || newIndex >= sorted.length) return;
-    
-    const otherImage = sorted[newIndex];
-    updateImageMutation.mutate({ id: image.id, data: { sortOrder: otherImage.sortOrder } });
-    updateImageMutation.mutate({ id: otherImage.id, data: { sortOrder: image.sortOrder } });
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+    const oldIndex = sortedImages.findIndex((img) => img.id === active.id);
+    const newIndex = sortedImages.findIndex((img) => img.id === over.id);
+
+    const reordered = arrayMove(sortedImages, oldIndex, newIndex);
+    const updates = reordered.map((img, index) => ({
+      id: img.id,
+      sortOrder: index,
+    }));
+
+    reorderImagesMutation.mutate(updates);
   };
 
   const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
@@ -352,8 +469,8 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
             <div className="flex justify-between items-center mb-4">
               <p className="text-sm text-muted-foreground">
                 {t(
-                  `${images.length} immagini nell'album. Formato: Instagram Story (9:16)`,
-                  `${images.length} images in album. Format: Instagram Story (9:16)`
+                  `${images.length} immagini nell'album. Trascina per riordinare.`,
+                  `${images.length} images in album. Drag to reorder.`
                 )}
               </p>
               <Button onClick={() => setShowMediaPicker(true)} data-testid="button-add-album-image">
@@ -375,69 +492,27 @@ function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalProps) {
                 <p className="text-sm mt-2">{t("Clicca 'Aggiungi Immagine' per iniziare.", "Click 'Add Image' to start.")}</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                {sortedImages.map((image, index) => (
-                  <div
-                    key={image.id}
-                    className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group"
-                    data-testid={`album-image-${image.id}`}
-                  >
-                    <img
-                      src={image.imageUrl}
-                      alt={language === "it" ? image.altIt || "" : image.altEn || ""}
-                      className="w-full h-full object-cover transition-transform"
-                      style={{
-                        transform: `scale(${(image.imageZoom || 100) / 100}) translate(${image.imageOffsetX || 0}%, ${image.imageOffsetY || 0}%)`,
-                      }}
-                    />
-                    <div className="absolute top-2 left-2">
-                      <Badge variant="secondary" className="text-xs">
-                        {index + 1}
-                      </Badge>
-                    </div>
-                    <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-7 w-7"
-                        onClick={() => handleMoveImage(image, "up")}
-                        disabled={index === 0}
-                        data-testid={`button-move-up-${image.id}`}
-                      >
-                        <ChevronUp className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-7 w-7"
-                        onClick={() => handleMoveImage(image, "down")}
-                        disabled={index === sortedImages.length - 1}
-                        data-testid={`button-move-down-${image.id}`}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                      <Button
-                        size="icon"
-                        variant="secondary"
-                        onClick={() => setEditingImage(image)}
-                        data-testid={`button-edit-image-${image.id}`}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="destructive"
-                        onClick={() => handleDeleteImage(image)}
-                        data-testid={`button-delete-image-${image.id}`}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableContext
+                  items={sortedImages.map((img) => img.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {sortedImages.map((image) => (
+                      <SortableImage
+                        key={image.id}
+                        image={image}
+                        onEdit={() => setEditingImage(image)}
+                        onDelete={() => handleDeleteImage(image)}
+                      />
+                    ))}
                   </div>
-                ))}
-              </div>
+                </SortableContext>
+              </DndContext>
             )}
           </div>
 
@@ -574,7 +649,7 @@ function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalProps) {
             />
           </div>
           {zoom > 100 && (
-            <p className="text-xs text-muted-foreground text-center">
+            <p className="text-xs text-center text-muted-foreground">
               {t("Trascina l'immagine per regolare la posizione", "Drag the image to adjust position")}
             </p>
           )}
@@ -585,7 +660,14 @@ function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalProps) {
                 <ZoomIn className="h-4 w-4 text-muted-foreground" />
                 <Label className="text-sm">Zoom: {zoom}%</Label>
               </div>
-              <Slider value={[zoom]} onValueChange={([v]) => setZoom(v)} min={100} max={200} step={5} />
+              <Slider
+                value={[zoom]}
+                onValueChange={([v]) => setZoom(v)}
+                min={100}
+                max={200}
+                step={5}
+                data-testid="slider-image-zoom"
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -593,47 +675,64 @@ function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalProps) {
                   <Move className="h-4 w-4 text-muted-foreground" />
                   <Label className="text-sm">X: {offsetX}%</Label>
                 </div>
-                <Slider value={[offsetX]} onValueChange={([v]) => setOffsetX(v)} min={-50} max={50} step={1} />
+                <Slider
+                  value={[offsetX]}
+                  onValueChange={([v]) => setOffsetX(v)}
+                  min={-50}
+                  max={50}
+                  step={1}
+                  data-testid="slider-image-offset-x"
+                />
               </div>
               <div className="space-y-2">
                 <Label className="text-sm">Y: {offsetY}%</Label>
-                <Slider value={[offsetY]} onValueChange={([v]) => setOffsetY(v)} min={-50} max={50} step={1} />
+                <Slider
+                  value={[offsetY]}
+                  onValueChange={([v]) => setOffsetY(v)}
+                  min={-50}
+                  max={50}
+                  step={1}
+                  data-testid="slider-image-offset-y"
+                />
               </div>
             </div>
           </div>
         </div>
 
         <div className="flex justify-end gap-2 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>{t("Annulla", "Cancel")}</Button>
-          <Button onClick={handleSave}>{t("Salva", "Save")}</Button>
+          <Button variant="outline" onClick={onClose}>
+            {t("Annulla", "Cancel")}
+          </Button>
+          <Button onClick={handleSave} data-testid="button-save-image-zoom">
+            {t("Salva", "Save")}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-export default function AdminGallery() {
+export default function GalleryPage() {
   const { t, language } = useLanguage();
   const { toast } = useToast();
-
-  const [modalOpen, setModalOpen] = useState(false);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
   const [editingGallery, setEditingGallery] = useState<Gallery | null>(null);
-  const [viewingAlbum, setViewingAlbum] = useState<Gallery | null>(null);
+  const [managingImages, setManagingImages] = useState<Gallery | null>(null);
 
   const { data: galleries = [], isLoading } = useQuery<Gallery[]>({
     queryKey: ["/api/admin/galleries"],
   });
 
-  const updateMutation = useMutation({
-    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertGallery> }) => {
-      const response = await apiRequest("PATCH", `/api/admin/galleries/${id}`, data);
+  const toggleVisibilityMutation = useMutation({
+    mutationFn: async ({ id, isVisible }: { id: number; isVisible: boolean }) => {
+      const response = await apiRequest("PATCH", `/api/admin/galleries/${id}`, { isVisible });
       return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiornare l'album.", "Failed to update album."), variant: "destructive" });
+      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiornare la visibilità.", "Failed to update visibility."), variant: "destructive" });
     },
   });
 
@@ -651,167 +750,141 @@ export default function AdminGallery() {
     },
   });
 
-  const sortedGalleries = [...galleries].sort((a, b) => a.sortOrder - b.sortOrder);
-
-  const handleAddGallery = () => {
-    setEditingGallery(null);
-    setModalOpen(true);
-  };
-
-  const handleEditGallery = (gallery: Gallery) => {
-    setEditingGallery(gallery);
-    setModalOpen(true);
-  };
-
-  const handleDeleteGallery = (gallery: Gallery) => {
-    if (confirm(t(`Sei sicuro di voler eliminare l'album "${gallery.titleIt}"?`, `Are you sure you want to delete the album "${gallery.titleEn}"?`))) {
+  const handleDelete = (gallery: Gallery) => {
+    if (confirm(t("Sei sicuro di voler eliminare questo album e tutte le sue immagini?", "Are you sure you want to delete this album and all its images?"))) {
       deleteMutation.mutate(gallery.id);
     }
   };
 
-  const handleToggleVisible = (gallery: Gallery) => {
-    updateMutation.mutate({
-      id: gallery.id,
-      data: { isVisible: !gallery.isVisible },
-    });
-  };
+  const sortedGalleries = [...galleries].sort((a, b) => a.sortOrder - b.sortOrder);
 
   return (
     <AdminLayout>
       <div className="p-6">
-        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div className="flex justify-between items-center mb-6">
           <div>
-            <h1 className="font-display text-3xl" data-testid="text-gallery-title">
-              {t("Galleria Album", "Album Gallery")}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              {t(
-                `Gestisci gli album della galleria (${galleries.length} album)`,
-                `Manage gallery albums (${galleries.length} albums)`
-              )}
+            <h1 className="text-2xl font-bold">{t("Galleria", "Gallery")}</h1>
+            <p className="text-muted-foreground">
+              {t("Gestisci gli album fotografici del ristorante", "Manage restaurant photo albums")}
             </p>
           </div>
-          <Button onClick={handleAddGallery} disabled={galleries.length >= 10} data-testid="button-add-gallery">
+          <Button onClick={() => { setEditingGallery(null); setShowGalleryModal(true); }} data-testid="button-new-gallery">
             <Plus className="h-4 w-4 mr-2" />
             {t("Nuovo Album", "New Album")}
           </Button>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Images className="h-5 w-5" />
-              {t("Album", "Albums")}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {[1, 2, 3].map((i) => (
-                  <Skeleton key={i} className="aspect-square rounded-lg" />
-                ))}
-              </div>
-            ) : galleries.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8" data-testid="text-no-galleries">
-                {t("Nessun album creato.", "No albums created.")}
-              </p>
-            ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sortedGalleries.map((gallery) => (
-                  <div
-                    key={gallery.id}
-                    className="relative rounded-lg overflow-hidden bg-muted group cursor-pointer"
-                    data-testid={`gallery-card-${gallery.id}`}
-                  >
-                    <div
-                      className="aspect-square relative"
-                      onClick={() => setViewingAlbum(gallery)}
-                    >
-                      {gallery.coverUrl ? (
-                        <img
-                          src={gallery.coverUrl}
-                          alt={language === "it" ? gallery.titleIt : gallery.titleEn}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
-                          style={{
-                            transform: `scale(${(gallery.coverZoom || 100) / 100}) translate(${gallery.coverOffsetX || 0}%, ${gallery.coverOffsetY || 0}%)`,
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                          <ImageIcon className="h-16 w-16" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                        <h3 className="font-display text-xl">
-                          {language === "it" ? gallery.titleIt : gallery.titleEn}
-                        </h3>
-                      </div>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[1, 2, 3].map((i) => (
+              <Skeleton key={i} className="h-64 rounded-lg" />
+            ))}
+          </div>
+        ) : galleries.length === 0 ? (
+          <Card className="p-12 text-center">
+            <Images className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+            <h3 className="text-lg font-medium mb-2">{t("Nessun album", "No albums")}</h3>
+            <p className="text-muted-foreground mb-4">
+              {t("Crea il primo album per iniziare a organizzare le foto.", "Create the first album to start organizing photos.")}
+            </p>
+            <Button onClick={() => setShowGalleryModal(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              {t("Crea Album", "Create Album")}
+            </Button>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedGalleries.map((gallery) => (
+              <Card key={gallery.id} className="overflow-hidden" data-testid={`gallery-card-${gallery.id}`}>
+                <div className="relative aspect-square bg-muted">
+                  {gallery.coverUrl ? (
+                    <img
+                      src={gallery.coverUrl}
+                      alt={language === "it" ? gallery.titleIt : gallery.titleEn}
+                      className="w-full h-full object-cover"
+                      style={{
+                        transform: `scale(${(gallery.coverZoom || 100) / 100}) translate(${gallery.coverOffsetX || 0}%, ${gallery.coverOffsetY || 0}%)`,
+                      }}
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <ImageIcon className="h-16 w-16 text-muted-foreground opacity-50" />
                     </div>
-
-                    <div className="absolute top-2 right-2 flex gap-1">
-                      <Badge variant={gallery.isVisible ? "default" : "secondary"}>
-                        {gallery.isVisible ? <Eye className="h-3 w-3" /> : <EyeOff className="h-3 w-3" />}
-                      </Badge>
-                    </div>
-
-                    <div className="p-3 border-t bg-card flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Switch
-                          checked={gallery.isVisible}
-                          onCheckedChange={() => handleToggleVisible(gallery)}
-                          data-testid={`switch-gallery-visible-${gallery.id}`}
-                        />
-                        <span className="text-sm text-muted-foreground">
-                          {gallery.isVisible ? t("Visibile", "Visible") : t("Nascosto", "Hidden")}
-                        </span>
-                      </div>
-                      <div className="flex gap-1">
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => setViewingAlbum(gallery)}
-                          data-testid={`button-view-album-${gallery.id}`}
-                        >
-                          <Images className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleEditGallery(gallery)}
-                          data-testid={`button-edit-gallery-${gallery.id}`}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleDeleteGallery(gallery)}
-                          data-testid={`button-delete-gallery-${gallery.id}`}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <h3 className="text-white text-xl font-display">
+                      {language === "it" ? gallery.titleIt : gallery.titleEn}
+                    </h3>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                </div>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={gallery.isVisible}
+                        onCheckedChange={(checked) =>
+                          toggleVisibilityMutation.mutate({ id: gallery.id, isVisible: checked })
+                        }
+                        data-testid={`switch-visibility-${gallery.id}`}
+                      />
+                      <span className="text-sm text-muted-foreground">
+                        {gallery.isVisible ? t("Visibile", "Visible") : t("Nascosto", "Hidden")}
+                      </span>
+                    </div>
+                    {!gallery.isVisible && (
+                      <Badge variant="outline">
+                        <EyeOff className="h-3 w-3 mr-1" />
+                        {t("Nascosto", "Hidden")}
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1"
+                      onClick={() => setManagingImages(gallery)}
+                      data-testid={`button-manage-images-${gallery.id}`}
+                    >
+                      <Images className="h-4 w-4 mr-2" />
+                      {t("Immagini", "Images")}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => { setEditingGallery(gallery); setShowGalleryModal(true); }}
+                      data-testid={`button-edit-gallery-${gallery.id}`}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(gallery)}
+                      data-testid={`button-delete-gallery-${gallery.id}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
       <GalleryModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
+        open={showGalleryModal}
+        onClose={() => { setShowGalleryModal(false); setEditingGallery(null); }}
         gallery={editingGallery}
       />
 
-      {viewingAlbum && (
+      {managingImages && (
         <AlbumImagesModal
-          open={!!viewingAlbum}
-          onClose={() => setViewingAlbum(null)}
-          gallery={viewingAlbum}
+          open={!!managingImages}
+          onClose={() => setManagingImages(null)}
+          gallery={managingImages}
         />
       )}
     </AdminLayout>

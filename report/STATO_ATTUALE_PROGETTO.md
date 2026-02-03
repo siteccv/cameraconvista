@@ -180,8 +180,8 @@
   - MediaPickerModal per selezione immagini dalla libreria
   - Controlli zoom/offset per copertine
   - Switch visibilità album
-  - **Riordino immagini**: Pulsanti su/giù per modificare l'ordine delle immagini nell'album
-  - **Drag a 360°**: Trascinamento diretto sull'anteprima immagine per posizionamento libero (attivo quando zoom > 100%)
+  - **Drag & Drop riordino**: Trascina le immagini per riordinare (usa @dnd-kit)
+  - **Drag a 360°**: Nel modale zoom, trascina l'immagine per posizionamento libero (quando zoom > 100%)
 - Componente GallerySlideViewer per visualizzazione pubblica:
   - Immagini formato Instagram Story (9:16)
   - Navigazione swipe touch su mobile
