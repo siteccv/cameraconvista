@@ -198,6 +198,12 @@
 - Prompt contestuali per traduzioni mirate (hospitality, concise, elegant)
 - Autenticazione protetta con requireAuth
 
+### Header Mobile Fix (4 Feb 2026)
+- Nuovo logo: `logo_ccv.png` sostituisce il precedente
+- Mobile: Logo centrato, hamburger a sinistra
+- Mobile: Selettore lingua IT/EN spostato in fondo al menu hamburger
+- Desktop: Layout invariato con selettore lingua visibile nell'header
+
 ### Mobile Preview Admin Fix (3 Feb 2026 - notte)
 - Corretto problema: media queries CSS non funzionano in contenitori IPhoneFrame
 - Aggiunto `forceMobileLayout` per forzare classi mobile senza media queries responsive
