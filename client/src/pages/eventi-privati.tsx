@@ -119,9 +119,9 @@ export default function EventiPrivati() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12 max-w-3xl mx-auto">
+          <div className="text-center mb-8 max-w-3xl mx-auto">
             <EditableText
               textIt={sectionTitle.it}
               textEn={sectionTitle.en}
@@ -167,10 +167,10 @@ export default function EventiPrivati() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-10 md:py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-request-quote">
+            <h2 className="font-display text-2xl md:text-4xl mb-4" data-testid="text-request-quote">
               {t("Richiedi un preventivo", "Request a Quote")}
             </h2>
             <p className="text-muted-foreground mb-8">
@@ -189,9 +189,9 @@ export default function EventiPrivati() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="font-display text-3xl md:text-4xl text-center mb-12" data-testid="text-gallery-title">
+          <h2 className="font-display text-2xl md:text-4xl text-center mb-8" data-testid="text-gallery-title">
             {t("I nostri spazi", "Our Spaces")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

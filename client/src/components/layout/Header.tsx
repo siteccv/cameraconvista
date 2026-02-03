@@ -1,5 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
@@ -18,22 +19,25 @@ const navItems = [
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
+  const { forceMobileLayout } = useAdmin();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const isMobile = forceMobileLayout;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between gap-4">
+        <div className="flex h-14 items-center justify-between gap-2">
           <Link href="/" className="flex items-center gap-2" data-testid="link-home-logo">
             <img 
               src={logoImg} 
               alt="Camera con Vista" 
-              className="h-6 md:h-8 w-auto"
+              className="h-6 w-auto"
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-1">
+          <nav className={`items-center gap-1 ${isMobile ? "hidden" : "hidden lg:flex"}`}>
             {navItems.map((item) => {
               const isActive = location === item.slug;
               return (
@@ -54,10 +58,10 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1 text-sm">
+            <div className="flex items-center gap-1 text-xs">
               <button
                 onClick={() => setLanguage("it")}
-                className={`px-2 py-1 transition-colors ${
+                className={`px-1.5 py-1 transition-colors ${
                   language === "it"
                     ? "text-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground"
@@ -69,7 +73,7 @@ export function Header() {
               <span className="text-muted-foreground">|</span>
               <button
                 onClick={() => setLanguage("en")}
-                className={`px-2 py-1 transition-colors ${
+                className={`px-1.5 py-1 transition-colors ${
                   language === "en"
                     ? "text-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground"
@@ -83,7 +87,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden"
+              className={isMobile ? "" : "lg:hidden"}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               data-testid="button-mobile-menu"
             >
@@ -93,7 +97,7 @@ export function Header() {
         </div>
 
         {mobileMenuOpen && (
-          <nav className="lg:hidden py-4 border-t border-border">
+          <nav className={`py-4 border-t border-border ${isMobile ? "" : "lg:hidden"}`}>
             <div className="flex flex-col gap-1">
               {navItems.map((item) => {
                 const isActive = location === item.slug;

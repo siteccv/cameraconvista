@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
@@ -17,6 +18,7 @@ const socialIcons: Record<string, React.ComponentType<{ className?: string }>> =
 
 export function Footer() {
   const { t, language } = useLanguage();
+  const { forceMobileLayout } = useAdmin();
 
   const { data: settings } = useQuery<FooterSettings>({
     queryKey: ["/api/footer-settings"],
@@ -24,11 +26,12 @@ export function Footer() {
   });
 
   const footer = settings || defaultFooterSettings;
+  const isMobile = forceMobileLayout;
 
   return (
     <footer className="bg-foreground text-background">
-      <div className="container mx-auto px-4 py-12 md:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="container mx-auto px-4 py-8 md:py-12">
+        <div className={`grid gap-8 ${isMobile ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:gap-12"}`}>
           <div>
             <h3 className="font-display text-2xl mb-4">Camera con Vista</h3>
             <p className="text-background/70 text-sm leading-relaxed">
@@ -120,9 +123,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-background/10 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-background/50">
-          <p>© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
-          <div className="flex gap-6">
+        <div className={`mt-8 pt-6 border-t border-background/10 flex flex-col items-center gap-3 text-xs text-background/50 ${isMobile ? "" : "md:flex-row md:justify-between"}`}>
+          <p className="text-center">© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
+          <div className="flex gap-4">
             <Link href={footer.legalLinks.privacyUrl} className="hover:text-background transition-colors">
               {language === "it" ? footer.legalLinks.privacyLabelIt : footer.legalLinks.privacyLabelEn}
             </Link>

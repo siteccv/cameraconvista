@@ -6,6 +6,8 @@ interface AdminContextValue {
   setAdminPreview: (value: boolean) => void;
   deviceView: "desktop" | "mobile";
   setDeviceView: (value: "desktop" | "mobile") => void;
+  forceMobileLayout: boolean;
+  setForceMobileLayout: (value: boolean) => void;
   isAuthenticated: boolean;
   setIsAuthenticated: (value: boolean) => void;
   logout: () => Promise<void>;
@@ -17,6 +19,7 @@ const AdminContext = createContext<AdminContextValue | null>(null);
 export function AdminProvider({ children }: { children: ReactNode }) {
   const [adminPreview, setAdminPreview] = useState(false);
   const [deviceView, setDeviceView] = useState<"desktop" | "mobile">("desktop");
+  const [forceMobileLayout, setForceMobileLayout] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const checkSession = async (): Promise<boolean> => {
@@ -45,7 +48,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdminContext.Provider
-      value={{ adminPreview, setAdminPreview, deviceView, setDeviceView, isAuthenticated, setIsAuthenticated, logout, checkSession }}
+      value={{ adminPreview, setAdminPreview, deviceView, setDeviceView, forceMobileLayout, setForceMobileLayout, isAuthenticated, setIsAuthenticated, logout, checkSession }}
     >
       {children}
     </AdminContext.Provider>

@@ -67,7 +67,7 @@ export default function Home() {
 
   return (
     <PublicLayout>
-      <section className="relative min-h-[70vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[60vh] md:min-h-[80vh] flex items-center justify-center overflow-hidden">
         <EditableImage
           src={heroImage.src}
           zoomDesktop={heroImage.zoomDesktop}
@@ -121,9 +121,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24">
+      <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12">
+          <div className="text-center max-w-3xl mx-auto mb-8 md:mb-12">
             <EditableText
               textIt={conceptTitle.it}
               textEn={conceptTitle.en}
@@ -179,9 +179,9 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 bg-card">
+      <section className="py-10 md:py-20 bg-card">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center">
             <div>
               <h2 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-philosophy-title">
                 {t("La nostra filosofia", "Our Philosophy")}

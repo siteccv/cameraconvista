@@ -1,13 +1,25 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Monitor, Smartphone, ExternalLink } from "lucide-react";
+import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import Home from "@/pages/home";
 
 export default function AdminPreview() {
   const { t, language, setLanguage } = useLanguage();
+  const { setForceMobileLayout, setDeviceView: setContextDeviceView } = useAdmin();
   const [deviceView, setDeviceView] = useState<"desktop" | "mobile">("desktop");
+
+  useEffect(() => {
+    setForceMobileLayout(deviceView === "mobile");
+    setContextDeviceView(deviceView);
+    return () => {
+      setForceMobileLayout(false);
+      setContextDeviceView("desktop");
+    };
+  }, [deviceView, setForceMobileLayout, setContextDeviceView]);
 
   return (
     <AdminLayout>
@@ -74,21 +86,19 @@ export default function AdminPreview() {
         </div>
 
         <div 
-          className="border border-border rounded-md bg-background overflow-hidden"
+          className="border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center p-8"
+          style={{ minHeight: deviceView === "mobile" ? "1000px" : "auto" }}
           data-testid="preview-frame"
         >
-          <div 
-            className={`mx-auto transition-all duration-300 overflow-auto ${
-              deviceView === "mobile" 
-                ? "max-w-[375px] h-[667px]" 
-                : "w-full h-[calc(100vh-240px)] min-h-[500px]"
-            }`}
-            style={{
-              boxShadow: deviceView === "mobile" ? "0 0 20px rgba(0,0,0,0.1)" : "none",
-            }}
-          >
-            <Home />
-          </div>
+          {deviceView === "mobile" ? (
+            <IPhoneFrame>
+              <Home />
+            </IPhoneFrame>
+          ) : (
+            <div className="w-full h-[calc(100vh-240px)] min-h-[500px] overflow-auto bg-background rounded-lg border border-border">
+              <Home />
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>
