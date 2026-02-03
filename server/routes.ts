@@ -12,6 +12,7 @@ import {
   insertCocktailSchema,
   insertEventSchema,
   insertMediaSchema,
+  updateMediaSchema,
   insertSiteSettingsSchema,
   footerSettingsSchema,
   defaultFooterSettings,
@@ -703,8 +704,12 @@ export async function registerRoutes(
   app.put("/api/admin/media/:id", requireAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { altIt, altEn, category, tags } = req.body;
-      const updated = await storage.updateMedia(id, { altIt, altEn, category, tags });
+      const parsed = updateMediaSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+        return;
+      }
+      const updated = await storage.updateMedia(id, parsed.data);
       if (!updated) {
         res.status(404).json({ error: "Media not found" });
         return;
@@ -727,6 +732,32 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Error deleting media:", error);
       res.status(500).json({ error: "Failed to delete media" });
+    }
+  });
+
+  // Admin Upload URL (protected)
+  app.post("/api/admin/uploads/request-url", requireAuth, async (req, res) => {
+    try {
+      const { ObjectStorageService } = await import("./replit_integrations/object_storage/objectStorage");
+      const objectStorageService = new ObjectStorageService();
+      const { name, size, contentType } = req.body;
+
+      if (!name) {
+        res.status(400).json({ error: "Missing required field: name" });
+        return;
+      }
+
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+
+      res.json({
+        uploadURL,
+        objectPath,
+        metadata: { name, size, contentType },
+      });
+    } catch (error) {
+      console.error("Error generating upload URL:", error);
+      res.status(500).json({ error: "Failed to generate upload URL" });
     }
   });
 

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -80,29 +80,32 @@ export default function AdminMedia() {
     );
   }, [mediaItems, selectedCategory, searchQuery]);
 
+  const pendingUploads = useRef(new Map<string, { objectPath: string; name: string; size: number; mimeType: string }>());
+
   const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
     if (result.successful && result.successful.length > 0) {
       for (const file of result.successful) {
-        const uploadURL = (file as unknown as { uploadURL?: string }).uploadURL;
-        if (uploadURL) {
-          const objectPath = new URL(uploadURL).pathname;
+        const pending = pendingUploads.current.get(file.id);
+        if (pending) {
           const mediaData: InsertMedia = {
-            filename: file.name || "uploaded-file",
-            url: objectPath,
-            mimeType: file.type || "application/octet-stream",
-            size: file.size || 0,
+            filename: pending.name,
+            url: pending.objectPath,
+            mimeType: pending.mimeType,
+            size: pending.size,
             category: "varie",
           };
           createMediaMutation.mutate(mediaData);
+          pendingUploads.current.delete(file.id);
         }
       }
     }
   };
 
   const handleGetUploadParameters = async (file: UppyFile<Record<string, unknown>, Record<string, unknown>>) => {
-    const response = await fetch("/api/uploads/request-url", {
+    const response = await fetch("/api/admin/uploads/request-url", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         name: file.name,
         size: file.size,
@@ -110,6 +113,14 @@ export default function AdminMedia() {
       }),
     });
     const data = await response.json();
+    
+    pendingUploads.current.set(file.id, {
+      objectPath: data.objectPath,
+      name: file.name || "uploaded-file",
+      size: file.size || 0,
+      mimeType: file.type || "application/octet-stream",
+    });
+    
     return {
       method: "PUT" as const,
       url: data.uploadURL as string,

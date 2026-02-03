@@ -178,6 +178,14 @@ export const insertMediaSchema = createInsertSchema(media).omit({
 export type InsertMedia = z.infer<typeof insertMediaSchema>;
 export type Media = typeof media.$inferSelect;
 
+export const updateMediaSchema = z.object({
+  altIt: z.string().nullable().optional(),
+  altEn: z.string().nullable().optional(),
+  category: z.string().nullable().optional(),
+  tags: z.array(z.string()).nullable().optional(),
+});
+export type UpdateMedia = z.infer<typeof updateMediaSchema>;
+
 // ============================================================================
 // EVENTS (Restaurant events)
 // ============================================================================
