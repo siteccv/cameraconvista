@@ -139,16 +139,22 @@ export function EditableText({
             </div>
 
             <div className="space-y-2">
-              <Label>{t("Dimensione testo (px)", "Text Size (px)")}</Label>
+              <Label>
+                {deviceView === "mobile" 
+                  ? t("Dimensione testo Mobile (px)", "Mobile Text Size (px)")
+                  : t("Dimensione testo Desktop (px)", "Desktop Text Size (px)")}
+              </Label>
               <div className="flex items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    const newSize = Math.max(8, editFontDesktop - 1);
-                    setEditFontDesktop(newSize);
-                    setEditFontMobile(Math.max(8, newSize - 2));
+                    if (deviceView === "mobile") {
+                      setEditFontMobile(Math.max(8, editFontMobile - 1));
+                    } else {
+                      setEditFontDesktop(Math.max(8, editFontDesktop - 1));
+                    }
                   }}
                   data-testid="button-decrease-font"
                 >
@@ -156,11 +162,14 @@ export function EditableText({
                 </Button>
                 <Input
                   type="number"
-                  value={editFontDesktop}
+                  value={deviceView === "mobile" ? editFontMobile : editFontDesktop}
                   onChange={(e) => {
                     const val = Number(e.target.value);
-                    setEditFontDesktop(val);
-                    setEditFontMobile(Math.max(8, val - 2));
+                    if (deviceView === "mobile") {
+                      setEditFontMobile(val);
+                    } else {
+                      setEditFontDesktop(val);
+                    }
                   }}
                   min={8}
                   max={200}
@@ -172,9 +181,11 @@ export function EditableText({
                   variant="outline"
                   size="icon"
                   onClick={() => {
-                    const newSize = Math.min(200, editFontDesktop + 1);
-                    setEditFontDesktop(newSize);
-                    setEditFontMobile(Math.max(8, newSize - 2));
+                    if (deviceView === "mobile") {
+                      setEditFontMobile(Math.min(200, editFontMobile + 1));
+                    } else {
+                      setEditFontDesktop(Math.min(200, editFontDesktop + 1));
+                    }
                   }}
                   data-testid="button-increase-font"
                 >
@@ -185,14 +196,22 @@ export function EditableText({
                   variant="ghost"
                   size="sm"
                   onClick={() => {
-                    setEditFontDesktop(16);
-                    setEditFontMobile(14);
+                    if (deviceView === "mobile") {
+                      setEditFontMobile(14);
+                    } else {
+                      setEditFontDesktop(16);
+                    }
                   }}
                   data-testid="button-reset-font"
                 >
                   Reset px
                 </Button>
               </div>
+              <p className="text-xs text-muted-foreground">
+                {deviceView === "mobile" 
+                  ? t("Stai modificando la dimensione per mobile", "You are editing mobile size")
+                  : t("Stai modificando la dimensione per desktop", "You are editing desktop size")}
+              </p>
             </div>
           </div>
 
