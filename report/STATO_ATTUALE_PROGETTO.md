@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 4 Febbraio 2026 (ore 21:16)
+**Ultimo aggiornamento:** 4 Febbraio 2026 (ore 22:35)
 
 ---
 
@@ -80,7 +80,16 @@
 
 ### Backend
 - `server/storage.ts` - DatabaseStorage con CRUD operations (eventi, media categories, footer settings)
-- `server/routes.ts` - API endpoints Express (eventi pubblici/admin, footer settings, media categories, traduzione)
+- `server/routes/index.ts` - Entry point con mount dei router modulari
+- `server/routes/auth.ts` - Autenticazione admin, login/logout, cambio password
+- `server/routes/pages.ts` - API pagine e page blocks
+- `server/routes/menu.ts` - API menu items, vini, cocktails
+- `server/routes/events.ts` - API eventi pubbliche e admin
+- `server/routes/gallery.ts` - API galleria e album
+- `server/routes/media.ts` - API media library e categorie
+- `server/routes/settings.ts` - API site settings e footer
+- `server/routes/sync.ts` - Endpoint sync Google Sheets (placeholder)
+- `server/routes/helpers.ts` - Utility parseId, validateId, requireAuth
 - `server/db.ts` - Connessione PostgreSQL
 
 ### Frontend Pubblico
@@ -115,6 +124,18 @@
 - `client/src/components/admin/TranslateButton.tsx` - Pulsante traduzione IT→EN riutilizzabile
 - `client/src/components/admin/MediaPickerModal.tsx` - Modale selezione immagini dalla media library
 - `client/src/components/GallerySlideViewer.tsx` - Viewer immagini 9:16 con swipe e navigazione
+
+### Componenti Admin Gallery (Refactored)
+- `client/src/components/admin/gallery/GalleryModal.tsx` - Modal creazione/modifica album
+- `client/src/components/admin/gallery/AlbumImagesModal.tsx` - Gestione immagini album con drag-and-drop
+- `client/src/components/admin/gallery/ImageZoomModal.tsx` - Modal zoom/offset immagini
+- `client/src/components/admin/gallery/SortableImage.tsx` - Componente immagine sortabile per dnd-kit
+
+### Componenti Home Page (Refactored)
+- `client/src/components/home/TeaserCard.tsx` - Card servizi per homepage
+- `client/src/components/home/BookingDialog.tsx` - Modal conferma prenotazione bilingue
+- `client/src/components/home/PhilosophySection.tsx` - Sezione filosofia con immagine
+- `client/src/components/home/homeDefaults.ts` - Configurazioni default blocchi e teaser cards
 
 ### Hooks
 - `client/src/hooks/useTranslation.ts` - Hook per chiamate API traduzione con loading/error states
@@ -210,6 +231,19 @@
 - Integrazione in: EditableText, EventModal, FooterSettingsForm, ManageCategoriesModal
 - Prompt contestuali per traduzioni mirate (hospitality, concise, elegant)
 - Autenticazione protetta con requireAuth
+
+### Refactoring Architettura Modulare (4 Feb 2026 - sera)
+- **server/routes.ts refactored**: Da 1336 righe a 24 righe
+  - Suddiviso in 9 moduli in `server/routes/`: auth, pages, menu, events, gallery, media, settings, sync, helpers
+  - Ogni modulo gestisce un dominio specifico dell'applicazione
+  - Helper `parseId` e `validateId` per validazione parametri
+- **admin/gallery.tsx refactored**: Da 926 righe a 200 righe
+  - Estratti 4 componenti in `client/src/components/admin/gallery/`
+  - GalleryModal, AlbumImagesModal, ImageZoomModal, SortableImage
+- **home.tsx refactored**: Da 619 righe a 377 righe
+  - Estratti 5 file in `client/src/components/home/`
+  - TeaserCard, BookingDialog, PhilosophySection, homeDefaults, index
+- Tutti i test E2E passati con successo
 
 ### Header Mobile Fix (4 Feb 2026)
 - Nuovo logo: `logo_ccv.png` sostituisce il precedente

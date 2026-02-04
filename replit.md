@@ -84,12 +84,24 @@ Preferred communication style: Simple, everyday language.
 ├── client/           # React frontend
 │   └── src/
 │       ├── components/   # UI components
+│       │   ├── admin/gallery/  # Gallery admin components (GalleryModal, AlbumImagesModal, ImageZoomModal, SortableImage)
+│       │   └── home/           # Home page components (TeaserCard, BookingDialog, PhilosophySection)
 │       ├── contexts/     # React contexts (Language, Admin)
 │       ├── hooks/        # Custom hooks
 │       ├── lib/          # Utilities and query client
 │       └── pages/        # Route components
 ├── server/           # Express backend
-│   ├── routes.ts     # API endpoint definitions
+│   ├── routes/       # Modular API routes
+│   │   ├── index.ts  # Router entry point (mounts all domain routers)
+│   │   ├── auth.ts   # Authentication (login, logout, change password)
+│   │   ├── pages.ts  # Pages and page blocks
+│   │   ├── menu.ts   # Menu items, wines, cocktails
+│   │   ├── events.ts # Events (public and admin)
+│   │   ├── gallery.ts # Gallery albums and images
+│   │   ├── media.ts  # Media library and categories
+│   │   ├── settings.ts # Site settings and footer
+│   │   ├── sync.ts   # Google Sheets sync (placeholder)
+│   │   └── helpers.ts # Shared utilities (parseId, validateId, requireAuth)
 │   ├── storage.ts    # Data access layer interface
 │   └── db.ts         # Database connection
 ├── shared/           # Shared types and schema
