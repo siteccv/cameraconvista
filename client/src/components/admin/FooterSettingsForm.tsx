@@ -3,14 +3,18 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Save, Plus, Trash2, Globe, MapPin, Clock, Share2, Link as LinkIcon, FileText, Loader2 } from "lucide-react";
 import { TranslateButton } from "./TranslateButton";
 import type { FooterSettings, FooterHoursEntry, FooterSocialLink, FooterQuickLink } from "@shared/schema";
@@ -146,402 +150,363 @@ export function FooterSettingsForm() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="p-8 flex items-center justify-center">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </CardContent>
-      </Card>
+      <div className="p-8 flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <Globe className="h-5 w-5 text-primary" />
+    <div className="space-y-4 max-w-4xl">
+      <Accordion type="multiple" defaultValue={["about", "contacts"]} className="space-y-2">
+        <AccordionItem value="about" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Globe className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">{t("Descrizione", "About")}</span>
             </div>
-            <div>
-              <CardTitle className="text-lg">{t("Descrizione", "About")}</CardTitle>
-              <CardDescription>
-                {t("Testo descrittivo del locale nel footer", "Venue description text in the footer")}
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{t("Italiano", "Italian")}</Label>
-              <Textarea
-                value={formData.about.it}
-                onChange={(e) => updateAbout("it", e.target.value)}
-                rows={3}
-                data-testid="input-about-it"
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Label className="flex-1">{t("Inglese", "English")}</Label>
-                <TranslateButton
-                  textIt={formData.about.it}
-                  onTranslated={(text) => updateAbout("en", text)}
-                  context="restaurant description for website footer"
+          </AccordionTrigger>
+          <AccordionContent className="pb-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">{t("Italiano", "Italian")}</Label>
+                <Textarea
+                  value={formData.about.it}
+                  onChange={(e) => updateAbout("it", e.target.value)}
+                  rows={2}
+                  className="text-sm"
+                  data-testid="input-about-it"
                 />
               </div>
-              <Textarea
-                value={formData.about.en}
-                onChange={(e) => updateAbout("en", e.target.value)}
-                rows={3}
-                data-testid="input-about-en"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <MapPin className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <CardTitle className="text-lg">{t("Contatti", "Contacts")}</CardTitle>
-              <CardDescription>
-                {t("Indirizzo, telefono e email", "Address, phone and email")}
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label>{t("Indirizzo", "Address")}</Label>
-            <Textarea
-              value={formData.contacts.address}
-              onChange={(e) => updateContacts("address", e.target.value)}
-              rows={2}
-              data-testid="input-address"
-            />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>{t("Telefono", "Phone")}</Label>
-              <Input
-                type="tel"
-                value={formData.contacts.phone}
-                onChange={(e) => updateContacts("phone", e.target.value)}
-                data-testid="input-phone"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Email</Label>
-              <Input
-                type="email"
-                value={formData.contacts.email}
-                onChange={(e) => updateContacts("email", e.target.value)}
-                data-testid="input-email"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{t("Orari", "Hours")}</CardTitle>
-                <CardDescription>
-                  {t("Giorni e orari di apertura", "Opening days and hours")}
-                </CardDescription>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={addHoursEntry} data-testid="button-add-hours">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("Aggiungi", "Add")}
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {formData.hours.map((entry, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto_auto] gap-3 items-end p-3 border rounded-md">
               <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Giorno (IT)", "Day (IT)")}</Label>
+                <div className="flex items-center gap-2">
+                  <Label className="text-xs flex-1">{t("Inglese", "English")}</Label>
+                  <TranslateButton
+                    textIt={formData.about.it}
+                    onTranslated={(text) => updateAbout("en", text)}
+                    context="restaurant description for website footer"
+                  />
+                </div>
+                <Textarea
+                  value={formData.about.en}
+                  onChange={(e) => updateAbout("en", e.target.value)}
+                  rows={2}
+                  className="text-sm"
+                  data-testid="input-about-en"
+                />
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="contacts" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <MapPin className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">{t("Contatti", "Contacts")}</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs">{t("Indirizzo", "Address")}</Label>
+              <Textarea
+                value={formData.contacts.address}
+                onChange={(e) => updateContacts("address", e.target.value)}
+                rows={2}
+                className="text-sm"
+                data-testid="input-address"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-xs">{t("Telefono", "Phone")}</Label>
+                <Input
+                  type="tel"
+                  value={formData.contacts.phone}
+                  onChange={(e) => updateContacts("phone", e.target.value)}
+                  className="text-sm"
+                  data-testid="input-phone"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Email</Label>
+                <Input
+                  type="email"
+                  value={formData.contacts.email}
+                  onChange={(e) => updateContacts("email", e.target.value)}
+                  className="text-sm"
+                  data-testid="input-email"
+                />
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="hours" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Clock className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">{t("Orari", "Hours")}</span>
+              <span className="text-xs text-muted-foreground">({formData.hours.length})</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 space-y-2">
+            {formData.hours.map((entry, index) => (
+              <div key={index} className="flex flex-wrap items-center gap-2 p-2 border rounded bg-muted/30">
                 <Input
                   value={entry.dayKeyIt}
                   onChange={(e) => updateHours(index, "dayKeyIt", e.target.value)}
-                  placeholder={t("es. Lunedì", "e.g. Monday")}
+                  placeholder="IT"
+                  className="w-24 text-xs h-8"
                   data-testid={`input-hours-day-it-${index}`}
                 />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1">
-                  <Label className="text-xs text-muted-foreground flex-1">{t("Giorno (EN)", "Day (EN)")}</Label>
-                  <TranslateButton
-                    textIt={entry.dayKeyIt}
-                    onTranslated={(text) => updateHours(index, "dayKeyEn", text)}
-                    context="day of week for restaurant opening hours"
-                    size="icon"
-                    className="h-6 w-6"
-                  />
-                </div>
                 <Input
                   value={entry.dayKeyEn}
                   onChange={(e) => updateHours(index, "dayKeyEn", e.target.value)}
-                  placeholder={t("es. Monday", "e.g. Monday")}
+                  placeholder="EN"
+                  className="w-24 text-xs h-8"
                   data-testid={`input-hours-day-en-${index}`}
                 />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Orario", "Hours")}</Label>
+                <TranslateButton
+                  textIt={entry.dayKeyIt}
+                  onTranslated={(text) => updateHours(index, "dayKeyEn", text)}
+                  context="day of week"
+                  size="icon"
+                  className="h-8 w-8"
+                />
                 <Input
                   value={entry.hours}
                   onChange={(e) => updateHours(index, "hours", e.target.value)}
                   placeholder="18:00 - 02:00"
                   disabled={entry.isClosed}
+                  className="w-28 text-xs h-8"
                   data-testid={`input-hours-time-${index}`}
                 />
+                <div className="flex items-center gap-1">
+                  <Switch
+                    checked={entry.isClosed}
+                    onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
+                    data-testid={`switch-hours-closed-${index}`}
+                  />
+                  <span className="text-xs">{t("Chiuso", "Closed")}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeHoursEntry(index)}
+                  disabled={formData.hours.length <= 1}
+                  className="h-8 w-8 ml-auto"
+                  data-testid={`button-remove-hours-${index}`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
               </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={entry.isClosed}
-                  onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
-                  data-testid={`switch-hours-closed-${index}`}
-                />
-                <Label className="text-xs">{t("Chiuso", "Closed")}</Label>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeHoursEntry(index)}
-                disabled={formData.hours.length <= 1}
-                data-testid={`button-remove-hours-${index}`}
-              >
-                <Trash2 className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <Share2 className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{t("Social", "Social")}</CardTitle>
-                <CardDescription>
-                  {t("Link ai profili social", "Social profile links")}
-                </CardDescription>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={addSocialLink} data-testid="button-add-social">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("Aggiungi", "Add")}
+            ))}
+            <Button variant="outline" size="sm" onClick={addHoursEntry} className="w-full" data-testid="button-add-hours">
+              <Plus className="h-3 w-3 mr-1" />
+              {t("Aggiungi orario", "Add hours")}
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {formData.social.map((link, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-[150px_1fr_auto] gap-3 items-end">
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Piattaforma", "Platform")}</Label>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="social" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Share2 className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">Social</span>
+              <span className="text-xs text-muted-foreground">({formData.social.length})</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 space-y-2">
+            {formData.social.map((link, index) => (
+              <div key={index} className="flex items-center gap-2">
                 <Select
                   value={link.type}
                   onValueChange={(value) => updateSocial(index, "type", value)}
                 >
-                  <SelectTrigger data-testid={`select-social-type-${index}`}>
+                  <SelectTrigger className="w-28 h-8 text-xs" data-testid={`select-social-type-${index}`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     {socialTypes.map(type => (
-                      <SelectItem key={type} value={type}>
+                      <SelectItem key={type} value={type} className="text-xs">
                         {type.charAt(0).toUpperCase() + type.slice(1)}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">URL</Label>
                 <Input
                   type="url"
                   value={link.url}
                   onChange={(e) => updateSocial(index, "url", e.target.value)}
                   placeholder="https://"
+                  className="flex-1 text-xs h-8"
                   data-testid={`input-social-url-${index}`}
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeSocialLink(index)}
+                  className="h-8 w-8"
+                  data-testid={`button-remove-social-${index}`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeSocialLink(index)}
-                data-testid={`button-remove-social-${index}`}
-              >
-                <Trash2 className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                <LinkIcon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">{t("Link Rapidi", "Quick Links")}</CardTitle>
-                <CardDescription>
-                  {t("Link utili nel footer", "Useful links in the footer")}
-                </CardDescription>
-              </div>
-            </div>
-            <Button variant="outline" size="sm" onClick={addQuickLink} data-testid="button-add-quicklink">
-              <Plus className="h-4 w-4 mr-1" />
-              {t("Aggiungi", "Add")}
+            ))}
+            <Button variant="outline" size="sm" onClick={addSocialLink} className="w-full" data-testid="button-add-social">
+              <Plus className="h-3 w-3 mr-1" />
+              {t("Aggiungi social", "Add social")}
             </Button>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {formData.quickLinks.map((link, index) => (
-            <div key={index} className="grid grid-cols-1 md:grid-cols-[1fr_1fr_1fr_auto] gap-3 items-end">
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">{t("Etichetta (IT)", "Label (IT)")}</Label>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="quicklinks" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <LinkIcon className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">{t("Link Rapidi", "Quick Links")}</span>
+              <span className="text-xs text-muted-foreground">({formData.quickLinks.length})</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 space-y-2">
+            {formData.quickLinks.map((link, index) => (
+              <div key={index} className="flex items-center gap-2 flex-wrap">
                 <Input
                   value={link.labelIt}
                   onChange={(e) => updateQuickLink(index, "labelIt", e.target.value)}
+                  placeholder="IT"
+                  className="w-28 text-xs h-8"
                   data-testid={`input-quicklink-label-it-${index}`}
                 />
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1">
-                  <Label className="text-xs text-muted-foreground flex-1">{t("Etichetta (EN)", "Label (EN)")}</Label>
-                  <TranslateButton
-                    textIt={link.labelIt}
-                    onTranslated={(text) => updateQuickLink(index, "labelEn", text)}
-                    context="navigation link label for restaurant website"
-                    size="icon"
-                    className="h-6 w-6"
-                  />
-                </div>
                 <Input
                   value={link.labelEn}
                   onChange={(e) => updateQuickLink(index, "labelEn", e.target.value)}
+                  placeholder="EN"
+                  className="w-28 text-xs h-8"
                   data-testid={`input-quicklink-label-en-${index}`}
                 />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs text-muted-foreground">URL</Label>
+                <TranslateButton
+                  textIt={link.labelIt}
+                  onTranslated={(text) => updateQuickLink(index, "labelEn", text)}
+                  context="navigation link label"
+                  size="icon"
+                  className="h-8 w-8"
+                />
                 <Input
                   value={link.url}
                   onChange={(e) => updateQuickLink(index, "url", e.target.value)}
-                  placeholder="/pagina"
+                  placeholder="/url"
+                  className="flex-1 min-w-20 text-xs h-8"
                   data-testid={`input-quicklink-url-${index}`}
                 />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => removeQuickLink(index)}
+                  className="h-8 w-8"
+                  data-testid={`button-remove-quicklink-${index}`}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => removeQuickLink(index)}
-                data-testid={`button-remove-quicklink-${index}`}
-              >
-                <Trash2 className="h-4 w-4 text-muted-foreground" />
-              </Button>
-            </div>
-          ))}
-        </CardContent>
-      </Card>
+            ))}
+            <Button variant="outline" size="sm" onClick={addQuickLink} className="w-full" data-testid="button-add-quicklink">
+              <Plus className="h-3 w-3 mr-1" />
+              {t("Aggiungi link", "Add link")}
+            </Button>
+          </AccordionContent>
+        </AccordionItem>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <FileText className="h-5 w-5 text-primary" />
+        <AccordionItem value="legal" className="border rounded-lg px-4">
+          <AccordionTrigger className="hover:no-underline py-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-sm">{t("Link Legali", "Legal Links")}</span>
             </div>
-            <div>
-              <CardTitle className="text-lg">{t("Link Legali", "Legal Links")}</CardTitle>
-              <CardDescription>
-                {t("Privacy Policy e Cookie Policy", "Privacy Policy and Cookie Policy")}
-              </CardDescription>
+          </AccordionTrigger>
+          <AccordionContent className="pb-4 space-y-3">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Privacy IT</Label>
+                <Input
+                  value={formData.legalLinks.privacyLabelIt}
+                  onChange={(e) => updateLegalLinks("privacyLabelIt", e.target.value)}
+                  className="text-xs h-8"
+                  data-testid="input-privacy-label-it"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Privacy EN</Label>
+                <Input
+                  value={formData.legalLinks.privacyLabelEn}
+                  onChange={(e) => updateLegalLinks("privacyLabelEn", e.target.value)}
+                  className="text-xs h-8"
+                  data-testid="input-privacy-label-en"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">URL</Label>
+                <Input
+                  value={formData.legalLinks.privacyUrl}
+                  onChange={(e) => updateLegalLinks("privacyUrl", e.target.value)}
+                  placeholder="/privacy"
+                  className="text-xs h-8"
+                  data-testid="input-privacy-url"
+                />
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Separator />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t("Etichetta Privacy (IT)", "Privacy Label (IT)")}</Label>
-              <Input
-                value={formData.legalLinks.privacyLabelIt}
-                onChange={(e) => updateLegalLinks("privacyLabelIt", e.target.value)}
-                data-testid="input-privacy-label-it"
-              />
+            <div className="grid grid-cols-3 gap-2">
+              <div className="space-y-1">
+                <Label className="text-xs">Cookie IT</Label>
+                <Input
+                  value={formData.legalLinks.cookieLabelIt}
+                  onChange={(e) => updateLegalLinks("cookieLabelIt", e.target.value)}
+                  className="text-xs h-8"
+                  data-testid="input-cookie-label-it"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">Cookie EN</Label>
+                <Input
+                  value={formData.legalLinks.cookieLabelEn}
+                  onChange={(e) => updateLegalLinks("cookieLabelEn", e.target.value)}
+                  className="text-xs h-8"
+                  data-testid="input-cookie-label-en"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-xs">URL</Label>
+                <Input
+                  value={formData.legalLinks.cookieUrl}
+                  onChange={(e) => updateLegalLinks("cookieUrl", e.target.value)}
+                  placeholder="/cookie"
+                  className="text-xs h-8"
+                  data-testid="input-cookie-url"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>{t("Etichetta Privacy (EN)", "Privacy Label (EN)")}</Label>
-              <Input
-                value={formData.legalLinks.privacyLabelEn}
-                onChange={(e) => updateLegalLinks("privacyLabelEn", e.target.value)}
-                data-testid="input-privacy-label-en"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>URL Privacy</Label>
-              <Input
-                value={formData.legalLinks.privacyUrl}
-                onChange={(e) => updateLegalLinks("privacyUrl", e.target.value)}
-                placeholder="/privacy"
-                data-testid="input-privacy-url"
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>{t("Etichetta Cookie (IT)", "Cookie Label (IT)")}</Label>
-              <Input
-                value={formData.legalLinks.cookieLabelIt}
-                onChange={(e) => updateLegalLinks("cookieLabelIt", e.target.value)}
-                data-testid="input-cookie-label-it"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t("Etichetta Cookie (EN)", "Cookie Label (EN)")}</Label>
-              <Input
-                value={formData.legalLinks.cookieLabelEn}
-                onChange={(e) => updateLegalLinks("cookieLabelEn", e.target.value)}
-                data-testid="input-cookie-label-en"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>URL Cookie</Label>
-              <Input
-                value={formData.legalLinks.cookieUrl}
-                onChange={(e) => updateLegalLinks("cookieUrl", e.target.value)}
-                placeholder="/cookie"
-                data-testid="input-cookie-url"
-              />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
-      <div className="flex justify-end">
+      <div className="sticky bottom-0 py-4 bg-background border-t mt-4">
         <Button
           onClick={handleSave}
           disabled={saveMutation.isPending}
-          size="lg"
+          className="w-full"
           data-testid="button-save-footer"
         >
           {saveMutation.isPending ? (
@@ -549,7 +514,7 @@ export function FooterSettingsForm() {
           ) : (
             <Save className="mr-2 h-4 w-4" />
           )}
-          {t("Salva Impostazioni Footer", "Save Footer Settings")}
+          {t("Salva Impostazioni", "Save Settings")}
         </Button>
       </div>
     </div>
