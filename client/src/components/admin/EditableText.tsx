@@ -17,6 +17,7 @@ interface EditableTextProps {
   fontSizeMobile?: number;
   as?: "h1" | "h2" | "h3" | "p" | "span";
   className?: string;
+  style?: React.CSSProperties;
   multiline?: boolean;
   applyFontSize?: boolean;
   onSave?: (data: {
@@ -35,6 +36,7 @@ export function EditableText({
   fontSizeMobile = 14,
   as: Component = "span",
   className = "",
+  style,
   multiline = false,
   applyFontSize = false,
   onSave,
@@ -50,7 +52,8 @@ export function EditableText({
   const displayText = t(textIt, textEn);
   
   const currentFontSize = deviceView === "mobile" ? fontSizeMobile : fontSizeDesktop;
-  const fontStyle = applyFontSize ? { fontSize: `${currentFontSize}px` } : undefined;
+  const fontSizeStyle = applyFontSize ? { fontSize: `${currentFontSize}px` } : {};
+  const combinedStyle = { ...style, ...fontSizeStyle };
 
   const handleClick = (e: React.MouseEvent) => {
     if (adminPreview) {
@@ -79,14 +82,14 @@ export function EditableText({
   const TextInput = multiline ? Textarea : Input;
 
   if (!adminPreview) {
-    return <Component className={className} style={fontStyle}>{displayText}</Component>;
+    return <Component className={className} style={combinedStyle}>{displayText}</Component>;
   }
 
   return (
     <>
       <Component
         className={`${className} relative cursor-pointer group`}
-        style={fontStyle}
+        style={combinedStyle}
         onClick={handleClick}
       >
         {displayText}

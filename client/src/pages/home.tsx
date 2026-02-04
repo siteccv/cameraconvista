@@ -58,6 +58,19 @@ const DEFAULT_BLOCKS = {
     bodyFontSizeMobile: 14,
     isDraft: false,
   },
+  branding: {
+    blockType: "branding",
+    sortOrder: 2,
+    titleIt: "RESTAURANT & COCKTAIL BAR",
+    titleEn: "RESTAURANT & COCKTAIL BAR",
+    bodyIt: "French nuance, antique goods",
+    bodyEn: "French nuance, antique goods",
+    titleFontSize: 14,
+    titleFontSizeMobile: 10,
+    bodyFontSize: 24,
+    bodyFontSizeMobile: 16,
+    isDraft: false,
+  },
 };
 
 export default function Home() {
@@ -84,6 +97,7 @@ export default function Home() {
   // Find specific blocks
   const heroBlock = blocks.find(b => b.blockType === "hero");
   const conceptBlock = blocks.find(b => b.blockType === "concept");
+  const brandingBlock = blocks.find(b => b.blockType === "branding");
 
   // Create block mutation
   const createBlockMutation = useMutation({
@@ -126,21 +140,39 @@ export default function Home() {
   useEffect(() => {
     const needsHero = !heroBlock && !isLoading;
     const needsConcept = !conceptBlock && !isLoading;
+    const needsBranding = !brandingBlock && !isLoading;
     
     if (needsHero && !hasInitialized && !createBlockMutation.isPending) {
       setHasInitialized(true);
       createBlockMutation.mutate(DEFAULT_BLOCKS.hero, {
         onSuccess: () => {
           if (needsConcept) {
-            createBlockMutation.mutate(DEFAULT_BLOCKS.concept);
+            createBlockMutation.mutate(DEFAULT_BLOCKS.concept, {
+              onSuccess: () => {
+                if (needsBranding) {
+                  createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
+                }
+              }
+            });
+          } else if (needsBranding) {
+            createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
           }
         }
       });
     } else if (needsConcept && heroBlock && !hasInitialized && !createBlockMutation.isPending) {
       setHasInitialized(true);
-      createBlockMutation.mutate(DEFAULT_BLOCKS.concept);
+      createBlockMutation.mutate(DEFAULT_BLOCKS.concept, {
+        onSuccess: () => {
+          if (needsBranding) {
+            createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
+          }
+        }
+      });
+    } else if (needsBranding && heroBlock && conceptBlock && !hasInitialized && !createBlockMutation.isPending) {
+      setHasInitialized(true);
+      createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
     }
-  }, [isLoading, heroBlock, conceptBlock, hasInitialized, createBlockMutation.isPending]);
+  }, [isLoading, heroBlock, conceptBlock, brandingBlock, hasInitialized, createBlockMutation.isPending]);
 
   // Handle hero image save
   const handleHeroImageSave = (data: {
@@ -222,6 +254,33 @@ export default function Home() {
     });
   };
 
+  // Handle branding text save
+  const handleBrandingTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!brandingBlock) return;
+    updateBlockMutation.mutate({
+      id: brandingBlock.id,
+      data: {
+        titleIt: data.textIt,
+        titleEn: data.textEn,
+        titleFontSize: data.fontSizeDesktop,
+        titleFontSizeMobile: data.fontSizeMobile,
+      },
+    });
+  };
+
+  const handleBrandingTaglineSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!brandingBlock) return;
+    updateBlockMutation.mutate({
+      id: brandingBlock.id,
+      data: {
+        bodyIt: data.textIt,
+        bodyEn: data.textEn,
+        bodyFontSize: data.fontSizeDesktop,
+        bodyFontSizeMobile: data.fontSizeMobile,
+      },
+    });
+  };
+
   // Get current values from database or defaults
   const heroTitle = {
     it: heroBlock?.titleIt || DEFAULT_BLOCKS.hero.titleIt,
@@ -259,6 +318,20 @@ export default function Home() {
     en: conceptBlock?.bodyEn || DEFAULT_BLOCKS.concept.bodyEn,
     fontSizeDesktop: conceptBlock?.bodyFontSize || DEFAULT_BLOCKS.concept.bodyFontSize,
     fontSizeMobile: conceptBlock?.bodyFontSizeMobile || DEFAULT_BLOCKS.concept.bodyFontSizeMobile,
+  };
+
+  const brandingTitle = {
+    it: brandingBlock?.titleIt || DEFAULT_BLOCKS.branding.titleIt,
+    en: brandingBlock?.titleEn || DEFAULT_BLOCKS.branding.titleEn,
+    fontSizeDesktop: brandingBlock?.titleFontSize || DEFAULT_BLOCKS.branding.titleFontSize,
+    fontSizeMobile: brandingBlock?.titleFontSizeMobile || DEFAULT_BLOCKS.branding.titleFontSizeMobile,
+  };
+
+  const brandingTagline = {
+    it: brandingBlock?.bodyIt || DEFAULT_BLOCKS.branding.bodyIt,
+    en: brandingBlock?.bodyEn || DEFAULT_BLOCKS.branding.bodyEn,
+    fontSizeDesktop: brandingBlock?.bodyFontSize || DEFAULT_BLOCKS.branding.bodyFontSize,
+    fontSizeMobile: brandingBlock?.bodyFontSizeMobile || DEFAULT_BLOCKS.branding.bodyFontSizeMobile,
   };
 
   const displayZoom = deviceView === "desktop" ? heroImage.zoomDesktop : heroImage.zoomMobile;
@@ -306,17 +379,24 @@ export default function Home() {
       {/* Branding Section - optimized for mobile */}
       <section className="py-4 md:py-12 text-center" data-testid="section-branding">
         <div className="container mx-auto px-4">
-          {/* RESTAURANT & COCKTAIL BAR */}
-          <p 
-            className="text-[10px] md:text-sm tracking-[0.2em] md:tracking-[0.4em] font-medium mb-2 md:mb-4"
-            style={{ 
-              color: '#c9a048',
-              fontFamily: 'Montserrat, sans-serif'
-            }}
-            data-testid="text-restaurant-bar"
-          >
-            RESTAURANT & COCKTAIL BAR
-          </p>
+          {/* RESTAURANT & COCKTAIL BAR - Editable */}
+          <div className="mb-2 md:mb-4">
+            <EditableText
+              textIt={brandingTitle.it}
+              textEn={brandingTitle.en}
+              fontSizeDesktop={brandingTitle.fontSizeDesktop}
+              fontSizeMobile={brandingTitle.fontSizeMobile}
+              as="p"
+              className="tracking-[0.2em] md:tracking-[0.4em] font-medium uppercase"
+              style={{ 
+                color: '#c9a048',
+                fontFamily: 'Montserrat, sans-serif'
+              }}
+              applyFontSize
+              onSave={handleBrandingTitleSave}
+              data-testid="text-restaurant-bar"
+            />
+          </div>
           
           {/* CAMERA CON VISTA Logo */}
           <div className="flex justify-center mb-2 md:mb-4">
@@ -328,18 +408,24 @@ export default function Home() {
             />
           </div>
           
-          {/* French nuance, antique goods */}
-          <p 
-            className="text-base md:text-2xl lg:text-3xl mb-4 md:mb-8"
-            style={{ 
-              fontFamily: 'Adelia, cursive',
-              fontStyle: 'italic',
-              color: '#2d2926'
-            }}
-            data-testid="text-tagline"
-          >
-            French nuance, antique goods
-          </p>
+          {/* French nuance, antique goods - Editable */}
+          <div className="mb-4 md:mb-8">
+            <EditableText
+              textIt={brandingTagline.it}
+              textEn={brandingTagline.en}
+              fontSizeDesktop={brandingTagline.fontSizeDesktop}
+              fontSizeMobile={brandingTagline.fontSizeMobile}
+              as="p"
+              className="italic"
+              style={{ 
+                fontFamily: 'Adelia, cursive',
+                color: '#2d2926'
+              }}
+              applyFontSize
+              onSave={handleBrandingTaglineSave}
+              data-testid="text-tagline"
+            />
+          </div>
           
           {/* PRENOTA UN TAVOLO Button */}
           <button 
