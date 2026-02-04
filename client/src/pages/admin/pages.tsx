@@ -4,7 +4,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, Upload, EyeOff, Eye, Check } from "lucide-react";
+import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle } from "lucide-react";
 import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -101,15 +101,17 @@ export default function AdminPages() {
                   <TabsTrigger 
                     key={page.slug} 
                     value={page.slug}
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex items-center gap-1"
                     data-testid={`tab-page-${page.slug}`}
                   >
                     {t(page.labelIt, page.labelEn)}
+                    {dbPage && !dbPage.isVisible && (
+                      <span title={t("Nascosto", "Hidden")}>
+                        <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                      </span>
+                    )}
                     {dbPage && dbPage.isDraft && (
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title={t("Bozza", "Draft")} />
-                    )}
-                    {dbPage && !dbPage.isVisible && (
-                      <span className="absolute -bottom-1 -right-1 w-2 h-2 bg-red-500 rounded-full" title={t("Nascosto", "Hidden")} />
                     )}
                   </TabsTrigger>
                 );
