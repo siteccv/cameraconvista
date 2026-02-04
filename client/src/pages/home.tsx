@@ -10,6 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { PageBlock } from "@shared/schema";
 import logoImg from "@assets/Logo_ccv_nobistrot.png";
+import { Button } from "@/components/ui/button";
 import { 
   TeaserCard, 
   BookingDialog, 
@@ -311,9 +312,9 @@ export default function Home() {
             />
           </div>
           
-          <button 
+          <Button 
             onClick={() => setBookingDialogOpen(true)}
-            className={`inline-block ${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full transition-all hover:opacity-90`}
+            className={`${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full`}
             style={{ 
               backgroundColor: '#722f37',
               fontFamily: 'Montserrat, sans-serif'
@@ -321,7 +322,7 @@ export default function Home() {
             data-testid="button-book-table"
           >
             {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
-          </button>
+          </Button>
         </div>
       </section>
 

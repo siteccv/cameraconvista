@@ -24,7 +24,7 @@ export function TeaserCard({ imageUrl, titleIt, titleEn, descriptionIt, descript
         />
       </div>
       <Link href={href}>
-        <h3 className="font-display text-xl mb-2 hover:text-primary transition-colors cursor-pointer">
+        <h3 className="font-display text-xl mb-2 cursor-pointer hover-elevate">
           {t(titleIt, titleEn)}
         </h3>
       </Link>

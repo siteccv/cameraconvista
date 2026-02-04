@@ -46,7 +46,7 @@ export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogPro
               window.open("https://cameraconvista.resos.com/booking", "_blank");
             }}
             style={{ backgroundColor: '#722f37' }}
-            className="text-white hover:opacity-90"
+            className="text-white"
             data-testid="button-continue-booking"
           >
             {t("Continua", "Continue")}
