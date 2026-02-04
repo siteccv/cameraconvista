@@ -15,6 +15,7 @@ import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { ContactInfoItem } from "@/components/contact";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -155,55 +156,31 @@ export default function Contatti() {
               />
 
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">{t("Indirizzo", "Address")}</h3>
-                    <p className="text-muted-foreground">
-                      Via del Pratello, 42<br />
-                      40122 Bologna, Italia
-                    </p>
-                  </div>
-                </div>
+                <ContactInfoItem icon={MapPin} title={t("Indirizzo", "Address")}>
+                  <p className="text-muted-foreground">
+                    Via del Pratello, 42<br />
+                    40122 Bologna, Italia
+                  </p>
+                </ContactInfoItem>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Phone className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">{t("Telefono", "Phone")}</h3>
-                    <a href="tel:+390512345678" className="text-muted-foreground hover:text-foreground transition-colors">
-                      +39 051 234 5678
-                    </a>
-                  </div>
-                </div>
+                <ContactInfoItem icon={Phone} title={t("Telefono", "Phone")}>
+                  <a href="tel:+390512345678" className="text-muted-foreground hover:text-foreground transition-colors">
+                    +39 051 234 5678
+                  </a>
+                </ContactInfoItem>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mail className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium mb-1">Email</h3>
-                    <a href="mailto:info@cameraconvista.it" className="text-muted-foreground hover:text-foreground transition-colors">
-                      info@cameraconvista.it
-                    </a>
-                  </div>
-                </div>
+                <ContactInfoItem icon={Mail} title="Email">
+                  <a href="mailto:info@cameraconvista.it" className="text-muted-foreground hover:text-foreground transition-colors">
+                    info@cameraconvista.it
+                  </a>
+                </ContactInfoItem>
 
-                <div className="flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                    <Clock className="h-5 w-5 text-primary" />
+                <ContactInfoItem icon={Clock} title={t("Orari", "Hours")}>
+                  <div className="text-muted-foreground">
+                    <p>{t("Martedì - Domenica", "Tuesday - Sunday")}: 18:00 - 02:00</p>
+                    <p>{t("Lunedì", "Monday")}: {t("Chiuso", "Closed")}</p>
                   </div>
-                  <div>
-                    <h3 className="font-medium mb-1">{t("Orari", "Hours")}</h3>
-                    <div className="text-muted-foreground">
-                      <p>{t("Martedì - Domenica", "Tuesday - Sunday")}: 18:00 - 02:00</p>
-                      <p>{t("Lunedì", "Monday")}: {t("Chiuso", "Closed")}</p>
-                    </div>
-                  </div>
-                </div>
+                </ContactInfoItem>
               </div>
 
               <div className="mt-8 aspect-[16/9] rounded-placeholder overflow-hidden bg-muted">

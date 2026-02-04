@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Save, Loader2, X } from "lucide-react";
 import type { Media } from "@shared/schema";
+import { formatSize, formatDate } from "@/lib/formatters";
 
 const CATEGORIES = ["varie", "interni", "food", "drink", "eventi"] as const;
 
@@ -120,20 +121,6 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   };
 
   if (!media) return null;
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString("it-IT", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
-  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

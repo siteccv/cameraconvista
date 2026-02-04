@@ -13,6 +13,7 @@ import { ImageDetailsModal } from "@/components/admin/ImageDetailsModal";
 import { ManageCategoriesModal } from "@/components/admin/ManageCategoriesModal";
 import { Upload, Search, Image, Settings, Loader2 } from "lucide-react";
 import type { Media, InsertMedia, MediaCategory } from "@shared/schema";
+import { formatSize, formatDate } from "@/lib/formatters";
 
 export default function AdminMedia() {
   const { t, language } = useLanguage();
@@ -236,20 +237,6 @@ export default function AdminMedia() {
   const openDetails = (media: Media) => {
     setSelectedMedia(media);
     setDetailsOpen(true);
-  };
-
-  const formatSize = (bytes: number) => {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-  };
-
-  const formatDate = (date: Date | string) => {
-    return new Date(date).toLocaleDateString("it-IT", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    });
   };
 
   return (
