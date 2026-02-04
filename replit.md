@@ -14,6 +14,8 @@ Preferred communication style: Simple, everyday language.
 
 **Backup command**: When user says "esegui nuovo backup", create a new tar.gz archive of the entire project (excluding node_modules, .git, BACKUP folder) and save it to `BACKUP/backup_replit_DD_Mon_HH-MM.tar.gz` with current date and time.
 
+**Logo files management**: All logo files (logo_ccv.png, icona_ccv.png, Logo_ccv_2_optimized, etc.) MUST be stored exclusively in the `LOGOS/` folder in the project root. Never duplicate logos to other folders. When optimizing or managing logo files, always use LOGOS/ as the single source of truth. The favicon.png in client/public/ is the only exception (required for browser favicon).
+
 ## System Architecture
 
 ### Frontend Architecture
