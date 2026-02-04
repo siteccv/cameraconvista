@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { ImageIcon, RotateCcw, ZoomIn, Move } from "lucide-react";
+import { ImageIcon, RotateCcw, ZoomIn, Move, FolderOpen } from "lucide-react";
+import { MediaPickerModal } from "./MediaPickerModal";
+import type { Media } from "@shared/schema";
 
 interface EditableImageProps {
   blockId?: number;
@@ -50,6 +52,7 @@ export function EditableImage({
   const { adminPreview } = useAdmin();
   const { t } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   
   const [editSrc, setEditSrc] = useState(src);
   const [editZoomDesktop, setEditZoomDesktop] = useState(zoomDesktop);
@@ -132,6 +135,11 @@ export function EditableImage({
     isDragging.current = false;
   };
 
+  const handleMediaSelect = (media: Media) => {
+    setEditSrc(media.url);
+    setMediaPickerOpen(false);
+  };
+
   const displayZoom = deviceView === "desktop" ? zoomDesktop : zoomMobile;
   const displayOffsetX = deviceView === "desktop" ? offsetXDesktop : offsetXMobile;
   const displayOffsetY = deviceView === "desktop" ? offsetYDesktop : offsetYMobile;
@@ -183,12 +191,24 @@ export function EditableImage({
           
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>{t("URL Immagine", "Image URL")}</Label>
-              <Input
-                value={editSrc}
-                onChange={(e) => setEditSrc(e.target.value)}
-                placeholder="https://..."
-              />
+              <Label>{t("Immagine", "Image")}</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={editSrc}
+                  onChange={(e) => setEditSrc(e.target.value)}
+                  placeholder="https://..."
+                  className="flex-1"
+                />
+                <Button
+                  variant="outline"
+                  onClick={() => setMediaPickerOpen(true)}
+                  type="button"
+                  data-testid="button-open-media-picker"
+                >
+                  <FolderOpen className="h-4 w-4 mr-2" />
+                  {t("Libreria", "Library")}
+                </Button>
+              </div>
             </div>
 
             <div className="flex gap-2 mb-4">
@@ -286,6 +306,12 @@ export function EditableImage({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <MediaPickerModal
+        open={mediaPickerOpen}
+        onClose={() => setMediaPickerOpen(false)}
+        onSelect={handleMediaSelect}
+      />
     </>
   );
 }

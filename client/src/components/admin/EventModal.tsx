@@ -24,8 +24,9 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Image as ImageIcon, Loader2 } from "lucide-react";
+import { Image as ImageIcon, Loader2, FolderOpen } from "lucide-react";
 import { TranslateButton } from "./TranslateButton";
+import { MediaPickerModal } from "./MediaPickerModal";
 import type { Event, InsertEvent, Media } from "@shared/schema";
 
 interface EventModalProps {
@@ -60,10 +61,6 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
   });
 
   const [showMediaPicker, setShowMediaPicker] = useState(false);
-
-  const { data: mediaItems = [] } = useQuery<Media[]>({
-    queryKey: ["/api/admin/media"],
-  });
 
   useEffect(() => {
     if (event) {
@@ -386,39 +383,6 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                 </div>
               </div>
 
-              {showMediaPicker && (
-                <div className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-medium">{t("Libreria Media", "Media Library")}</h4>
-                    <Button variant="ghost" size="sm" onClick={() => setShowMediaPicker(false)}>
-                      {t("Chiudi", "Close")}
-                    </Button>
-                  </div>
-                  <ScrollArea className="h-64">
-                    <div className="grid grid-cols-4 gap-2">
-                      {mediaItems.map((media) => (
-                        <button
-                          key={media.id}
-                          type="button"
-                          onClick={() => handleSelectMedia(media)}
-                          className="aspect-square rounded-md overflow-hidden border hover-elevate focus:ring-2 focus:ring-primary"
-                        >
-                          <img
-                            src={media.url}
-                            alt={language === "it" ? media.altIt || "" : media.altEn || ""}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                      {mediaItems.length === 0 && (
-                        <p className="col-span-4 text-center text-muted-foreground py-8">
-                          {t("Nessuna immagine nella libreria", "No images in library")}
-                        </p>
-                      )}
-                    </div>
-                  </ScrollArea>
-                </div>
-              )}
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-4 mt-4">
@@ -541,6 +505,12 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
           </div>
         </form>
       </DialogContent>
+
+      <MediaPickerModal
+        open={showMediaPicker}
+        onClose={() => setShowMediaPicker(false)}
+        onSelect={handleSelectMedia}
+      />
     </Dialog>
   );
 }

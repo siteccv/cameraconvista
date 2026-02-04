@@ -27,7 +27,7 @@ export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalPr
   });
 
   const { data: categories = [] } = useQuery<MediaCategory[]>({
-    queryKey: ["/api/admin/media/categories"],
+    queryKey: ["/api/admin/media-categories"],
     enabled: open,
   });
 
