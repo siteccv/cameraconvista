@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
+import multer from "multer";
+import sharp from "sharp";
 import { syncMenuFromSheets, syncWinesFromSheets, syncCocktailsFromSheets, syncAllFromSheets } from "./sheets-sync";
 import {
   insertPageSchema,
@@ -952,30 +954,103 @@ export async function registerRoutes(
     }
   });
 
-  // Admin Upload URL (protected)
-  app.post("/api/admin/uploads/request-url", requireAuth, async (req, res) => {
-    try {
-      const { ObjectStorageService } = await import("./replit_integrations/object_storage/objectStorage");
-      const objectStorageService = new ObjectStorageService();
-      const { name, size, contentType } = req.body;
+  // Configure multer for memory storage
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 20 * 1024 * 1024, // 20MB max
+    },
+  });
 
-      if (!name) {
-        res.status(400).json({ error: "Missing required field: name" });
+  // Direct upload to Supabase Storage with image optimization
+  app.post("/api/admin/uploads/direct", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      const { supabaseAdmin } = await import("./supabase");
+      
+      if (!req.file) {
+        res.status(400).json({ error: "No file provided" });
         return;
       }
 
-      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
-      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+      const file = req.file;
+      let buffer = file.buffer;
+      let finalMimeType = file.mimetype;
+      const isImage = file.mimetype.startsWith("image/");
+
+      // Optimize images (JPEG/PNG/WebP) while preserving quality
+      if (isImage && ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
+        try {
+          const sharpInstance = sharp(buffer);
+          const metadata = await sharpInstance.metadata();
+          
+          // Only resize if larger than 2000px on any side
+          const maxDimension = 2000;
+          if (metadata.width && metadata.height) {
+            if (metadata.width > maxDimension || metadata.height > maxDimension) {
+              sharpInstance.resize(maxDimension, maxDimension, {
+                fit: "inside",
+                withoutEnlargement: true,
+              });
+            }
+          }
+
+          // High quality compression preserving original format
+          if (file.mimetype === "image/jpeg") {
+            buffer = await sharpInstance.jpeg({ quality: 85, mozjpeg: true }).toBuffer();
+          } else if (file.mimetype === "image/png") {
+            buffer = await sharpInstance.png({ compressionLevel: 6 }).toBuffer();
+          } else if (file.mimetype === "image/webp") {
+            buffer = await sharpInstance.webp({ quality: 85 }).toBuffer();
+          }
+        } catch (sharpError) {
+          console.warn("Sharp processing failed, using original:", sharpError);
+          // Continue with original buffer if Sharp fails
+        }
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now();
+      const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const storagePath = `public/${timestamp}-${sanitizedName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabaseAdmin.storage
+        .from('media-public')
+        .upload(storagePath, buffer, {
+          contentType: finalMimeType,
+          upsert: false,
+        });
+
+      if (error) {
+        console.error("Supabase upload error:", error);
+        res.status(500).json({ error: "Failed to upload file to storage" });
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabaseAdmin.storage
+        .from('media-public')
+        .getPublicUrl(storagePath);
 
       res.json({
-        uploadURL,
-        objectPath,
-        metadata: { name, size, contentType },
+        url: urlData.publicUrl,
+        filename: file.originalname,
+        size: buffer.length,
+        mimeType: finalMimeType,
       });
     } catch (error) {
-      console.error("Error generating upload URL:", error);
-      res.status(500).json({ error: "Failed to generate upload URL" });
+      console.error("Error uploading file:", error);
+      res.status(500).json({ error: "Failed to upload file" });
     }
+  });
+
+  // Keep legacy endpoint for compatibility (redirects to Supabase)
+  app.post("/api/admin/uploads/request-url", requireAuth, async (req, res) => {
+    // This endpoint now returns instructions to use direct upload
+    res.status(400).json({ 
+      error: "This endpoint is deprecated. Use /api/admin/uploads/direct with multipart/form-data instead.",
+      useEndpoint: "/api/admin/uploads/direct"
+    });
   });
 
   // Admin Media Categories

@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -9,12 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ObjectUploader } from "@/components/ObjectUploader";
 import { ImageDetailsModal } from "@/components/admin/ImageDetailsModal";
 import { ManageCategoriesModal } from "@/components/admin/ManageCategoriesModal";
 import { Upload, Search, Image, Settings, Loader2 } from "lucide-react";
 import type { Media, InsertMedia, MediaCategory } from "@shared/schema";
-import type { UppyFile, UploadResult } from "@uppy/core";
 
 export default function AdminMedia() {
   const { t, language } = useLanguage();
@@ -87,55 +85,99 @@ export default function AdminMedia() {
     );
   }, [mediaItems, selectedCategory, searchQuery]);
 
-  const pendingUploads = useRef(new Map<string, { objectPath: string; name: string; size: number; mimeType: string }>());
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
-    if (result.successful && result.successful.length > 0) {
-      for (const file of result.successful) {
-        const pending = pendingUploads.current.get(file.id);
-        if (pending) {
-          const uploadCategory = selectedCategory !== "all" 
-            ? selectedCategory 
-            : (dbCategories.length > 0 ? dbCategories[0].slug : null);
-          const mediaData: InsertMedia = {
-            filename: pending.name,
-            url: pending.objectPath,
-            mimeType: pending.mimeType,
-            size: pending.size,
-            category: uploadCategory,
-          };
-          createMediaMutation.mutate(mediaData);
-          pendingUploads.current.delete(file.id);
-        }
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILES = 10;
+
+  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    // Validate file count
+    if (files.length > MAX_FILES) {
+      toast({
+        title: t("Errore", "Error"),
+        description: t(`Massimo ${MAX_FILES} file alla volta.`, `Maximum ${MAX_FILES} files at once.`),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file sizes
+    for (const file of Array.from(files)) {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: t("Errore", "Error"),
+          description: t(`Il file "${file.name}" supera i 10MB.`, `File "${file.name}" exceeds 10MB.`),
+          variant: "destructive",
+        });
+        return;
       }
     }
-  };
 
-  const handleGetUploadParameters = async (file: UppyFile<Record<string, unknown>, Record<string, unknown>>) => {
-    const response = await fetch("/api/admin/uploads/request-url", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({
-        name: file.name,
-        size: file.size,
-        contentType: file.type,
-      }),
-    });
-    const data = await response.json();
+    setIsUploading(true);
+    let successCount = 0;
     
-    pendingUploads.current.set(file.id, {
-      objectPath: data.objectPath,
-      name: file.name || "uploaded-file",
-      size: file.size || 0,
-      mimeType: file.type || "application/octet-stream",
-    });
-    
-    return {
-      method: "PUT" as const,
-      url: data.uploadURL as string,
-    };
-  };
+    try {
+      for (const file of Array.from(files)) {
+        // Upload file directly to server
+        const formData = new FormData();
+        formData.append("file", file);
+
+        const uploadResponse = await fetch("/api/admin/uploads/direct", {
+          method: "POST",
+          credentials: "include",
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          const error = await uploadResponse.json();
+          throw new Error(error.error || "Upload failed");
+        }
+
+        const uploadResult = await uploadResponse.json();
+
+        // Determine category
+        const uploadCategory = selectedCategory !== "all" 
+          ? selectedCategory 
+          : (dbCategories.length > 0 ? dbCategories[0].slug : null);
+
+        // Save to database
+        const mediaData: InsertMedia = {
+          filename: uploadResult.filename,
+          url: uploadResult.url,
+          mimeType: uploadResult.mimeType,
+          size: uploadResult.size,
+          category: uploadCategory,
+        };
+
+        createMediaMutation.mutate(mediaData);
+        successCount++;
+      }
+
+      toast({
+        title: t("Caricato", "Uploaded"),
+        description: successCount > 1 
+          ? t(`${successCount} file caricati con successo.`, `${successCount} files uploaded successfully.`)
+          : t("File caricato con successo.", "File uploaded successfully."),
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile caricare il file.", "Failed to upload file."),
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploading(false);
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [selectedCategory, dbCategories, createMediaMutation, t, toast]);
 
   const openDetails = (media: Media) => {
     setSelectedMedia(media);
@@ -177,15 +219,29 @@ export default function AdminMedia() {
               <Settings className="h-4 w-4 mr-2" />
               {t("Gestisci cartelle", "Manage folders")}
             </Button>
-            <ObjectUploader
-              maxNumberOfFiles={10}
-              maxFileSize={10485760}
-              onGetUploadParameters={handleGetUploadParameters}
-              onComplete={handleUploadComplete}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="image/*"
+              multiple
+              className="hidden"
+              data-testid="input-file-upload"
+            />
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              data-testid="button-upload"
             >
-              <Upload className="h-4 w-4 mr-2" />
-              {t("Carica immagine", "Upload image")}
-            </ObjectUploader>
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              {isUploading 
+                ? t("Caricamento...", "Uploading...") 
+                : t("Carica immagine", "Upload image")}
+            </Button>
           </div>
         </div>
 
