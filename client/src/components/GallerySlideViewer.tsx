@@ -210,7 +210,7 @@ export function GallerySlideViewer({
             <Button
               variant="outline"
               size="lg"
-              className="min-w-[120px] rounded-full bg-white/10 text-white border-white/20 hover:bg-white hover:text-black transition-all duration-300 font-display uppercase tracking-widest text-xs h-10 px-8"
+              className="min-w-[120px] rounded-full bg-white/10 text-white border-white/20 hover:bg-white hover:text-black transition-all duration-300 font-sans uppercase tracking-wider text-sm h-10 px-8"
               onClick={onClose}
               data-testid="button-close-viewer"
             >
