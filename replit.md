@@ -74,7 +74,13 @@ Preferred communication style: Simple, everyday language.
    - **Independent Font Sizes**: EditableText allows editing desktop/mobile font sizes independently - changes in mobile view only affect mobile, and vice versa
    - **Header/Footer**: Respect forceMobileLayout to switch between desktop/mobile layouts
    - **Responsive Breakpoints**: Uses Tailwind md: (768px) and lg: (1024px) with optimized mobile padding (py-10 vs py-20)
-12. **GitHub Sync**: Project synced to https://github.com/siteccv/cameraconvista.git - when user says "esegui commit in github", push current state to GitHub main branch
+12. **Above-the-Fold Layout Pattern**: All public pages use consistent "clean" layout structure.
+   - **Wrapper**: `min-h-[calc(100vh-80px)] flex flex-col` - full viewport minus header
+   - **Hero Section**: `h-[60vh] shrink-0` - fixed height hero image with title overlay
+   - **Intro Section**: `flex-1 flex items-center justify-center` - centers intro text in remaining space
+   - **Home Special Case**: Shows branding block (logo + tagline + booking button) instead of intro text
+   - **Scrollable Content**: Main content sections placed after the above-fold wrapper, visible on scroll
+13. **GitHub Sync**: Project synced to https://github.com/siteccv/cameraconvista.git - when user says "esegui commit in github", push current state to GitHub main branch
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
