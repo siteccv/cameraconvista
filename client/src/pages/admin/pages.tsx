@@ -4,7 +4,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, Pencil, Eye, Upload, EyeOff, Check } from "lucide-react";
+import { Monitor, Smartphone, Upload, EyeOff, Eye, Check } from "lucide-react";
 import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -33,9 +33,8 @@ const pageComponents = [
 export default function AdminPages() {
   const { t } = useLanguage();
   const { toast } = useToast();
-  const { adminPreview, setAdminPreview, deviceView, setDeviceView, setForceMobileLayout } = useAdmin();
+  const { setAdminPreview, deviceView, setDeviceView, setForceMobileLayout } = useAdmin();
   const [activePage, setActivePage] = useState("home");
-  const [editMode, setEditMode] = useState(true);
 
   const { data: dbPages = [] } = useQuery<Page[]>({
     queryKey: ["/api/admin/pages"],
@@ -68,9 +67,9 @@ export default function AdminPages() {
   });
 
   useEffect(() => {
-    setAdminPreview(editMode);
+    setAdminPreview(true);
     return () => setAdminPreview(false);
-  }, [editMode, setAdminPreview]);
+  }, [setAdminPreview]);
 
   // Sincronizza forceMobileLayout con deviceView per forzare il layout mobile
   useEffect(() => {
@@ -119,27 +118,6 @@ export default function AdminPages() {
           </Tabs>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <Button
-                variant={editMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => setEditMode(true)}
-                data-testid="button-edit-mode"
-              >
-                <Pencil className="h-4 w-4 mr-2" />
-                {t("Modifica", "Edit")}
-              </Button>
-              <Button
-                variant={!editMode ? "default" : "outline"}
-                size="sm"
-                onClick={() => setEditMode(false)}
-                data-testid="button-preview-mode"
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                {t("Anteprima", "Preview")}
-              </Button>
-            </div>
-            <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2">
               <Button
                 variant={deviceView === "desktop" ? "default" : "outline"}
