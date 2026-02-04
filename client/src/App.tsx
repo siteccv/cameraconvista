@@ -16,7 +16,6 @@ import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
 import Contatti from "@/pages/contatti";
 import AdminLogin from "@/pages/admin/login";
-import AdminDashboard from "@/pages/admin/dashboard";
 import AdminSettings from "@/pages/admin/settings";
 import AdminPages from "@/pages/admin/pages";
 import AdminEvents from "@/pages/admin/events";
@@ -64,10 +63,7 @@ function Router() {
       <Route path="/admina/settings">
         {() => <ProtectedAdminRoute component={AdminSettings} />}
       </Route>
-      <Route path="/admina/pages">
-        {() => <ProtectedAdminRoute component={AdminPages} />}
-      </Route>
-      <Route path="/admina/events">
+            <Route path="/admina/events">
         {() => <ProtectedAdminRoute component={AdminEvents} />}
       </Route>
       <Route path="/admina/media">
@@ -83,7 +79,7 @@ function Router() {
         {() => <ProtectedAdminRoute component={AdminPreview} />}
       </Route>
       <Route path="/admina">
-        {() => <ProtectedAdminRoute component={AdminDashboard} />}
+        {() => <ProtectedAdminRoute component={AdminPages} />}
       </Route>
       <Route component={NotFound} />
     </Switch>

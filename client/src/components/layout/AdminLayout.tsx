@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import {
-  LayoutDashboard,
   FileText,
   Calendar,
   Image,
@@ -35,8 +34,7 @@ import {
 } from "lucide-react";
 
 const adminNavItems = [
-  { slug: "/admina", icon: LayoutDashboard, labelIt: "Dashboard", labelEn: "Dashboard" },
-  { slug: "/admina/pages", icon: FileText, labelIt: "Sezioni Pagine", labelEn: "Page Sections" },
+  { slug: "/admina", icon: FileText, labelIt: "Sezioni Pagine", labelEn: "Page Sections" },
   { slug: "/admina/events", icon: Calendar, labelIt: "Eventi", labelEn: "Events" },
   { slug: "/admina/gallery", icon: Images, labelIt: "Galleria Album", labelEn: "Album Gallery" },
   { slug: "/admina/media", icon: Image, labelIt: "Libreria Media", labelEn: "Media Library" },
