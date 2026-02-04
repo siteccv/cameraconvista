@@ -489,4 +489,18 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-export const storage = new DatabaseStorage();
+import { SupabaseStorage } from './supabase-storage';
+
+const USE_SUPABASE = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+let storage: IStorage;
+
+if (USE_SUPABASE) {
+  storage = new SupabaseStorage();
+  console.log('Using Supabase as database backend');
+} else {
+  storage = new DatabaseStorage();
+  console.log('Using Replit PostgreSQL as database backend');
+}
+
+export { storage };
