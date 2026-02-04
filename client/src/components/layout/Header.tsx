@@ -4,17 +4,19 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import logoImg from "@assets/logo_ccv.png";
+import type { Page } from "@shared/schema";
 
-const navItems = [
-  { slug: "/", labelIt: "Home", labelEn: "Home" },
-  { slug: "/menu", labelIt: "Menù", labelEn: "Menu" },
-  { slug: "/carta-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
-  { slug: "/cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar" },
-  { slug: "/eventi", labelIt: "Eventi", labelEn: "Events" },
-  { slug: "/eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events" },
-  { slug: "/galleria", labelIt: "Galleria", labelEn: "Gallery" },
-  { slug: "/contatti", labelIt: "Contatti", labelEn: "Contact" },
+const allNavItems = [
+  { slug: "home", path: "/", labelIt: "Home", labelEn: "Home" },
+  { slug: "menu", path: "/menu", labelIt: "Menù", labelEn: "Menu" },
+  { slug: "carta-vini", path: "/carta-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
+  { slug: "cocktail-bar", path: "/cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar" },
+  { slug: "eventi", path: "/eventi", labelIt: "Eventi", labelEn: "Events" },
+  { slug: "eventi-privati", path: "/eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events" },
+  { slug: "galleria", path: "/galleria", labelIt: "Galleria", labelEn: "Gallery" },
+  { slug: "contatti", path: "/contatti", labelIt: "Contatti", labelEn: "Contact" },
 ];
 
 export function Header() {
@@ -24,9 +26,12 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
 
+  const { data: visiblePages = [] } = useQuery<Page[]>({
+    queryKey: ["/api/pages"],
+  });
+
   useEffect(() => {
     const checkMobile = () => {
-      // Use 1280px breakpoint to ensure navbar fits on one line
       setIsMobileView(window.innerWidth < 1280);
     };
     checkMobile();
@@ -35,6 +40,11 @@ export function Header() {
   }, []);
 
   const isMobile = forceMobileLayout || isMobileView;
+
+  const navItems = allNavItems.filter(item => {
+    const dbPage = visiblePages.find(p => p.slug === item.slug);
+    return dbPage !== undefined || visiblePages.length === 0;
+  });
 
   return (
     <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
@@ -73,16 +83,16 @@ export function Header() {
 
               <nav className="hidden xl:flex items-center gap-1">
                 {navItems.map((item) => {
-                  const isActive = location === item.slug;
+                  const isActive = location === item.path;
                   return (
-                    <Link key={item.slug} href={item.slug}>
+                    <Link key={item.slug} href={item.path}>
                       <span
                         className={`px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors cursor-pointer whitespace-nowrap ${
                           isActive
                             ? "text-[#722f37] underline underline-offset-4"
                             : "text-muted-foreground hover:text-foreground"
                         }`}
-                        data-testid={`nav-${item.slug.replace("/", "") || "home"}`}
+                        data-testid={`nav-${item.slug || "home"}`}
                       >
                         {t(item.labelIt, item.labelEn)}
                       </span>
@@ -124,9 +134,9 @@ export function Header() {
           <nav className="absolute left-0 right-0 top-14 z-40 bg-background border-b border-border shadow-lg py-6">
             <div className="container mx-auto px-4 flex flex-col gap-2">
               {navItems.map((item) => {
-                const isActive = location === item.slug;
+                const isActive = location === item.path;
                 return (
-                  <Link key={item.slug} href={item.slug}>
+                  <Link key={item.slug} href={item.path}>
                     <span
                       className={`block px-4 py-3 font-display text-lg tracking-wide transition-colors cursor-pointer ${
                         isActive
@@ -134,7 +144,7 @@ export function Header() {
                           : "text-muted-foreground hover:text-foreground"
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
-                      data-testid={`nav-mobile-${item.slug.replace("/", "") || "home"}`}
+                      data-testid={`nav-mobile-${item.slug || "home"}`}
                     >
                       {t(item.labelIt, item.labelEn)}
                     </span>
