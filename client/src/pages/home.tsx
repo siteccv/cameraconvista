@@ -413,7 +413,7 @@ export default function Home() {
           </div>
           
           {/* French nuance, antique goods - Editable */}
-          <div className={isMobile ? "mt-2 mb-4" : "mt-4 mb-8"}>
+          <div className={isMobile ? "mt-4 mb-4" : "mt-6 mb-8"}>
             <EditableText
               textIt={brandingTagline.it}
               textEn={brandingTagline.en}
