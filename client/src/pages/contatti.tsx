@@ -156,26 +156,26 @@ export default function Contatti() {
               />
 
               <div className="space-y-6">
-                <ContactInfoItem icon={MapPin} title={t("Indirizzo", "Address")}>
+                <ContactInfoItem icon={MapPin} title={t("Indirizzo", "Address")} testId="contact-address">
                   <p className="text-muted-foreground">
                     Via del Pratello, 42<br />
                     40122 Bologna, Italia
                   </p>
                 </ContactInfoItem>
 
-                <ContactInfoItem icon={Phone} title={t("Telefono", "Phone")}>
+                <ContactInfoItem icon={Phone} title={t("Telefono", "Phone")} testId="contact-phone">
                   <a href="tel:+390512345678" className="text-muted-foreground hover:text-foreground transition-colors">
                     +39 051 234 5678
                   </a>
                 </ContactInfoItem>
 
-                <ContactInfoItem icon={Mail} title="Email">
+                <ContactInfoItem icon={Mail} title="Email" testId="contact-email">
                   <a href="mailto:info@cameraconvista.it" className="text-muted-foreground hover:text-foreground transition-colors">
                     info@cameraconvista.it
                   </a>
                 </ContactInfoItem>
 
-                <ContactInfoItem icon={Clock} title={t("Orari", "Hours")}>
+                <ContactInfoItem icon={Clock} title={t("Orari", "Hours")} testId="contact-hours">
                   <div className="text-muted-foreground">
                     <p>{t("Martedì - Domenica", "Tuesday - Sunday")}: 18:00 - 02:00</p>
                     <p>{t("Lunedì", "Monday")}: {t("Chiuso", "Closed")}</p>
