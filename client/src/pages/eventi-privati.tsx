@@ -88,38 +88,56 @@ export default function EventiPrivati() {
 
   return (
     <PublicLayout>
-      <section className="relative h-[60vh] flex items-center justify-center">
-        <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
-          <EditableImage
-            src={heroImage.src}
-            zoomDesktop={heroImage.zoomDesktop}
-            zoomMobile={heroImage.zoomMobile}
-            offsetXDesktop={heroImage.offsetXDesktop}
-            offsetYDesktop={heroImage.offsetYDesktop}
-            offsetXMobile={heroImage.offsetXMobile}
-            offsetYMobile={heroImage.offsetYMobile}
-            deviceView={deviceView}
-            containerClassName="absolute inset-0"
-            className="w-full h-full object-cover"
-            onSave={handleHeroImageSave}
-          />
-          <div 
-            className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
-          />
-        </div>
-        <div className="relative z-10 text-center text-white">
-          <EditableText
-            textIt={heroTitle.it}
-            textEn={heroTitle.en}
-            fontSizeDesktop={heroTitle.fontSizeDesktop}
-            fontSizeMobile={heroTitle.fontSizeMobile}
-            as="h1"
-            className="font-display drop-shadow-lg"
-            applyFontSize
-            onSave={(data) => handleTextSave("heroTitle", data)}
-          />
-        </div>
-      </section>
+      <div className="min-h-[calc(100vh-80px)] flex flex-col">
+        <section className="relative h-[60vh] shrink-0 flex items-center justify-center">
+          <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
+            <EditableImage
+              src={heroImage.src}
+              zoomDesktop={heroImage.zoomDesktop}
+              zoomMobile={heroImage.zoomMobile}
+              offsetXDesktop={heroImage.offsetXDesktop}
+              offsetYDesktop={heroImage.offsetYDesktop}
+              offsetXMobile={heroImage.offsetXMobile}
+              offsetYMobile={heroImage.offsetYMobile}
+              deviceView={deviceView}
+              containerClassName="absolute inset-0"
+              className="w-full h-full object-cover"
+              onSave={handleHeroImageSave}
+            />
+            <div 
+              className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
+            />
+          </div>
+          <div className="relative z-10 text-center text-white">
+            <EditableText
+              textIt={heroTitle.it}
+              textEn={heroTitle.en}
+              fontSizeDesktop={heroTitle.fontSizeDesktop}
+              fontSizeMobile={heroTitle.fontSizeMobile}
+              as="h1"
+              className="font-display drop-shadow-lg"
+              applyFontSize
+              onSave={(data) => handleTextSave("heroTitle", data)}
+            />
+          </div>
+        </section>
+
+        <section className="flex-1 flex items-center justify-center">
+          <div className="container mx-auto px-4 max-w-2xl text-center py-6">
+            <EditableText
+              textIt={introText.it}
+              textEn={introText.en}
+              fontSizeDesktop={introText.fontSizeDesktop}
+              fontSizeMobile={introText.fontSizeMobile}
+              as="p"
+              className="text-muted-foreground"
+              multiline
+              applyFontSize
+              onSave={(data) => handleTextSave("introText", data)}
+            />
+          </div>
+        </section>
+      </div>
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
@@ -133,17 +151,6 @@ export default function EventiPrivati() {
               className="font-display mb-4"
               applyFontSize
               onSave={(data) => handleTextSave("sectionTitle", data)}
-            />
-            <EditableText
-              textIt={introText.it}
-              textEn={introText.en}
-              fontSizeDesktop={introText.fontSizeDesktop}
-              fontSizeMobile={introText.fontSizeMobile}
-              as="p"
-              className="text-muted-foreground"
-              multiline
-              applyFontSize
-              onSave={(data) => handleTextSave("introText", data)}
             />
           </div>
 

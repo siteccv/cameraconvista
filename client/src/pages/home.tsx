@@ -247,84 +247,86 @@ export default function Home() {
 
   return (
     <PublicLayout>
-      <section className={`relative ${heroHeight}`}>
-        <div className={`absolute inset-y-0 ${isMobile ? "left-4 right-4 rounded-xl" : "left-0 right-0 rounded-none"} overflow-hidden`}>
-          <EditableImage
-            src={heroImage.src}
-            zoomDesktop={heroImage.zoomDesktop}
-            zoomMobile={heroImage.zoomMobile}
-            offsetXDesktop={heroImage.offsetXDesktop}
-            offsetYDesktop={heroImage.offsetYDesktop}
-            offsetXMobile={heroImage.offsetXMobile}
-            offsetYMobile={heroImage.offsetYMobile}
-            deviceView={deviceView}
-            containerClassName="absolute inset-0"
-            className="w-full h-full object-cover"
-            onSave={handleHeroImageSave}
-          />
-        </div>
-      </section>
+      <div className="min-h-[calc(100vh-80px)] flex flex-col">
+        <section className={`relative ${heroHeight} shrink-0`}>
+          <div className={`absolute inset-y-0 ${isMobile ? "left-4 right-4 rounded-xl" : "left-0 right-0 rounded-none"} overflow-hidden`}>
+            <EditableImage
+              src={heroImage.src}
+              zoomDesktop={heroImage.zoomDesktop}
+              zoomMobile={heroImage.zoomMobile}
+              offsetXDesktop={heroImage.offsetXDesktop}
+              offsetYDesktop={heroImage.offsetYDesktop}
+              offsetXMobile={heroImage.offsetXMobile}
+              offsetYMobile={heroImage.offsetYMobile}
+              deviceView={deviceView}
+              containerClassName="absolute inset-0"
+              className="w-full h-full object-cover"
+              onSave={handleHeroImageSave}
+            />
+          </div>
+        </section>
 
-      <section className={`${isMobile ? "py-4" : "py-12"} text-center`} data-testid="section-branding">
-        <div className="container mx-auto px-4">
-          <div className={isMobile ? "mb-2" : "mb-4"}>
-            <EditableText
-              textIt={brandingTitle.it}
-              textEn={brandingTitle.en}
-              fontSizeDesktop={brandingTitle.fontSizeDesktop}
-              fontSizeMobile={brandingTitle.fontSizeMobile}
-              as="p"
-              className={`${isMobile ? "tracking-[0.1em]" : "tracking-[0.2em]"} font-medium uppercase`}
+        <section className="flex-1 flex items-center justify-center text-center" data-testid="section-branding">
+          <div className="container mx-auto px-4 py-6">
+            <div className={isMobile ? "mb-2" : "mb-4"}>
+              <EditableText
+                textIt={brandingTitle.it}
+                textEn={brandingTitle.en}
+                fontSizeDesktop={brandingTitle.fontSizeDesktop}
+                fontSizeMobile={brandingTitle.fontSizeMobile}
+                as="p"
+                className={`${isMobile ? "tracking-[0.1em]" : "tracking-[0.2em]"} font-medium uppercase`}
+                style={{ 
+                  color: '#c9a048',
+                  fontFamily: 'Montserrat, sans-serif'
+                }}
+                applyFontSize
+                onSave={handleBrandingTitleSave}
+                data-testid="text-restaurant-bar"
+              />
+            </div>
+            
+            <div className={`flex justify-center ${isMobile ? "mb-2" : "mb-4"}`}>
+              <img 
+                src={logoImg} 
+                alt="Camera con Vista" 
+                className={`${logoHeight} w-auto`}
+                data-testid="img-logo"
+              />
+            </div>
+            
+            <div className={isMobile ? "mt-4 mb-4" : "mt-6 mb-8"}>
+              <EditableText
+                textIt={brandingTagline.it}
+                textEn={brandingTagline.en}
+                fontSizeDesktop={brandingTagline.fontSizeDesktop}
+                fontSizeMobile={brandingTagline.fontSizeMobile}
+                as="p"
+                className="italic"
+                style={{ 
+                  fontFamily: 'Adelia, cursive',
+                  color: '#2d2926'
+                }}
+                applyFontSize
+                onSave={handleBrandingTaglineSave}
+                data-testid="text-tagline"
+              />
+            </div>
+            
+            <Button 
+              onClick={() => setBookingDialogOpen(true)}
+              className={`${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full`}
               style={{ 
-                color: '#c9a048',
+                backgroundColor: '#722f37',
                 fontFamily: 'Montserrat, sans-serif'
               }}
-              applyFontSize
-              onSave={handleBrandingTitleSave}
-              data-testid="text-restaurant-bar"
-            />
+              data-testid="button-book-table"
+            >
+              {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
+            </Button>
           </div>
-          
-          <div className={`flex justify-center ${isMobile ? "mb-2" : "mb-4"}`}>
-            <img 
-              src={logoImg} 
-              alt="Camera con Vista" 
-              className={`${logoHeight} w-auto`}
-              data-testid="img-logo"
-            />
-          </div>
-          
-          <div className={isMobile ? "mt-4 mb-4" : "mt-6 mb-8"}>
-            <EditableText
-              textIt={brandingTagline.it}
-              textEn={brandingTagline.en}
-              fontSizeDesktop={brandingTagline.fontSizeDesktop}
-              fontSizeMobile={brandingTagline.fontSizeMobile}
-              as="p"
-              className="italic"
-              style={{ 
-                fontFamily: 'Adelia, cursive',
-                color: '#2d2926'
-              }}
-              applyFontSize
-              onSave={handleBrandingTaglineSave}
-              data-testid="text-tagline"
-            />
-          </div>
-          
-          <Button 
-            onClick={() => setBookingDialogOpen(true)}
-            className={`${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full`}
-            style={{ 
-              backgroundColor: '#722f37',
-              fontFamily: 'Montserrat, sans-serif'
-            }}
-            data-testid="button-book-table"
-          >
-            {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
-          </Button>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <BookingDialog 
         open={bookingDialogOpen} 
