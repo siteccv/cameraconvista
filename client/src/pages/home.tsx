@@ -448,7 +448,7 @@ export default function Home() {
 
       {/* Booking Confirmation Dialog */}
       <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent className={`sm:max-w-xl ${isMobile ? "mx-4 rounded-xl" : ""}`}>
           <DialogHeader>
             <DialogTitle className="text-center font-display text-xl">
               {t("Prima di prenotare", "Before you book")}
