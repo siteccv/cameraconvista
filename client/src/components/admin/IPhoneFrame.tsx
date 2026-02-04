@@ -5,7 +5,9 @@ interface IPhoneFrameProps {
 }
 
 const IPHONE_15_PRO_WIDTH = 393;
-const IPHONE_15_PRO_HEIGHT = 852;
+// iPhone 15 Pro logical height is 852px, but we subtract status bar (~47px) 
+// and home indicator (~34px) to show realistic visible content area
+const IPHONE_15_PRO_HEIGHT = 771; // 852 - 47 - 34 = 771
 
 export function IPhoneFrame({ children }: IPhoneFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null);
