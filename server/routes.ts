@@ -396,6 +396,10 @@ export async function registerRoutes(
         res.status(404).json({ error: "Page not found" });
         return;
       }
+      if (currentPage.slug === "home") {
+        res.status(400).json({ error: "Cannot hide the home page" });
+        return;
+      }
       const page = await storage.updatePage(pageId, { isVisible: !currentPage.isVisible });
       res.json({ success: true, page });
     } catch (error) {

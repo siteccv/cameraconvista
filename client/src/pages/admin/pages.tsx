@@ -142,19 +142,21 @@ export default function AdminPages() {
             <div className="flex items-center gap-2">
               {activePageData && (
                 <>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => toggleVisibilityMutation.mutate(activePageData.id)}
-                    disabled={toggleVisibilityMutation.isPending}
-                    data-testid="button-toggle-visibility"
-                  >
-                    {activePageData.isVisible ? (
-                      <><EyeOff className="h-4 w-4 mr-2" />{t("Nascondi", "Hide")}</>
-                    ) : (
-                      <><Eye className="h-4 w-4 mr-2" />{t("Mostra", "Show")}</>
-                    )}
-                  </Button>
+                  {activePageData.slug !== "home" && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleVisibilityMutation.mutate(activePageData.id)}
+                      disabled={toggleVisibilityMutation.isPending}
+                      data-testid="button-toggle-visibility"
+                    >
+                      {activePageData.isVisible ? (
+                        <><EyeOff className="h-4 w-4 mr-2" />{t("Nascondi", "Hide")}</>
+                      ) : (
+                        <><Eye className="h-4 w-4 mr-2" />{t("Mostra", "Show")}</>
+                      )}
+                    </Button>
+                  )}
                   <Button
                     size="sm"
                     onClick={() => publishPageMutation.mutate(activePageData.id)}
