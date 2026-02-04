@@ -288,44 +288,6 @@ export default function Home() {
             className="w-full h-full object-cover"
             onSave={handleHeroImageSave}
           />
-          <div 
-            className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
-          />
-        </div>
-        <div className="relative z-10 container mx-auto px-4 text-center text-white">
-          <EditableText
-            textIt={heroTitle.it}
-            textEn={heroTitle.en}
-            fontSizeDesktop={heroTitle.fontSizeDesktop}
-            fontSizeMobile={heroTitle.fontSizeMobile}
-            as="h1"
-            className="font-display mb-4 drop-shadow-lg"
-            applyFontSize
-            onSave={handleHeroTitleSave}
-          />
-          <EditableText
-            textIt={heroSubtitle.it}
-            textEn={heroSubtitle.en}
-            fontSizeDesktop={heroSubtitle.fontSizeDesktop}
-            fontSizeMobile={heroSubtitle.fontSizeMobile}
-            as="p"
-            className="font-serif italic mb-8 drop-shadow-md max-w-2xl mx-auto"
-            applyFontSize
-            onSave={handleHeroSubtitleSave}
-          />
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/menu">
-              <Button size="lg" className="bg-white/10 backdrop-blur border border-white/20 text-white hover:bg-white/20" data-testid="button-cta-menu">
-                {t("Scopri il Menù", "Discover the Menu")}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/eventi-privati">
-              <Button size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 backdrop-blur" data-testid="button-cta-events">
-                {t("Prenota un Evento", "Book an Event")}
-              </Button>
-            </Link>
-          </div>
         </div>
       </section>
 
