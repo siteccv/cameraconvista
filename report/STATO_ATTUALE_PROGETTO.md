@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 3 Febbraio 2026 (ore 23:20)
+**Ultimo aggiornamento:** 4 Febbraio 2026 (ore 21:16)
 
 ---
 
@@ -162,6 +162,19 @@
 
 ## PROGRESSI RECENTI
 
+### Fix Responsive Mobile Viewport (4 Feb 2026 - sera)
+- Risolto problema critico: i componenti usavano solo `forceMobileLayout` per determinare il layout mobile
+- Questo causava che su iPhone reale il sito mostrava layout desktop (font grandi, proporzioni sbagliate)
+- Aggiunto hook `useIsMobile()` in combinazione con `forceMobileLayout` per rilevamento corretto:
+  - `isMobile = forceMobileLayout || viewportIsMobile`
+- Componenti aggiornati:
+  - `client/src/pages/home.tsx` - Layout homepage con classi condizionali
+  - `client/src/components/admin/EditableText.tsx` - Font size responsive
+  - `client/src/components/admin/EditableImage.tsx` - Zoom/offset responsive
+  - `client/src/components/layout/Footer.tsx` - Layout footer responsive
+- Ora il sito mostra correttamente il layout mobile su iPhone reale
+- Nota: L'admin preview non può simulare perfettamente le unità `vh` (viewport height) perché sono sempre relative al browser, non al contenitore iPhone
+
 ### IPhoneFrame Content Clipping (3 Feb 2026 - notte)
 - Aggiunto `clipPath: "inset(0 round 48px)"` per contenere il contenuto nei bordi arrotondati
 - Il contenuto non deborda più dalla sagoma dell'iPhone
@@ -246,6 +259,8 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Layout mobile non funziona su iPhone reale | Aggiunto `useIsMobile()` combinato con `forceMobileLayout` in tutti i componenti | 4 Feb 2026 |
+| EditableText/Image usano dimensioni desktop su mobile | Modificata logica per usare `forceMobileLayout \|\| viewportIsMobile` | 4 Feb 2026 |
 | Contenuto deborda da IPhoneFrame | Aggiunto clipPath con bordi arrotondati | 3 Feb 2026 |
 | Sezioni Pagine non usava forceMobileLayout | Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView + IPhoneFrame | 3 Feb 2026 |
 | Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
