@@ -12,6 +12,14 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { PageBlock } from "@shared/schema";
 import logoImg from "@assets/logo_ccv.png";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const HOME_PAGE_ID = 1;
 
@@ -61,6 +69,9 @@ export default function Home() {
 
   // Track if we've already tried to initialize blocks
   const [hasInitialized, setHasInitialized] = useState(false);
+  
+  // Booking confirmation dialog state
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
 
   // Query key for page blocks (array format for proper cache invalidation)
   const blocksQueryKey = ["/api", "pages", HOME_PAGE_ID, "blocks"];
@@ -292,12 +303,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Branding Section */}
-      <section className="py-8 md:py-12 text-center" data-testid="section-branding">
+      {/* Branding Section - optimized for mobile */}
+      <section className="py-4 md:py-12 text-center" data-testid="section-branding">
         <div className="container mx-auto px-4">
           {/* RESTAURANT & COCKTAIL BAR */}
           <p 
-            className="text-xs md:text-sm tracking-[0.3em] md:tracking-[0.4em] font-medium mb-3 md:mb-4"
+            className="text-[10px] md:text-sm tracking-[0.2em] md:tracking-[0.4em] font-medium mb-2 md:mb-4"
             style={{ 
               color: '#c9a048',
               fontFamily: 'Montserrat, sans-serif'
@@ -308,18 +319,18 @@ export default function Home() {
           </p>
           
           {/* CAMERA CON VISTA Logo */}
-          <div className="flex justify-center mb-3 md:mb-4">
+          <div className="flex justify-center mb-2 md:mb-4">
             <img 
               src={logoImg} 
               alt="Camera con Vista" 
-              className="h-12 md:h-16 lg:h-20 w-auto"
+              className="h-8 md:h-16 lg:h-20 w-auto"
               data-testid="img-logo"
             />
           </div>
           
           {/* French nuance, antique goods */}
           <p 
-            className="text-xl md:text-2xl lg:text-3xl mb-6 md:mb-8"
+            className="text-base md:text-2xl lg:text-3xl mb-4 md:mb-8"
             style={{ 
               fontFamily: 'Adelia, cursive',
               fontStyle: 'italic',
@@ -331,11 +342,9 @@ export default function Home() {
           </p>
           
           {/* PRENOTA UN TAVOLO Button */}
-          <a 
-            href="https://cameraconvista.resos.com/booking"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block px-8 md:px-12 py-3 md:py-4 text-sm md:text-base tracking-[0.2em] font-medium text-white rounded-full transition-all hover:opacity-90"
+          <button 
+            onClick={() => setBookingDialogOpen(true)}
+            className="inline-block px-6 md:px-12 py-2.5 md:py-4 text-xs md:text-base tracking-[0.15em] md:tracking-[0.2em] font-medium text-white rounded-full transition-all hover:opacity-90"
             style={{ 
               backgroundColor: '#722f37',
               fontFamily: 'Montserrat, sans-serif'
@@ -343,9 +352,46 @@ export default function Home() {
             data-testid="button-book-table"
           >
             {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
-          </a>
+          </button>
         </div>
       </section>
+
+      {/* Booking Confirmation Dialog */}
+      <Dialog open={bookingDialogOpen} onOpenChange={setBookingDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center font-display text-xl">
+              {t("Prima di prenotare", "Before you book")}
+            </DialogTitle>
+            <DialogDescription className="text-center pt-4 space-y-2">
+              <p>{t("Accettiamo prenotazioni esclusivamente per la cena.", "We accept reservations exclusively for dinner.")}</p>
+              <p>{t("Verrà richiesta una carta di credito a garanzia,", "A credit card will be required as a guarantee,")}</p>
+              <p>{t("con addebito della penale SOLO in caso di mancata presentazione,", "and a penalty will be charged ONLY in the event,")}</p>
+              <p>{t("senza preventiva comunicazione.", "of a no-show without prior notice.")}</p>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex flex-row justify-center gap-3 sm:justify-center pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setBookingDialogOpen(false)}
+              data-testid="button-cancel-booking"
+            >
+              {t("Annulla", "Cancel")}
+            </Button>
+            <Button
+              onClick={() => {
+                setBookingDialogOpen(false);
+                window.open("https://cameraconvista.resos.com/booking", "_blank");
+              }}
+              style={{ backgroundColor: '#722f37' }}
+              className="text-white hover:opacity-90"
+              data-testid="button-continue-booking"
+            >
+              {t("Continua", "Continue")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <section className={sectionPadding}>
         <div className="container mx-auto px-4">
