@@ -67,12 +67,14 @@ Preferred communication style: Simple, everyday language.
    - **Viewer**: Instagram Story format (9:16), swipe navigation on mobile, arrow keys on desktop
    - **Fields**: titleIt/En, coverUrl with zoom/offset, gallery_images with individual zoom/offset
 11. **Mobile Responsive System**: Complete mobile-first responsive design.
-   - **Admin Preview**: iPhone 15 Pro frame simulation (430x932px) with Dynamic Island
-   - **IPhoneFrame Component**: `client/src/components/admin/IPhoneFrame.tsx` - Scalable frame that adapts to smaller viewports
+   - **Admin Preview**: iPhone 15 Pro frame simulation (430x932px) with Dynamic Island, uses CSS `zoom` for accurate preview
+   - **IPhoneFrame Component**: `client/src/components/admin/IPhoneFrame.tsx` - Uses CSS zoom (not transform:scale) for better pixel accuracy
    - **forceMobileLayout**: AdminContext state that forces mobile layout regardless of viewport (used in admin preview)
-   - **deviceView**: Synchronized with forceMobileLayout to ensure EditableImage and other components respond correctly
+   - **deviceView**: Synchronized with forceMobileLayout to ensure EditableImage and EditableText components respond correctly
+   - **Independent Font Sizes**: EditableText allows editing desktop/mobile font sizes independently - changes in mobile view only affect mobile, and vice versa
    - **Header/Footer**: Respect forceMobileLayout to switch between desktop/mobile layouts
    - **Responsive Breakpoints**: Uses Tailwind md: (768px) and lg: (1024px) with optimized mobile padding (py-10 vs py-20)
+12. **GitHub Sync**: Project synced to https://github.com/siteccv/cameraconvista.git - when user says "esegui commit in github", push current state to GitHub main branch
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
