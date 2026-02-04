@@ -69,7 +69,7 @@ export default function CocktailBar() {
 
   return (
     <PublicLayout>
-      <section className="relative h-[50vh] md:h-[60vh] flex items-center justify-center">
+      <section className="relative h-[60vh] flex items-center justify-center">
         <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
           <EditableImage
             src={heroImage.src}

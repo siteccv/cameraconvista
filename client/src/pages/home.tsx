@@ -265,8 +265,8 @@ export default function Home() {
   const displayOffsetX = deviceView === "desktop" ? heroImage.offsetXDesktop : heroImage.offsetXMobile;
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
-  // Responsive classes - hero should be smaller to fit branding section
-  const heroHeight = isMobile ? "h-[40vh]" : "h-[40vh] md:h-[50vh]";
+  // Responsive classes - homepage hero smaller to fit branding section above the fold
+  const heroHeight = "h-[45vh] md:h-[50vh]";
   const sectionPadding = isMobile ? "py-10" : "py-10 md:py-20";
   const titleMargin = isMobile ? "mb-8" : "mb-8 md:mb-12";
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8";
