@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { PageBlock } from "@shared/schema";
-import logoImg from "@assets/logo_ccv.png";
+import logoImg from "@assets/Logo_ccv_nobistrot.png";
 import {
   Dialog,
   DialogContent,
