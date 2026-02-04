@@ -9,10 +9,10 @@ const IPHONE_HEIGHT = 932;
 
 export function IPhoneFrame({ children }: IPhoneFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [zoom, setZoom] = useState(1);
 
   useEffect(() => {
-    const calculateScale = () => {
+    const calculateZoom = () => {
       if (!containerRef.current) return;
       const parent = containerRef.current.parentElement;
       if (!parent) return;
@@ -20,16 +20,16 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
       const availableHeight = parent.clientHeight - 32;
       const availableWidth = parent.clientWidth - 32;
       
-      const scaleX = availableWidth / IPHONE_WIDTH;
-      const scaleY = availableHeight / IPHONE_HEIGHT;
-      const newScale = Math.min(scaleX, scaleY, 1);
+      const zoomX = availableWidth / IPHONE_WIDTH;
+      const zoomY = availableHeight / IPHONE_HEIGHT;
+      const newZoom = Math.min(zoomX, zoomY, 1);
       
-      setScale(newScale > 0.5 ? newScale : 0.5);
+      setZoom(newZoom > 0.5 ? newZoom : 0.5);
     };
 
-    calculateScale();
-    window.addEventListener("resize", calculateScale);
-    return () => window.removeEventListener("resize", calculateScale);
+    calculateZoom();
+    window.addEventListener("resize", calculateZoom);
+    return () => window.removeEventListener("resize", calculateZoom);
   }, []);
 
   return (
@@ -39,8 +39,7 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
       style={{ 
         width: `${IPHONE_WIDTH}px`, 
         height: `${IPHONE_HEIGHT}px`,
-        transform: `scale(${scale})`,
-        transformOrigin: "top center"
+        zoom: zoom,
       }}
     >
       <div 
