@@ -342,8 +342,8 @@ export default function Home() {
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
   // Responsive classes - homepage hero smaller to fit branding section above the fold
-  // All classes use isMobile conditional to work correctly in admin preview
-  const heroHeight = isMobile ? "h-[45vh]" : "h-[50vh]";
+  // Mobile uses fixed pixel height (300px) to avoid zoom issues with vh units
+  const heroHeight = isMobile ? "h-[300px]" : "h-[50vh]";
   const sectionPadding = isMobile ? "py-10" : "py-20";
   const titleMargin = isMobile ? "mb-8" : "mb-12";
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
