@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,8 +50,9 @@ export function EditableImage({
   deviceView = "desktop",
   onSave,
 }: EditableImageProps) {
-  const { adminPreview } = useAdmin();
+  const { adminPreview, forceMobileLayout } = useAdmin();
   const { t } = useLanguage();
+  const viewportIsMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   
@@ -140,9 +142,11 @@ export function EditableImage({
     setMediaPickerOpen(false);
   };
 
-  const displayZoom = deviceView === "desktop" ? zoomDesktop : zoomMobile;
-  const displayOffsetX = deviceView === "desktop" ? offsetXDesktop : offsetXMobile;
-  const displayOffsetY = deviceView === "desktop" ? offsetYDesktop : offsetYMobile;
+  // Use mobile values when: admin forces mobile layout OR real viewport is mobile
+  const isMobile = forceMobileLayout || viewportIsMobile;
+  const displayZoom = isMobile ? zoomMobile : zoomDesktop;
+  const displayOffsetX = isMobile ? offsetXMobile : offsetXDesktop;
+  const displayOffsetY = isMobile ? offsetYMobile : offsetYDesktop;
 
   const imageStyle = {
     transform: `scale(${displayZoom / 100}) translate(${displayOffsetX}px, ${displayOffsetY}px)`,

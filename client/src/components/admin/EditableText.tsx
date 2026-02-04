@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,8 +42,9 @@ export function EditableText({
   applyFontSize = false,
   onSave,
 }: EditableTextProps) {
-  const { adminPreview, deviceView } = useAdmin();
+  const { adminPreview, deviceView, forceMobileLayout } = useAdmin();
   const { t, language } = useLanguage();
+  const viewportIsMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [editTextIt, setEditTextIt] = useState(textIt);
   const [editTextEn, setEditTextEn] = useState(textEn);
@@ -51,7 +53,9 @@ export function EditableText({
 
   const displayText = t(textIt, textEn);
   
-  const currentFontSize = deviceView === "mobile" ? fontSizeMobile : fontSizeDesktop;
+  // Use mobile font size when: admin forces mobile layout OR real viewport is mobile
+  const isMobile = forceMobileLayout || viewportIsMobile;
+  const currentFontSize = isMobile ? fontSizeMobile : fontSizeDesktop;
   const fontSizeStyle = applyFontSize ? { fontSize: `${currentFontSize}px` } : {};
   const combinedStyle = { ...style, ...fontSizeStyle };
 

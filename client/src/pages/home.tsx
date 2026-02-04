@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -77,8 +78,10 @@ export default function Home() {
   const { t } = useLanguage();
   const { adminPreview, deviceView, forceMobileLayout } = useAdmin();
   const { toast } = useToast();
+  const viewportIsMobile = useIsMobile();
 
-  const isMobile = forceMobileLayout;
+  // isMobile is true when: admin forces mobile layout OR real viewport is mobile
+  const isMobile = forceMobileLayout || viewportIsMobile;
 
   // Track if we've already tried to initialize blocks
   const [hasInitialized, setHasInitialized] = useState(false);

@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
@@ -19,6 +20,7 @@ const socialIcons: Record<string, React.ComponentType<{ className?: string }>> =
 export function Footer() {
   const { t, language } = useLanguage();
   const { forceMobileLayout } = useAdmin();
+  const viewportIsMobile = useIsMobile();
 
   const { data: settings } = useQuery<FooterSettings>({
     queryKey: ["/api/footer-settings"],
@@ -26,7 +28,8 @@ export function Footer() {
   });
 
   const footer = settings || defaultFooterSettings;
-  const isMobile = forceMobileLayout;
+  // isMobile is true when: admin forces mobile layout OR real viewport is mobile
+  const isMobile = forceMobileLayout || viewportIsMobile;
 
   // Quando forceMobileLayout è true, forza layout mobile senza media queries
   const gridClass = isMobile 
