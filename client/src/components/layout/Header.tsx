@@ -26,7 +26,8 @@ export function Header() {
 
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobileView(window.innerWidth < 1024);
+      // Use 1280px breakpoint to ensure navbar fits on one line
+      setIsMobileView(window.innerWidth < 1280);
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);
@@ -70,13 +71,13 @@ export function Header() {
                 />
               </Link>
 
-              <nav className="hidden lg:flex items-center gap-1">
+              <nav className="hidden xl:flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location === item.slug;
                   return (
                     <Link key={item.slug} href={item.slug}>
                       <span
-                        className={`px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors cursor-pointer ${
+                        className={`px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors cursor-pointer whitespace-nowrap ${
                           isActive
                             ? "text-primary"
                             : "text-muted-foreground hover:text-foreground"
