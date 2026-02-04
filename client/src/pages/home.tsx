@@ -342,8 +342,7 @@ export default function Home() {
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
   // Responsive classes - hero same size as other pages (60vh)
-  // Mobile uses fixed pixel height (360px) to match 60vh proportion and avoid zoom issues
-  const heroHeight = isMobile ? "h-[360px]" : "h-[60vh]";
+  const heroHeight = "h-[60vh]";
   const sectionPadding = isMobile ? "py-10" : "py-20";
   const titleMargin = isMobile ? "mb-8" : "mb-12";
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
@@ -414,7 +413,7 @@ export default function Home() {
           </div>
           
           {/* French nuance, antique goods - Editable */}
-          <div className={isMobile ? "mb-4" : "mb-8"}>
+          <div className={isMobile ? "mt-2 mb-4" : "mt-4 mb-8"}>
             <EditableText
               textIt={brandingTagline.it}
               textEn={brandingTagline.en}
