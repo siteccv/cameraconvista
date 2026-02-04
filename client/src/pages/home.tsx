@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -58,14 +58,15 @@ export default function Home() {
 
   const isMobile = forceMobileLayout;
 
-  // Fetch page blocks from database
+  // Track if we've already tried to initialize blocks
+  const [hasInitialized, setHasInitialized] = useState(false);
+
+  // Query key for page blocks (array format for proper cache invalidation)
+  const blocksQueryKey = ["/api", "pages", HOME_PAGE_ID, "blocks"];
+
+  // Fetch page blocks from database using default fetcher
   const { data: blocks = [], isLoading } = useQuery<PageBlock[]>({
-    queryKey: ["/api/pages", HOME_PAGE_ID, "blocks"],
-    queryFn: async () => {
-      const res = await fetch(`/api/pages/${HOME_PAGE_ID}/blocks`);
-      if (!res.ok) throw new Error("Failed to fetch blocks");
-      return res.json();
-    },
+    queryKey: blocksQueryKey,
   });
 
   // Find specific blocks
@@ -81,7 +82,10 @@ export default function Home() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pages", HOME_PAGE_ID, "blocks"] });
+      queryClient.invalidateQueries({ queryKey: blocksQueryKey });
+    },
+    onError: () => {
+      setHasInitialized(false);
     },
   });
 
@@ -91,7 +95,7 @@ export default function Home() {
       return apiRequest("PATCH", `/api/admin/page-blocks/${id}`, data);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/pages", HOME_PAGE_ID, "blocks"] });
+      queryClient.invalidateQueries({ queryKey: blocksQueryKey });
       toast({ 
         title: t("Salvato", "Saved"), 
         description: t("Le modifiche sono state salvate.", "Changes have been saved.") 
@@ -106,15 +110,25 @@ export default function Home() {
     },
   });
 
-  // Initialize default blocks if they don't exist
+  // Initialize default blocks only once if they don't exist
   useEffect(() => {
-    if (!isLoading && blocks.length === 0) {
-      // Create hero block
-      createBlockMutation.mutate(DEFAULT_BLOCKS.hero);
-      // Create concept block
+    const needsHero = !heroBlock && !isLoading;
+    const needsConcept = !conceptBlock && !isLoading;
+    
+    if (needsHero && !hasInitialized && !createBlockMutation.isPending) {
+      setHasInitialized(true);
+      createBlockMutation.mutate(DEFAULT_BLOCKS.hero, {
+        onSuccess: () => {
+          if (needsConcept) {
+            createBlockMutation.mutate(DEFAULT_BLOCKS.concept);
+          }
+        }
+      });
+    } else if (needsConcept && heroBlock && !hasInitialized && !createBlockMutation.isPending) {
+      setHasInitialized(true);
       createBlockMutation.mutate(DEFAULT_BLOCKS.concept);
     }
-  }, [isLoading, blocks.length]);
+  }, [isLoading, heroBlock, conceptBlock, hasInitialized, createBlockMutation.isPending]);
 
   // Handle hero image save
   const handleHeroImageSave = (data: {
