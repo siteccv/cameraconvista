@@ -349,7 +349,7 @@ export default function Home() {
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
   const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid-cols-2 gap-12 items-center";
   const titleSize = isMobile ? "text-3xl" : "text-4xl";
-  const logoHeight = isMobile ? "h-6" : "h-10"; // Desktop reduced 35%, mobile optimized
+  const logoHeight = isMobile ? "h-4" : "h-10"; // Mobile reduced 35%, desktop optimized
 
   if (isLoading) {
     return (
@@ -392,7 +392,7 @@ export default function Home() {
               fontSizeDesktop={brandingTitle.fontSizeDesktop}
               fontSizeMobile={brandingTitle.fontSizeMobile}
               as="p"
-              className={`${isMobile ? "tracking-[0.2em]" : "tracking-[0.4em]"} font-medium uppercase`}
+              className={`${isMobile ? "tracking-[0.1em]" : "tracking-[0.2em]"} font-medium uppercase`}
               style={{ 
                 color: '#c9a048',
                 fontFamily: 'Montserrat, sans-serif'
@@ -435,7 +435,7 @@ export default function Home() {
           {/* PRENOTA UN TAVOLO Button */}
           <button 
             onClick={() => setBookingDialogOpen(true)}
-            className={`inline-block ${isMobile ? "px-6 py-2.5 text-xs tracking-[0.15em]" : "px-12 py-4 text-base tracking-[0.2em]"} font-medium text-white rounded-full transition-all hover:opacity-90`}
+            className={`inline-block ${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full transition-all hover:opacity-90`}
             style={{ 
               backgroundColor: '#722f37',
               fontFamily: 'Montserrat, sans-serif'
