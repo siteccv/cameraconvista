@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { PageBlock } from "@shared/schema";
+import logoImg from "@assets/logo_ccv.png";
 
 const HOME_PAGE_ID = 1;
 
@@ -253,8 +254,8 @@ export default function Home() {
   const displayOffsetX = deviceView === "desktop" ? heroImage.offsetXDesktop : heroImage.offsetXMobile;
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
-  // Responsive classes
-  const heroHeight = isMobile ? "min-h-[60vh]" : "min-h-[60vh] md:min-h-[80vh]";
+  // Responsive classes - hero should be smaller to fit branding section
+  const heroHeight = isMobile ? "h-[40vh]" : "h-[40vh] md:h-[50vh]";
   const sectionPadding = isMobile ? "py-10" : "py-10 md:py-20";
   const titleMargin = isMobile ? "mb-8" : "mb-8 md:mb-12";
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8";
@@ -273,7 +274,7 @@ export default function Home() {
 
   return (
     <PublicLayout>
-      <section className={`relative ${heroHeight} flex items-center justify-center`}>
+      <section className={`relative ${heroHeight}`}>
         <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
           <EditableImage
             src={heroImage.src}
@@ -288,6 +289,61 @@ export default function Home() {
             className="w-full h-full object-cover"
             onSave={handleHeroImageSave}
           />
+        </div>
+      </section>
+
+      {/* Branding Section */}
+      <section className="py-8 md:py-12 text-center" data-testid="section-branding">
+        <div className="container mx-auto px-4">
+          {/* RESTAURANT & COCKTAIL BAR */}
+          <p 
+            className="text-xs md:text-sm tracking-[0.3em] md:tracking-[0.4em] font-medium mb-3 md:mb-4"
+            style={{ 
+              color: '#c9a048',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+            data-testid="text-restaurant-bar"
+          >
+            RESTAURANT & COCKTAIL BAR
+          </p>
+          
+          {/* CAMERA CON VISTA Logo */}
+          <div className="flex justify-center mb-3 md:mb-4">
+            <img 
+              src={logoImg} 
+              alt="Camera con Vista" 
+              className="h-12 md:h-16 lg:h-20 w-auto"
+              data-testid="img-logo"
+            />
+          </div>
+          
+          {/* French nuance, antique goods */}
+          <p 
+            className="text-xl md:text-2xl lg:text-3xl mb-6 md:mb-8"
+            style={{ 
+              fontFamily: 'Adelia, cursive',
+              fontStyle: 'italic',
+              color: '#2d2926'
+            }}
+            data-testid="text-tagline"
+          >
+            French nuance, antique goods
+          </p>
+          
+          {/* PRENOTA UN TAVOLO Button */}
+          <a 
+            href="https://cameraconvista.resos.com/booking"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-8 md:px-12 py-3 md:py-4 text-sm md:text-base tracking-[0.2em] font-medium text-white rounded-full transition-all hover:opacity-90"
+            style={{ 
+              backgroundColor: '#722f37',
+              fontFamily: 'Montserrat, sans-serif'
+            }}
+            data-testid="button-book-table"
+          >
+            {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
+          </a>
         </div>
       </section>
 
