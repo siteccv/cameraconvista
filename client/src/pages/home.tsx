@@ -349,7 +349,7 @@ export default function Home() {
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
   const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid-cols-2 gap-12 items-center";
   const titleSize = isMobile ? "text-3xl" : "text-4xl";
-  const logoHeight = isMobile ? "h-8" : "h-16";
+  const logoHeight = isMobile ? "h-6" : "h-10"; // Desktop reduced 35%, mobile optimized
 
   if (isLoading) {
     return (
