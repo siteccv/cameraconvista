@@ -9,44 +9,40 @@ const IPHONE_15_PRO_HEIGHT = 852;
 
 export function IPhoneFrame({ children }: IPhoneFrameProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [containerHeight, setContainerHeight] = useState(IPHONE_15_PRO_HEIGHT);
 
   useEffect(() => {
-    const calculateScale = () => {
+    const updateHeight = () => {
       if (!containerRef.current) return;
       const parent = containerRef.current.parentElement;
       if (!parent) return;
       
       const availableHeight = parent.clientHeight - 32;
-      const availableWidth = parent.clientWidth - 32;
-      
-      const scaleX = availableWidth / IPHONE_15_PRO_WIDTH;
-      const scaleY = availableHeight / IPHONE_15_PRO_HEIGHT;
-      const newScale = Math.min(scaleX, scaleY, 1);
-      
-      setScale(Math.max(newScale, 0.5));
+      setContainerHeight(Math.min(availableHeight, IPHONE_15_PRO_HEIGHT));
     };
 
-    calculateScale();
-    window.addEventListener("resize", calculateScale);
-    return () => window.removeEventListener("resize", calculateScale);
+    updateHeight();
+    window.addEventListener("resize", updateHeight);
+    return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
   return (
     <div 
       ref={containerRef}
-      className="flex items-start justify-center w-full h-full overflow-hidden p-4"
+      className="flex justify-center w-full h-full p-4"
     >
       <div
-        className="origin-top bg-background border border-border rounded-xl shadow-xl overflow-hidden"
+        className="bg-background border border-border rounded-xl shadow-xl overflow-hidden"
         style={{
-          transform: `scale(${scale})`,
           width: `${IPHONE_15_PRO_WIDTH}px`,
-          height: `${IPHONE_15_PRO_HEIGHT}px`,
-          flexShrink: 0,
+          height: `${containerHeight}px`,
+          minHeight: "600px",
         }}
       >
-        <div className="w-full h-full overflow-y-auto overflow-x-hidden">
+        <div 
+          className="h-full overflow-y-auto overflow-x-hidden"
+          style={{ width: `${IPHONE_15_PRO_WIDTH}px` }}
+        >
           {children}
         </div>
       </div>

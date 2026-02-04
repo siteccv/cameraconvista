@@ -339,12 +339,14 @@ export default function Home() {
   const displayOffsetY = deviceView === "desktop" ? heroImage.offsetYDesktop : heroImage.offsetYMobile;
 
   // Responsive classes - homepage hero smaller to fit branding section above the fold
-  const heroHeight = "h-[45vh] md:h-[50vh]";
-  const sectionPadding = isMobile ? "py-10" : "py-10 md:py-20";
-  const titleMargin = isMobile ? "mb-8" : "mb-8 md:mb-12";
-  const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8";
-  const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12 items-center";
-  const titleSize = isMobile ? "text-3xl" : "text-3xl md:text-4xl";
+  // All classes use isMobile conditional to work correctly in admin preview
+  const heroHeight = isMobile ? "h-[45vh]" : "h-[50vh]";
+  const sectionPadding = isMobile ? "py-10" : "py-20";
+  const titleMargin = isMobile ? "mb-8" : "mb-12";
+  const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
+  const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid-cols-2 gap-12 items-center";
+  const titleSize = isMobile ? "text-3xl" : "text-4xl";
+  const logoHeight = isMobile ? "h-8" : "h-16";
 
   if (isLoading) {
     return (
@@ -359,7 +361,7 @@ export default function Home() {
   return (
     <PublicLayout>
       <section className={`relative ${heroHeight}`}>
-        <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
+        <div className={`absolute inset-y-0 ${isMobile ? "left-4 right-4 rounded-xl" : "left-0 right-0 rounded-none"} overflow-hidden`}>
           <EditableImage
             src={heroImage.src}
             zoomDesktop={heroImage.zoomDesktop}
@@ -377,17 +379,17 @@ export default function Home() {
       </section>
 
       {/* Branding Section - optimized for mobile */}
-      <section className="py-4 md:py-12 text-center" data-testid="section-branding">
+      <section className={`${isMobile ? "py-4" : "py-12"} text-center`} data-testid="section-branding">
         <div className="container mx-auto px-4">
           {/* RESTAURANT & COCKTAIL BAR - Editable */}
-          <div className="mb-2 md:mb-4">
+          <div className={isMobile ? "mb-2" : "mb-4"}>
             <EditableText
               textIt={brandingTitle.it}
               textEn={brandingTitle.en}
               fontSizeDesktop={brandingTitle.fontSizeDesktop}
               fontSizeMobile={brandingTitle.fontSizeMobile}
               as="p"
-              className="tracking-[0.2em] md:tracking-[0.4em] font-medium uppercase"
+              className={`${isMobile ? "tracking-[0.2em]" : "tracking-[0.4em]"} font-medium uppercase`}
               style={{ 
                 color: '#c9a048',
                 fontFamily: 'Montserrat, sans-serif'
@@ -399,17 +401,17 @@ export default function Home() {
           </div>
           
           {/* CAMERA CON VISTA Logo */}
-          <div className="flex justify-center mb-2 md:mb-4">
+          <div className={`flex justify-center ${isMobile ? "mb-2" : "mb-4"}`}>
             <img 
               src={logoImg} 
               alt="Camera con Vista" 
-              className="h-8 md:h-16 lg:h-20 w-auto"
+              className={`${logoHeight} w-auto`}
               data-testid="img-logo"
             />
           </div>
           
           {/* French nuance, antique goods - Editable */}
-          <div className="mb-4 md:mb-8">
+          <div className={isMobile ? "mb-4" : "mb-8"}>
             <EditableText
               textIt={brandingTagline.it}
               textEn={brandingTagline.en}
@@ -430,7 +432,7 @@ export default function Home() {
           {/* PRENOTA UN TAVOLO Button */}
           <button 
             onClick={() => setBookingDialogOpen(true)}
-            className="inline-block px-6 md:px-12 py-2.5 md:py-4 text-xs md:text-base tracking-[0.15em] md:tracking-[0.2em] font-medium text-white rounded-full transition-all hover:opacity-90"
+            className={`inline-block ${isMobile ? "px-6 py-2.5 text-xs tracking-[0.15em]" : "px-12 py-4 text-base tracking-[0.2em]"} font-medium text-white rounded-full transition-all hover:opacity-90`}
             style={{ 
               backgroundColor: '#722f37',
               fontFamily: 'Montserrat, sans-serif'
