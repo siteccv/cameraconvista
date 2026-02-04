@@ -1,0 +1,244 @@
+import { Router } from "express";
+import { storage } from "../storage";
+import { insertPageSchema, insertPageBlockSchema } from "@shared/schema";
+import { requireAuth, parseId } from "./helpers";
+
+const router = Router();
+
+// ========================================
+// Public Routes
+// ========================================
+
+router.get("/", async (req, res) => {
+  try {
+    const pages = await storage.getPages();
+    res.json(pages.filter(page => page.isVisible && !page.isDraft));
+  } catch (error) {
+    console.error("Error fetching pages:", error);
+    res.status(500).json({ error: "Failed to fetch pages" });
+  }
+});
+
+router.get("/:slug", async (req, res) => {
+  try {
+    const page = await storage.getPageBySlug(req.params.slug);
+    if (!page || page.isDraft || !page.isVisible) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    res.json(page);
+  } catch (error) {
+    console.error("Error fetching page:", error);
+    res.status(500).json({ error: "Failed to fetch page" });
+  }
+});
+
+router.get("/:pageId/blocks", async (req, res) => {
+  try {
+    const pageId = parseId(req.params.pageId);
+    const blocks = await storage.getPageBlocks(pageId);
+    res.json(blocks.filter(block => !block.isDraft));
+  } catch (error) {
+    console.error("Error fetching page blocks:", error);
+    res.status(500).json({ error: "Failed to fetch page blocks" });
+  }
+});
+
+export default router;
+
+// ========================================
+// Admin Routes (separate router)
+// ========================================
+export const adminPagesRouter = Router();
+
+adminPagesRouter.get("/", requireAuth, async (req, res) => {
+  try {
+    const pages = await storage.getPages();
+    res.json(pages);
+  } catch (error) {
+    console.error("Error fetching pages:", error);
+    res.status(500).json({ error: "Failed to fetch pages" });
+  }
+});
+
+adminPagesRouter.get("/:id", requireAuth, async (req, res) => {
+  try {
+    const page = await storage.getPage(parseId(req.params.id));
+    if (!page) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    res.json(page);
+  } catch (error) {
+    console.error("Error fetching page:", error);
+    res.status(500).json({ error: "Failed to fetch page" });
+  }
+});
+
+adminPagesRouter.post("/", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertPageSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const page = await storage.createPage(parsed.data);
+    res.status(201).json(page);
+  } catch (error) {
+    console.error("Error creating page:", error);
+    res.status(500).json({ error: "Failed to create page" });
+  }
+});
+
+adminPagesRouter.patch("/:id", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertPageSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const page = await storage.updatePage(parseId(req.params.id), parsed.data);
+    if (!page) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    res.json(page);
+  } catch (error) {
+    console.error("Error updating page:", error);
+    res.status(500).json({ error: "Failed to update page" });
+  }
+});
+
+adminPagesRouter.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const deleted = await storage.deletePage(parseId(req.params.id));
+    if (!deleted) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting page:", error);
+    res.status(500).json({ error: "Failed to delete page" });
+  }
+});
+
+adminPagesRouter.post("/:id/publish", requireAuth, async (req, res) => {
+  try {
+    const pageId = parseId(req.params.id);
+    const page = await storage.updatePage(pageId, { isDraft: false, publishedAt: new Date() });
+    if (!page) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    const blocks = await storage.getPageBlocks(pageId);
+    for (const block of blocks) {
+      await storage.updatePageBlock(block.id, { isDraft: false });
+    }
+    res.json({ success: true, page });
+  } catch (error) {
+    console.error("Error publishing page:", error);
+    res.status(500).json({ error: "Failed to publish page" });
+  }
+});
+
+adminPagesRouter.post("/:id/toggle-visibility", requireAuth, async (req, res) => {
+  try {
+    const pageId = parseId(req.params.id);
+    const currentPage = await storage.getPage(pageId);
+    if (!currentPage) {
+      res.status(404).json({ error: "Page not found" });
+      return;
+    }
+    if (currentPage.slug === "home") {
+      res.status(400).json({ error: "Cannot hide the home page" });
+      return;
+    }
+    const page = await storage.updatePage(pageId, { isVisible: !currentPage.isVisible });
+    res.json({ success: true, page });
+  } catch (error) {
+    console.error("Error toggling page visibility:", error);
+    res.status(500).json({ error: "Failed to toggle visibility" });
+  }
+});
+
+// Admin Page Blocks
+export const adminPageBlocksRouter = Router();
+
+adminPageBlocksRouter.get("/:pageId/blocks", requireAuth, async (req, res) => {
+  try {
+    const blocks = await storage.getPageBlocks(parseId(req.params.pageId));
+    res.json(blocks);
+  } catch (error) {
+    console.error("Error fetching page blocks:", error);
+    res.status(500).json({ error: "Failed to fetch page blocks" });
+  }
+});
+
+adminPageBlocksRouter.post("/", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertPageBlockSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const block = await storage.createPageBlock(parsed.data);
+    res.status(201).json(block);
+  } catch (error) {
+    console.error("Error creating page block:", error);
+    res.status(500).json({ error: "Failed to create page block" });
+  }
+});
+
+adminPageBlocksRouter.patch("/:id", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertPageBlockSchema.partial().safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const block = await storage.updatePageBlock(parseId(req.params.id), parsed.data);
+    if (!block) {
+      res.status(404).json({ error: "Page block not found" });
+      return;
+    }
+    res.json(block);
+  } catch (error) {
+    console.error("Error updating page block:", error);
+    res.status(500).json({ error: "Failed to update page block" });
+  }
+});
+
+adminPageBlocksRouter.delete("/:id", requireAuth, async (req, res) => {
+  try {
+    const deleted = await storage.deletePageBlock(parseId(req.params.id));
+    if (!deleted) {
+      res.status(404).json({ error: "Page block not found" });
+      return;
+    }
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting page block:", error);
+    res.status(500).json({ error: "Failed to delete page block" });
+  }
+});
+
+// Publish All
+export const publishAllRouter = Router();
+
+publishAllRouter.post("/", requireAuth, async (req, res) => {
+  try {
+    const pages = await storage.getPages();
+    for (const page of pages) {
+      await storage.updatePage(page.id, { isDraft: false, publishedAt: new Date() });
+      const blocks = await storage.getPageBlocks(page.id);
+      for (const block of blocks) {
+        await storage.updatePageBlock(block.id, { isDraft: false });
+      }
+    }
+    res.json({ success: true, message: "All pages published" });
+  } catch (error) {
+    console.error("Error publishing all pages:", error);
+    res.status(500).json({ error: "Failed to publish all pages" });
+  }
+});
