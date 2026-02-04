@@ -87,13 +87,15 @@ export default function AdminMedia() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragCounterRef = useRef(0);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
   const MAX_FILES = 10;
 
-  const handleFileSelect = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+  const processFiles = useCallback(async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
+    if (fileArray.length === 0) return;
 
     // Validate file count
     if (files.length > MAX_FILES) {
@@ -179,6 +181,58 @@ export default function AdminMedia() {
     }
   }, [selectedCategory, dbCategories, createMediaMutation, t, toast]);
 
+  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      processFiles(files);
+    }
+  }, [processFiles]);
+
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current++;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current--;
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    dragCounterRef.current = 0;
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      // Filter only image files
+      const imageFiles = Array.from(files).filter(f => f.type.startsWith("image/"));
+      if (imageFiles.length > 0) {
+        processFiles(imageFiles);
+      } else {
+        toast({
+          title: t("Errore", "Error"),
+          description: t("Solo file immagine sono accettati.", "Only image files are accepted."),
+          variant: "destructive",
+        });
+      }
+    }
+  }, [processFiles, t, toast]);
+
   const openDetails = (media: Media) => {
     setSelectedMedia(media);
     setDetailsOpen(true);
@@ -200,7 +254,22 @@ export default function AdminMedia() {
 
   return (
     <AdminLayout>
-      <div className="p-6">
+      <div 
+        className="p-6 relative"
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {isDragging && (
+          <div className="absolute inset-0 z-50 bg-primary/10 border-2 border-dashed border-primary rounded-lg flex items-center justify-center pointer-events-none">
+            <div className="bg-background/90 backdrop-blur-sm px-8 py-6 rounded-lg shadow-lg text-center">
+              <Upload className="h-12 w-12 mx-auto mb-3 text-primary" />
+              <p className="text-lg font-medium">{t("Rilascia qui le immagini", "Drop images here")}</p>
+              <p className="text-sm text-muted-foreground mt-1">{t("Max 10 file, 10MB ciascuno", "Max 10 files, 10MB each")}</p>
+            </div>
+          </div>
+        )}
         <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
             <h1 className="font-display text-3xl" data-testid="text-media-title">
