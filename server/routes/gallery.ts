@@ -184,3 +184,24 @@ adminGalleryRouter.delete("/:galleryId/images/:id", requireAuth, async (req, res
     res.status(500).json({ error: "Failed to delete gallery image" });
   }
 });
+
+// Batch reorder images - atomic operation
+adminGalleryRouter.post("/:galleryId/images/reorder", requireAuth, async (req, res) => {
+  try {
+    const { imageIds } = req.body;
+    if (!Array.isArray(imageIds) || imageIds.length === 0) {
+      res.status(400).json({ error: "imageIds array is required" });
+      return;
+    }
+    
+    // Update all images with their new sortOrder in sequence
+    for (let i = 0; i < imageIds.length; i++) {
+      await storage.updateGalleryImage(imageIds[i], { sortOrder: i });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error reordering gallery images:", error);
+    res.status(500).json({ error: "Failed to reorder gallery images" });
+  }
+});

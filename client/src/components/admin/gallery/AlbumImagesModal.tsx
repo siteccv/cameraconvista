@@ -98,12 +98,9 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
   });
 
   const reorderImagesMutation = useMutation({
-    mutationFn: async (updates: { id: number; sortOrder: number }[]) => {
-      await Promise.all(
-        updates.map(({ id, sortOrder }) =>
-          apiRequest("PATCH", `/api/admin/galleries/${gallery.id}/images/${id}`, { sortOrder })
-        )
-      );
+    mutationFn: async (imageIds: number[]) => {
+      const response = await apiRequest("POST", `/api/admin/galleries/${gallery.id}/images/reorder`, { imageIds });
+      return response.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries", gallery.id, "images"] });
@@ -158,12 +155,9 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     const newIndex = sorted.findIndex((img) => img.id === over.id);
 
     const reordered = arrayMove(sorted, oldIndex, newIndex);
-    const updates = reordered.map((img, index) => ({
-      id: img.id,
-      sortOrder: index,
-    }));
+    const imageIds = reordered.map((img) => img.id);
 
-    reorderImagesMutation.mutate(updates);
+    reorderImagesMutation.mutate(imageIds);
   };
 
   const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
