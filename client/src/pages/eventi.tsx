@@ -122,9 +122,9 @@ export default function Eventi() {
               </p>
             </div>
           ) : (
-            <div className="flex flex-wrap justify-center gap-4">
+            <div className="flex flex-wrap justify-center gap-6">
               {events.map((event) => (
-                <div key={event.id} className="w-[calc(50%-0.5rem)] sm:w-[calc(33.333%-0.67rem)] md:w-[calc(25%-0.75rem)] lg:w-[calc(20%-0.8rem)] max-w-[200px]">
+                <div key={event.id} className="w-[calc(50%-0.75rem)] sm:w-[calc(33.333%-1rem)] md:w-[280px] lg:w-[280px]">
                   <EventCard event={event} />
                 </div>
               ))}
