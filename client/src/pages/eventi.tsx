@@ -197,7 +197,7 @@ function EventCard({ event }: { event: Event }) {
             return (
               <div className="text-base md:text-lg tracking-tight mb-2">
                 <span className="text-white">{month}</span>
-                <span className="text-yellow-200 font-bold">{day}</span>
+                <span className="text-yellow-200 font-semibold">{day}</span>
                 <span className="text-white">{weekday}</span>
               </div>
             );
