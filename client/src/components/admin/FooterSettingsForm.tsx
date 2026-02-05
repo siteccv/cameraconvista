@@ -278,9 +278,8 @@ export function FooterSettingsForm() {
               <div className="flex items-center justify-between">
                 <Label className="text-sm">{t("Inglese", "English")}</Label>
                 <TranslateButton 
-                  textToTranslate={formData.about.it} 
+                  textIt={formData.about.it} 
                   onTranslated={handleTranslateAbout}
-                  targetLang="en"
                 />
               </div>
               <Textarea 
