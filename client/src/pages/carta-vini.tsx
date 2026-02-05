@@ -192,11 +192,11 @@ function WineCard({ wine }: { wine: Wine }) {
       <div className="space-y-1">
         {/* Nome vino */}
         <h3 
-          className="text-lg md:text-xl tracking-wide font-medium"
+          className="text-base md:text-lg"
           style={{ color: '#2f2b2a' }}
         >
           {t(wine.nameIt, wine.nameEn)}
-          {wine.year && <span className="ml-2 text-base font-normal">{wine.year}</span>}
+          {wine.year && <span className="ml-2 text-sm">{wine.year}</span>}
         </h3>
         
         {/* Cantina + Provenienza */}

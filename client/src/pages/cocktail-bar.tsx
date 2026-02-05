@@ -182,7 +182,7 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
       <div className="space-y-1">
         {/* Nome cocktail */}
         <h4 
-          className="text-xl md:text-2xl tracking-wide font-medium"
+          className="text-lg md:text-xl"
           style={{ color: '#2f2b2a' }}
         >
           {t(cocktail.nameIt, cocktail.nameEn)}

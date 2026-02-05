@@ -171,7 +171,7 @@ function MenuItemCard({ item }: { item: MenuItem }) {
       <div className="space-y-1">
         {/* Nome piatto */}
         <h3 
-          className="text-xl md:text-2xl tracking-wide font-medium"
+          className="text-lg md:text-xl"
           style={{ color: '#2f2b2a' }}
         >
           {t(item.nameIt, item.nameEn)}
