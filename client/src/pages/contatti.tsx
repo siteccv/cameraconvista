@@ -6,33 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Send, MapPin, Navigation } from "lucide-react";
+import { Send, Navigation, X } from "lucide-react";
+import { SiApple, SiGooglemaps } from "react-icons/si";
 import { useToast } from "@/hooks/use-toast";
+import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
-
-const LOCATION = {
-  lat: 44.4933,
-  lng: 11.3450,
-  address: "Via del Pratello, 42, 40122 Bologna BO, Italy",
-  name: "Camera con Vista"
-};
-
-const openInMaps = () => {
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const query = encodeURIComponent(LOCATION.address);
-  
-  if (isIOS) {
-    window.open(`maps://maps.apple.com/?q=${query}&ll=${LOCATION.lat},${LOCATION.lng}`, "_blank");
-  } else {
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
-  }
-};
+import type { FooterSettings } from "@shared/schema";
+import { defaultFooterSettings } from "@shared/schema";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -48,6 +33,27 @@ export default function Contatti() {
   const { t } = useLanguage();
   const { deviceView } = useAdmin();
   const { toast } = useToast();
+  const [showMapsModal, setShowMapsModal] = useState(false);
+
+  const { data: footerSettings } = useQuery<FooterSettings>({
+    queryKey: ["/api/footer-settings"],
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const footer = footerSettings || defaultFooterSettings;
+  const address = footer.contacts.address.replace(/\n/g, ", ");
+
+  const openAppleMaps = () => {
+    const query = encodeURIComponent(address);
+    window.open(`https://maps.apple.com/?q=${query}`, "_blank");
+    setShowMapsModal(false);
+  };
+
+  const openGoogleMaps = () => {
+    const query = encodeURIComponent(address);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
+    setShowMapsModal(false);
+  };
 
   const [heroTitle, setHeroTitle] = useState({
     it: "Contatti", en: "Contact",
@@ -162,7 +168,7 @@ export default function Contatti() {
           <div className="space-y-4">
             <div className="aspect-[16/9] rounded-placeholder overflow-hidden bg-muted">
               <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2846.0!2d11.345!3d44.4933!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x477fd4e35c7c9c5f%3A0x2!2sVia%20del%20Pratello%2C%2042%2C%2040122%20Bologna%20BO!5e0!3m2!1sit!2sit!4v1700000000000"
+                src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${encodeURIComponent(address)}`}
                 width="100%"
                 height="100%"
                 style={{ border: 0 }}
@@ -174,14 +180,59 @@ export default function Contatti() {
             </div>
             <Button
               variant="outline"
-              onClick={openInMaps}
+              onClick={() => setShowMapsModal(true)}
               className="w-full"
               data-testid="button-open-maps"
             >
               <Navigation className="h-4 w-4 mr-2" />
-              {t("Apri in Mappe", "Open in Maps")}
+              {t("Apri indicazioni", "Get Directions")}
             </Button>
           </div>
+
+          {showMapsModal && (
+            <div 
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+              onClick={() => setShowMapsModal(false)}
+            >
+              <div 
+                className="bg-background rounded-lg p-6 w-full max-w-sm mx-4 space-y-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-xl">
+                    {t("Apri con", "Open with")}
+                  </h3>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => setShowMapsModal(false)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    onClick={openAppleMaps}
+                    className="w-full justify-start"
+                    data-testid="button-apple-maps"
+                  >
+                    <SiApple className="h-5 w-5 mr-3" />
+                    Apple Mappe
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={openGoogleMaps}
+                    className="w-full justify-start"
+                    data-testid="button-google-maps"
+                  >
+                    <SiGooglemaps className="h-5 w-5 mr-3" />
+                    Google Maps
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <Card>
             <CardContent className="p-6 md:p-8">
