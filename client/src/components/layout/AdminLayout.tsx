@@ -48,7 +48,7 @@ interface AdminLayoutProps {
 }
 
 export function AdminLayout({ children }: AdminLayoutProps) {
-  const { t, language, setLanguage } = useLanguage();
+  const { t } = useLanguage();
   const { logout } = useAdmin();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
@@ -159,37 +159,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </Sidebar>
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4 gap-4 shrink-0">
-            <div className="flex items-center gap-4">
-              <SidebarTrigger data-testid="button-sidebar-toggle" />
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 text-sm">
-                <button
-                  onClick={() => setLanguage("it")}
-                  className={`px-2 py-1 transition-colors ${
-                    language === "it"
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  data-testid="button-admin-lang-it"
-                >
-                  IT
-                </button>
-                <span className="text-muted-foreground">|</span>
-                <button
-                  onClick={() => setLanguage("en")}
-                  className={`px-2 py-1 transition-colors ${
-                    language === "en"
-                      ? "text-foreground font-medium"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                  data-testid="button-admin-lang-en"
-                >
-                  EN
-                </button>
-              </div>
-            </div>
+          <header className="h-14 border-b border-border bg-background flex items-center px-4 shrink-0">
+            <SidebarTrigger data-testid="button-sidebar-toggle" />
           </header>
           <main className="flex-1 overflow-auto bg-background">
             {children}

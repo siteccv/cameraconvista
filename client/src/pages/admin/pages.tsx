@@ -31,7 +31,7 @@ const pageComponents = [
 ];
 
 export default function AdminPages() {
-  const { t } = useLanguage();
+  const { t, language, setLanguage } = useLanguage();
   const { toast } = useToast();
   const { setAdminPreview, deviceView, setDeviceView, setForceMobileLayout } = useAdmin();
   const [activePage, setActivePage] = useState("home");
@@ -120,6 +120,32 @@ export default function AdminPages() {
           </Tabs>
 
           <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 text-sm">
+              <button
+                onClick={() => setLanguage("it")}
+                className={`px-2 py-1 transition-colors ${
+                  language === "it"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                data-testid="button-admin-lang-it"
+              >
+                IT
+              </button>
+              <span className="text-muted-foreground">|</span>
+              <button
+                onClick={() => setLanguage("en")}
+                className={`px-2 py-1 transition-colors ${
+                  language === "en"
+                    ? "text-foreground font-medium"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+                data-testid="button-admin-lang-en"
+              >
+                EN
+              </button>
+            </div>
+            <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-2">
               <Button
                 variant={deviceView === "desktop" ? "default" : "outline"}
