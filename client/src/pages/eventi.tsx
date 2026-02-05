@@ -179,15 +179,15 @@ function EventCard({ event }: { event: Event }) {
           {event.startAt && (() => {
             const { month, day, weekday } = formatDateLine(event.startAt);
             return (
-              <div className="font-display text-sm md:text-base tracking-wide mb-2">
+              <div className="text-base md:text-lg tracking-tight mb-2">
                 <span className="text-white">{month}</span>
-                <span className="text-amber-300 font-bold">{day}</span>
+                <span className="text-yellow-200 font-bold">{day}</span>
                 <span className="text-white">{weekday}</span>
               </div>
             );
           })()}
           
-          <h3 className="text-base md:text-xl font-medium line-clamp-2">
+          <h3 className="font-display text-base md:text-xl line-clamp-2">
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
         </div>
