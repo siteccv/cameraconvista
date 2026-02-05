@@ -146,7 +146,7 @@ export default function CocktailBar() {
                 <div key={category}>
                   <h3 
                     className="font-display text-4xl md:text-5xl mb-8 text-center"
-                    style={{ color: '#2f2b2a' }}
+                    style={{ color: '#722F37' }}
                     data-testid={`text-cocktail-category-${category}`}
                   >
                     {category}

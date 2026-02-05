@@ -4,7 +4,6 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Wine as WineIcon } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { useToast } from "@/hooks/use-toast";
@@ -109,9 +108,6 @@ export default function CartaVini() {
 
         <section className="flex-1 flex items-center justify-center">
           <div className="container mx-auto px-4 max-w-2xl text-center py-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
-              <WineIcon className="h-6 w-6" />
-            </div>
             <EditableText
               textIt={introText.it}
               textEn={introText.en}
@@ -152,11 +148,10 @@ export default function CartaVini() {
             <div className="space-y-16">
               {orderedCategories.map((category) => (
                 <div key={category}>
-                  <div className="flex items-center justify-center gap-4 mb-8">
-                    <WineIcon className="h-6 w-6" style={{ color: '#c7902f', strokeWidth: 1.5 }} />
+                  <div className="flex items-center justify-center mb-8">
                     <h2 
                       className="font-display text-3xl md:text-4xl"
-                      style={{ color: '#2f2b2a' }}
+                      style={{ color: '#722F37' }}
                       data-testid={`text-wine-category-${category}`}
                     >
                       {category}

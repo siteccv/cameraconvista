@@ -139,7 +139,7 @@ export default function Menu() {
                 <div key={category}>
                   <h2 
                     className="font-display text-4xl md:text-5xl mb-8 text-center"
-                    style={{ color: '#2f2b2a' }}
+                    style={{ color: '#722F37' }}
                     data-testid={`text-category-${category}`}
                   >
                     {category}
