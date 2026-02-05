@@ -219,7 +219,8 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
 
           <div className="flex justify-between pt-4">
             <Button
-              variant="destructive"
+              variant="outline"
+              className="bg-white text-primary border-primary/20 hover:bg-primary/5"
               onClick={handleDelete}
               disabled={deleteMutation.isPending}
               data-testid="button-delete-media"

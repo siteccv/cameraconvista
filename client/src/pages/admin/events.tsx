@@ -288,12 +288,13 @@ export default function AdminEvents() {
                         <Copy className="h-4 w-4" />
                       </Button>
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="icon"
+                        className="bg-white text-primary border-primary/20 hover:bg-primary/5"
                         onClick={() => handleDeleteEvent(event)}
                         data-testid={`button-delete-${event.id}`}
                       >
-                        <Trash2 className="h-4 w-4 text-destructive" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>

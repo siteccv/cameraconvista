@@ -64,7 +64,8 @@ export function SortableImage({ image, onEdit, onDelete }: SortableImageProps) {
         </Button>
         <Button
           size="icon"
-          variant="destructive"
+          variant="outline"
+          className="bg-white text-primary border-primary/20 hover:bg-primary/5"
           onClick={(e) => { e.stopPropagation(); onDelete(); }}
           data-testid={`button-delete-image-${image.id}`}
         >

@@ -205,7 +205,8 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                         </Button>
                         <Button 
                           size="icon" 
-                          variant="ghost"
+                          variant="outline"
+                          className="bg-white text-primary border-primary/20 hover:bg-primary/5"
                           onClick={() => handleDelete(category.id)}
                           disabled={deleteMutation.isPending}
                           data-testid={`button-delete-category-${category.id}`}

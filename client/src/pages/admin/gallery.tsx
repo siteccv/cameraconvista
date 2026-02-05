@@ -104,7 +104,10 @@ export default function GalleryPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedGalleries.map((gallery) => (
               <Card key={gallery.id} className="overflow-hidden" data-testid={`gallery-card-${gallery.id}`}>
-                <div className="relative aspect-square bg-muted">
+                <div 
+                  className="relative aspect-square bg-muted cursor-pointer hover-elevate"
+                  onClick={() => setManagingImages(gallery)}
+                >
                   {gallery.coverUrl ? (
                     <img
                       src={gallery.coverUrl}
@@ -119,15 +122,15 @@ export default function GalleryPage() {
                       <ImageIcon className="h-16 w-16 text-muted-foreground opacity-50" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                  <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
                     <h3 className="text-white text-xl font-display">
                       {language === "it" ? gallery.titleIt : gallery.titleEn}
                     </h3>
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={gallery.isVisible}
@@ -140,40 +143,25 @@ export default function GalleryPage() {
                         {gallery.isVisible ? t("Visibile", "Visible") : t("Nascosto", "Hidden")}
                       </span>
                     </div>
-                    {!gallery.isVisible && (
-                      <Badge variant="outline">
-                        <EyeOff className="h-3 w-3 mr-1" />
-                        {t("Nascosto", "Hidden")}
-                      </Badge>
-                    )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1"
-                      onClick={() => setManagingImages(gallery)}
-                      data-testid={`button-manage-images-${gallery.id}`}
-                    >
-                      <Images className="h-4 w-4 mr-2" />
-                      {t("Immagini", "Images")}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => { setEditingGallery(gallery); setShowGalleryModal(true); }}
-                      data-testid={`button-edit-gallery-${gallery.id}`}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(gallery)}
-                      data-testid={`button-delete-gallery-${gallery.id}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => { setEditingGallery(gallery); setShowGalleryModal(true); }}
+                        data-testid={`button-edit-gallery-${gallery.id}`}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="bg-white text-primary border-primary/20 hover:bg-primary/5"
+                        onClick={() => handleDelete(gallery)}
+                        data-testid={`button-delete-gallery-${gallery.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

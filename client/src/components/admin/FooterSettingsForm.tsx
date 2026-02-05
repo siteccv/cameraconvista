@@ -352,10 +352,10 @@ export function FooterSettingsForm() {
                       {getSelectedDaysLabel(selectedDays)}
                     </span>
                     <Button
-                      variant="ghost"
+                      variant="outline"
                       size="icon"
                       onClick={() => removeHoursEntry(index)}
-                      className="h-7 w-7"
+                      className="h-7 w-7 bg-white text-primary border-primary/20 hover:bg-primary/5"
                       data-testid={`button-remove-hours-${index}`}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -470,10 +470,10 @@ export function FooterSettingsForm() {
                   data-testid={`input-social-url-${index}`}
                 />
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="icon"
                   onClick={() => removeSocialLink(index)}
-                  className="h-9 w-9"
+                  className="h-9 w-9 bg-white text-primary border-primary/20 hover:bg-primary/5"
                   data-testid={`button-remove-social-${index}`}
                 >
                   <Trash2 className="h-4 w-4" />
