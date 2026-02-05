@@ -68,7 +68,11 @@ adminEventsRouter.get("/", requireAuth, async (req, res) => {
 
 adminEventsRouter.post("/", requireAuth, async (req, res) => {
   try {
-    const parsed = insertEventSchema.safeParse(req.body);
+    const body = { ...req.body };
+    if (body.startAt && typeof body.startAt === 'string') {
+      body.startAt = new Date(body.startAt);
+    }
+    const parsed = insertEventSchema.safeParse(body);
     if (!parsed.success) {
       res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
       return;
@@ -83,7 +87,11 @@ adminEventsRouter.post("/", requireAuth, async (req, res) => {
 
 adminEventsRouter.patch("/:id", requireAuth, async (req, res) => {
   try {
-    const parsed = insertEventSchema.partial().safeParse(req.body);
+    const body = { ...req.body };
+    if (body.startAt && typeof body.startAt === 'string') {
+      body.startAt = new Date(body.startAt);
+    }
+    const parsed = insertEventSchema.partial().safeParse(body);
     if (!parsed.success) {
       res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
       return;
