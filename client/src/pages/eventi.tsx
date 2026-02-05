@@ -121,17 +121,33 @@ export default function Eventi() {
                 {t("Nessun evento in programma al momento.", "No events scheduled at the moment.")}
               </p>
             </div>
-          ) : events.length > 3 ? (
-            <EventsSlider events={events} />
-          ) : (
-            <div className="flex flex-wrap justify-center gap-8">
-              {events.map((event) => (
-                <div key={event.id} className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1.5rem)] md:w-[400px] lg:w-[400px]">
-                  <EventCard event={event} />
+          ) : (() => {
+            const sortedEvents = [...events].sort((a, b) => {
+              if (!a.startAt) return 1;
+              if (!b.startAt) return -1;
+              return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+            });
+            return (
+              <>
+                <div className="hidden md:block">
+                  {sortedEvents.length > 3 ? (
+                    <EventsSlider events={sortedEvents} />
+                  ) : (
+                    <div className="flex flex-wrap justify-center gap-8">
+                      {sortedEvents.map((event) => (
+                        <div key={event.id} className="w-[560px]">
+                          <EventCard event={event} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              ))}
-            </div>
-          )}
+                <div className="md:hidden">
+                  <MobileEventsSlider events={sortedEvents} />
+                </div>
+              </>
+            );
+          })()}
         </div>
       </section>
     </PublicLayout>
@@ -241,11 +257,11 @@ function EventsSlider({ events }: { events: Event[] }) {
       
       <div
         ref={scrollRef}
-        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth py-4 max-w-[1320px] mx-auto"
+        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth py-4 max-w-[1800px] mx-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {events.map((event) => (
-          <div key={event.id} className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1.5rem)] md:w-[400px] flex-shrink-0 first:ml-4 last:mr-4 md:first:ml-0 md:last:mr-0">
+          <div key={event.id} className="w-[560px] flex-shrink-0">
             <EventCard event={event} />
           </div>
         ))}
@@ -259,6 +275,92 @@ function EventsSlider({ events }: { events: Event[] }) {
       >
         <ChevronRight className="h-7 w-7" />
       </button>
+    </div>
+  );
+}
+
+function MobileEventsSlider({ events }: { events: Event[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const scrollToIndex = (index: number) => {
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.offsetWidth;
+      scrollRef.current.scrollTo({
+        left: index * cardWidth,
+        behavior: "smooth",
+      });
+      setCurrentIndex(index);
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollRef.current) {
+      const cardWidth = scrollRef.current.offsetWidth;
+      const newIndex = Math.round(scrollRef.current.scrollLeft / cardWidth);
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", handleScroll);
+      return () => el.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
+
+  const canScrollLeft = currentIndex > 0;
+  const canScrollRight = currentIndex < events.length - 1;
+
+  return (
+    <div className="relative flex items-center justify-center">
+      {events.length > 1 && (
+        <button
+          onClick={() => scrollToIndex(currentIndex - 1)}
+          disabled={!canScrollLeft}
+          className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-background/90 border border-border shadow-lg transition-opacity ${!canScrollLeft ? 'opacity-30' : 'opacity-100'}`}
+          data-testid="button-mobile-scroll-left"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+      )}
+      
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {events.map((event) => (
+          <div key={event.id} className="w-full flex-shrink-0 snap-center px-8">
+            <div className="max-w-[280px] mx-auto">
+              <EventCard event={event} />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {events.length > 1 && (
+        <button
+          onClick={() => scrollToIndex(currentIndex + 1)}
+          disabled={!canScrollRight}
+          className={`absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-background/90 border border-border shadow-lg transition-opacity ${!canScrollRight ? 'opacity-30' : 'opacity-100'}`}
+          data-testid="button-mobile-scroll-right"
+        >
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      )}
+
+      {events.length > 1 && (
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+          {events.map((_, i) => (
+            <div
+              key={i}
+              className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
