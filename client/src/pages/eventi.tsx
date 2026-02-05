@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
@@ -6,7 +6,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, ExternalLink } from "lucide-react";
+import { Calendar, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { useToast } from "@/hooks/use-toast";
@@ -121,6 +121,8 @@ export default function Eventi() {
                 {t("Nessun evento in programma al momento.", "No events scheduled at the moment.")}
               </p>
             </div>
+          ) : events.length > 3 ? (
+            <EventsSlider events={events} />
           ) : (
             <div className="flex flex-wrap justify-center gap-8">
               {events.map((event) => (
@@ -182,32 +184,32 @@ function EventCard({ event }: { event: Event }) {
 
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
-        <div className="absolute bottom-0 left-0 right-0 p-3 text-white">
-          <h3 className="font-display text-sm md:text-base mb-1 line-clamp-2">
+        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+          <h3 className="font-display text-base md:text-xl mb-2 line-clamp-2">
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
           
           {event.startAt && (
-            <div className="flex items-center gap-1 text-xs text-white/80">
-              <Calendar className="h-3 w-3" />
+            <div className="flex items-center gap-1.5 text-sm text-white/80">
+              <Calendar className="h-4 w-4" />
               <span>{formatDate(event.startAt)}</span>
               <span className="ml-1">{formatTime(event.startAt)}</span>
             </div>
           )}
 
           {event.bookingEnabled && (
-            <div className="mt-2">
+            <div className="mt-3">
               <Button
                 size="sm"
                 variant="secondary"
-                className="w-full text-xs h-7"
+                className="w-full text-sm h-8"
                 onClick={(e) => {
                   e.preventDefault();
                   window.open(event.bookingUrl || "https://cameraconvista.resos.com/booking", "_blank");
                 }}
                 data-testid={`button-book-${event.id}`}
               >
-                <ExternalLink className="h-3 w-3 mr-1" />
+                <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
                 {t("Prenota", "Book")}
               </Button>
             </div>
@@ -215,5 +217,74 @@ function EventCard({ event }: { event: Event }) {
         </div>
       </div>
     </Link>
+  );
+}
+
+function EventsSlider({ events }: { events: Event[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  const checkScrollButtons = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    const el = scrollRef.current;
+    if (el) {
+      el.addEventListener("scroll", checkScrollButtons);
+      return () => el.removeEventListener("scroll", checkScrollButtons);
+    }
+  }, [events]);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 420;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
+  return (
+    <div className="relative">
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll("left")}
+          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 items-center justify-center rounded-full bg-background/90 border border-border shadow-lg hover-elevate"
+          data-testid="button-scroll-left"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+      )}
+      
+      <div
+        ref={scrollRef}
+        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 md:px-4"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {events.map((event) => (
+          <div key={event.id} className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1.5rem)] md:w-[400px] flex-shrink-0">
+            <EventCard event={event} />
+          </div>
+        ))}
+      </div>
+
+      {canScrollRight && (
+        <button
+          onClick={() => scroll("right")}
+          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 items-center justify-center rounded-full bg-background/90 border border-border shadow-lg hover-elevate"
+          data-testid="button-scroll-right"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
+      )}
+    </div>
   );
 }
