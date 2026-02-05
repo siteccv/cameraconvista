@@ -153,7 +153,7 @@ export default function CartaVini() {
               {orderedCategories.map((category) => (
                 <div key={category}>
                   <div className="flex items-center justify-center gap-3 mb-8">
-                    <WineIcon className="h-5 w-5 text-primary" />
+                    <WineIcon className="h-5 w-5" style={{ color: '#C9A050' }} />
                     <h2 className="font-display text-2xl md:text-3xl text-foreground" data-testid={`text-wine-category-${category}`}>
                       {category}
                     </h2>
@@ -199,10 +199,10 @@ function WineCard({ wine }: { wine: Wine }) {
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {hasGlassPrice && (
-            <span className="text-primary font-medium">€{wine.priceGlass}</span>
+            <span className="font-medium" style={{ color: '#C9A050' }}>€ {wine.priceGlass}</span>
           )}
           {hasBottlePrice && (
-            <span className="text-primary font-medium">€{wine.price}</span>
+            <span className="font-medium" style={{ color: '#C9A050' }}>€ {wine.price}</span>
           )}
         </div>
       </div>
