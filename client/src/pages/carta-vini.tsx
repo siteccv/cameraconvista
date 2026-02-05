@@ -155,14 +155,8 @@ export default function CartaVini() {
                   <div className="flex items-center justify-center gap-4 mb-8">
                     <WineIcon className="h-6 w-6" style={{ color: '#c7902f', strokeWidth: 1.5 }} />
                     <h2 
-                      className="font-display"
-                      style={{ 
-                        fontSize: '32px',
-                        lineHeight: 1.2,
-                        letterSpacing: '0.01em',
-                        fontWeight: 500,
-                        color: '#2f2b2a'
-                      }}
+                      className="font-display text-3xl md:text-4xl"
+                      style={{ color: '#2f2b2a' }}
                       data-testid={`text-wine-category-${category}`}
                     >
                       {category}
@@ -198,14 +192,8 @@ function WineCard({ wine }: { wine: Wine }) {
       <div className="space-y-1">
         {/* Nome vino */}
         <h3 
-          className="font-display uppercase"
-          style={{ 
-            fontSize: '22px',
-            lineHeight: 1.25,
-            letterSpacing: '0.02em',
-            fontWeight: 500,
-            color: '#2f2b2a'
-          }}
+          className="font-display text-lg md:text-xl uppercase tracking-wide"
+          style={{ color: '#2f2b2a' }}
         >
           {t(wine.nameIt, wine.nameEn)}
           {wine.year && <span className="ml-2 text-base font-normal">{wine.year}</span>}
@@ -213,16 +201,7 @@ function WineCard({ wine }: { wine: Wine }) {
         
         {/* Cantina + Provenienza */}
         {(wine.descriptionIt || wine.descriptionEn) && (
-          <p 
-            style={{ 
-              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: '15px',
-              lineHeight: 1.4,
-              letterSpacing: '0.02em',
-              fontWeight: 400,
-              color: '#666a70'
-            }}
-          >
+          <p className="text-sm text-muted-foreground">
             {t(wine.descriptionIt, wine.descriptionEn)}
           </p>
         )}

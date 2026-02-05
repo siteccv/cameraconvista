@@ -138,14 +138,8 @@ export default function Menu() {
               {Object.entries(categorizedItems).map(([category, items]) => (
                 <div key={category}>
                   <h2 
-                    className="font-display mb-8 text-center"
-                    style={{ 
-                      fontSize: '32px',
-                      lineHeight: 1.2,
-                      letterSpacing: '0.01em',
-                      fontWeight: 500,
-                      color: '#2f2b2a'
-                    }}
+                    className="font-display text-4xl md:text-5xl mb-8 text-center"
+                    style={{ color: '#2f2b2a' }}
                     data-testid={`text-category-${category}`}
                   >
                     {category}
@@ -177,30 +171,15 @@ function MenuItemCard({ item }: { item: MenuItem }) {
       <div className="space-y-1">
         {/* Nome piatto */}
         <h3 
-          className="font-display uppercase"
-          style={{ 
-            fontSize: '22px',
-            lineHeight: 1.25,
-            letterSpacing: '0.02em',
-            fontWeight: 500,
-            color: '#2f2b2a'
-          }}
+          className="font-display text-xl md:text-2xl uppercase tracking-wide"
+          style={{ color: '#2f2b2a' }}
         >
           {t(item.nameIt, item.nameEn)}
         </h3>
         
         {/* Descrizione */}
         {(item.descriptionIt || item.descriptionEn) && (
-          <p 
-            style={{ 
-              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-              fontSize: '15px',
-              lineHeight: 1.4,
-              letterSpacing: '0.02em',
-              fontWeight: 400,
-              color: '#666a70'
-            }}
-          >
+          <p className="text-sm md:text-base text-muted-foreground">
             {t(item.descriptionIt, item.descriptionEn)}
           </p>
         )}

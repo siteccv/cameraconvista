@@ -87,9 +87,15 @@ Preferred communication style: Simple, everyday language.
 
 ### Menu Typography System
 Consistent typography applied across Wine List, Menu, and Cocktail Bar pages:
-- **Category Title**: font-display (Playfair Display), 32px, weight 500, color #2f2b2a, left-aligned
-- **Item Name**: font-display, 22px, weight 500, uppercase, letter-spacing 0.02em, color #2f2b2a
-- **Description/Meta**: system-ui sans-serif, 15px, weight 400, letter-spacing 0.02em, color #666a70
+- **Category Title**: font-display (Playfair Display), centered, color #2f2b2a
+  - Menu/Cocktail: `text-4xl md:text-5xl`
+  - Wine List: `text-3xl md:text-4xl` (slightly smaller)
+- **Item Name**: font-display, uppercase, tracking-wide, color #2f2b2a
+  - Menu/Cocktail: `text-xl md:text-2xl`
+  - Wine List: `text-lg md:text-xl` (slightly smaller)
+- **Description/Meta**: `text-muted-foreground`
+  - Menu/Cocktail: `text-sm md:text-base`
+  - Wine List: `text-sm`
 - **Prices**: `.price-text` CSS class with Spectral font, tabular-nums, 20px, weight 500, color #c7902f (gold/ocra)
 - **Dividers**: 1px solid #e5d6b6 (warm beige)
 - **Wine List Icon**: Lucide WineIcon, color #c7902f, strokeWidth 1.5
