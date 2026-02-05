@@ -233,7 +233,7 @@ export default function Home() {
   const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
   const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid-cols-2 gap-12 items-center";
   const titleSize = isMobile ? "text-3xl" : "text-4xl";
-  const logoHeight = isMobile ? "h-4" : "h-10";
+  const logoHeight = isMobile ? "h-5" : "h-11";
 
   if (isLoading) {
     return (
@@ -319,7 +319,7 @@ export default function Home() {
           <div className="flex-1 flex items-end justify-center pb-6">
             <Button 
               onClick={() => setBookingDialogOpen(true)}
-              className={`${isMobile ? "px-8 py-4 text-xs tracking-[0.08em]" : "px-12 py-5 text-sm tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
+              className={`${isMobile ? "px-6 py-3 text-[10px] tracking-[0.08em]" : "px-10 py-4 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
               style={{ 
                 backgroundColor: '#722f37',
                 fontFamily: 'Montserrat, sans-serif'
