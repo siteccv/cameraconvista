@@ -14,6 +14,7 @@ import {
   Plus, 
   Calendar, 
   Trash2, 
+  Copy,
   Image as ImageIcon,
   ExternalLink,
   GripVertical
@@ -85,6 +86,53 @@ export default function AdminEvents() {
     if (confirm(t(`Sei sicuro di voler eliminare "${event.titleIt}"?`, `Are you sure you want to delete "${event.titleEn}"?`))) {
       deleteMutation.mutate(event.id);
     }
+  };
+
+  const handleDuplicateEvent = (event: Event) => {
+    if (events.length >= 10) {
+      toast({
+        title: t("Limite raggiunto", "Limit reached"),
+        description: t("Hai raggiunto il limite massimo di 10 eventi.", "You have reached the maximum limit of 10 events."),
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const duplicatedEvent: Partial<InsertEvent> = {
+      titleIt: `${event.titleIt} (copia)`,
+      titleEn: `${event.titleEn} (copy)`,
+      descriptionIt: event.descriptionIt,
+      descriptionEn: event.descriptionEn,
+      detailsIt: event.detailsIt,
+      detailsEn: event.detailsEn,
+      posterUrl: event.posterUrl,
+      posterZoom: event.posterZoom,
+      posterOffsetX: event.posterOffsetX,
+      posterOffsetY: event.posterOffsetY,
+      startAt: null,
+      active: false,
+      bookingEnabled: event.bookingEnabled,
+      bookingUrl: event.bookingUrl,
+      visibilityMode: event.visibilityMode,
+      visibilityDaysAfter: event.visibilityDaysAfter,
+      sortOrder: events.length,
+    };
+    
+    apiRequest("POST", "/api/admin/events", duplicatedEvent)
+      .then(() => {
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
+        toast({
+          title: t("Duplicato", "Duplicated"),
+          description: t("Evento duplicato con successo.", "Event duplicated successfully."),
+        });
+      })
+      .catch(() => {
+        toast({
+          title: t("Errore", "Error"),
+          description: t("Impossibile duplicare l'evento.", "Failed to duplicate event."),
+          variant: "destructive",
+        });
+      });
   };
 
   const handleToggleActive = (event: Event) => {
@@ -225,6 +273,15 @@ export default function AdminEvents() {
                         onCheckedChange={() => handleToggleActive(event)}
                         data-testid={`switch-active-${event.id}`}
                       />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDuplicateEvent(event)}
+                        title={t("Duplica evento", "Duplicate event")}
+                        data-testid={`button-duplicate-${event.id}`}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
