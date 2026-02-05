@@ -152,9 +152,19 @@ export default function CartaVini() {
             <div className="space-y-16">
               {orderedCategories.map((category) => (
                 <div key={category}>
-                  <div className="flex items-center justify-center gap-3 mb-8">
-                    <WineIcon className="h-5 w-5" style={{ color: '#C9A050' }} />
-                    <h2 className="font-display text-2xl md:text-3xl text-foreground" data-testid={`text-wine-category-${category}`}>
+                  <div className="flex items-center justify-center gap-4 mb-8">
+                    <WineIcon className="h-6 w-6" style={{ color: '#c7902f', strokeWidth: 1.5 }} />
+                    <h2 
+                      className="font-display"
+                      style={{ 
+                        fontSize: '32px',
+                        lineHeight: 1.2,
+                        letterSpacing: '0.01em',
+                        fontWeight: 500,
+                        color: '#2f2b2a'
+                      }}
+                      data-testid={`text-wine-category-${category}`}
+                    >
                       {category}
                     </h2>
                   </div>
@@ -180,29 +190,68 @@ function WineCard({ wine }: { wine: Wine }) {
   const hasBottlePrice = wine.price && wine.price !== "";
 
   return (
-    <div className="pb-4 border-b border-border/50 last:border-0" data-testid={`wine-item-${wine.id}`}>
-      <div className="flex justify-between items-start gap-4">
-        <div className="flex-1">
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <h3 className="font-display text-foreground uppercase tracking-wide text-lg">
-              {t(wine.nameIt, wine.nameEn)}
-            </h3>
-            {wine.year && (
-              <span className="text-sm text-muted-foreground">{wine.year}</span>
-            )}
-          </div>
-          {(wine.descriptionIt || wine.descriptionEn) && (
-            <p className="text-sm text-muted-foreground mt-0.5">
-              {t(wine.descriptionIt, wine.descriptionEn)}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center gap-3 shrink-0">
+    <div 
+      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0" 
+      style={{ borderBottom: '1px solid #e5d6b6' }}
+      data-testid={`wine-item-${wine.id}`}
+    >
+      <div className="space-y-1">
+        {/* Nome vino */}
+        <h3 
+          className="font-display uppercase"
+          style={{ 
+            fontSize: '22px',
+            lineHeight: 1.25,
+            letterSpacing: '0.02em',
+            fontWeight: 500,
+            color: '#2f2b2a'
+          }}
+        >
+          {t(wine.nameIt, wine.nameEn)}
+          {wine.year && <span className="ml-2 text-base font-normal">{wine.year}</span>}
+        </h3>
+        
+        {/* Cantina + Provenienza */}
+        {(wine.descriptionIt || wine.descriptionEn) && (
+          <p 
+            className="font-sans"
+            style={{ 
+              fontSize: '16px',
+              lineHeight: 1.35,
+              letterSpacing: '0.01em',
+              fontWeight: 400,
+              color: '#666a70'
+            }}
+          >
+            {t(wine.descriptionIt, wine.descriptionEn)}
+          </p>
+        )}
+        
+        {/* Prezzi */}
+        <div className="flex items-center gap-6 pt-1">
           {hasGlassPrice && (
-            <span className="font-medium" style={{ color: '#C9A050' }}>€ {wine.priceGlass}</span>
+            <span 
+              className="font-display"
+              style={{ 
+                fontSize: '20px',
+                fontWeight: 500,
+                color: '#c7902f'
+              }}
+            >
+              € {wine.priceGlass}
+            </span>
           )}
           {hasBottlePrice && (
-            <span className="font-medium" style={{ color: '#C9A050' }}>€ {wine.price}</span>
+            <span 
+              className="font-display"
+              style={{ 
+                fontSize: '20px',
+                fontWeight: 500,
+                color: '#c7902f'
+              }}
+            >
+              € {wine.price}
+            </span>
           )}
         </div>
       </div>
