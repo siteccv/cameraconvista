@@ -163,9 +163,9 @@ export default function EventDetail() {
               )}
 
               {event.bookingEnabled && (
-                <div className="pt-4">
+                <div className="pt-4 flex justify-center md:justify-start">
                   <Button
-                    className="w-full px-10 py-5 text-xs tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
+                    className="px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
                     style={{ 
                       backgroundColor: '#722f37',
                       fontFamily: 'Montserrat, sans-serif'
