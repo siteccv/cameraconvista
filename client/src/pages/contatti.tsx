@@ -11,11 +11,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { MapPin, Phone, Mail, Clock, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
-import { ContactInfoItem } from "@/components/contact";
 
 const contactSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -42,13 +41,9 @@ export default function Contatti() {
     offsetXDesktop: 0, offsetYDesktop: 0,
     offsetXMobile: 0, offsetYMobile: 0,
   });
-  const [sectionTitle, setSectionTitle] = useState({
-    it: "Vieni a trovarci", en: "Come visit us",
-    fontSizeDesktop: 36, fontSizeMobile: 28
-  });
   const [introText, setIntroText] = useState({
-    it: "Siamo sempre felici di accoglierti. Contattaci per informazioni, prenotazioni o per organizzare il tuo evento privato.",
-    en: "We are always happy to welcome you. Contact us for information, reservations, or to organize your private event.",
+    it: "Nel cuore di Bologna..\na 200 metri dalle Due Torri\nraggiungibile in 3 minuti a piedi.",
+    en: "In the heart of Bologna..\n200 meters from the Two Towers\njust a 3-minute walk.",
     fontSizeDesktop: 16, fontSizeMobile: 14
   });
 
@@ -67,9 +62,6 @@ export default function Contatti() {
     switch (field) {
       case "heroTitle":
         setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
-        break;
-      case "sectionTitle":
-        setSectionTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
         break;
       case "introText":
         setIntroText({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
@@ -148,167 +140,98 @@ export default function Contatti() {
       </div>
 
       <section className="py-8 md:py-16">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-            <div>
-              <EditableText
-                textIt={sectionTitle.it}
-                textEn={sectionTitle.en}
-                fontSizeDesktop={sectionTitle.fontSizeDesktop}
-                fontSizeMobile={sectionTitle.fontSizeMobile}
-                as="h2"
-                className="font-display mb-6"
-                applyFontSize
-                onSave={(data) => handleTextSave("sectionTitle", data)}
-              />
-              <EditableText
-                textIt={introText.it}
-                textEn={introText.en}
-                fontSizeDesktop={introText.fontSizeDesktop}
-                fontSizeMobile={introText.fontSizeMobile}
-                as="p"
-                className="text-muted-foreground mb-8"
-                multiline
-                applyFontSize
-                onSave={(data) => handleTextSave("introText", data)}
-              />
+        <div className="container mx-auto px-4 max-w-2xl">
+          <Card>
+            <CardContent className="p-6 md:p-8">
+              <h2 className="font-display text-2xl mb-6" data-testid="text-form-title">
+                {t("Inviaci un messaggio", "Send us a message")}
+              </h2>
 
-              <div className="space-y-6">
-                <ContactInfoItem icon={MapPin} title={t("Indirizzo", "Address")} testId="contact-address">
-                  <p className="text-muted-foreground">
-                    Via del Pratello, 42<br />
-                    40122 Bologna, Italia
-                  </p>
-                </ContactInfoItem>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("Nome", "Name")} *</FormLabel>
+                        <FormControl>
+                          <Input {...field} data-testid="input-name" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <ContactInfoItem icon={Phone} title={t("Telefono", "Phone")} testId="contact-phone">
-                  <a href="tel:+390512345678" className="text-muted-foreground hover:text-foreground transition-colors">
-                    +39 051 234 5678
-                  </a>
-                </ContactInfoItem>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email *</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} data-testid="input-email" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <ContactInfoItem icon={Mail} title="Email" testId="contact-email">
-                  <a href="mailto:info@cameraconvista.it" className="text-muted-foreground hover:text-foreground transition-colors">
-                    info@cameraconvista.it
-                  </a>
-                </ContactInfoItem>
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("Telefono", "Phone")}</FormLabel>
+                        <FormControl>
+                          <Input type="tel" {...field} data-testid="input-phone" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <ContactInfoItem icon={Clock} title={t("Orari", "Hours")} testId="contact-hours">
-                  <div className="text-muted-foreground">
-                    <p>{t("Martedì - Domenica", "Tuesday - Sunday")}: 18:00 - 02:00</p>
-                    <p>{t("Lunedì", "Monday")}: {t("Chiuso", "Closed")}</p>
-                  </div>
-                </ContactInfoItem>
-              </div>
+                  <FormField
+                    control={form.control}
+                    name="subject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("Oggetto", "Subject")} *</FormLabel>
+                        <FormControl>
+                          <Input {...field} data-testid="input-subject" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-              <div className="mt-8 aspect-[16/9] rounded-placeholder overflow-hidden bg-muted">
-                <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2846.0661234567!2d11.3333!3d44.4944!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI5JzM5LjgiTiAxMcKwMTknNTkuOSJF!5e0!3m2!1sen!2sit!4v1234567890"
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title={t("Mappa", "Map") || "Map"}
-                />
-              </div>
-            </div>
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t("Messaggio", "Message")} *</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            {...field}
+                            rows={5}
+                            className="resize-none"
+                            data-testid="input-message"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-            <div>
-              <Card>
-                <CardContent className="p-6 md:p-8">
-                  <h2 className="font-display text-2xl mb-6" data-testid="text-form-title">
-                    {t("Inviaci un messaggio", "Send us a message")}
-                  </h2>
-
-                  <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("Nome", "Name")} *</FormLabel>
-                            <FormControl>
-                              <Input {...field} data-testid="input-name" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email *</FormLabel>
-                            <FormControl>
-                              <Input type="email" {...field} data-testid="input-email" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("Telefono", "Phone")}</FormLabel>
-                            <FormControl>
-                              <Input type="tel" {...field} data-testid="input-phone" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="subject"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("Oggetto", "Subject")} *</FormLabel>
-                            <FormControl>
-                              <Input {...field} data-testid="input-subject" />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="message"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>{t("Messaggio", "Message")} *</FormLabel>
-                            <FormControl>
-                              <Textarea
-                                {...field}
-                                rows={5}
-                                className="resize-none"
-                                data-testid="input-message"
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <Button type="submit" className="w-full" data-testid="button-submit">
-                        {t("Invia messaggio", "Send message")}
-                        <Send className="ml-2 h-4 w-4" />
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+                  <Button type="submit" className="w-full" data-testid="button-submit">
+                    {t("Invia messaggio", "Send message")}
+                    <Send className="ml-2 h-4 w-4" />
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
         </div>
       </section>
     </PublicLayout>
