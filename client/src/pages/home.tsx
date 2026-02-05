@@ -270,7 +270,7 @@ export default function Home() {
           <div className="flex-1" />
           
           <div className="container mx-auto px-4">
-            <div className={isMobile ? "mb-2" : "mb-4"}>
+            <div className={isMobile ? "mb-2 py-1" : "mb-4 py-2"}>
               <EditableText
                 textIt={brandingTitle.it}
                 textEn={brandingTitle.en}
@@ -319,7 +319,7 @@ export default function Home() {
           <div className="flex-1 flex items-end justify-center pb-6">
             <Button 
               onClick={() => setBookingDialogOpen(true)}
-              className={`${isMobile ? "px-6 py-3 text-[10px] tracking-[0.08em]" : "px-10 py-4 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
+              className={`${isMobile ? "px-6 py-4 text-[10px] tracking-[0.08em]" : "px-10 py-5 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
               style={{ 
                 backgroundColor: '#722f37',
                 fontFamily: 'Montserrat, sans-serif'
