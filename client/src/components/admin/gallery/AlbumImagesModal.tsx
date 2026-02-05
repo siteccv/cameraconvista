@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -13,13 +13,13 @@ import {
   DndContext,
   closestCenter,
   KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
+  PointerSensor,
   useSensor,
   useSensors,
   DragEndEvent,
   DragStartEvent,
   DragOverlay,
+  DragOverEvent,
 } from "@dnd-kit/core";
 import {
   arrayMove,
@@ -42,17 +42,12 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [localImages, setLocalImages] = useState<GalleryImage[]>([]);
 
   const sensors = useSensors(
-    useSensor(MouseSensor, {
+    useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      activationConstraint: {
-        delay: 200,
-        tolerance: 5,
+        distance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -124,6 +119,14 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
   });
 
+  // Sync server images to local state for drag operations
+  useEffect(() => {
+    if (images.length > 0) {
+      const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+      setLocalImages(sorted);
+    }
+  }, [images]);
+
   const handleMediaSelect = (media: Media) => {
     addImageMutation.mutate({
       imageUrl: media.url,
@@ -144,24 +147,37 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     setActiveId(event.active.id as number);
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = localImages.findIndex((img) => img.id === active.id);
+    const newIndex = localImages.findIndex((img) => img.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
+      setLocalImages(arrayMove(localImages, oldIndex, newIndex));
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     setActiveId(null);
     
     if (!over || active.id === over.id) return;
 
-    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-    const oldIndex = sorted.findIndex((img) => img.id === active.id);
-    const newIndex = sorted.findIndex((img) => img.id === over.id);
-
-    const reordered = arrayMove(sorted, oldIndex, newIndex);
-    const imageIds = reordered.map((img) => img.id);
-
+    // Final reorder with localImages state (already updated by onDragOver)
+    const imageIds = localImages.map((img) => img.id);
     reorderImagesMutation.mutate(imageIds);
   };
 
-  const sortedImages = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-  const activeImage = activeId ? sortedImages.find((img) => img.id === activeId) : null;
+  const handleDragCancel = () => {
+    setActiveId(null);
+    // Reset to server state on cancel
+    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
+    setLocalImages(sorted);
+  };
+
+  const activeImage = activeId ? localImages.find((img) => img.id === activeId) : null;
 
   return (
     <>
@@ -205,14 +221,16 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragStart={handleDragStart}
+                onDragOver={handleDragOver}
                 onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
               >
                 <SortableContext
-                  items={sortedImages.map((img) => img.id)}
+                  items={localImages.map((img) => img.id)}
                   strategy={rectSortingStrategy}
                 >
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {sortedImages.map((image) => (
+                    {localImages.map((image) => (
                       <SortableImage
                         key={image.id}
                         image={image}
