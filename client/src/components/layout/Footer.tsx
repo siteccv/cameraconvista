@@ -112,7 +112,7 @@ function groupHoursEntries(hours: FooterHoursEntry[]): { selectedDays: number[];
     
     if (groups.has(key)) {
       const existing = groups.get(key)!;
-      existing.selectedDays = [...new Set([...existing.selectedDays, ...selectedDays])].sort((a, b) => a - b);
+      existing.selectedDays = Array.from(new Set([...existing.selectedDays, ...selectedDays])).sort((a, b) => a - b);
     } else {
       groups.set(key, { 
         selectedDays: [...selectedDays], 
