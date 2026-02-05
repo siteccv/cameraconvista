@@ -214,13 +214,14 @@ function WineCard({ wine }: { wine: Wine }) {
         {/* Cantina + Provenienza */}
         {(wine.descriptionIt || wine.descriptionEn) && (
           <p 
-            className="font-sans"
             style={{ 
-              fontSize: '16px',
-              lineHeight: 1.35,
-              letterSpacing: '0.01em',
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: '15px',
+              lineHeight: 1.4,
+              letterSpacing: '0.02em',
               fontWeight: 400,
-              color: '#666a70'
+              color: '#666a70',
+              transform: 'scaleX(0.95)'
             }}
           >
             {t(wine.descriptionIt, wine.descriptionEn)}
@@ -228,17 +229,18 @@ function WineCard({ wine }: { wine: Wine }) {
         )}
         
         {/* Prezzi */}
-        <div className="flex items-center gap-6 pt-1">
+        <div className="flex items-baseline gap-6 pt-1">
           {hasGlassPrice && (
             <span 
               className="font-display"
               style={{ 
                 fontSize: '20px',
                 fontWeight: 500,
-                color: '#c7902f'
+                color: '#c7902f',
+                lineHeight: 1
               }}
             >
-              € {wine.priceGlass}
+              €&nbsp;{wine.priceGlass}
             </span>
           )}
           {hasBottlePrice && (
@@ -247,10 +249,11 @@ function WineCard({ wine }: { wine: Wine }) {
               style={{ 
                 fontSize: '20px',
                 fontWeight: 500,
-                color: '#c7902f'
+                color: '#c7902f',
+                lineHeight: 1
               }}
             >
-              € {wine.price}
+              €&nbsp;{wine.price}
             </span>
           )}
         </div>
