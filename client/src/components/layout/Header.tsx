@@ -21,7 +21,7 @@ const allNavItems = [
 
 export function Header() {
   const { language, setLanguage, t } = useLanguage();
-  const { forceMobileLayout } = useAdmin();
+  const { forceMobileLayout, adminPreview } = useAdmin();
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isMobileView, setIsMobileView] = useState(false);
@@ -54,44 +54,82 @@ export function Header() {
             <>
               <div className="w-9" />
 
-              <Link href="/" className="absolute left-1/2 -translate-x-1/2" data-testid="link-home-logo">
-                <img 
-                  src={logoImg} 
-                  alt="Camera con Vista" 
-                  className="h-[18px] w-auto object-contain"
-                />
-              </Link>
+              {adminPreview ? (
+                <div className="absolute left-1/2 -translate-x-1/2">
+                  <img 
+                    src={logoImg} 
+                    alt="Camera con Vista" 
+                    className="h-[18px] w-auto object-contain"
+                  />
+                </div>
+              ) : (
+                <Link href="/" className="absolute left-1/2 -translate-x-1/2" data-testid="link-home-logo">
+                  <img 
+                    src={logoImg} 
+                    alt="Camera con Vista" 
+                    className="h-[18px] w-auto object-contain"
+                  />
+                </Link>
+              )}
 
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                data-testid="button-mobile-menu"
-              >
-                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-              </Button>
+              {adminPreview ? (
+                <div className="w-9" />
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  data-testid="button-mobile-menu"
+                >
+                  {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </Button>
+              )}
             </>
           ) : (
             <>
-              <Link href="/" className="flex items-center gap-2" data-testid="link-home-logo">
-                <img 
-                  src={logoImg} 
-                  alt="Camera con Vista" 
-                  className="h-[18px] w-auto object-contain"
-                />
-              </Link>
+              {adminPreview ? (
+                <div className="flex items-center gap-2">
+                  <img 
+                    src={logoImg} 
+                    alt="Camera con Vista" 
+                    className="h-[18px] w-auto object-contain"
+                  />
+                </div>
+              ) : (
+                <Link href="/" className="flex items-center gap-2" data-testid="link-home-logo">
+                  <img 
+                    src={logoImg} 
+                    alt="Camera con Vista" 
+                    className="h-[18px] w-auto object-contain"
+                  />
+                </Link>
+              )}
 
               <nav className="hidden xl:flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location === item.path;
+                  const navClassName = `px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors whitespace-nowrap ${
+                    isActive
+                      ? "text-[#722f37] underline underline-offset-4"
+                      : "text-muted-foreground"
+                  } ${adminPreview ? "cursor-default pointer-events-none" : "cursor-pointer hover:text-foreground"}`;
+                  
+                  if (adminPreview) {
+                    return (
+                      <span
+                        key={item.slug}
+                        className={navClassName}
+                        data-testid={`nav-${item.slug || "home"}`}
+                      >
+                        {t(item.labelIt, item.labelEn)}
+                      </span>
+                    );
+                  }
+                  
                   return (
                     <Link key={item.slug} href={item.path}>
                       <span
-                        className={`px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors cursor-pointer whitespace-nowrap ${
-                          isActive
-                            ? "text-[#722f37] underline underline-offset-4"
-                            : "text-muted-foreground hover:text-foreground"
-                        }`}
+                        className={navClassName}
                         data-testid={`nav-${item.slug || "home"}`}
                       >
                         {t(item.labelIt, item.labelEn)}
@@ -130,7 +168,7 @@ export function Header() {
           )}
         </div>
 
-        {mobileMenuOpen && isMobile && (
+        {mobileMenuOpen && isMobile && !adminPreview && (
           <nav className="absolute left-0 right-0 top-14 z-40 bg-background border-b border-border shadow-lg py-6">
             <div className="container mx-auto px-4 flex flex-col gap-2">
               {navItems.map((item) => {
