@@ -173,7 +173,7 @@ export default function CocktailBar() {
               {Object.entries(categorizedCocktails).map(([category, cocktails]) => (
                 <div key={category}>
                   <h3 
-                    className="font-display mb-8"
+                    className="font-display mb-8 text-center"
                     style={{ 
                       fontSize: '32px',
                       lineHeight: 1.2,

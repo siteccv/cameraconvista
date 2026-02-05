@@ -138,7 +138,7 @@ export default function Menu() {
               {Object.entries(categorizedItems).map(([category, items]) => (
                 <div key={category}>
                   <h2 
-                    className="font-display mb-8"
+                    className="font-display mb-8 text-center"
                     style={{ 
                       fontSize: '32px',
                       lineHeight: 1.2,
