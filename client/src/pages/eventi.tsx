@@ -141,22 +141,13 @@ export default function Eventi() {
 function EventCard({ event }: { event: Event }) {
   const { t, language } = useLanguage();
 
-  const formatDate = (dateStr: string | Date | null) => {
-    if (!dateStr) return "";
+  const formatDateLine = (dateStr: string | Date | null) => {
+    if (!dateStr) return { month: "", day: "", weekday: "" };
     const date = new Date(dateStr);
-    return date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", {
-      day: "numeric",
-      month: "short",
-    });
-  };
-
-  const formatTime = (dateStr: string | Date | null) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString(language === "it" ? "it-IT" : "en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const month = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", { month: "short" }).toUpperCase().replace(".", "");
+    const day = date.getDate().toString().padStart(2, "0");
+    const weekday = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", { weekday: "long" }).toUpperCase();
+    return { month, day, weekday };
   };
 
   return (
@@ -185,17 +176,20 @@ function EventCard({ event }: { event: Event }) {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
         <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <h3 className="font-display text-base md:text-xl mb-2 line-clamp-2">
+          {event.startAt && (() => {
+            const { month, day, weekday } = formatDateLine(event.startAt);
+            return (
+              <div className="text-sm md:text-base font-medium tracking-wide mb-2">
+                <span className="text-white">{month}</span>
+                <span className="text-amber-300 font-bold">{day}</span>
+                <span className="text-white">{weekday}</span>
+              </div>
+            );
+          })()}
+          
+          <h3 className="font-display text-base md:text-xl line-clamp-2">
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
-          
-          {event.startAt && (
-            <div className="flex items-center gap-1.5 text-sm text-white/80">
-              <Calendar className="h-4 w-4" />
-              <span>{formatDate(event.startAt)}</span>
-              <span className="ml-1">{formatTime(event.startAt)}</span>
-            </div>
-          )}
 
           {event.bookingEnabled && (
             <div className="mt-3">
