@@ -210,7 +210,7 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
                   <Skeleton key={i} className="aspect-[9/16] rounded-lg" />
                 ))}
               </div>
-            ) : images.length === 0 ? (
+            ) : localImages.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Images className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>{t("Nessuna immagine nell'album.", "No images in album.")}</p>
