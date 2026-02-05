@@ -139,12 +139,26 @@ adminGalleryRouter.get("/:galleryId/images", requireAuth, async (req, res) => {
 adminGalleryRouter.post("/:galleryId/images", requireAuth, async (req, res) => {
   try {
     const galleryId = parseId(req.params.galleryId);
-    const parsed = insertGalleryImageSchema.safeParse({ ...req.body, galleryId });
+    // Only include fields that should be inserted (no id)
+    const insertData = {
+      galleryId,
+      imageUrl: req.body.imageUrl,
+      imageZoom: req.body.imageZoom ?? 100,
+      imageOffsetX: req.body.imageOffsetX ?? 0,
+      imageOffsetY: req.body.imageOffsetY ?? 0,
+      altIt: req.body.altIt ?? null,
+      altEn: req.body.altEn ?? null,
+      sortOrder: req.body.sortOrder ?? 0,
+    };
+    console.log("Creating gallery image with data:", JSON.stringify(insertData));
+    const parsed = insertGalleryImageSchema.safeParse(insertData);
     if (!parsed.success) {
+      console.error("Validation error:", parsed.error.flatten());
       res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
       return;
     }
     const image = await storage.createGalleryImage(parsed.data);
+    console.log("Created gallery image:", image.id);
     res.status(201).json(image);
   } catch (error) {
     console.error("Error creating gallery image:", error);
