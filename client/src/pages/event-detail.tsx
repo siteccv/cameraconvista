@@ -5,7 +5,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, Clock, ArrowLeft, ExternalLink } from "lucide-react";
+import { Calendar, Clock, ArrowLeft } from "lucide-react";
 import { BookingDialog } from "@/components/home/BookingDialog";
 import type { Event } from "@shared/schema";
 
@@ -164,14 +164,15 @@ export default function EventDetail() {
               {event.bookingEnabled && (
                 <div className="pt-4">
                   <Button
-                    size="lg"
-                    className="w-full rounded-full"
-                    style={{ backgroundColor: '#722f37' }}
+                    className="w-full px-10 py-5 text-xs tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
+                    style={{ 
+                      backgroundColor: '#722f37',
+                      fontFamily: 'Montserrat, sans-serif'
+                    }}
                     onClick={() => setShowBookingDialog(true)}
                     data-testid="button-book-event"
                   >
-                    <ExternalLink className="h-5 w-5 mr-2" />
-                    {t("Prenota un Tavolo", "Book a Table")}
+                    {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
                   </Button>
                 </div>
               )}
