@@ -99,7 +99,7 @@ export default function EventDetail() {
           </Link>
 
           <div className="grid md:grid-cols-2 gap-8 items-start">
-            <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-muted border">
+            <div className="relative aspect-[9/16] max-h-[65vh] md:max-h-none rounded-lg overflow-hidden bg-muted border mx-auto w-full md:w-auto">
               {event.posterUrl ? (
                 <img
                   src={event.posterUrl}
