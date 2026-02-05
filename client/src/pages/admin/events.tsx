@@ -14,7 +14,6 @@ import {
   Plus, 
   Calendar, 
   Trash2, 
-  Edit2,
   Image as ImageIcon,
   ExternalLink,
   GripVertical
@@ -158,10 +157,11 @@ export default function AdminEvents() {
                 {sortedEvents.map((event) => (
                   <div
                     key={event.id}
-                    className="flex items-center gap-4 p-4 border rounded-lg bg-card hover-elevate"
+                    className="flex items-center gap-4 p-4 border rounded-lg bg-card hover-elevate cursor-pointer"
+                    onClick={() => handleEditEvent(event)}
                     data-testid={`event-item-${event.id}`}
                   >
-                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" />
+                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" onClick={(e) => e.stopPropagation()} />
                     
                     <div className="w-16 h-20 bg-muted rounded-md overflow-hidden flex-shrink-0">
                       {event.posterUrl ? (
@@ -219,20 +219,12 @@ export default function AdminEvents() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
                       <Switch
                         checked={event.active}
                         onCheckedChange={() => handleToggleActive(event)}
                         data-testid={`switch-active-${event.id}`}
                       />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditEvent(event)}
-                        data-testid={`button-edit-${event.id}`}
-                      >
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
