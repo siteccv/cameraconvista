@@ -152,7 +152,7 @@ export default function CartaVini() {
             <div className="space-y-16">
               {orderedCategories.map((category) => (
                 <div key={category}>
-                  <div className="flex items-center justify-center gap-4 mb-8">
+                  <div className="flex items-center gap-4 mb-8">
                     <WineIcon className="h-6 w-6" style={{ color: '#c7902f', strokeWidth: 1.5 }} />
                     <h2 
                       className="font-display"
@@ -220,8 +220,7 @@ function WineCard({ wine }: { wine: Wine }) {
               lineHeight: 1.4,
               letterSpacing: '0.02em',
               fontWeight: 400,
-              color: '#666a70',
-              transform: 'scaleX(0.95)'
+              color: '#666a70'
             }}
           >
             {t(wine.descriptionIt, wine.descriptionEn)}
@@ -229,31 +228,31 @@ function WineCard({ wine }: { wine: Wine }) {
         )}
         
         {/* Prezzi */}
-        <div className="flex items-baseline gap-6 pt-1">
+        <div className="flex gap-6 pt-1">
           {hasGlassPrice && (
             <span 
-              className="font-display"
               style={{ 
+                fontFamily: 'Georgia, "Times New Roman", serif',
                 fontSize: '20px',
-                fontWeight: 500,
+                fontWeight: 400,
                 color: '#c7902f',
-                lineHeight: 1
+                fontFeatureSettings: '"lnum"'
               }}
             >
-              €&nbsp;{wine.priceGlass}
+              € {wine.priceGlass}
             </span>
           )}
           {hasBottlePrice && (
             <span 
-              className="font-display"
               style={{ 
+                fontFamily: 'Georgia, "Times New Roman", serif',
                 fontSize: '20px',
-                fontWeight: 500,
+                fontWeight: 400,
                 color: '#c7902f',
-                lineHeight: 1
+                fontFeatureSettings: '"lnum"'
               }}
             >
-              €&nbsp;{wine.price}
+              € {wine.price}
             </span>
           )}
         </div>
