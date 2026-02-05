@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Accordion,
   AccordionContent,
@@ -23,28 +24,45 @@ import { defaultFooterSettings } from "@shared/schema";
 const socialTypes = ["instagram", "facebook", "twitter", "linkedin", "youtube", "tiktok"] as const;
 
 const daysOfWeek = [
-  { it: "Lunedì", en: "Monday" },
-  { it: "Martedì", en: "Tuesday" },
-  { it: "Mercoledì", en: "Wednesday" },
-  { it: "Giovedì", en: "Thursday" },
-  { it: "Venerdì", en: "Friday" },
-  { it: "Sabato", en: "Saturday" },
-  { it: "Domenica", en: "Sunday" },
+  { it: "Lunedì", en: "Monday", index: 0 },
+  { it: "Martedì", en: "Tuesday", index: 1 },
+  { it: "Mercoledì", en: "Wednesday", index: 2 },
+  { it: "Giovedì", en: "Thursday", index: 3 },
+  { it: "Venerdì", en: "Friday", index: 4 },
+  { it: "Sabato", en: "Saturday", index: 5 },
+  { it: "Domenica", en: "Sunday", index: 6 },
 ];
 
-const dayRanges = [
-  { it: "Tutti i giorni", en: "Every day" },
-  { it: "Lunedì - Venerdì", en: "Monday - Friday" },
-  { it: "Lunedì - Sabato", en: "Monday - Saturday" },
-  { it: "Martedì - Domenica", en: "Tuesday - Sunday" },
-  { it: "Sabato - Domenica", en: "Saturday - Sunday" },
-  { it: "Venerdì - Sabato", en: "Friday - Saturday" },
-  { it: "Venerdì - Domenica", en: "Friday - Sunday" },
-];
-
-const allDayOptions = [...dayRanges, ...daysOfWeek];
-
-const isKnownDayOption = (value: string) => allDayOptions.some(d => d.it === value);
+// Helper to parse legacy day strings (single days or ranges) into index arrays
+function parseLegacyDayString(dayKeyIt: string): number[] {
+  // Check for exact single day match
+  const singleDayIndex = daysOfWeek.findIndex(d => d.it === dayKeyIt);
+  if (singleDayIndex >= 0) return [singleDayIndex];
+  
+  // Check for "Tutti i giorni" (every day)
+  if (dayKeyIt.toLowerCase().includes("tutti")) return [0, 1, 2, 3, 4, 5, 6];
+  
+  // Check for range format "DayA - DayB"
+  const rangeParts = dayKeyIt.split(" - ");
+  if (rangeParts.length === 2) {
+    const startIndex = daysOfWeek.findIndex(d => d.it === rangeParts[0].trim());
+    const endIndex = daysOfWeek.findIndex(d => d.it === rangeParts[1].trim());
+    if (startIndex >= 0 && endIndex >= 0) {
+      const result: number[] = [];
+      if (startIndex <= endIndex) {
+        for (let i = startIndex; i <= endIndex; i++) result.push(i);
+      } else {
+        // Wrap around (e.g., "Venerdì - Domenica" = Fri, Sat, Sun)
+        for (let i = startIndex; i <= 6; i++) result.push(i);
+        for (let i = 0; i <= endIndex; i++) result.push(i);
+      }
+      return result;
+    }
+  }
+  
+  // Couldn't parse - return empty (will show as empty selection)
+  return [];
+}
 
 const timeSlots = [
   "00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30",
@@ -67,7 +85,22 @@ export function FooterSettingsForm() {
 
   useEffect(() => {
     if (footerSettings) {
-      setFormData(footerSettings);
+      // Migrate old format to new format if needed
+      const migratedHours = footerSettings.hours.map(entry => {
+        // Check if it's old format (has dayKeyIt/dayKeyEn)
+        if ('dayKeyIt' in entry && !('selectedDays' in entry)) {
+          const oldEntry = entry as unknown as { dayKeyIt: string; dayKeyEn: string; hours: string; isClosed: boolean };
+          // Parse old day string (single day or range) into index array
+          const selectedDays = parseLegacyDayString(oldEntry.dayKeyIt);
+          return {
+            selectedDays,
+            hours: oldEntry.hours,
+            isClosed: oldEntry.isClosed
+          };
+        }
+        return entry;
+      });
+      setFormData({ ...footerSettings, hours: migratedHours });
     }
   }, [footerSettings]);
 
@@ -111,21 +144,25 @@ export function FooterSettingsForm() {
     }));
   };
 
-  const updateHours = (index: number, field: keyof FooterHoursEntry, value: string | boolean) => {
+  const toggleDaySelection = (entryIndex: number, dayIndex: number, checked: boolean) => {
+    setFormData(prev => ({
+      ...prev,
+      hours: prev.hours.map((h, i) => {
+        if (i !== entryIndex) return h;
+        const currentDays = h.selectedDays || [];
+        const newDays = checked 
+          ? [...currentDays, dayIndex].sort((a, b) => a - b)
+          : currentDays.filter(d => d !== dayIndex);
+        return { ...h, selectedDays: newDays };
+      })
+    }));
+  };
+
+  const updateHoursEntry = (index: number, field: keyof FooterHoursEntry, value: string | boolean | number[]) => {
     setFormData(prev => ({
       ...prev,
       hours: prev.hours.map((h, i) => i === index ? { ...h, [field]: value } : h)
     }));
-  };
-
-  const updateDaySelection = (index: number, itValue: string) => {
-    const dayOption = allDayOptions.find(d => d.it === itValue);
-    if (dayOption) {
-      setFormData(prev => ({
-        ...prev,
-        hours: prev.hours.map((h, i) => i === index ? { ...h, dayKeyIt: dayOption.it, dayKeyEn: dayOption.en } : h)
-      }));
-    }
   };
 
   const updateTimeRange = (index: number, openTime: string, closeTime: string) => {
@@ -147,7 +184,7 @@ export function FooterSettingsForm() {
   const addHoursEntry = () => {
     setFormData(prev => ({
       ...prev,
-      hours: [...prev.hours, { dayKeyIt: "Lunedì", dayKeyEn: "Monday", hours: "18:00 - 02:00", isClosed: false }]
+      hours: [...prev.hours, { selectedDays: [], hours: "18:00 - 02:00", isClosed: false }]
     }));
   };
 
@@ -179,62 +216,80 @@ export function FooterSettingsForm() {
     }));
   };
 
-  const updateLegalLinks = (field: keyof typeof formData.legalLinks, value: string) => {
+  const updateLegalLinks = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       legalLinks: { ...prev.legalLinks, [field]: value }
     }));
   };
 
+  const handleTranslateAbout = (translation: string) => {
+    updateAbout("en", translation);
+  };
+
   if (isLoading) {
     return (
-      <div className="p-8 flex items-center justify-center">
+      <div className="flex items-center justify-center py-8">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
+  const getSelectedDaysLabel = (selectedDays: number[]) => {
+    if (selectedDays.length === 0) return t("Nessun giorno", "No days");
+    if (selectedDays.length === 7) return t("Tutti i giorni", "Every day");
+    return selectedDays.map(i => daysOfWeek[i]?.it.substring(0, 3)).join(", ");
+  };
+
   return (
-    <div className="space-y-4 max-w-4xl">
-      <Accordion type="multiple" defaultValue={["about", "contacts"]} className="space-y-2">
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">{t("Impostazioni Footer", "Footer Settings")}</h2>
+        <Button onClick={handleSave} disabled={saveMutation.isPending} data-testid="button-save-footer">
+          {saveMutation.isPending ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4 mr-2" />
+          )}
+          {t("Salva", "Save")}
+        </Button>
+      </div>
+
+      <Accordion type="multiple" defaultValue={["about", "contacts", "hours", "social", "legal"]} className="space-y-2">
         <AccordionItem value="about" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline py-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Globe className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">{t("Descrizione", "About")}</span>
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{t("Chi Siamo", "About Us")}</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">{t("Italiano", "Italian")}</Label>
-                <Textarea
-                  value={formData.about.it}
-                  onChange={(e) => updateAbout("it", e.target.value)}
-                  rows={2}
-                  className="text-sm"
-                  data-testid="input-about-it"
+          <AccordionContent className="space-y-4 pb-4">
+            <div className="space-y-2">
+              <Label className="text-sm">{t("Italiano", "Italian")}</Label>
+              <Textarea 
+                value={formData.about.it}
+                onChange={(e) => updateAbout("it", e.target.value)}
+                rows={3}
+                className="text-sm"
+                data-testid="textarea-about-it"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">{t("Inglese", "English")}</Label>
+                <TranslateButton 
+                  textToTranslate={formData.about.it} 
+                  onTranslated={handleTranslateAbout}
+                  targetLang="en"
                 />
               </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <Label className="text-xs flex-1">{t("Inglese", "English")}</Label>
-                  <TranslateButton
-                    textIt={formData.about.it}
-                    onTranslated={(text) => updateAbout("en", text)}
-                    context="restaurant description for website footer"
-                  />
-                </div>
-                <Textarea
-                  value={formData.about.en}
-                  onChange={(e) => updateAbout("en", e.target.value)}
-                  rows={2}
-                  className="text-sm"
-                  data-testid="input-about-en"
-                />
-              </div>
+              <Textarea 
+                value={formData.about.en}
+                onChange={(e) => updateAbout("en", e.target.value)}
+                rows={3}
+                className="text-sm"
+                data-testid="textarea-about-en"
+              />
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -242,38 +297,34 @@ export function FooterSettingsForm() {
         <AccordionItem value="contacts" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline py-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <MapPin className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">{t("Contatti", "Contacts")}</span>
+              <MapPin className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{t("Contatti", "Contacts")}</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-3">
-            <div className="space-y-1">
-              <Label className="text-xs">{t("Indirizzo", "Address")}</Label>
-              <Textarea
+          <AccordionContent className="space-y-4 pb-4">
+            <div className="space-y-2">
+              <Label className="text-sm">{t("Indirizzo", "Address")}</Label>
+              <Textarea 
                 value={formData.contacts.address}
                 onChange={(e) => updateContacts("address", e.target.value)}
                 rows={2}
                 className="text-sm"
-                data-testid="input-address"
+                data-testid="textarea-address"
               />
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1">
-                <Label className="text-xs">{t("Telefono", "Phone")}</Label>
-                <Input
-                  type="tel"
+              <div className="space-y-2">
+                <Label className="text-sm">{t("Telefono", "Phone")}</Label>
+                <Input 
                   value={formData.contacts.phone}
                   onChange={(e) => updateContacts("phone", e.target.value)}
                   className="text-sm"
                   data-testid="input-phone"
                 />
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Email</Label>
-                <Input
-                  type="email"
+              <div className="space-y-2">
+                <Label className="text-sm">Email</Label>
+                <Input 
                   value={formData.contacts.email}
                   onChange={(e) => updateContacts("email", e.target.value)}
                   className="text-sm"
@@ -287,70 +338,45 @@ export function FooterSettingsForm() {
         <AccordionItem value="hours" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline py-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Clock className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">{t("Orari", "Hours")}</span>
-              <span className="text-xs text-muted-foreground">({formData.hours.length})</span>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{t("Orari", "Hours")} ({formData.hours.length})</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-3">
+          <AccordionContent className="space-y-3 pb-4">
             {formData.hours.map((entry, index) => {
               const timeRange = parseTimeRange(entry.hours);
+              const selectedDays = entry.selectedDays || [];
               return (
-                <div key={index} className="p-3 border rounded-lg bg-muted/30 space-y-2">
-                  <div className="flex items-center gap-2">
-                    {isKnownDayOption(entry.dayKeyIt) ? (
-                      <Select
-                        value={entry.dayKeyIt}
-                        onValueChange={(val) => updateDaySelection(index, val)}
-                      >
-                        <SelectTrigger className="flex-1 h-9 text-sm" data-testid={`select-hours-day-${index}`}>
-                          <SelectValue placeholder={t("Seleziona giorno/i", "Select day(s)")} />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{t("Range", "Ranges")}</div>
-                          {dayRanges.map((day) => (
-                            <SelectItem key={day.it} value={day.it} className="text-sm">
-                              {t(day.it, day.en)}
-                            </SelectItem>
-                          ))}
-                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-1 pt-1">{t("Singoli", "Single")}</div>
-                          {daysOfWeek.map((day) => (
-                            <SelectItem key={day.it} value={day.it} className="text-sm">
-                              {t(day.it, day.en)}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ) : (
-                      <div className="flex-1 flex items-center gap-2">
-                        <Input
-                          value={entry.dayKeyIt}
-                          onChange={(e) => updateHours(index, "dayKeyIt", e.target.value)}
-                          placeholder="IT"
-                          className="flex-1 h-9 text-sm"
-                          data-testid={`input-hours-day-custom-it-${index}`}
-                        />
-                        <Input
-                          value={entry.dayKeyEn}
-                          onChange={(e) => updateHours(index, "dayKeyEn", e.target.value)}
-                          placeholder="EN"
-                          className="w-28 h-9 text-sm"
-                          data-testid={`input-hours-day-custom-en-${index}`}
-                        />
-                      </div>
-                    )}
+                <div key={index} className="p-3 border rounded-lg bg-muted/30 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-muted-foreground">
+                      {getSelectedDaysLabel(selectedDays)}
+                    </span>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => removeHoursEntry(index)}
-                      disabled={formData.hours.length <= 1}
-                      className="h-9 w-9 shrink-0"
+                      className="h-7 w-7"
                       data-testid={`button-remove-hours-${index}`}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {daysOfWeek.map((day) => (
+                      <label 
+                        key={day.index} 
+                        className="flex items-center gap-1.5 text-xs cursor-pointer"
+                      >
+                        <Checkbox
+                          checked={selectedDays.includes(day.index)}
+                          onCheckedChange={(checked) => toggleDaySelection(index, day.index, !!checked)}
+                          data-testid={`checkbox-day-${index}-${day.index}`}
+                        />
+                        <span>{day.it.substring(0, 3)}</span>
+                      </label>
+                    ))}
                   </div>
                   
                   <div className="flex items-center gap-2">
@@ -388,7 +414,7 @@ export function FooterSettingsForm() {
                       ) : (
                         <Input
                           value={entry.hours}
-                          onChange={(e) => updateHours(index, "hours", e.target.value)}
+                          onChange={(e) => updateHoursEntry(index, "hours", e.target.value)}
                           placeholder="18:00 - 02:00"
                           className="flex-1 h-9 text-sm"
                           data-testid={`input-hours-custom-${index}`}
@@ -398,7 +424,7 @@ export function FooterSettingsForm() {
                     <div className="flex items-center gap-2 shrink-0 ml-auto">
                       <Switch
                         checked={entry.isClosed}
-                        onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
+                        onCheckedChange={(checked) => updateHoursEntry(index, "isClosed", checked)}
                         data-testid={`switch-hours-closed-${index}`}
                       />
                       <span className="text-sm text-muted-foreground">{t("Chiuso", "Closed")}</span>
@@ -417,47 +443,41 @@ export function FooterSettingsForm() {
         <AccordionItem value="social" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline py-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <Share2 className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">Social</span>
-              <span className="text-xs text-muted-foreground">({formData.social.length})</span>
+              <Share2 className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{t("Social", "Social")} ({formData.social.length})</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-2">
+          <AccordionContent className="space-y-3 pb-4">
             {formData.social.map((link, index) => (
               <div key={index} className="flex items-center gap-2">
                 <Select
                   value={link.type}
-                  onValueChange={(value) => updateSocial(index, "type", value)}
+                  onValueChange={(val) => updateSocial(index, "type", val)}
                 >
-                  <SelectTrigger className="w-28 h-8 text-xs" data-testid={`select-social-type-${index}`}>
+                  <SelectTrigger className="w-32 h-9 text-sm" data-testid={`select-social-type-${index}`}>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {socialTypes.map(type => (
-                      <SelectItem key={type} value={type} className="text-xs">
-                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                      </SelectItem>
+                    {socialTypes.map((type) => (
+                      <SelectItem key={type} value={type} className="capitalize text-sm">{type}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 <Input
-                  type="url"
                   value={link.url}
                   onChange={(e) => updateSocial(index, "url", e.target.value)}
-                  placeholder="https://"
-                  className="flex-1 text-xs h-8"
+                  placeholder="https://..."
+                  className="flex-1 h-9 text-sm"
                   data-testid={`input-social-url-${index}`}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => removeSocialLink(index)}
-                  className="h-8 w-8"
+                  className="h-9 w-9"
                   data-testid={`button-remove-social-${index}`}
                 >
-                  <Trash2 className="h-3 w-3" />
+                  <Trash2 className="h-4 w-4" />
                 </Button>
               </div>
             ))}
@@ -471,92 +491,72 @@ export function FooterSettingsForm() {
         <AccordionItem value="legal" className="border rounded-lg px-4">
           <AccordionTrigger className="hover:no-underline py-3">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <FileText className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">{t("Link Legali", "Legal Links")}</span>
+              <FileText className="h-4 w-4 text-muted-foreground" />
+              <span className="font-medium">{t("Link Legali", "Legal Links")}</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-3">
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Privacy IT</Label>
-                <Input
-                  value={formData.legalLinks.privacyLabelIt}
-                  onChange={(e) => updateLegalLinks("privacyLabelIt", e.target.value)}
-                  className="text-xs h-8"
-                  data-testid="input-privacy-label-it"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Privacy EN</Label>
-                <Input
-                  value={formData.legalLinks.privacyLabelEn}
-                  onChange={(e) => updateLegalLinks("privacyLabelEn", e.target.value)}
-                  className="text-xs h-8"
-                  data-testid="input-privacy-label-en"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">URL</Label>
-                <Input
+          <AccordionContent className="space-y-4 pb-4">
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm">URL Privacy</Label>
+                <Input 
                   value={formData.legalLinks.privacyUrl}
                   onChange={(e) => updateLegalLinks("privacyUrl", e.target.value)}
-                  placeholder="/privacy"
-                  className="text-xs h-8"
+                  className="text-sm"
                   data-testid="input-privacy-url"
                 />
               </div>
+              <div className="space-y-2">
+                <Label className="text-sm">{t("Label IT", "Label IT")}</Label>
+                <Input 
+                  value={formData.legalLinks.privacyLabelIt}
+                  onChange={(e) => updateLegalLinks("privacyLabelIt", e.target.value)}
+                  className="text-sm"
+                  data-testid="input-privacy-label-it"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">{t("Label EN", "Label EN")}</Label>
+                <Input 
+                  value={formData.legalLinks.privacyLabelEn}
+                  onChange={(e) => updateLegalLinks("privacyLabelEn", e.target.value)}
+                  className="text-sm"
+                  data-testid="input-privacy-label-en"
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              <div className="space-y-1">
-                <Label className="text-xs">Cookie IT</Label>
-                <Input
+            <div className="grid grid-cols-3 gap-3">
+              <div className="space-y-2">
+                <Label className="text-sm">URL Cookie</Label>
+                <Input 
+                  value={formData.legalLinks.cookieUrl}
+                  onChange={(e) => updateLegalLinks("cookieUrl", e.target.value)}
+                  className="text-sm"
+                  data-testid="input-cookie-url"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">{t("Label IT", "Label IT")}</Label>
+                <Input 
                   value={formData.legalLinks.cookieLabelIt}
                   onChange={(e) => updateLegalLinks("cookieLabelIt", e.target.value)}
-                  className="text-xs h-8"
+                  className="text-sm"
                   data-testid="input-cookie-label-it"
                 />
               </div>
-              <div className="space-y-1">
-                <Label className="text-xs">Cookie EN</Label>
-                <Input
+              <div className="space-y-2">
+                <Label className="text-sm">{t("Label EN", "Label EN")}</Label>
+                <Input 
                   value={formData.legalLinks.cookieLabelEn}
                   onChange={(e) => updateLegalLinks("cookieLabelEn", e.target.value)}
-                  className="text-xs h-8"
+                  className="text-sm"
                   data-testid="input-cookie-label-en"
-                />
-              </div>
-              <div className="space-y-1">
-                <Label className="text-xs">URL</Label>
-                <Input
-                  value={formData.legalLinks.cookieUrl}
-                  onChange={(e) => updateLegalLinks("cookieUrl", e.target.value)}
-                  placeholder="/cookie"
-                  className="text-xs h-8"
-                  data-testid="input-cookie-url"
                 />
               </div>
             </div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
-
-      <div className="sticky bottom-0 py-4 bg-background border-t mt-4">
-        <Button
-          onClick={handleSave}
-          disabled={saveMutation.isPending}
-          className="w-full"
-          data-testid="button-save-footer"
-        >
-          {saveMutation.isPending ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="mr-2 h-4 w-4" />
-          )}
-          {t("Salva Impostazioni", "Save Settings")}
-        </Button>
-      </div>
     </div>
   );
 }

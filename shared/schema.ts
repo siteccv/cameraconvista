@@ -333,8 +333,7 @@ export type Cocktail = typeof cocktails.$inferSelect;
 // FOOTER SETTINGS (Structured JSON for footer content)
 // ============================================================================
 export const footerHoursEntrySchema = z.object({
-  dayKeyIt: z.string(),
-  dayKeyEn: z.string(),
+  selectedDays: z.array(z.number()).default([]), // 0=Monday, 1=Tuesday, ..., 6=Sunday
   hours: z.string(),
   isClosed: z.boolean().default(false),
 });
@@ -440,8 +439,8 @@ export const defaultFooterSettings: FooterSettings = {
     email: "info@cameraconvista.it",
   },
   hours: [
-    { dayKeyIt: "Martedì - Domenica", dayKeyEn: "Tuesday - Sunday", hours: "18:00 - 02:00", isClosed: false },
-    { dayKeyIt: "Lunedì", dayKeyEn: "Monday", hours: "", isClosed: true },
+    { selectedDays: [1, 2, 3, 4, 5, 6], hours: "18:00 - 02:00", isClosed: false }, // Tue-Sun
+    { selectedDays: [0], hours: "", isClosed: true }, // Monday closed
   ],
   social: [
     { type: "instagram", url: "https://instagram.com" },

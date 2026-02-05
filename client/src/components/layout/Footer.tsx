@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
-import type { FooterSettings } from "@shared/schema";
+import type { FooterSettings, FooterHoursEntry } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
 const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -16,6 +16,114 @@ const socialIcons: Record<string, React.ComponentType<{ className?: string }>> =
   youtube: Youtube,
   tiktok: SiTiktok,
 };
+
+const daysOfWeek = [
+  { it: "Lunedì", en: "Monday", index: 0 },
+  { it: "Martedì", en: "Tuesday", index: 1 },
+  { it: "Mercoledì", en: "Wednesday", index: 2 },
+  { it: "Giovedì", en: "Thursday", index: 3 },
+  { it: "Venerdì", en: "Friday", index: 4 },
+  { it: "Sabato", en: "Saturday", index: 5 },
+  { it: "Domenica", en: "Sunday", index: 6 },
+];
+
+// Helper to parse legacy day strings (single days or ranges) into index arrays
+function parseLegacyDayString(dayKeyIt: string): number[] {
+  // Check for exact single day match
+  const singleDayIndex = daysOfWeek.findIndex(d => d.it === dayKeyIt);
+  if (singleDayIndex >= 0) return [singleDayIndex];
+  
+  // Check for "Tutti i giorni" (every day)
+  if (dayKeyIt.toLowerCase().includes("tutti")) return [0, 1, 2, 3, 4, 5, 6];
+  
+  // Check for range format "DayA - DayB"
+  const rangeParts = dayKeyIt.split(" - ");
+  if (rangeParts.length === 2) {
+    const startIndex = daysOfWeek.findIndex(d => d.it === rangeParts[0].trim());
+    const endIndex = daysOfWeek.findIndex(d => d.it === rangeParts[1].trim());
+    if (startIndex >= 0 && endIndex >= 0) {
+      const result: number[] = [];
+      if (startIndex <= endIndex) {
+        for (let i = startIndex; i <= endIndex; i++) result.push(i);
+      } else {
+        // Wrap around (e.g., "Venerdì - Domenica" = Fri, Sat, Sun)
+        for (let i = startIndex; i <= 6; i++) result.push(i);
+        for (let i = 0; i <= endIndex; i++) result.push(i);
+      }
+      return result;
+    }
+  }
+  
+  return [];
+}
+
+function formatDaysLabel(selectedDays: number[], language: "it" | "en"): string {
+  if (selectedDays.length === 0) return "";
+  if (selectedDays.length === 7) return language === "it" ? "Tutti i giorni" : "Every day";
+  
+  const sorted = [...selectedDays].sort((a, b) => a - b);
+  
+  // Check for consecutive days to form ranges
+  const ranges: { start: number; end: number }[] = [];
+  let rangeStart = sorted[0];
+  let rangeEnd = sorted[0];
+  
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === rangeEnd + 1) {
+      rangeEnd = sorted[i];
+    } else {
+      ranges.push({ start: rangeStart, end: rangeEnd });
+      rangeStart = sorted[i];
+      rangeEnd = sorted[i];
+    }
+  }
+  ranges.push({ start: rangeStart, end: rangeEnd });
+  
+  // Format ranges
+  const parts = ranges.map(range => {
+    const startDay = daysOfWeek[range.start];
+    const endDay = daysOfWeek[range.end];
+    
+    if (range.start === range.end) {
+      return language === "it" ? startDay.it : startDay.en;
+    } else {
+      const startName = language === "it" ? startDay.it : startDay.en;
+      const endName = language === "it" ? endDay.it : endDay.en;
+      return `${startName} - ${endName}`;
+    }
+  });
+  
+  return parts.join(", ");
+}
+
+// Group hours entries by their hours value and isClosed status
+function groupHoursEntries(hours: FooterHoursEntry[]): { selectedDays: number[]; hours: string; isClosed: boolean }[] {
+  const groups = new Map<string, { selectedDays: number[]; hours: string; isClosed: boolean }>();
+  
+  for (const entry of hours) {
+    let selectedDays = entry.selectedDays ? [...entry.selectedDays] : [];
+    // Handle old format migration - parse legacy day strings including ranges
+    if (!selectedDays.length && 'dayKeyIt' in entry) {
+      const oldEntry = entry as unknown as { dayKeyIt: string; hours: string; isClosed: boolean };
+      selectedDays = parseLegacyDayString(oldEntry.dayKeyIt);
+    }
+    
+    const key = entry.isClosed ? "closed" : entry.hours;
+    
+    if (groups.has(key)) {
+      const existing = groups.get(key)!;
+      existing.selectedDays = [...new Set([...existing.selectedDays, ...selectedDays])].sort((a, b) => a - b);
+    } else {
+      groups.set(key, { 
+        selectedDays: [...selectedDays], 
+        hours: entry.hours, 
+        isClosed: entry.isClosed 
+      });
+    }
+  }
+  
+  return Array.from(groups.values());
+}
 
 export function Footer() {
   const { t, language } = useLanguage();
@@ -37,6 +145,9 @@ export function Footer() {
     : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12";
   
   const containerPadding = isMobile ? "py-6" : "py-8 md:py-12";
+  
+  // Group hours entries by same hours/closed status
+  const groupedHours = groupHoursEntries(footer.hours);
 
   return (
     <footer className="bg-foreground text-background">
@@ -78,17 +189,18 @@ export function Footer() {
               {t("Orari", "Hours")}
             </h4>
             <ul className="space-y-2 text-sm text-background/70">
-              {footer.hours.map((entry, index) => (
-                <li key={index} className={index === 0 ? "flex items-start gap-3" : "ml-7"}>
-                  {index === 0 && <Clock className="h-4 w-4 mt-0.5 shrink-0" />}
-                  <div>
-                    <p className="font-medium text-background">
-                      {language === "it" ? entry.dayKeyIt : entry.dayKeyEn}
-                    </p>
-                    <p>{entry.isClosed ? t("Chiuso", "Closed") : entry.hours}</p>
-                  </div>
-                </li>
-              ))}
+              {groupedHours.map((entry, index) => {
+                const daysLabel = formatDaysLabel(entry.selectedDays, language);
+                return (
+                  <li key={index} className={index === 0 ? "flex items-start gap-3" : "ml-7"}>
+                    {index === 0 && <Clock className="h-4 w-4 mt-0.5 shrink-0" />}
+                    <div>
+                      <p className="font-medium text-background">{daysLabel}</p>
+                      <p>{entry.isClosed ? t("Chiuso", "Closed") : entry.hours}</p>
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 
