@@ -231,28 +231,28 @@ function WineCard({ wine }: { wine: Wine }) {
         <div className="flex gap-6 pt-1">
           {hasGlassPrice && (
             <span 
+              className="price-text"
               style={{ 
-                fontFamily: 'Georgia, "Times New Roman", serif',
                 fontSize: '20px',
-                fontWeight: 400,
-                color: '#c7902f',
-                fontFeatureSettings: '"lnum"'
+                fontWeight: 500,
+                color: '#c7902f'
               }}
             >
-              € {wine.priceGlass}
+              <span>€</span>
+              <span>{wine.priceGlass}</span>
             </span>
           )}
           {hasBottlePrice && (
             <span 
+              className="price-text"
               style={{ 
-                fontFamily: 'Georgia, "Times New Roman", serif',
                 fontSize: '20px',
-                fontWeight: 400,
-                color: '#c7902f',
-                fontFeatureSettings: '"lnum"'
+                fontWeight: 500,
+                color: '#c7902f'
               }}
             >
-              € {wine.price}
+              <span>€</span>
+              <span>{wine.price}</span>
             </span>
           )}
         </div>
