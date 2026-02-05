@@ -98,23 +98,27 @@ export default function AdminEvents() {
       return;
     }
     
-    const duplicatedEvent: Partial<InsertEvent> = {
+    if (!confirm(t(`Vuoi duplicare l'evento "${event.titleIt}"?`, `Do you want to duplicate "${event.titleEn}"?`))) {
+      return;
+    }
+    
+    const duplicatedEvent = {
       titleIt: `${event.titleIt} (copia)`,
       titleEn: `${event.titleEn} (copy)`,
-      descriptionIt: event.descriptionIt,
-      descriptionEn: event.descriptionEn,
-      detailsIt: event.detailsIt,
-      detailsEn: event.detailsEn,
-      posterUrl: event.posterUrl,
-      posterZoom: event.posterZoom,
-      posterOffsetX: event.posterOffsetX,
-      posterOffsetY: event.posterOffsetY,
+      descriptionIt: event.descriptionIt || "",
+      descriptionEn: event.descriptionEn || "",
+      detailsIt: event.detailsIt || "",
+      detailsEn: event.detailsEn || "",
+      posterUrl: event.posterUrl || "",
+      posterZoom: event.posterZoom || 100,
+      posterOffsetX: event.posterOffsetX || 0,
+      posterOffsetY: event.posterOffsetY || 0,
       startAt: null,
       active: false,
-      bookingEnabled: event.bookingEnabled,
-      bookingUrl: event.bookingUrl,
-      visibilityMode: event.visibilityMode,
-      visibilityDaysAfter: event.visibilityDaysAfter,
+      bookingEnabled: event.bookingEnabled || false,
+      bookingUrl: event.bookingUrl || "https://cameraconvista.resos.com/booking",
+      visibilityMode: event.visibilityMode || "ACTIVE_ONLY",
+      visibilityDaysAfter: event.visibilityDaysAfter || 7,
       sortOrder: events.length,
     };
     
