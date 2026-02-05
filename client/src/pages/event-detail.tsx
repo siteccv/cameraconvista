@@ -163,7 +163,7 @@ export default function EventDetail() {
               )}
 
               {event.bookingEnabled && (
-                <div className="pt-4 flex justify-center md:justify-start">
+                <div className="pt-4 flex flex-col items-center md:items-start gap-3">
                   <Button
                     className="px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
                     style={{ 
@@ -175,6 +175,20 @@ export default function EventDetail() {
                   >
                     {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
                   </Button>
+                  
+                  {details && (details.includes("soci") || details.includes("members")) && (
+                    <Button
+                      className="px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
+                      style={{ 
+                        backgroundColor: '#2563eb',
+                        fontFamily: 'Montserrat, sans-serif'
+                      }}
+                      onClick={() => window.open("https://camerajazzclub.com/registrati/", "_blank")}
+                      data-testid="button-become-member"
+                    >
+                      {t("DIVENTA SOCIO", "BECOME A MEMBER")}
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
