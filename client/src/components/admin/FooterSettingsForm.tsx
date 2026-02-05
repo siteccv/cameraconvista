@@ -44,6 +44,8 @@ const dayRanges = [
 
 const allDayOptions = [...dayRanges, ...daysOfWeek];
 
+const isKnownDayOption = (value: string) => allDayOptions.some(d => d.it === value);
+
 const timeSlots = [
   "00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30",
   "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30",
@@ -134,9 +136,12 @@ export function FooterSettingsForm() {
     }));
   };
 
-  const parseTimeRange = (hours: string): { open: string; close: string } => {
+  const parseTimeRange = (hours: string): { open: string; close: string; isValid: boolean } => {
     const parts = hours.split(" - ");
-    return { open: parts[0] || "18:00", close: parts[1] || "02:00" };
+    const open = parts[0]?.trim() || "";
+    const close = parts[1]?.trim() || "";
+    const isValid = timeSlots.includes(open) && timeSlots.includes(close);
+    return { open: open || "18:00", close: close || "02:00", isValid };
   };
 
   const addHoursEntry = () => {
@@ -295,28 +300,47 @@ export function FooterSettingsForm() {
               return (
                 <div key={index} className="p-3 border rounded-lg bg-muted/30 space-y-2">
                   <div className="flex items-center gap-2">
-                    <Select
-                      value={entry.dayKeyIt}
-                      onValueChange={(val) => updateDaySelection(index, val)}
-                    >
-                      <SelectTrigger className="flex-1 h-9 text-sm" data-testid={`select-hours-day-${index}`}>
-                        <SelectValue placeholder={t("Seleziona giorno/i", "Select day(s)")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{t("Range", "Ranges")}</div>
-                        {dayRanges.map((day) => (
-                          <SelectItem key={day.it} value={day.it} className="text-sm">
-                            {t(day.it, day.en)}
-                          </SelectItem>
-                        ))}
-                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-1 pt-1">{t("Singoli", "Single")}</div>
-                        {daysOfWeek.map((day) => (
-                          <SelectItem key={day.it} value={day.it} className="text-sm">
-                            {t(day.it, day.en)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {isKnownDayOption(entry.dayKeyIt) ? (
+                      <Select
+                        value={entry.dayKeyIt}
+                        onValueChange={(val) => updateDaySelection(index, val)}
+                      >
+                        <SelectTrigger className="flex-1 h-9 text-sm" data-testid={`select-hours-day-${index}`}>
+                          <SelectValue placeholder={t("Seleziona giorno/i", "Select day(s)")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{t("Range", "Ranges")}</div>
+                          {dayRanges.map((day) => (
+                            <SelectItem key={day.it} value={day.it} className="text-sm">
+                              {t(day.it, day.en)}
+                            </SelectItem>
+                          ))}
+                          <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-1 pt-1">{t("Singoli", "Single")}</div>
+                          {daysOfWeek.map((day) => (
+                            <SelectItem key={day.it} value={day.it} className="text-sm">
+                              {t(day.it, day.en)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <div className="flex-1 flex items-center gap-2">
+                        <Input
+                          value={entry.dayKeyIt}
+                          onChange={(e) => updateHours(index, "dayKeyIt", e.target.value)}
+                          placeholder="IT"
+                          className="flex-1 h-9 text-sm"
+                          data-testid={`input-hours-day-custom-it-${index}`}
+                        />
+                        <Input
+                          value={entry.dayKeyEn}
+                          onChange={(e) => updateHours(index, "dayKeyEn", e.target.value)}
+                          placeholder="EN"
+                          className="w-28 h-9 text-sm"
+                          data-testid={`input-hours-day-custom-en-${index}`}
+                        />
+                      </div>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -330,38 +354,48 @@ export function FooterSettingsForm() {
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 flex-1">
-                      <Select
-                        value={timeRange.open}
-                        onValueChange={(val) => updateTimeRange(index, val, timeRange.close)}
-                        disabled={entry.isClosed}
-                      >
-                        <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-open-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timeSlots.map((time) => (
-                            <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="text-muted-foreground text-sm">-</span>
-                      <Select
-                        value={timeRange.close}
-                        onValueChange={(val) => updateTimeRange(index, timeRange.open, val)}
-                        disabled={entry.isClosed}
-                      >
-                        <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-close-${index}`}>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {timeSlots.map((time) => (
-                            <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex items-center gap-2 shrink-0">
+                    {!entry.isClosed && (
+                      timeRange.isValid ? (
+                        <div className="flex items-center gap-2 flex-1">
+                          <Select
+                            value={timeRange.open}
+                            onValueChange={(val) => updateTimeRange(index, val, timeRange.close)}
+                          >
+                            <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-open-${index}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timeSlots.map((time) => (
+                                <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <span className="text-muted-foreground text-sm">-</span>
+                          <Select
+                            value={timeRange.close}
+                            onValueChange={(val) => updateTimeRange(index, timeRange.open, val)}
+                          >
+                            <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-close-${index}`}>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timeSlots.map((time) => (
+                                <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      ) : (
+                        <Input
+                          value={entry.hours}
+                          onChange={(e) => updateHours(index, "hours", e.target.value)}
+                          placeholder="18:00 - 02:00"
+                          className="flex-1 h-9 text-sm"
+                          data-testid={`input-hours-custom-${index}`}
+                        />
+                      )
+                    )}
+                    <div className="flex items-center gap-2 shrink-0 ml-auto">
                       <Switch
                         checked={entry.isClosed}
                         onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
