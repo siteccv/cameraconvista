@@ -114,22 +114,6 @@ export function Footer() {
               })}
             </div>
 
-            {footer.quickLinks.length > 0 && (
-              <div className="mt-6">
-                <h4 className="font-medium uppercase tracking-wider text-sm mb-3">
-                  {t("Link Rapidi", "Quick Links")}
-                </h4>
-                <ul className="space-y-2 text-sm text-background/70">
-                  {footer.quickLinks.map((link, index) => (
-                    <li key={index}>
-                      <Link href={link.url} className="hover:text-background transition-colors">
-                        {language === "it" ? link.labelIt : link.labelEn}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         </div>
 

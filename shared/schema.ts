@@ -344,12 +344,6 @@ export const footerSocialLinkSchema = z.object({
   url: z.string().url(),
 });
 
-export const footerQuickLinkSchema = z.object({
-  labelIt: z.string(),
-  labelEn: z.string(),
-  url: z.string(),
-});
-
 export const footerSettingsSchema = z.object({
   about: z.object({
     it: z.string(),
@@ -362,7 +356,6 @@ export const footerSettingsSchema = z.object({
   }),
   hours: z.array(footerHoursEntrySchema),
   social: z.array(footerSocialLinkSchema),
-  quickLinks: z.array(footerQuickLinkSchema),
   legalLinks: z.object({
     privacyUrl: z.string(),
     privacyLabelIt: z.string().default("Privacy Policy"),
@@ -375,7 +368,6 @@ export const footerSettingsSchema = z.object({
 
 export type FooterHoursEntry = z.infer<typeof footerHoursEntrySchema>;
 export type FooterSocialLink = z.infer<typeof footerSocialLinkSchema>;
-export type FooterQuickLink = z.infer<typeof footerQuickLinkSchema>;
 export type FooterSettings = z.infer<typeof footerSettingsSchema>;
 
 // ============================================================================
@@ -454,10 +446,6 @@ export const defaultFooterSettings: FooterSettings = {
   social: [
     { type: "instagram", url: "https://instagram.com" },
     { type: "facebook", url: "https://facebook.com" },
-  ],
-  quickLinks: [
-    { labelIt: "Prenota un evento", labelEn: "Book an event", url: "/eventi-privati" },
-    { labelIt: "Lavora con noi", labelEn: "Work with us", url: "/contatti" },
   ],
   legalLinks: {
     privacyUrl: "/privacy",

@@ -15,12 +15,43 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Save, Plus, Trash2, Globe, MapPin, Clock, Share2, Link as LinkIcon, FileText, Loader2 } from "lucide-react";
+import { Save, Plus, Trash2, Globe, MapPin, Clock, Share2, FileText, Loader2 } from "lucide-react";
 import { TranslateButton } from "./TranslateButton";
-import type { FooterSettings, FooterHoursEntry, FooterSocialLink, FooterQuickLink } from "@shared/schema";
+import type { FooterSettings, FooterHoursEntry, FooterSocialLink } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
 const socialTypes = ["instagram", "facebook", "twitter", "linkedin", "youtube", "tiktok"] as const;
+
+const daysOfWeek = [
+  { it: "Lunedì", en: "Monday" },
+  { it: "Martedì", en: "Tuesday" },
+  { it: "Mercoledì", en: "Wednesday" },
+  { it: "Giovedì", en: "Thursday" },
+  { it: "Venerdì", en: "Friday" },
+  { it: "Sabato", en: "Saturday" },
+  { it: "Domenica", en: "Sunday" },
+];
+
+const dayRanges = [
+  { it: "Tutti i giorni", en: "Every day" },
+  { it: "Lunedì - Venerdì", en: "Monday - Friday" },
+  { it: "Lunedì - Sabato", en: "Monday - Saturday" },
+  { it: "Martedì - Domenica", en: "Tuesday - Sunday" },
+  { it: "Sabato - Domenica", en: "Saturday - Sunday" },
+  { it: "Venerdì - Sabato", en: "Friday - Saturday" },
+  { it: "Venerdì - Domenica", en: "Friday - Sunday" },
+];
+
+const allDayOptions = [...dayRanges, ...daysOfWeek];
+
+const timeSlots = [
+  "00:00", "00:30", "01:00", "01:30", "02:00", "02:30", "03:00", "03:30",
+  "04:00", "04:30", "05:00", "05:30", "06:00", "06:30", "07:00", "07:30",
+  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+  "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30",
+  "20:00", "20:30", "21:00", "21:30", "22:00", "22:30", "23:00", "23:30",
+];
 
 export function FooterSettingsForm() {
   const { t } = useLanguage();
@@ -85,10 +116,33 @@ export function FooterSettingsForm() {
     }));
   };
 
+  const updateDaySelection = (index: number, itValue: string) => {
+    const dayOption = allDayOptions.find(d => d.it === itValue);
+    if (dayOption) {
+      setFormData(prev => ({
+        ...prev,
+        hours: prev.hours.map((h, i) => i === index ? { ...h, dayKeyIt: dayOption.it, dayKeyEn: dayOption.en } : h)
+      }));
+    }
+  };
+
+  const updateTimeRange = (index: number, openTime: string, closeTime: string) => {
+    const hoursValue = `${openTime} - ${closeTime}`;
+    setFormData(prev => ({
+      ...prev,
+      hours: prev.hours.map((h, i) => i === index ? { ...h, hours: hoursValue } : h)
+    }));
+  };
+
+  const parseTimeRange = (hours: string): { open: string; close: string } => {
+    const parts = hours.split(" - ");
+    return { open: parts[0] || "18:00", close: parts[1] || "02:00" };
+  };
+
   const addHoursEntry = () => {
     setFormData(prev => ({
       ...prev,
-      hours: [...prev.hours, { dayKeyIt: "", dayKeyEn: "", hours: "", isClosed: false }]
+      hours: [...prev.hours, { dayKeyIt: "Lunedì", dayKeyEn: "Monday", hours: "18:00 - 02:00", isClosed: false }]
     }));
   };
 
@@ -117,27 +171,6 @@ export function FooterSettingsForm() {
     setFormData(prev => ({
       ...prev,
       social: prev.social.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateQuickLink = (index: number, field: keyof FooterQuickLink, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      quickLinks: prev.quickLinks.map((l, i) => i === index ? { ...l, [field]: value } : l)
-    }));
-  };
-
-  const addQuickLink = () => {
-    setFormData(prev => ({
-      ...prev,
-      quickLinks: [...prev.quickLinks, { labelIt: "", labelEn: "", url: "" }]
-    }));
-  };
-
-  const removeQuickLink = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      quickLinks: prev.quickLinks.filter((_, i) => i !== index)
     }));
   };
 
@@ -256,58 +289,90 @@ export function FooterSettingsForm() {
               <span className="text-xs text-muted-foreground">({formData.hours.length})</span>
             </div>
           </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-2">
-            {formData.hours.map((entry, index) => (
-              <div key={index} className="flex flex-wrap items-center gap-2 p-2 border rounded bg-muted/30">
-                <Input
-                  value={entry.dayKeyIt}
-                  onChange={(e) => updateHours(index, "dayKeyIt", e.target.value)}
-                  placeholder="IT"
-                  className="w-24 text-xs h-8"
-                  data-testid={`input-hours-day-it-${index}`}
-                />
-                <Input
-                  value={entry.dayKeyEn}
-                  onChange={(e) => updateHours(index, "dayKeyEn", e.target.value)}
-                  placeholder="EN"
-                  className="w-24 text-xs h-8"
-                  data-testid={`input-hours-day-en-${index}`}
-                />
-                <TranslateButton
-                  textIt={entry.dayKeyIt}
-                  onTranslated={(text) => updateHours(index, "dayKeyEn", text)}
-                  context="day of week"
-                  size="icon"
-                  className="h-8 w-8"
-                />
-                <Input
-                  value={entry.hours}
-                  onChange={(e) => updateHours(index, "hours", e.target.value)}
-                  placeholder="18:00 - 02:00"
-                  disabled={entry.isClosed}
-                  className="w-28 text-xs h-8"
-                  data-testid={`input-hours-time-${index}`}
-                />
-                <div className="flex items-center gap-1">
-                  <Switch
-                    checked={entry.isClosed}
-                    onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
-                    data-testid={`switch-hours-closed-${index}`}
-                  />
-                  <span className="text-xs">{t("Chiuso", "Closed")}</span>
+          <AccordionContent className="pb-4 space-y-3">
+            {formData.hours.map((entry, index) => {
+              const timeRange = parseTimeRange(entry.hours);
+              return (
+                <div key={index} className="p-3 border rounded-lg bg-muted/30 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={entry.dayKeyIt}
+                      onValueChange={(val) => updateDaySelection(index, val)}
+                    >
+                      <SelectTrigger className="flex-1 h-9 text-sm" data-testid={`select-hours-day-${index}`}>
+                        <SelectValue placeholder={t("Seleziona giorno/i", "Select day(s)")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">{t("Range", "Ranges")}</div>
+                        {dayRanges.map((day) => (
+                          <SelectItem key={day.it} value={day.it} className="text-sm">
+                            {t(day.it, day.en)}
+                          </SelectItem>
+                        ))}
+                        <div className="px-2 py-1 text-xs font-semibold text-muted-foreground border-t mt-1 pt-1">{t("Singoli", "Single")}</div>
+                        {daysOfWeek.map((day) => (
+                          <SelectItem key={day.it} value={day.it} className="text-sm">
+                            {t(day.it, day.en)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeHoursEntry(index)}
+                      disabled={formData.hours.length <= 1}
+                      className="h-9 w-9 shrink-0"
+                      data-testid={`button-remove-hours-${index}`}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-1">
+                      <Select
+                        value={timeRange.open}
+                        onValueChange={(val) => updateTimeRange(index, val, timeRange.close)}
+                        disabled={entry.isClosed}
+                      >
+                        <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-open-${index}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeSlots.map((time) => (
+                            <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <span className="text-muted-foreground text-sm">-</span>
+                      <Select
+                        value={timeRange.close}
+                        onValueChange={(val) => updateTimeRange(index, timeRange.open, val)}
+                        disabled={entry.isClosed}
+                      >
+                        <SelectTrigger className="w-24 h-9 text-sm" data-testid={`select-hours-close-${index}`}>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {timeSlots.map((time) => (
+                            <SelectItem key={time} value={time} className="text-sm">{time}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <Switch
+                        checked={entry.isClosed}
+                        onCheckedChange={(checked) => updateHours(index, "isClosed", checked)}
+                        data-testid={`switch-hours-closed-${index}`}
+                      />
+                      <span className="text-sm text-muted-foreground">{t("Chiuso", "Closed")}</span>
+                    </div>
+                  </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeHoursEntry(index)}
-                  disabled={formData.hours.length <= 1}
-                  className="h-8 w-8 ml-auto"
-                  data-testid={`button-remove-hours-${index}`}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
+              );
+            })}
             <Button variant="outline" size="sm" onClick={addHoursEntry} className="w-full" data-testid="button-add-hours">
               <Plus className="h-3 w-3 mr-1" />
               {t("Aggiungi orario", "Add hours")}
@@ -365,65 +430,6 @@ export function FooterSettingsForm() {
             <Button variant="outline" size="sm" onClick={addSocialLink} className="w-full" data-testid="button-add-social">
               <Plus className="h-3 w-3 mr-1" />
               {t("Aggiungi social", "Add social")}
-            </Button>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="quicklinks" className="border rounded-lg px-4">
-          <AccordionTrigger className="hover:no-underline py-3">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                <LinkIcon className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-sm">{t("Link Rapidi", "Quick Links")}</span>
-              <span className="text-xs text-muted-foreground">({formData.quickLinks.length})</span>
-            </div>
-          </AccordionTrigger>
-          <AccordionContent className="pb-4 space-y-2">
-            {formData.quickLinks.map((link, index) => (
-              <div key={index} className="flex items-center gap-2 flex-wrap">
-                <Input
-                  value={link.labelIt}
-                  onChange={(e) => updateQuickLink(index, "labelIt", e.target.value)}
-                  placeholder="IT"
-                  className="w-28 text-xs h-8"
-                  data-testid={`input-quicklink-label-it-${index}`}
-                />
-                <Input
-                  value={link.labelEn}
-                  onChange={(e) => updateQuickLink(index, "labelEn", e.target.value)}
-                  placeholder="EN"
-                  className="w-28 text-xs h-8"
-                  data-testid={`input-quicklink-label-en-${index}`}
-                />
-                <TranslateButton
-                  textIt={link.labelIt}
-                  onTranslated={(text) => updateQuickLink(index, "labelEn", text)}
-                  context="navigation link label"
-                  size="icon"
-                  className="h-8 w-8"
-                />
-                <Input
-                  value={link.url}
-                  onChange={(e) => updateQuickLink(index, "url", e.target.value)}
-                  placeholder="/url"
-                  className="flex-1 min-w-20 text-xs h-8"
-                  data-testid={`input-quicklink-url-${index}`}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => removeQuickLink(index)}
-                  className="h-8 w-8"
-                  data-testid={`button-remove-quicklink-${index}`}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
-            ))}
-            <Button variant="outline" size="sm" onClick={addQuickLink} className="w-full" data-testid="button-add-quicklink">
-              <Plus className="h-3 w-3 mr-1" />
-              {t("Aggiungi link", "Add link")}
             </Button>
           </AccordionContent>
         </AccordionItem>
