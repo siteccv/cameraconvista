@@ -423,17 +423,6 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                       step={1}
                     />
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="posterUrl">{t("URL Poster (diretto)", "Poster URL (direct)")}</Label>
-                    <Input
-                      id="posterUrl"
-                      value={formData.posterUrl ?? ""}
-                      onChange={(e) => setFormData({ ...formData, posterUrl: e.target.value })}
-                      placeholder="https://..."
-                      data-testid="input-poster-url"
-                    />
-                  </div>
                 </div>
               </div>
 

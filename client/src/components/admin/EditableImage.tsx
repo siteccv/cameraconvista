@@ -196,23 +196,19 @@ export function EditableImage({
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>{t("Immagine", "Image")}</Label>
-              <div className="flex gap-2">
-                <Input
-                  value={editSrc}
-                  onChange={(e) => setEditSrc(e.target.value)}
-                  placeholder="https://..."
-                  className="flex-1"
-                />
-                <Button
-                  variant="outline"
-                  onClick={() => setMediaPickerOpen(true)}
-                  type="button"
-                  data-testid="button-open-media-picker"
-                >
-                  <FolderOpen className="h-4 w-4 mr-2" />
-                  {t("Libreria", "Library")}
-                </Button>
-              </div>
+              <Button
+                variant="outline"
+                onClick={() => setMediaPickerOpen(true)}
+                type="button"
+                className="w-full"
+                data-testid="button-open-media-picker"
+              >
+                <FolderOpen className="h-4 w-4 mr-2" />
+                {t("Scegli dalla libreria", "Choose from library")}
+              </Button>
+              {editSrc && (
+                <p className="text-xs text-muted-foreground truncate">{editSrc}</p>
+              )}
             </div>
 
             <div className="flex gap-2 mb-4">
