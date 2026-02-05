@@ -192,7 +192,7 @@ function WineCard({ wine }: { wine: Wine }) {
       <div className="space-y-1">
         {/* Nome vino */}
         <h3 
-          className="text-lg md:text-xl uppercase tracking-wide font-medium"
+          className="text-lg md:text-xl tracking-wide font-medium"
           style={{ color: '#2f2b2a' }}
         >
           {t(wine.nameIt, wine.nameEn)}

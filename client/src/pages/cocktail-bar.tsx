@@ -125,30 +125,6 @@ export default function CocktailBar() {
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-12">
-            <EditableText
-              textIt={sectionTitle.it}
-              textEn={sectionTitle.en}
-              fontSizeDesktop={sectionTitle.fontSizeDesktop}
-              fontSizeMobile={sectionTitle.fontSizeMobile}
-              as="h2"
-              className="font-display mb-4"
-              applyFontSize
-              onSave={(data) => handleTextSave("sectionTitle", data)}
-            />
-            <EditableText
-              textIt={introText.it}
-              textEn={introText.en}
-              fontSizeDesktop={introText.fontSizeDesktop}
-              fontSizeMobile={introText.fontSizeMobile}
-              as="p"
-              className="text-muted-foreground max-w-2xl mx-auto"
-              multiline
-              applyFontSize
-              onSave={(data) => handleTextSave("introText", data)}
-            />
-          </div>
-
           {isLoading ? (
             <div className="space-y-12">
               {[1, 2].map((i) => (
@@ -206,7 +182,7 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
       <div className="space-y-1">
         {/* Nome cocktail */}
         <h4 
-          className="text-xl md:text-2xl uppercase tracking-wide font-medium"
+          className="text-xl md:text-2xl tracking-wide font-medium"
           style={{ color: '#2f2b2a' }}
         >
           {t(cocktail.nameIt, cocktail.nameEn)}
