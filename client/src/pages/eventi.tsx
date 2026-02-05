@@ -127,11 +127,22 @@ export default function Eventi() {
               if (!b.startAt) return -1;
               return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
             });
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const nextEventIndex = sortedEvents.findIndex(e => {
+              if (!e.startAt) return false;
+              const eventDate = new Date(e.startAt);
+              eventDate.setHours(0, 0, 0, 0);
+              return eventDate >= today;
+            });
+            const initialIndex = nextEventIndex >= 0 ? nextEventIndex : 0;
+            
             return (
               <>
                 <div className="hidden md:block">
                   {sortedEvents.length > 3 ? (
-                    <EventsSlider events={sortedEvents} />
+                    <EventsSlider events={sortedEvents} initialIndex={initialIndex} />
                   ) : (
                     <div className="flex flex-wrap justify-center gap-8">
                       {sortedEvents.map((event) => (
@@ -143,7 +154,7 @@ export default function Eventi() {
                   )}
                 </div>
                 <div className="md:hidden">
-                  <MobileEventsSlider events={sortedEvents} />
+                  <MobileEventsSlider events={sortedEvents} initialIndex={initialIndex} />
                 </div>
               </>
             );
@@ -212,7 +223,7 @@ function EventCard({ event }: { event: Event }) {
   );
 }
 
-function EventsSlider({ events }: { events: Event[] }) {
+function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIndex?: number }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -226,13 +237,20 @@ function EventsSlider({ events }: { events: Event[] }) {
   };
 
   useEffect(() => {
+    if (scrollRef.current && initialIndex > 0) {
+      const cardWidth = 560 + 32;
+      scrollRef.current.scrollTo({
+        left: initialIndex * cardWidth,
+        behavior: "auto",
+      });
+    }
     checkScrollButtons();
     const el = scrollRef.current;
     if (el) {
       el.addEventListener("scroll", checkScrollButtons);
       return () => el.removeEventListener("scroll", checkScrollButtons);
     }
-  }, [events]);
+  }, [events, initialIndex]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -279,9 +297,9 @@ function EventsSlider({ events }: { events: Event[] }) {
   );
 }
 
-function MobileEventsSlider({ events }: { events: Event[] }) {
+function MobileEventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIndex?: number }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   const scrollToIndex = (index: number) => {
     if (scrollRef.current) {
@@ -303,12 +321,19 @@ function MobileEventsSlider({ events }: { events: Event[] }) {
   };
 
   useEffect(() => {
+    if (scrollRef.current && initialIndex > 0) {
+      const cardWidth = scrollRef.current.offsetWidth;
+      scrollRef.current.scrollTo({
+        left: initialIndex * cardWidth,
+        behavior: "auto",
+      });
+    }
     const el = scrollRef.current;
     if (el) {
       el.addEventListener("scroll", handleScroll);
       return () => el.removeEventListener("scroll", handleScroll);
     }
-  }, []);
+  }, [initialIndex]);
 
   const canScrollLeft = currentIndex > 0;
   const canScrollRight = currentIndex < events.length - 1;
