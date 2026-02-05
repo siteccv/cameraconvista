@@ -341,14 +341,19 @@ export default function AdminMedia() {
             ))}
           </div>
         ) : filteredMedia.length === 0 ? (
-          <Card>
+          <Card className="border-dashed border-2">
             <CardContent className="py-16 text-center">
-              <Image className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">
+              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground mb-2">
                 {searchQuery || selectedCategory !== "all"
                   ? t("Nessuna immagine trovata con questi filtri.", "No images found with these filters.")
-                  : t("Nessun file caricato. Clicca su 'Carica immagine' per iniziare.", "No files uploaded. Click 'Upload image' to get started.")}
+                  : t("Nessun file caricato.", "No files uploaded.")}
               </p>
+              {!searchQuery && selectedCategory === "all" && (
+                <p className="text-sm text-muted-foreground">
+                  {t("Trascina le immagini qui o clicca su 'Carica immagine'", "Drag images here or click 'Upload image'")}
+                </p>
+              )}
             </CardContent>
           </Card>
         ) : (
