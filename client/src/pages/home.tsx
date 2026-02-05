@@ -319,7 +319,7 @@ export default function Home() {
           <div className="flex-1 flex items-end justify-center pb-6">
             <Button 
               onClick={() => setBookingDialogOpen(true)}
-              className={`${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full`}
+              className={`${isMobile ? "px-8 py-4 text-xs tracking-[0.08em]" : "px-12 py-5 text-sm tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
               style={{ 
                 backgroundColor: '#722f37',
                 fontFamily: 'Montserrat, sans-serif'
