@@ -23,12 +23,13 @@ export default function EventDetail() {
   const formatDate = (dateStr: string | Date | null) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
-    return date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", {
+    const formatted = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", {
       weekday: "long",
       day: "numeric",
       month: "long",
       year: "numeric",
     });
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
   const formatTime = (dateStr: string | Date | null) => {
