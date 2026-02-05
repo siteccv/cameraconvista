@@ -6,7 +6,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Calendar, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { useToast } from "@/hooks/use-toast";
@@ -179,7 +179,7 @@ function EventCard({ event }: { event: Event }) {
           {event.startAt && (() => {
             const { month, day, weekday } = formatDateLine(event.startAt);
             return (
-              <div className="text-sm md:text-base font-medium tracking-wide mb-2">
+              <div className="font-display text-sm md:text-base tracking-wide mb-2">
                 <span className="text-white">{month}</span>
                 <span className="text-amber-300 font-bold">{day}</span>
                 <span className="text-white">{weekday}</span>
@@ -187,27 +187,9 @@ function EventCard({ event }: { event: Event }) {
             );
           })()}
           
-          <h3 className="font-display text-base md:text-xl line-clamp-2">
+          <h3 className="text-base md:text-xl font-medium line-clamp-2">
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
-
-          {event.bookingEnabled && (
-            <div className="mt-3">
-              <Button
-                size="sm"
-                variant="secondary"
-                className="w-full text-sm h-8"
-                onClick={(e) => {
-                  e.preventDefault();
-                  window.open(event.bookingUrl || "https://cameraconvista.resos.com/booking", "_blank");
-                }}
-                data-testid={`button-book-${event.id}`}
-              >
-                <ExternalLink className="h-3.5 w-3.5 mr-1.5" />
-                {t("Prenota", "Book")}
-              </Button>
-            </div>
-          )}
         </div>
       </div>
     </Link>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useRoute, Link } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -5,12 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { Calendar, Clock, ArrowLeft, ExternalLink } from "lucide-react";
+import { BookingDialog } from "@/components/home/BookingDialog";
 import type { Event } from "@shared/schema";
 
 export default function EventDetail() {
   const { t, language } = useLanguage();
   const [, params] = useRoute("/eventi/:id");
   const eventId = params?.id;
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
 
   const { data: event, isLoading, error } = useQuery<Event>({
     queryKey: [`/api/events/${eventId}`],
@@ -162,12 +165,13 @@ export default function EventDetail() {
                 <div className="pt-4">
                   <Button
                     size="lg"
-                    className="w-full"
-                    onClick={() => window.open(event.bookingUrl || "https://cameraconvista.resos.com/booking", "_blank")}
+                    className="w-full rounded-full"
+                    style={{ backgroundColor: '#722f37' }}
+                    onClick={() => setShowBookingDialog(true)}
                     data-testid="button-book-event"
                   >
                     <ExternalLink className="h-5 w-5 mr-2" />
-                    {t("Prenota Ora", "Book Now")}
+                    {t("Prenota un Tavolo", "Book a Table")}
                   </Button>
                 </div>
               )}
@@ -175,6 +179,12 @@ export default function EventDetail() {
           </div>
         </div>
       </div>
+
+      <BookingDialog 
+        open={showBookingDialog} 
+        onOpenChange={setShowBookingDialog}
+        isMobile={false}
+      />
     </PublicLayout>
   );
 }
