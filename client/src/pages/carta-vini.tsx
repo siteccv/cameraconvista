@@ -184,7 +184,7 @@ function WineCard({ wine }: { wine: Wine }) {
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <div className="flex items-baseline gap-2 flex-wrap">
-            <h3 className="font-semibold text-foreground uppercase tracking-wide">
+            <h3 className="font-display text-foreground uppercase tracking-wide text-lg">
               {t(wine.nameIt, wine.nameEn)}
             </h3>
             {wine.year && (
