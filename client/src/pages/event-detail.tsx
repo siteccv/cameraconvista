@@ -178,9 +178,10 @@ export default function EventDetail() {
                   
                   {details && (details.includes("soci") || details.includes("members")) && (
                     <Button
-                      className="px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
+                      className="px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium rounded-full shadow-lg border-0"
                       style={{ 
-                        backgroundColor: '#2563eb',
+                        backgroundColor: '#d97706',
+                        color: '#ffffff',
                         fontFamily: 'Montserrat, sans-serif'
                       }}
                       onClick={() => window.open("https://camerajazzclub.com/registrati/", "_blank")}
