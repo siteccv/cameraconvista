@@ -340,50 +340,28 @@ function MobileEventsSlider({ events, initialIndex = 0 }: { events: Event[]; ini
 
   return (
     <div className="flex flex-col items-center">
-      <div className="flex items-center justify-center gap-2 w-full">
-        {events.length > 1 && (
-          <button
-            onClick={() => scrollToIndex(currentIndex - 1)}
-            disabled={!canScrollLeft}
-            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-background/90 border border-border shadow-lg transition-opacity ${!canScrollLeft ? 'opacity-30' : 'opacity-100'}`}
-            data-testid="button-mobile-scroll-left"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-        )}
-        
-        <div
-          ref={scrollRef}
-          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide flex-1"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {events.map((event) => (
-            <div key={event.id} className="w-full flex-shrink-0 snap-center px-4">
-              <div className="max-w-[280px] mx-auto">
-                <EventCard event={event} />
-              </div>
+      <div
+        ref={scrollRef}
+        className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide w-full"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {events.map((event) => (
+          <div key={event.id} className="w-full flex-shrink-0 snap-center px-8">
+            <div className="max-w-[280px] mx-auto">
+              <EventCard event={event} />
             </div>
-          ))}
-        </div>
-
-        {events.length > 1 && (
-          <button
-            onClick={() => scrollToIndex(currentIndex + 1)}
-            disabled={!canScrollRight}
-            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full bg-background/90 border border-border shadow-lg transition-opacity ${!canScrollRight ? 'opacity-30' : 'opacity-100'}`}
-            data-testid="button-mobile-scroll-right"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        )}
+          </div>
+        ))}
       </div>
 
       {events.length > 1 && (
-        <div className="mt-4 flex gap-2">
+        <div className="mt-6 flex gap-3">
           {events.map((_, i) => (
-            <div
+            <button
               key={i}
-              className={`w-2 h-2 rounded-full transition-colors ${i === currentIndex ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+              onClick={() => scrollToIndex(i)}
+              className={`w-3 h-3 rounded-full transition-all ${i === currentIndex ? 'bg-primary scale-110' : 'bg-muted-foreground/30'}`}
+              data-testid={`button-dot-${i}`}
             />
           ))}
         </div>
