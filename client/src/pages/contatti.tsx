@@ -179,7 +179,6 @@ export default function Contatti() {
               />
             </div>
             <Button
-              variant="outline"
               onClick={() => setShowMapsModal(true)}
               className="w-full"
               data-testid="button-open-maps"
