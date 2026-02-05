@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -7,27 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MediaPickerModal } from "@/components/admin/MediaPickerModal";
-import { SortableImage } from "./SortableImage";
 import { ImageZoomModal } from "./ImageZoomModal";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-  DragStartEvent,
-  DragOverlay,
-  DragOverEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Plus, Images } from "lucide-react";
+import { Plus, Images, GripVertical, Edit2, Trash2 } from "lucide-react";
 import type { Gallery, GalleryImage, InsertGalleryImage, Media } from "@shared/schema";
 
 interface AlbumImagesModalProps {
@@ -41,21 +22,13 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
   const { toast } = useToast();
   const [showMediaPicker, setShowMediaPicker] = useState(false);
   const [editingImage, setEditingImage] = useState<GalleryImage | null>(null);
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [localImages, setLocalImages] = useState<GalleryImage[]>([]);
+  
+  // Local state for immediate UI updates during drag
+  const [orderedImages, setOrderedImages] = useState<GalleryImage[]>([]);
+  const [draggedId, setDraggedId] = useState<number | null>(null);
+  const [dragOverId, setDragOverId] = useState<number | null>(null);
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: {
-        distance: 8,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  const { data: images = [], isLoading } = useQuery<GalleryImage[]>({
+  const { data: serverImages = [], isLoading } = useQuery<GalleryImage[]>({
     queryKey: ["/api/admin/galleries", gallery.id, "images"],
     queryFn: async () => {
       const response = await fetch(`/api/admin/galleries/${gallery.id}/images`, { credentials: "include" });
@@ -63,6 +36,12 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
     enabled: open,
   });
+
+  // Sync server data to local state
+  useEffect(() => {
+    const sorted = [...serverImages].sort((a, b) => a.sortOrder - b.sortOrder);
+    setOrderedImages(sorted);
+  }, [serverImages]);
 
   const addImageMutation = useMutation({
     mutationFn: async (data: Partial<InsertGalleryImage>) => {
@@ -92,7 +71,7 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
   });
 
-  const reorderImagesMutation = useMutation({
+  const reorderMutation = useMutation({
     mutationFn: async (imageIds: number[]) => {
       const response = await apiRequest("POST", `/api/admin/galleries/${gallery.id}/images/reorder`, { imageIds });
       return response.json();
@@ -102,6 +81,9 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
     onError: () => {
       toast({ title: t("Errore", "Error"), description: t("Impossibile riordinare le immagini.", "Failed to reorder images."), variant: "destructive" });
+      // Reset to server state on error
+      const sorted = [...serverImages].sort((a, b) => a.sortOrder - b.sortOrder);
+      setOrderedImages(sorted);
     },
   });
 
@@ -119,20 +101,17 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
   });
 
-  // Sync server images to local state for drag operations
-  useEffect(() => {
-    if (images.length > 0) {
-      const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-      setLocalImages(sorted);
-    }
-  }, [images]);
-
   const handleMediaSelect = (media: Media) => {
+    // Calculate next sortOrder based on current max
+    const maxSortOrder = orderedImages.length > 0 
+      ? Math.max(...orderedImages.map(img => img.sortOrder)) + 1 
+      : 0;
+    
     addImageMutation.mutate({
       imageUrl: media.url,
-      altIt: media.altIt,
-      altEn: media.altEn,
-      sortOrder: images.length,
+      altIt: media.altIt || null,
+      altEn: media.altEn || null,
+      sortOrder: maxSortOrder,
     });
     setShowMediaPicker(false);
   };
@@ -143,41 +122,61 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     }
   };
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as number);
-  };
+  // Simple drag & drop handlers using HTML5 API
+  const handleDragStart = useCallback((e: React.DragEvent, imageId: number) => {
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', imageId.toString());
+    setDraggedId(imageId);
+  }, []);
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = localImages.findIndex((img) => img.id === active.id);
-    const newIndex = localImages.findIndex((img) => img.id === over.id);
-
-    if (oldIndex !== -1 && newIndex !== -1 && oldIndex !== newIndex) {
-      setLocalImages(arrayMove(localImages, oldIndex, newIndex));
+  const handleDragOver = useCallback((e: React.DragEvent, imageId: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (draggedId !== imageId) {
+      setDragOverId(imageId);
     }
-  };
+  }, [draggedId]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    setActiveId(null);
+  const handleDragLeave = useCallback(() => {
+    setDragOverId(null);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent, targetId: number) => {
+    e.preventDefault();
+    setDragOverId(null);
     
-    if (!over || active.id === over.id) return;
+    if (draggedId === null || draggedId === targetId) {
+      setDraggedId(null);
+      return;
+    }
 
-    // Final reorder with localImages state (already updated by onDragOver)
-    const imageIds = localImages.map((img) => img.id);
-    reorderImagesMutation.mutate(imageIds);
-  };
+    // Find indices
+    const fromIndex = orderedImages.findIndex(img => img.id === draggedId);
+    const toIndex = orderedImages.findIndex(img => img.id === targetId);
 
-  const handleDragCancel = () => {
-    setActiveId(null);
-    // Reset to server state on cancel
-    const sorted = [...images].sort((a, b) => a.sortOrder - b.sortOrder);
-    setLocalImages(sorted);
-  };
+    if (fromIndex === -1 || toIndex === -1) {
+      setDraggedId(null);
+      return;
+    }
 
-  const activeImage = activeId ? localImages.find((img) => img.id === activeId) : null;
+    // Reorder array
+    const newOrder = [...orderedImages];
+    const [movedItem] = newOrder.splice(fromIndex, 1);
+    newOrder.splice(toIndex, 0, movedItem);
+
+    // Update local state immediately
+    setOrderedImages(newOrder);
+    setDraggedId(null);
+
+    // Persist to server
+    const imageIds = newOrder.map(img => img.id);
+    reorderMutation.mutate(imageIds);
+  }, [draggedId, orderedImages, reorderMutation]);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedId(null);
+    setDragOverId(null);
+  }, []);
 
   return (
     <>
@@ -194,8 +193,8 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
             <div className="flex justify-between items-center mb-4">
               <p className="text-sm text-muted-foreground">
                 {t(
-                  `${images.length} immagini nell'album. Trascina per riordinare.`,
-                  `${images.length} images in album. Drag to reorder.`
+                  `${orderedImages.length} immagini nell'album. Trascina per riordinare.`,
+                  `${orderedImages.length} images in album. Drag to reorder.`
                 )}
               </p>
               <Button onClick={() => setShowMediaPicker(true)} data-testid="button-add-album-image">
@@ -210,51 +209,68 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
                   <Skeleton key={i} className="aspect-[9/16] rounded-lg" />
                 ))}
               </div>
-            ) : localImages.length === 0 ? (
+            ) : orderedImages.length === 0 ? (
               <div className="text-center py-12 text-muted-foreground">
                 <Images className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>{t("Nessuna immagine nell'album.", "No images in album.")}</p>
                 <p className="text-sm mt-2">{t("Clicca 'Aggiungi Immagine' per iniziare.", "Click 'Add Image' to start.")}</p>
               </div>
             ) : (
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragStart={handleDragStart}
-                onDragOver={handleDragOver}
-                onDragEnd={handleDragEnd}
-                onDragCancel={handleDragCancel}
-              >
-                <SortableContext
-                  items={localImages.map((img) => img.id)}
-                  strategy={rectSortingStrategy}
-                >
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                    {localImages.map((image) => (
-                      <SortableImage
-                        key={image.id}
-                        image={image}
-                        onEdit={() => setEditingImage(image)}
-                        onDelete={() => handleDeleteImage(image)}
-                      />
-                    ))}
-                  </div>
-                </SortableContext>
-                <DragOverlay>
-                  {activeImage && (
-                    <div className="aspect-[9/16] rounded-lg overflow-hidden bg-muted shadow-2xl ring-2 ring-primary opacity-90">
-                      <img
-                        src={activeImage.imageUrl}
-                        alt=""
-                        className="w-full h-full object-cover"
-                        style={{
-                          transform: `scale(${(activeImage.imageZoom || 100) / 100}) translate(${activeImage.imageOffsetX || 0}%, ${activeImage.imageOffsetY || 0}%)`,
-                        }}
-                      />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {orderedImages.map((image) => (
+                  <div
+                    key={image.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, image.id)}
+                    onDragOver={(e) => handleDragOver(e, image.id)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, image.id)}
+                    onDragEnd={handleDragEnd}
+                    className={`
+                      relative aspect-[9/16] rounded-lg overflow-hidden bg-muted group cursor-grab active:cursor-grabbing
+                      transition-all duration-200
+                      ${draggedId === image.id ? 'opacity-50 scale-95' : ''}
+                      ${dragOverId === image.id ? 'ring-2 ring-primary ring-offset-2' : ''}
+                    `}
+                    data-testid={`album-image-${image.id}`}
+                  >
+                    <img
+                      src={image.imageUrl}
+                      alt={language === "it" ? image.altIt || "" : image.altEn || ""}
+                      className="w-full h-full object-cover pointer-events-none"
+                      style={{
+                        transform: `scale(${(image.imageZoom || 100) / 100}) translate(${image.imageOffsetX || 0}%, ${image.imageOffsetY || 0}%)`,
+                      }}
+                      draggable={false}
+                    />
+                    <div className="absolute top-2 left-2 p-1.5 rounded bg-black/60 text-white">
+                      <GripVertical className="h-4 w-4" />
                     </div>
-                  )}
-                </DragOverlay>
-              </DndContext>
+                    <div 
+                      className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2"
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <Button
+                        size="icon"
+                        variant="secondary"
+                        onClick={(e) => { e.stopPropagation(); setEditingImage(image); }}
+                        data-testid={`button-edit-image-${image.id}`}
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        className="bg-white text-primary border-primary/20 hover:bg-primary/5"
+                        onClick={(e) => { e.stopPropagation(); handleDeleteImage(image); }}
+                        data-testid={`button-delete-image-${image.id}`}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
