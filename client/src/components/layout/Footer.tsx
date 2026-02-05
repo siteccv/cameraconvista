@@ -27,6 +27,25 @@ const daysOfWeek = [
   { it: "Domenica", en: "Sunday", index: 6 },
 ];
 
+function formatTimeToAmPm(time24: string): string {
+  const [hours, minutes] = time24.split(":").map(Number);
+  if (isNaN(hours) || isNaN(minutes)) return time24;
+  
+  const period = hours >= 12 ? "PM" : "AM";
+  const hours12 = hours % 12 || 12;
+  return `${hours12}:${minutes.toString().padStart(2, "0")} ${period}`;
+}
+
+function formatHoursRange(hoursStr: string, language: "it" | "en"): string {
+  if (language === "it") return hoursStr;
+  
+  const parts = hoursStr.split(" - ");
+  if (parts.length === 2) {
+    return `${formatTimeToAmPm(parts[0].trim())} - ${formatTimeToAmPm(parts[1].trim())}`;
+  }
+  return hoursStr;
+}
+
 // Helper to parse legacy day strings (single days or ranges) into index arrays
 function parseLegacyDayString(dayKeyIt: string): number[] {
   // Check for exact single day match
@@ -196,7 +215,7 @@ export function Footer() {
                     {index === 0 && <Clock className="h-4 w-4 mt-0.5 shrink-0" />}
                     <div>
                       <p className="font-medium text-background">{daysLabel}</p>
-                      <p>{entry.isClosed ? t("Chiuso", "Closed") : entry.hours}</p>
+                      <p>{entry.isClosed ? t("Chiuso", "Closed") : formatHoursRange(entry.hours, language)}</p>
                     </div>
                   </li>
                 );
