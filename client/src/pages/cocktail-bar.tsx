@@ -4,7 +4,6 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import { Martini } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { useToast } from "@/hooks/use-toast";
@@ -105,9 +104,6 @@ export default function CocktailBar() {
 
         <section className="flex-1 flex items-center justify-center">
           <div className="container mx-auto px-4 max-w-2xl text-center py-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary mb-4">
-              <Martini className="h-6 w-6" />
-            </div>
             <EditableText
               textIt={introText.it}
               textEn={introText.en}
@@ -164,6 +160,18 @@ export default function CocktailBar() {
               ))}
             </div>
           )}
+        </div>
+      </section>
+
+      {/* Testo finale */}
+      <section className="pb-16 md:pb-20">
+        <div className="container mx-auto px-4 max-w-2xl">
+          <p className="text-muted-foreground text-center">
+            {t(
+              "Oltre alla nostra selezione di cocktail, il bar offre grandi classici internazionali, una scelta di whisky, rum e spirits, più birre e altre referenze.",
+              "In addition to our cocktail selection, the bar offers great international classics, a curated selection of whiskies, rums and spirits, plus beers and other offerings."
+            )}
+          </p>
         </div>
       </section>
     </PublicLayout>
