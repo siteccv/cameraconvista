@@ -266,8 +266,10 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="flex-1 flex items-center justify-center text-center" data-testid="section-branding">
-          <div className="container mx-auto px-4 py-6">
+        <section className="flex-1 flex flex-col text-center" data-testid="section-branding">
+          <div className="flex-1" />
+          
+          <div className="container mx-auto px-4">
             <div className={isMobile ? "mb-2" : "mb-4"}>
               <EditableText
                 textIt={brandingTitle.it}
@@ -295,7 +297,7 @@ export default function Home() {
               />
             </div>
             
-            <div className={isMobile ? "mt-4 mb-4" : "mt-6 mb-8"}>
+            <div className={isMobile ? "mt-4" : "mt-6"}>
               <EditableText
                 textIt={brandingTagline.it}
                 textEn={brandingTagline.en}
@@ -312,7 +314,9 @@ export default function Home() {
                 data-testid="text-tagline"
               />
             </div>
-            
+          </div>
+          
+          <div className="flex-1 flex items-end justify-center pb-6">
             <Button 
               onClick={() => setBookingDialogOpen(true)}
               className={`${isMobile ? "px-5 py-2 text-[10px] tracking-[0.08em]" : "px-8 py-3 text-sm tracking-[0.1em]"} font-medium text-white rounded-full`}
