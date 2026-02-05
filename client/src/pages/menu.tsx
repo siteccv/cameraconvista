@@ -137,7 +137,17 @@ export default function Menu() {
             <div className="space-y-16">
               {Object.entries(categorizedItems).map(([category, items]) => (
                 <div key={category}>
-                  <h2 className="font-display text-2xl md:text-3xl text-center mb-8" data-testid={`text-category-${category}`}>
+                  <h2 
+                    className="font-display mb-8"
+                    style={{ 
+                      fontSize: '32px',
+                      lineHeight: 1.2,
+                      letterSpacing: '0.01em',
+                      fontWeight: 500,
+                      color: '#2f2b2a'
+                    }}
+                    data-testid={`text-category-${category}`}
+                  >
                     {category}
                   </h2>
                   <div className="space-y-6">
@@ -159,18 +169,59 @@ function MenuItemCard({ item }: { item: MenuItem }) {
   const { t } = useLanguage();
 
   return (
-    <div className="flex justify-between items-start gap-4 pb-4 border-b border-border last:border-0" data-testid={`menu-item-${item.id}`}>
-      <div className="flex-1">
-        <h3 className="font-medium text-lg">{t(item.nameIt, item.nameEn)}</h3>
+    <div 
+      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0" 
+      style={{ borderBottom: '1px solid #e5d6b6' }}
+      data-testid={`menu-item-${item.id}`}
+    >
+      <div className="space-y-1">
+        {/* Nome piatto */}
+        <h3 
+          className="font-display uppercase"
+          style={{ 
+            fontSize: '22px',
+            lineHeight: 1.25,
+            letterSpacing: '0.02em',
+            fontWeight: 500,
+            color: '#2f2b2a'
+          }}
+        >
+          {t(item.nameIt, item.nameEn)}
+        </h3>
+        
+        {/* Descrizione */}
         {(item.descriptionIt || item.descriptionEn) && (
-          <p className="text-sm text-muted-foreground mt-1">
+          <p 
+            style={{ 
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: '15px',
+              lineHeight: 1.4,
+              letterSpacing: '0.02em',
+              fontWeight: 400,
+              color: '#666a70'
+            }}
+          >
             {t(item.descriptionIt, item.descriptionEn)}
           </p>
         )}
+        
+        {/* Prezzo */}
+        {item.price && (
+          <div className="pt-1">
+            <span 
+              className="price-text"
+              style={{ 
+                fontSize: '20px',
+                fontWeight: 500,
+                color: '#c7902f'
+              }}
+            >
+              <span>€</span>
+              <span>{item.price.replace('€', '').trim()}</span>
+            </span>
+          </div>
+        )}
       </div>
-      {item.price && (
-        <span className="text-primary font-medium shrink-0">{item.price}</span>
-      )}
     </div>
   );
 }

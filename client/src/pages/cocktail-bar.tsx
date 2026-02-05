@@ -172,7 +172,17 @@ export default function CocktailBar() {
             <div className="space-y-16">
               {Object.entries(categorizedCocktails).map(([category, cocktails]) => (
                 <div key={category}>
-                  <h3 className="font-display text-2xl md:text-3xl text-center mb-8" data-testid={`text-cocktail-category-${category}`}>
+                  <h3 
+                    className="font-display mb-8"
+                    style={{ 
+                      fontSize: '32px',
+                      lineHeight: 1.2,
+                      letterSpacing: '0.01em',
+                      fontWeight: 500,
+                      color: '#2f2b2a'
+                    }}
+                    data-testid={`text-cocktail-category-${category}`}
+                  >
                     {category}
                   </h3>
                   <div className="space-y-6">
@@ -194,18 +204,59 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
   const { t } = useLanguage();
 
   return (
-    <div className="flex justify-between items-start gap-4 pb-4 border-b border-border last:border-0" data-testid={`cocktail-item-${cocktail.id}`}>
-      <div className="flex-1">
-        <h4 className="font-medium text-lg">{t(cocktail.nameIt, cocktail.nameEn)}</h4>
+    <div 
+      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0" 
+      style={{ borderBottom: '1px solid #e5d6b6' }}
+      data-testid={`cocktail-item-${cocktail.id}`}
+    >
+      <div className="space-y-1">
+        {/* Nome cocktail */}
+        <h4 
+          className="font-display uppercase"
+          style={{ 
+            fontSize: '22px',
+            lineHeight: 1.25,
+            letterSpacing: '0.02em',
+            fontWeight: 500,
+            color: '#2f2b2a'
+          }}
+        >
+          {t(cocktail.nameIt, cocktail.nameEn)}
+        </h4>
+        
+        {/* Descrizione/Ingredienti */}
         {(cocktail.descriptionIt || cocktail.descriptionEn) && (
-          <p className="text-sm text-muted-foreground mt-1">
+          <p 
+            style={{ 
+              fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+              fontSize: '15px',
+              lineHeight: 1.4,
+              letterSpacing: '0.02em',
+              fontWeight: 400,
+              color: '#666a70'
+            }}
+          >
             {t(cocktail.descriptionIt, cocktail.descriptionEn)}
           </p>
         )}
+        
+        {/* Prezzo */}
+        {cocktail.price && (
+          <div className="pt-1">
+            <span 
+              className="price-text"
+              style={{ 
+                fontSize: '20px',
+                fontWeight: 500,
+                color: '#c7902f'
+              }}
+            >
+              <span>€</span>
+              <span>{cocktail.price.replace('€', '').trim()}</span>
+            </span>
+          </div>
+        )}
       </div>
-      {cocktail.price && (
-        <span className="text-primary font-medium shrink-0">{cocktail.price}</span>
-      )}
     </div>
   );
 }

@@ -85,6 +85,21 @@ Preferred communication style: Simple, everyday language.
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
 
+### Menu Typography System
+Consistent typography applied across Wine List, Menu, and Cocktail Bar pages:
+- **Category Title**: font-display (Playfair Display), 32px, weight 500, color #2f2b2a, left-aligned
+- **Item Name**: font-display, 22px, weight 500, uppercase, letter-spacing 0.02em, color #2f2b2a
+- **Description/Meta**: system-ui sans-serif, 15px, weight 400, letter-spacing 0.02em, color #666a70
+- **Prices**: `.price-text` CSS class with Spectral font, tabular-nums, 20px, weight 500, color #c7902f (gold/ocra)
+- **Dividers**: 1px solid #e5d6b6 (warm beige)
+- **Wine List Icon**: Lucide WineIcon, color #c7902f, strokeWidth 1.5
+
+The `.price-text` class in `client/src/index.css` ensures € symbol and numbers are baseline-aligned using:
+- `font-family: 'Spectral', Georgia, serif`
+- `font-variant-numeric: tabular-nums` (prevents oldstyle numerals)
+- `display: inline-flex; align-items: baseline`
+- `line-height: 1; gap: 0.25rem`
+
 ### Project Structure
 ```
 ├── client/           # React frontend
