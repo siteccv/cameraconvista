@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -61,6 +61,52 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
   });
 
   const [showMediaPicker, setShowMediaPicker] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartPos = useRef({ x: 0, y: 0 });
+  const dragStartOffset = useRef({ x: 0, y: 0 });
+  const posterPreviewRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+    dragStartPos.current = { x: e.clientX, y: e.clientY };
+    dragStartOffset.current = { 
+      x: formData.posterOffsetX || 0, 
+      y: formData.posterOffsetY || 0 
+    };
+  }, [formData.posterOffsetX, formData.posterOffsetY]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !posterPreviewRef.current) return;
+    
+    const rect = posterPreviewRef.current.getBoundingClientRect();
+    const deltaX = ((e.clientX - dragStartPos.current.x) / rect.width) * 100;
+    const deltaY = ((e.clientY - dragStartPos.current.y) / rect.height) * 100;
+    
+    const newOffsetX = Math.max(-50, Math.min(50, dragStartOffset.current.x + deltaX));
+    const newOffsetY = Math.max(-50, Math.min(50, dragStartOffset.current.y + deltaY));
+    
+    setFormData(prev => ({
+      ...prev,
+      posterOffsetX: Math.round(newOffsetX),
+      posterOffsetY: Math.round(newOffsetY),
+    }));
+  }, [isDragging]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        window.removeEventListener('mousemove', handleMouseMove);
+        window.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   useEffect(() => {
     if (event) {
@@ -304,15 +350,23 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   </p>
 
                   {formData.posterUrl ? (
-                    <div className="relative aspect-[9/16] w-48 bg-muted rounded-lg overflow-hidden border">
+                    <div 
+                      ref={posterPreviewRef}
+                      className={`relative aspect-[9/16] w-48 bg-muted rounded-lg overflow-hidden border ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                      onMouseDown={handleMouseDown}
+                    >
                       <img
                         src={formData.posterUrl}
                         alt="Preview"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover pointer-events-none select-none"
                         style={{
                           transform: `scale(${(formData.posterZoom || 100) / 100}) translate(${formData.posterOffsetX || 0}%, ${formData.posterOffsetY || 0}%)`,
                         }}
+                        draggable={false}
                       />
+                      <div className="absolute bottom-2 left-2 right-2 text-center text-xs text-white bg-black/50 rounded px-2 py-1 pointer-events-none">
+                        {t("Trascina per posizionare", "Drag to position")}
+                      </div>
                     </div>
                   ) : (
                     <div className="aspect-[9/16] w-48 bg-muted rounded-lg border flex items-center justify-center">
