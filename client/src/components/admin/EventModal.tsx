@@ -423,6 +423,22 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                       step={1}
                     />
                   </div>
+
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setFormData({ 
+                      ...formData, 
+                      posterZoom: 100, 
+                      posterOffsetX: 0, 
+                      posterOffsetY: 0 
+                    })}
+                    className="mt-4"
+                    data-testid="button-reset-position"
+                  >
+                    {t("Reset posizione", "Reset position")}
+                  </Button>
                 </div>
               </div>
 

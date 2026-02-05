@@ -16,8 +16,7 @@ import {
   Trash2, 
   Copy,
   Image as ImageIcon,
-  ExternalLink,
-  GripVertical
+  ExternalLink
 } from "lucide-react";
 import type { Event, InsertEvent } from "@shared/schema";
 
@@ -70,7 +69,11 @@ export default function AdminEvents() {
     },
   });
 
-  const sortedEvents = [...events].sort((a, b) => a.sortOrder - b.sortOrder);
+  const sortedEvents = [...events].sort((a, b) => {
+    const dateA = a.startAt ? new Date(a.startAt).getTime() : 0;
+    const dateB = b.startAt ? new Date(b.startAt).getTime() : 0;
+    return dateB - dateA;
+  });
 
   const handleAddEvent = () => {
     setEditingEvent(null);
@@ -213,8 +216,6 @@ export default function AdminEvents() {
                     onClick={() => handleEditEvent(event)}
                     data-testid={`event-item-${event.id}`}
                   >
-                    <GripVertical className="h-5 w-5 text-muted-foreground cursor-move" onClick={(e) => e.stopPropagation()} />
-                    
                     <div className="w-16 h-20 bg-muted rounded-md overflow-hidden flex-shrink-0">
                       {event.posterUrl ? (
                         <img
