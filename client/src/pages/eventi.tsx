@@ -253,38 +253,36 @@ function EventsSlider({ events }: { events: Event[] }) {
   };
 
   return (
-    <div className="relative">
-      {canScrollLeft && (
-        <button
-          onClick={() => scroll("left")}
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 w-12 h-12 items-center justify-center rounded-full bg-background/90 border border-border shadow-lg hover-elevate"
-          data-testid="button-scroll-left"
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-      )}
+    <div className="relative flex items-center justify-center">
+      <button
+        onClick={() => scroll("left")}
+        disabled={!canScrollLeft}
+        className={`hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-10 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-not-allowed' : 'opacity-100'}`}
+        data-testid="button-scroll-left"
+      >
+        <ChevronLeft className="h-7 w-7" />
+      </button>
       
       <div
         ref={scrollRef}
-        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth pb-4 md:px-4"
+        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth py-4 max-w-[1320px] mx-auto"
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {events.map((event) => (
-          <div key={event.id} className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1.5rem)] md:w-[400px] flex-shrink-0">
+          <div key={event.id} className="w-[calc(50%-1rem)] sm:w-[calc(33.333%-1.5rem)] md:w-[400px] flex-shrink-0 first:ml-4 last:mr-4 md:first:ml-0 md:last:mr-0">
             <EventCard event={event} />
           </div>
         ))}
       </div>
 
-      {canScrollRight && (
-        <button
-          onClick={() => scroll("right")}
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 w-12 h-12 items-center justify-center rounded-full bg-background/90 border border-border shadow-lg hover-elevate"
-          data-testid="button-scroll-right"
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
-      )}
+      <button
+        onClick={() => scroll("right")}
+        disabled={!canScrollRight}
+        className={`hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-10 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollRight ? 'opacity-30 cursor-not-allowed' : 'opacity-100'}`}
+        data-testid="button-scroll-right"
+      >
+        <ChevronRight className="h-7 w-7" />
+      </button>
     </div>
   );
 }
