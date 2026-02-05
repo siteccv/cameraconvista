@@ -192,8 +192,11 @@ function WineCard({ wine }: { wine: Wine }) {
       <div className="space-y-1">
         {/* Nome vino */}
         <h3 
-          className="font-display text-lg md:text-xl uppercase tracking-wide"
-          style={{ color: '#2f2b2a' }}
+          className="text-lg md:text-xl uppercase tracking-wide"
+          style={{ 
+            fontFamily: "'Playfair Display', serif",
+            color: '#2f2b2a' 
+          }}
         >
           {t(wine.nameIt, wine.nameEn)}
           {wine.year && <span className="ml-2 text-base font-normal">{wine.year}</span>}
