@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 4 Febbraio 2026 (ore 22:35)
+**Ultimo aggiornamento:** 5 Febbraio 2026 (ore 16:25)
 
 ---
 
@@ -127,9 +127,8 @@
 
 ### Componenti Admin Gallery (Refactored)
 - `client/src/components/admin/gallery/GalleryModal.tsx` - Modal creazione/modifica album
-- `client/src/components/admin/gallery/AlbumImagesModal.tsx` - Gestione immagini album con drag-and-drop
+- `client/src/components/admin/gallery/AlbumImagesModal.tsx` - Gestione immagini album con drag-and-drop (HTML5 nativo)
 - `client/src/components/admin/gallery/ImageZoomModal.tsx` - Modal zoom/offset immagini
-- `client/src/components/admin/gallery/SortableImage.tsx` - Componente immagine sortabile per dnd-kit
 
 ### Componenti Home Page (Refactored)
 - `client/src/components/home/TeaserCard.tsx` - Card servizi per homepage
@@ -183,6 +182,20 @@
 
 ## PROGRESSI RECENTI
 
+### Fix Gallery Drag & Drop e Aggiunta Immagini (5 Feb 2026)
+- **Problema risolto:** Errore "Impossibile aggiungere l'immagine" nella gestione album
+  - Causa: Sequence database disallineato dopo eliminazione immagini (tentava di usare ID già esistenti)
+  - Soluzione: Riallineato sequence `gallery_images_id_seq` per generare nuovi ID
+- **Refactoring Drag & Drop:**
+  - Rimossa dipendenza @dnd-kit/core e @dnd-kit/sortable
+  - Riscritto completamente `AlbumImagesModal.tsx` usando API HTML5 Drag & Drop nativa
+  - Feedback visivo migliorato: immagine semi-trasparente durante trascinamento, bordo colorato su destinazione
+  - Rimosso file `SortableImage.tsx` non più necessario
+- **Test E2E verificati:**
+  - ✅ Aggiunta nuove immagini dall'album
+  - ✅ Trascinamento per riordinare le immagini
+  - ✅ Persistenza ordine dopo reload
+
 ### Fix Responsive Mobile Viewport (4 Feb 2026 - sera)
 - Risolto problema critico: i componenti usavano solo `forceMobileLayout` per determinare il layout mobile
 - Questo causava che su iPhone reale il sito mostrava layout desktop (font grandi, proporzioni sbagliate)
@@ -214,7 +227,7 @@
   - MediaPickerModal per selezione immagini dalla libreria
   - Controlli zoom/offset per copertine
   - Switch visibilità album
-  - **Drag & Drop riordino**: Trascina le immagini per riordinare (usa @dnd-kit)
+  - **Drag & Drop riordino**: Trascina le immagini per riordinare (HTML5 nativo)
   - **Drag a 360°**: Nel modale zoom, trascina l'immagine per posizionamento libero (quando zoom > 100%)
 - Componente GallerySlideViewer per visualizzazione pubblica:
   - Immagini formato Instagram Story (9:16)
@@ -293,6 +306,8 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Errore "Impossibile aggiungere immagine" in album galleria | Riallineato sequence database `gallery_images_id_seq` | 5 Feb 2026 |
+| Drag & Drop immagini album non funzionava | Riscritto con API HTML5 Drag & Drop nativa, rimosso dnd-kit | 5 Feb 2026 |
 | Layout mobile non funziona su iPhone reale | Aggiunto `useIsMobile()` combinato con `forceMobileLayout` in tutti i componenti | 4 Feb 2026 |
 | EditableText/Image usano dimensioni desktop su mobile | Modificata logica per usare `forceMobileLayout \|\| viewportIsMobile` | 4 Feb 2026 |
 | Contenuto deborda da IPhoneFrame | Aggiunto clipPath con bordi arrotondati | 3 Feb 2026 |
