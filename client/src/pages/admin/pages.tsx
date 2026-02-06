@@ -4,7 +4,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle } from "lucide-react";
+import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle, Loader2 } from "lucide-react";
 import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -183,18 +183,34 @@ export default function AdminPages() {
                       )}
                     </Button>
                   )}
-                  <Button
-                    size="sm"
-                    onClick={() => publishPageMutation.mutate(activePageData.id)}
-                    disabled={publishPageMutation.isPending || !activePageData.isDraft}
-                    data-testid="button-publish-page"
-                  >
-                    {activePageData.isDraft ? (
-                      <><Upload className="h-4 w-4 mr-2" />{t("Pubblica", "Publish")}</>
-                    ) : (
-                      <><Check className="h-4 w-4 mr-2" />{t("Pubblicato", "Published")}</>
-                    )}
-                  </Button>
+                  {activePageData.isDraft ? (
+                    <Button
+                      size="sm"
+                      className="no-default-hover-elevate no-default-active-elevate"
+                      style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
+                      onClick={() => publishPageMutation.mutate(activePageData.id)}
+                      disabled={publishPageMutation.isPending}
+                      data-testid="button-publish-page"
+                    >
+                      {publishPageMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4 mr-2" />
+                      )}
+                      {t("Pubblica Pagina", "Publish Page")}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      style={{ backgroundColor: 'rgba(34, 139, 34, 0.12)', borderColor: 'rgba(34, 139, 34, 0.3)', color: '#16a34a' }}
+                      disabled
+                      data-testid="button-publish-page"
+                    >
+                      <Check className="h-4 w-4 mr-2" />
+                      {t("Pagina aggiornata", "Page up to date")}
+                    </Button>
+                  )}
                 </>
               )}
             </div>

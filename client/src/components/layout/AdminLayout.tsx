@@ -2,9 +2,10 @@ import { type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import type { Page } from "@shared/schema";
 import {
   SidebarProvider,
   Sidebar,
@@ -31,6 +32,7 @@ import {
   Globe,
   LogOut,
   Loader2,
+  Check,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -52,6 +54,13 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { logout } = useAdmin();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
+
+  const { data: dbPages = [], isLoading: pagesLoading } = useQuery<Page[]>({
+    queryKey: ["/api/admin/pages"],
+    refetchInterval: 5000,
+  });
+
+  const hasPendingChanges = dbPages.some(p => p.isDraft);
 
   const publishAllMutation = useMutation({
     mutationFn: async () => {
@@ -114,21 +123,46 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <SidebarGroupLabel>{t("Azioni", "Actions")}</SidebarGroupLabel>
               <SidebarGroupContent>
                 <div className="p-2 space-y-2">
-                  <Button
-                    variant="default"
-                    size="sm"
-                    className="w-full justify-start gap-2"
-                    onClick={() => publishAllMutation.mutate()}
-                    disabled={publishAllMutation.isPending}
-                    data-testid="button-publish-site"
-                  >
-                    {publishAllMutation.isPending ? (
+                  {pagesLoading ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full justify-start gap-2"
+                      disabled
+                      data-testid="button-publish-site"
+                    >
                       <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Upload className="h-4 w-4" />
-                    )}
-                    {t("Pubblica Sito", "Publish Site")}
-                  </Button>
+                      {t("Caricamento...", "Loading...")}
+                    </Button>
+                  ) : hasPendingChanges ? (
+                    <Button
+                      size="sm"
+                      className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate"
+                      style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
+                      onClick={() => publishAllMutation.mutate()}
+                      disabled={publishAllMutation.isPending}
+                      data-testid="button-publish-site"
+                    >
+                      {publishAllMutation.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4" />
+                      )}
+                      {t("Pubblica Sito", "Publish Site")}
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full justify-start gap-2"
+                      style={{ backgroundColor: 'rgba(34, 139, 34, 0.12)', borderColor: 'rgba(34, 139, 34, 0.3)', color: '#16a34a' }}
+                      disabled
+                      data-testid="button-publish-site"
+                    >
+                      <Check className="h-4 w-4" />
+                      {t("Tutto aggiornato", "All up to date")}
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

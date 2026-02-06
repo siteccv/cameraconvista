@@ -47,6 +47,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: blocksQueryKey });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
       toast({ 
         title: t("Salvato", "Saved"), 
         description: t("Le modifiche sono state salvate.", "Changes have been saved.") 

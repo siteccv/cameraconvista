@@ -12,7 +12,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const pages = await storage.getPages();
-    res.json(pages.filter(page => page.isVisible && !page.isDraft));
+    res.json(pages.filter(page => page.isVisible));
   } catch (error) {
     console.error("Error fetching pages:", error);
     res.status(500).json({ error: "Failed to fetch pages" });
@@ -22,7 +22,7 @@ router.get("/", async (req, res) => {
 router.get("/:slug", async (req, res) => {
   try {
     const page = await storage.getPageBySlug(req.params.slug);
-    if (!page || page.isDraft || !page.isVisible) {
+    if (!page || !page.isVisible) {
       res.status(404).json({ error: "Page not found" });
       return;
     }
@@ -37,7 +37,7 @@ router.get("/:pageId/blocks", async (req, res) => {
   try {
     const pageId = parseId(req.params.pageId);
     const blocks = await storage.getPageBlocks(pageId);
-    res.json(blocks.filter(block => !block.isDraft));
+    res.json(blocks);
   } catch (error) {
     console.error("Error fetching page blocks:", error);
     res.status(500).json({ error: "Failed to fetch page blocks" });
@@ -97,7 +97,8 @@ adminPagesRouter.patch("/:id", requireAuth, async (req, res) => {
       res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
       return;
     }
-    const page = await storage.updatePage(parseId(req.params.id), parsed.data);
+    const updateData = { ...parsed.data, isDraft: true };
+    const page = await storage.updatePage(parseId(req.params.id), updateData);
     if (!page) {
       res.status(404).json({ error: "Page not found" });
       return;
@@ -197,10 +198,14 @@ adminPageBlocksRouter.patch("/:id", requireAuth, async (req, res) => {
       res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
       return;
     }
-    const block = await storage.updatePageBlock(parseId(req.params.id), parsed.data);
+    const blockId = parseId(req.params.id);
+    const block = await storage.updatePageBlock(blockId, parsed.data);
     if (!block) {
       res.status(404).json({ error: "Page block not found" });
       return;
+    }
+    if (block.pageId) {
+      await storage.updatePage(block.pageId, { isDraft: true });
     }
     res.json(block);
   } catch (error) {
