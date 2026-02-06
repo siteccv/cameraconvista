@@ -177,14 +177,6 @@ adminUploadsRouter.post("/direct", requireAuth, upload.single("file"), async (re
   }
 });
 
-// Legacy endpoint (deprecated)
-adminUploadsRouter.post("/request-url", requireAuth, async (req, res) => {
-  res.status(400).json({ 
-    error: "This endpoint is deprecated. Use /api/admin/uploads/direct with multipart/form-data instead.",
-    useEndpoint: "/api/admin/uploads/direct"
-  });
-});
-
 // ========================================
 // Media Categories
 // ========================================

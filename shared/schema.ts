@@ -3,9 +3,6 @@ import { pgTable, text, varchar, integer, boolean, timestamp, serial, jsonb } fr
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Re-export chat models for OpenAI integration
-export * from "./models/chat";
-
 // ============================================================================
 // USERS (Admin authentication)
 // ============================================================================
