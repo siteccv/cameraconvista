@@ -188,7 +188,7 @@ export function EditableImage({
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{t("Modifica Immagine", "Edit Image")}</DialogTitle>
           </DialogHeader>
