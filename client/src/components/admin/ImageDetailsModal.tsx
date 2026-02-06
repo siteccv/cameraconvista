@@ -159,15 +159,15 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
+      <DialogContent className="max-w-lg flex flex-col max-h-[85vh]">
+        <DialogHeader className="shrink-0">
           <DialogTitle>{t("Dettagli immagine", "Image Details")}</DialogTitle>
           <DialogDescription>
             {t("Visualizza e gestisci le informazioni dell'immagine", "View and manage image information")}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
           <div className="relative">
             <div className="aspect-video bg-muted rounded-md overflow-hidden">
               {rotateMutation.isPending ? (
@@ -281,35 +281,35 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
           <p className="text-xs text-muted-foreground">
             {t("Caricato", "Uploaded")}: {formatDate(media.createdAt)} · {formatSize(displaySize)}
           </p>
+        </div>
 
-          <div className="flex justify-between pt-4">
-            <Button
-              variant="outline"
-              className="bg-white text-primary border-primary/20 hover:bg-primary/5"
-              onClick={handleDelete}
-              disabled={deleteMutation.isPending}
-              data-testid="button-delete-media"
-            >
-              {deleteMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Trash2 className="h-4 w-4 mr-2" />
-              )}
-              {t("Elimina", "Delete")}
-            </Button>
-            <Button
-              onClick={handleSave}
-              disabled={updateMutation.isPending}
-              data-testid="button-save-media"
-            >
-              {updateMutation.isPending ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <Save className="h-4 w-4 mr-2" />
-              )}
-              {t("Salva dettagli", "Save details")}
-            </Button>
-          </div>
+        <div className="flex justify-between shrink-0 pt-4">
+          <Button
+            variant="outline"
+            className="bg-white text-primary border-primary/20 hover:bg-primary/5"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            data-testid="button-delete-media"
+          >
+            {deleteMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Trash2 className="h-4 w-4 mr-2" />
+            )}
+            {t("Elimina", "Delete")}
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={updateMutation.isPending}
+            data-testid="button-save-media"
+          >
+            {updateMutation.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            ) : (
+              <Save className="h-4 w-4 mr-2" />
+            )}
+            {t("Salva dettagli", "Save details")}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

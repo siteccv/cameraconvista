@@ -188,12 +188,12 @@ export function EditableImage({
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl flex flex-col max-h-[85vh]">
+          <DialogHeader className="shrink-0">
             <DialogTitle>{t("Modifica Immagine", "Edit Image")}</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4 py-4">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4 py-2">
             <div className="space-y-2">
               <Label>{t("Immagine", "Image")}</Label>
               <Button
@@ -211,7 +211,7 @@ export function EditableImage({
               )}
             </div>
 
-            <div className="flex gap-2 mb-4">
+            <div className="flex gap-2">
               <Button
                 variant={activeTab === "desktop" ? "default" : "outline"}
                 size="sm"
@@ -296,7 +296,7 @@ export function EditableImage({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="shrink-0">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               {t("Annulla", "Cancel")}
             </Button>
