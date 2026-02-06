@@ -35,15 +35,15 @@ export default function Home() {
     ? ["/api/admin/page-blocks", HOME_PAGE_ID, "blocks"]
     : ["/api", "pages", HOME_PAGE_ID, "blocks"];
 
+  const adminQueryFn = async () => {
+    const res = await fetch(`/api/admin/page-blocks/${HOME_PAGE_ID}/blocks`, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch blocks");
+    return res.json();
+  };
+
   const { data: blocks = [], isLoading } = useQuery<PageBlock[]>({
     queryKey: blocksQueryKey,
-    queryFn: adminPreview
-      ? async () => {
-          const res = await fetch(`/api/admin/page-blocks/${HOME_PAGE_ID}/blocks`, { credentials: "include" });
-          if (!res.ok) throw new Error("Failed to fetch blocks");
-          return res.json();
-        }
-      : undefined,
+    ...(adminPreview ? { queryFn: adminQueryFn } : {}),
   });
 
   const heroBlock = blocks.find(b => b.blockType === "hero");
