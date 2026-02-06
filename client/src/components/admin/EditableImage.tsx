@@ -254,15 +254,16 @@ export function EditableImage({
   const displayOffsetX = isMobile ? offsetXMobile : offsetXDesktop;
   const displayOffsetY = isMobile ? offsetYMobile : offsetYDesktop;
 
-  const siteTransform = {
+  const needsTransform = displayZoom !== 100 || displayOffsetX !== 0 || displayOffsetY !== 0;
+  const siteTransform: React.CSSProperties = needsTransform ? {
     transform: `scale(${displayZoom / 100}) translate(${displayOffsetX}px, ${displayOffsetY}px)`,
     transformOrigin: "center center",
-  };
+  } : {};
 
   if (!adminPreview) {
     return (
       <div className={containerClassName}>
-        <img src={src} alt={alt} className={className} style={siteTransform} />
+        <img src={src} alt={alt} className={`${className} absolute inset-0`} style={siteTransform} />
       </div>
     );
   }
@@ -276,14 +277,13 @@ export function EditableImage({
         onClick={openEditor}
         data-testid="editable-image-container"
       >
-        <img src={src} alt={alt} className={className} style={siteTransform} />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+        <img src={src} alt={alt} className={`${className} absolute inset-0`} style={siteTransform} />
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-lg p-2 flex items-center gap-2">
             <ImageIcon className="h-4 w-4" />
             <span className="text-sm">{t("Modifica", "Edit")}</span>
           </div>
         </div>
-        <span className="absolute inset-0 ring-2 ring-primary/50 ring-offset-2 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
       </div>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
