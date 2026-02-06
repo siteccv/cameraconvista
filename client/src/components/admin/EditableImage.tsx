@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -68,6 +68,11 @@ export function EditableImage({
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
 
+  const [previewAspect, setPreviewAspect] = useState(16 / 9);
+  const [imgNatural, setImgNatural] = useState<{ w: number; h: number } | null>(null);
+  const [coverScale, setCoverScale] = useState(1);
+  const previewRef = useRef<HTMLDivElement>(null);
+
   const currentZoom = activeTab === "desktop" ? editZoomDesktop : editZoomMobile;
   const currentOffsetX = activeTab === "desktop" ? editOffsetXDesktop : editOffsetXMobile;
   const currentOffsetY = activeTab === "desktop" ? editOffsetYDesktop : editOffsetYMobile;
@@ -85,10 +90,38 @@ export function EditableImage({
     else setEditOffsetYMobile(val);
   };
 
+  const recalcCoverScale = useCallback(() => {
+    if (!previewRef.current || !imgNatural) return;
+    const rect = previewRef.current.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0 && imgNatural.w > 0 && imgNatural.h > 0) {
+      const sx = rect.width / imgNatural.w;
+      const sy = rect.height / imgNatural.h;
+      setCoverScale(Math.max(sx, sy));
+    }
+  }, [imgNatural]);
+
+  useEffect(() => {
+    if (!isOpen || !previewRef.current || !imgNatural) return;
+    recalcCoverScale();
+    const observer = new ResizeObserver(() => recalcCoverScale());
+    observer.observe(previewRef.current);
+    return () => observer.disconnect();
+  }, [isOpen, imgNatural, recalcCoverScale]);
+
+  useEffect(() => {
+    setImgNatural(null);
+  }, [editSrc]);
+
   const handleClick = (e: React.MouseEvent) => {
     if (adminPreview) {
       e.preventDefault();
       e.stopPropagation();
+
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setPreviewAspect(rect.width / rect.height);
+      }
+
       setEditSrc(src);
       setEditZoomDesktop(zoomDesktop);
       setEditZoomMobile(zoomMobile);
@@ -97,6 +130,7 @@ export function EditableImage({
       setEditOffsetXMobile(offsetXMobile);
       setEditOffsetYMobile(offsetYMobile);
       setActiveTab(deviceView);
+      setImgNatural(null);
       setIsOpen(true);
     }
   };
@@ -142,7 +176,6 @@ export function EditableImage({
     setMediaPickerOpen(false);
   };
 
-  // Use mobile values when: admin forces mobile layout OR real viewport is mobile
   const isMobile = forceMobileLayout || viewportIsMobile;
   const displayZoom = isMobile ? zoomMobile : zoomDesktop;
   const displayOffsetX = isMobile ? offsetXMobile : offsetXDesktop;
@@ -165,6 +198,8 @@ export function EditableImage({
       </div>
     );
   }
+
+  const finalScale = coverScale * (currentZoom / 100);
 
   return (
     <>
@@ -229,21 +264,36 @@ export function EditableImage({
             </div>
 
             <div 
-              className="relative aspect-video bg-muted rounded-lg overflow-hidden cursor-move"
+              ref={previewRef}
+              className="relative bg-muted rounded-lg overflow-hidden cursor-move"
+              style={{ aspectRatio: `${previewAspect}` }}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             >
-              <img
-                src={editSrc}
-                alt="Preview"
-                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
-                style={{
-                  transform: `scale(${currentZoom / 100}) translate(${currentOffsetX}px, ${currentOffsetY}px)`,
-                  transformOrigin: "center center",
-                }}
-              />
+              {editSrc && (
+                <img
+                  src={editSrc}
+                  alt="Preview"
+                  className="pointer-events-none"
+                  onLoad={(e) => {
+                    setImgNatural({
+                      w: e.currentTarget.naturalWidth,
+                      h: e.currentTarget.naturalHeight,
+                    });
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: "50%",
+                    top: "50%",
+                    maxWidth: "none",
+                    maxHeight: "none",
+                    transformOrigin: "center center",
+                    transform: `translate(-50%, -50%) scale(${finalScale}) translate(${currentOffsetX}px, ${currentOffsetY}px)`,
+                  }}
+                />
+              )}
               <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
                 {t("Trascina per spostare", "Drag to pan")}
               </div>
