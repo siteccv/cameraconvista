@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -69,9 +69,6 @@ export function EditableImage({
   const dragStart = useRef({ x: 0, y: 0 });
 
   const [previewAspect, setPreviewAspect] = useState(16 / 9);
-  const [imgNatural, setImgNatural] = useState<{ w: number; h: number } | null>(null);
-  const [coverScale, setCoverScale] = useState(1);
-  const previewRef = useRef<HTMLDivElement>(null);
 
   const currentZoom = activeTab === "desktop" ? editZoomDesktop : editZoomMobile;
   const currentOffsetX = activeTab === "desktop" ? editOffsetXDesktop : editOffsetXMobile;
@@ -89,28 +86,6 @@ export function EditableImage({
     if (activeTab === "desktop") setEditOffsetYDesktop(val);
     else setEditOffsetYMobile(val);
   };
-
-  const recalcCoverScale = useCallback(() => {
-    if (!previewRef.current || !imgNatural) return;
-    const rect = previewRef.current.getBoundingClientRect();
-    if (rect.width > 0 && rect.height > 0 && imgNatural.w > 0 && imgNatural.h > 0) {
-      const sx = rect.width / imgNatural.w;
-      const sy = rect.height / imgNatural.h;
-      setCoverScale(Math.max(sx, sy));
-    }
-  }, [imgNatural]);
-
-  useEffect(() => {
-    if (!isOpen || !previewRef.current || !imgNatural) return;
-    recalcCoverScale();
-    const observer = new ResizeObserver(() => recalcCoverScale());
-    observer.observe(previewRef.current);
-    return () => observer.disconnect();
-  }, [isOpen, imgNatural, recalcCoverScale]);
-
-  useEffect(() => {
-    setImgNatural(null);
-  }, [editSrc]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (adminPreview) {
@@ -130,7 +105,6 @@ export function EditableImage({
       setEditOffsetXMobile(offsetXMobile);
       setEditOffsetYMobile(offsetYMobile);
       setActiveTab(deviceView);
-      setImgNatural(null);
       setIsOpen(true);
     }
   };
@@ -199,7 +173,10 @@ export function EditableImage({
     );
   }
 
-  const finalScale = coverScale * (currentZoom / 100);
+  const previewImageStyle = {
+    transform: `scale(${currentZoom / 100}) translate(${currentOffsetX}px, ${currentOffsetY}px)`,
+    transformOrigin: "center center",
+  };
 
   return (
     <>
@@ -264,7 +241,6 @@ export function EditableImage({
             </div>
 
             <div 
-              ref={previewRef}
               className="relative bg-muted rounded-lg overflow-hidden cursor-move"
               style={{ aspectRatio: `${previewAspect}` }}
               onMouseDown={handleMouseDown}
@@ -276,22 +252,8 @@ export function EditableImage({
                 <img
                   src={editSrc}
                   alt="Preview"
-                  className="pointer-events-none"
-                  onLoad={(e) => {
-                    setImgNatural({
-                      w: e.currentTarget.naturalWidth,
-                      h: e.currentTarget.naturalHeight,
-                    });
-                  }}
-                  style={{
-                    position: "absolute",
-                    left: "50%",
-                    top: "50%",
-                    maxWidth: "none",
-                    maxHeight: "none",
-                    transformOrigin: "center center",
-                    transform: `translate(-50%, -50%) scale(${finalScale}) translate(${currentOffsetX}px, ${currentOffsetY}px)`,
-                  }}
+                  className="w-full h-full object-cover pointer-events-none"
+                  style={previewImageStyle}
                 />
               )}
               <div className="absolute bottom-2 left-2 bg-black/50 text-white text-xs px-2 py-1 rounded">
