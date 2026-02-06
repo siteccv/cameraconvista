@@ -145,10 +145,6 @@ export function EditableImage({
   const fitZoom = Math.max(10, Math.round((containScale / coverScale) * 100));
 
   const s = zoom / 100;
-  const imgW = naturalWidth * coverScale * s;
-  const imgH = naturalHeight * coverScale * s;
-  const imgLeft = (frameW - imgW) / 2 + offsetX * s;
-  const imgTop = (frameH - imgH) / 2 + offsetY * s;
 
   const openEditor = (e: React.MouseEvent) => {
     if (!adminPreview) return;
@@ -260,6 +256,11 @@ export function EditableImage({
     transformOrigin: "center center",
   } : {};
 
+  const previewTransform: React.CSSProperties = {
+    transform: `scale(${zoom / 100}) translate(${offsetX}px, ${offsetY}px)`,
+    transformOrigin: "center center",
+  };
+
   if (!adminPreview) {
     return (
       <div className={containerClassName}>
@@ -336,8 +337,6 @@ export function EditableImage({
                 className="relative overflow-hidden cursor-move mx-auto select-none"
                 style={{
                   aspectRatio: `${previewAspect}`,
-                  backgroundImage: "repeating-conic-gradient(#333 0% 25%, #222 0% 50%)",
-                  backgroundSize: "16px 16px",
                 }}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -353,15 +352,8 @@ export function EditableImage({
                     key={editSrc}
                     src={editSrc}
                     alt="Preview"
-                    className="absolute pointer-events-none"
-                    style={{
-                      width: imgW,
-                      height: imgH,
-                      left: imgLeft,
-                      top: imgTop,
-                      maxWidth: "none",
-                      maxHeight: "none",
-                    }}
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    style={previewTransform}
                     draggable={false}
                   />
                 ) : editSrc ? (
@@ -369,8 +361,7 @@ export function EditableImage({
                     {t("Caricamento...", "Loading...")}
                   </div>
                 ) : null}
-                <div className="absolute inset-0 ring-2 ring-inset ring-white/20 pointer-events-none z-10 rounded-sm" />
-                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded z-10">
+                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded z-10 pointer-events-none">
                   {t("Trascina per spostare · Scroll per zoom", "Drag to pan · Scroll to zoom")}
                 </div>
               </div>
