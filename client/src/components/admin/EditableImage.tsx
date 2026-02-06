@@ -93,27 +93,18 @@ export function EditableImage({
   };
 
   useEffect(() => {
-    if (editSrc) {
+    if (isOpen && editSrc) {
       setNaturalDims(null);
       const img = new Image();
-      img.crossOrigin = "anonymous"; // Added to handle Supabase/CORS if needed for canvas/processing
       img.onload = () => {
-        console.log("Image loaded successfully:", editSrc, img.naturalWidth, img.naturalHeight);
         setNaturalDims({ w: img.naturalWidth, h: img.naturalHeight });
       };
-      img.onerror = (err) => {
-        console.error("Image failed to load:", editSrc, err);
-        // Fallback for UI visibility even if loading fails
+      img.onerror = () => {
         setNaturalDims({ w: 800, h: 600 });
       };
-      // Force reload and bypass potential issues with same URL
-      if (editSrc.startsWith('http')) {
-        img.src = editSrc;
-      } else {
-        img.src = editSrc;
-      }
+      img.src = editSrc;
     }
-  }, [editSrc]);
+  }, [isOpen, editSrc]);
 
   useEffect(() => {
     if (!isOpen || !frameRef.current) return;
