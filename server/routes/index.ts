@@ -3,7 +3,7 @@ import type { Server } from "http";
 
 // Import routers
 import authRouter from "./auth";
-import pagesRouter, { adminPagesRouter, adminPageBlocksRouter, publishAllRouter } from "./pages";
+import pagesRouter, { adminPagesRouter, adminPageBlocksRouter, publishAllRouter, cleanupDuplicatesRouter } from "./pages";
 import { publicMenuRouter, adminMenuRouter } from "./menu";
 import { publicEventsRouter, adminEventsRouter } from "./events";
 import { publicGalleryRouter, adminGalleryRouter } from "./gallery";
@@ -51,6 +51,7 @@ export function mountRoutes(app: Express): void {
   app.use("/api/admin/pages", adminPageBlocksRouter); // For GET /:pageId/blocks
   app.use("/api/admin/page-blocks", adminPageBlocksRouter); // For POST /, PATCH /:id, DELETE /:id
   app.use("/api/admin/publish-all", publishAllRouter);
+  app.use("/api/admin/cleanup-duplicates", cleanupDuplicatesRouter);
   
   // Menu, Wines, Cocktails
   app.use("/api/admin", adminMenuRouter);

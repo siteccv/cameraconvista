@@ -232,7 +232,8 @@ adminPageBlocksRouter.patch("/:id", requireAuth, async (req, res) => {
       return;
     }
     const blockId = parseId(req.params.id);
-    const block = await storage.updatePageBlock(blockId, parsed.data);
+    const updateData = { ...parsed.data, isDraft: true };
+    const block = await storage.updatePageBlock(blockId, updateData);
     if (!block) {
       res.status(404).json({ error: "Page block not found" });
       return;
@@ -262,6 +263,31 @@ adminPageBlocksRouter.delete("/:id", requireAuth, async (req, res) => {
 });
 
 // Publish All
+export const cleanupDuplicatesRouter = Router();
+
+cleanupDuplicatesRouter.post("/", requireAuth, async (req, res) => {
+  try {
+    const pages = await storage.getPages();
+    let totalDeleted = 0;
+    for (const page of pages) {
+      const blocks = await storage.getPageBlocks(page.id);
+      const seen = new Map<string, number>();
+      for (const block of blocks) {
+        if (seen.has(block.blockType)) {
+          await storage.deletePageBlock(block.id);
+          totalDeleted++;
+        } else {
+          seen.set(block.blockType, block.id);
+        }
+      }
+    }
+    res.json({ success: true, message: `Cleaned up ${totalDeleted} duplicate blocks` });
+  } catch (error) {
+    console.error("Error cleaning up duplicates:", error);
+    res.status(500).json({ error: "Failed to clean up duplicates" });
+  }
+});
+
 export const publishAllRouter = Router();
 
 publishAllRouter.post("/", requireAuth, async (req, res) => {

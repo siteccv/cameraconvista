@@ -72,36 +72,30 @@ export default function Home() {
   });
 
   useEffect(() => {
-    if (isLoading || hasInitialized) return;
+    if (!adminPreview || isLoading || hasInitialized || blocks.length > 0) return;
+    setHasInitialized(true);
 
-    const missingBlocks: Partial<PageBlock>[] = [];
+    const allDefaults: Partial<PageBlock>[] = [
+      DEFAULT_BLOCKS.hero as Partial<PageBlock>,
+      DEFAULT_BLOCKS.branding as Partial<PageBlock>,
+      ...TEASER_BLOCK_DEFAULTS.map(def => def as unknown as Partial<PageBlock>),
+    ];
 
-    if (!heroBlock) missingBlocks.push(DEFAULT_BLOCKS.hero as Partial<PageBlock>);
-    if (!brandingBlock) missingBlocks.push(DEFAULT_BLOCKS.branding as Partial<PageBlock>);
-
-    TEASER_BLOCK_DEFAULTS.forEach((def) => {
-      const existing = blocks.find(b => b.blockType === def.blockType);
-      if (!existing) missingBlocks.push(def as unknown as Partial<PageBlock>);
-    });
-
-    if (missingBlocks.length > 0) {
-      setHasInitialized(true);
-      const createSequentially = async () => {
-        for (const blockData of missingBlocks) {
-          try {
-            await apiRequest("POST", "/api/admin/page-blocks", {
-              ...blockData,
-              pageId: HOME_PAGE_ID,
-            });
-          } catch {
-            // continue with remaining blocks
-          }
+    const createSequentially = async () => {
+      for (const blockData of allDefaults) {
+        try {
+          await apiRequest("POST", "/api/admin/page-blocks", {
+            ...blockData,
+            pageId: HOME_PAGE_ID,
+          });
+        } catch {
+          // continue with remaining blocks
         }
-        queryClient.invalidateQueries({ queryKey: blocksQueryKey });
-      };
-      createSequentially();
-    }
-  }, [isLoading, blocks, hasInitialized]);
+      }
+      queryClient.invalidateQueries({ queryKey: blocksQueryKey });
+    };
+    createSequentially();
+  }, [adminPreview, isLoading, blocks.length, hasInitialized]);
 
   const handleUpdateBlock = useCallback((id: number, data: Partial<PageBlock>) => {
     updateBlockMutation.mutate({ id, data });
