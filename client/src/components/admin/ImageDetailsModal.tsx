@@ -36,6 +36,8 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   const [category, setCategory] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [displayUrl, setDisplayUrl] = useState("");
+  const [displaySize, setDisplaySize] = useState(0);
 
   useEffect(() => {
     if (media) {
@@ -43,6 +45,8 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
       setAltEn(media.altEn || "");
       setCategory(media.category || "");
       setTags(media.tags || []);
+      setDisplayUrl(media.url);
+      setDisplaySize(media.size);
     }
   }, [media]);
 
@@ -75,8 +79,14 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
       const response = await apiRequest("POST", `/api/admin/media/${media.id}/rotate`, { direction });
       return response.json();
     },
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/media"] });
+      if (data?.url) {
+        setDisplayUrl(data.url);
+      }
+      if (data?.size) {
+        setDisplaySize(data.size);
+      }
       toast({
         title: t("Ruotato", "Rotated"),
         description: t("Immagine ruotata con successo.", "Image rotated successfully."),
@@ -163,7 +173,7 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
                 </div>
               ) : (
                 <img
-                  src={media.url}
+                  src={displayUrl}
                   alt={altIt || media.filename}
                   className="w-full h-full object-contain"
                 />
@@ -266,7 +276,7 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
           </div>
 
           <p className="text-xs text-muted-foreground">
-            {t("Caricato", "Uploaded")}: {formatDate(media.createdAt)} · {formatSize(media.size)}
+            {t("Caricato", "Uploaded")}: {formatDate(media.createdAt)} · {formatSize(displaySize)}
           </p>
 
           <div className="flex justify-between pt-4">
