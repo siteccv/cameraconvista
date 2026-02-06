@@ -47,6 +47,7 @@ export default function AdminPages() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/page-blocks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api"] });
       toast({ title: t("Pubblicato", "Published"), description: t("La pagina è stata pubblicata.", "The page has been published.") });
     },
     onError: () => {

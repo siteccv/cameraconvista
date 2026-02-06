@@ -68,6 +68,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/page-blocks"] });
+      queryClient.invalidateQueries({ queryKey: ["/api"] });
       toast({ 
         title: t("Sito Pubblicato", "Site Published"),
         description: t("Tutte le pagine sono state pubblicate.", "All pages have been published.")
