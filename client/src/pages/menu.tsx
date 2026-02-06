@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -6,31 +5,26 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
-import { useToast } from "@/hooks/use-toast";
+import { usePageBlocks } from "@/hooks/use-page-blocks";
+import { PAGE_IDS, MENU_DEFAULTS } from "@/lib/page-defaults";
 import type { MenuItem } from "@shared/schema";
 
 export default function Menu() {
   const { t } = useLanguage();
   const { deviceView } = useAdmin();
-  const { toast } = useToast();
 
-  const [heroTitle, setHeroTitle] = useState({
-    it: "Menù", en: "Menu",
-    fontSizeDesktop: 72, fontSizeMobile: 40
-  });
-  const [heroImage, setHeroImage] = useState({
-    src: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
-    zoomDesktop: 100, zoomMobile: 100,
-    offsetXDesktop: 0, offsetYDesktop: 0,
-    offsetXMobile: 0, offsetYMobile: 0,
-  });
-  const [introText, setIntroText] = useState({
-    it: "La nostra cucina celebra i sapori autentici della tradizione italiana, reinterpretati con creatività e ingredienti di stagione.",
-    en: "Our cuisine celebrates the authentic flavors of Italian tradition, reinterpreted with creativity and seasonal ingredients.",
-    fontSizeDesktop: 20, fontSizeMobile: 14
+  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+    pageId: PAGE_IDS.menu,
+    defaults: MENU_DEFAULTS,
   });
 
-  const { data: menuItems, isLoading } = useQuery<MenuItem[]>({
+  const heroBlock = getBlock("hero");
+  const introBlock = getBlock("intro");
+
+  const heroDef = MENU_DEFAULTS[0];
+  const introDef = MENU_DEFAULTS[1];
+
+  const { data: menuItems, isLoading: menuLoading } = useQuery<MenuItem[]>({
     queryKey: ["/api/menu-items"],
   });
 
@@ -42,22 +36,56 @@ export default function Menu() {
     return acc;
   }, {} as Record<string, MenuItem[]>) ?? {};
 
-  const handleTextSave = (field: string, data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    switch (field) {
-      case "heroTitle":
-        setHeroTitle({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
-        break;
-      case "introText":
-        setIntroText({ it: data.textIt, en: data.textEn, fontSizeDesktop: data.fontSizeDesktop, fontSizeMobile: data.fontSizeMobile });
-        break;
-    }
-    toast({ title: t("Salvato", "Saved"), description: t("Le modifiche sono state salvate.", "Changes have been saved.") });
+  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!heroBlock) return;
+    updateBlock(heroBlock.id, {
+      titleIt: data.textIt,
+      titleEn: data.textEn,
+      titleFontSize: data.fontSizeDesktop,
+      titleFontSizeMobile: data.fontSizeMobile,
+    });
   };
 
-  const handleHeroImageSave = (data: typeof heroImage) => {
-    setHeroImage(data);
-    toast({ title: t("Salvato", "Saved"), description: t("Immagine aggiornata.", "Image updated.") });
+  const handleHeroImageSave = (data: {
+    src: string;
+    zoomDesktop: number;
+    zoomMobile: number;
+    offsetXDesktop: number;
+    offsetYDesktop: number;
+    offsetXMobile: number;
+    offsetYMobile: number;
+  }) => {
+    if (!heroBlock) return;
+    updateBlock(heroBlock.id, {
+      imageUrl: data.src,
+      imageScaleDesktop: data.zoomDesktop,
+      imageScaleMobile: data.zoomMobile,
+      imageOffsetX: data.offsetXDesktop,
+      imageOffsetY: data.offsetYDesktop,
+      imageOffsetXMobile: data.offsetXMobile,
+      imageOffsetYMobile: data.offsetYMobile,
+    });
   };
+
+  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!introBlock) return;
+    updateBlock(introBlock.id, {
+      bodyIt: data.textIt,
+      bodyEn: data.textEn,
+      bodyFontSize: data.fontSizeDesktop,
+      bodyFontSizeMobile: data.fontSizeMobile,
+    });
+  };
+
+  if (blocksLoading) {
+    return (
+      <PublicLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading...</div>
+        </div>
+      </PublicLayout>
+    );
+  }
 
   return (
     <PublicLayout>
@@ -65,32 +93,30 @@ export default function Menu() {
         <section className="relative h-[60vh] shrink-0 flex items-center justify-center">
           <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
             <EditableImage
-              src={heroImage.src}
-              zoomDesktop={heroImage.zoomDesktop}
-              zoomMobile={heroImage.zoomMobile}
-              offsetXDesktop={heroImage.offsetXDesktop}
-              offsetYDesktop={heroImage.offsetYDesktop}
-              offsetXMobile={heroImage.offsetXMobile}
-              offsetYMobile={heroImage.offsetYMobile}
+              src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
+              zoomDesktop={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
+              zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
+              offsetXDesktop={heroBlock?.imageOffsetX || heroDef.imageOffsetX || 0}
+              offsetYDesktop={heroBlock?.imageOffsetY || heroDef.imageOffsetY || 0}
+              offsetXMobile={heroBlock?.imageOffsetXMobile || heroDef.imageOffsetXMobile || 0}
+              offsetYMobile={heroBlock?.imageOffsetYMobile || heroDef.imageOffsetYMobile || 0}
               deviceView={deviceView}
               containerClassName="absolute inset-0"
               className="w-full h-full object-cover"
               onSave={handleHeroImageSave}
             />
-            <div 
-              className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none"
-            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none" />
           </div>
           <div className="relative z-10 text-center text-white">
             <EditableText
-              textIt={heroTitle.it}
-              textEn={heroTitle.en}
-              fontSizeDesktop={heroTitle.fontSizeDesktop}
-              fontSizeMobile={heroTitle.fontSizeMobile}
+              textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
+              textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
+              fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
+              fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
               as="h1"
               className="font-display drop-shadow-lg"
               applyFontSize
-              onSave={(data) => handleTextSave("heroTitle", data)}
+              onSave={handleHeroTitleSave}
             />
           </div>
         </section>
@@ -98,15 +124,15 @@ export default function Menu() {
         <section className="flex-1 flex items-center justify-center">
           <div className="container mx-auto px-4 max-w-2xl text-center py-6">
             <EditableText
-              textIt={introText.it}
-              textEn={introText.en}
-              fontSizeDesktop={introText.fontSizeDesktop}
-              fontSizeMobile={introText.fontSizeMobile}
+              textIt={introBlock?.bodyIt || introDef.bodyIt || ""}
+              textEn={introBlock?.bodyEn || introDef.bodyEn || ""}
+              fontSizeDesktop={introBlock?.bodyFontSize || introDef.bodyFontSize || 20}
+              fontSizeMobile={introBlock?.bodyFontSizeMobile || introDef.bodyFontSizeMobile || 14}
               as="p"
               className="text-muted-foreground"
               multiline
               applyFontSize
-              onSave={(data) => handleTextSave("introText", data)}
+              onSave={handleIntroSave}
             />
           </div>
         </section>
@@ -114,7 +140,7 @@ export default function Menu() {
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4 max-w-4xl">
-          {isLoading ? (
+          {menuLoading ? (
             <div className="space-y-12">
               {[1, 2, 3].map((i) => (
                 <div key={i}>
@@ -137,7 +163,7 @@ export default function Menu() {
             <div className="space-y-16">
               {Object.entries(categorizedItems).map(([category, items]) => (
                 <div key={category}>
-                  <h2 
+                  <h2
                     className="font-display text-4xl md:text-5xl mb-8 text-center"
                     style={{ color: '#722F37' }}
                     data-testid={`text-category-${category}`}
@@ -163,23 +189,23 @@ function MenuItemCard({ item }: { item: MenuItem }) {
   const { t } = useLanguage();
 
   return (
-    <div 
-      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0" 
+    <div
+      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0"
       style={{ borderBottom: '1px solid #e5d6b6' }}
       data-testid={`menu-item-${item.id}`}
     >
       <div className="space-y-1">
         <div className="md:flex md:items-center md:justify-between md:gap-4">
-          <h3 
+          <h3
             className="text-lg md:text-xl leading-tight"
             style={{ color: '#2f2b2a' }}
           >
             {t(item.nameIt, item.nameEn)}
           </h3>
           {item.price && (
-            <span 
+            <span
               className="price-text hidden md:inline-flex shrink-0 leading-tight"
-              style={{ 
+              style={{
                 fontSize: '20px',
                 fontWeight: 500,
                 color: '#c7902f'
@@ -190,18 +216,18 @@ function MenuItemCard({ item }: { item: MenuItem }) {
             </span>
           )}
         </div>
-        
+
         {(item.descriptionIt || item.descriptionEn) && (
           <p className="text-sm md:text-base text-muted-foreground">
             {t(item.descriptionIt, item.descriptionEn)}
           </p>
         )}
-        
+
         {item.price && (
           <div className="pt-1 md:hidden">
-            <span 
+            <span
               className="price-text"
-              style={{ 
+              style={{
                 fontSize: '20px',
                 fontWeight: 500,
                 color: '#c7902f'

@@ -1,0 +1,210 @@
+import type { BlockDefault } from "@/hooks/use-page-blocks";
+
+export const PAGE_IDS = {
+  home: 1,
+  menu: 2,
+  "carta-vini": 3,
+  "cocktail-bar": 4,
+  eventi: 5,
+  "eventi-privati": 6,
+  galleria: 7,
+  contatti: 8,
+} as const;
+
+export const MENU_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Menù",
+    titleEn: "Menu",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "La nostra cucina celebra i sapori autentici della tradizione italiana, reinterpretati con creatività e ingredienti di stagione.",
+    bodyEn: "Our cuisine celebrates the authentic flavors of Italian tradition, reinterpreted with creativity and seasonal ingredients.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+];
+
+export const CARTA_VINI_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Carta dei Vini",
+    titleEn: "Wine List",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
+    bodyEn: "A curated selection of Italian and international labels, chosen to accompany every moment of your experience.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+];
+
+export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Cocktail Bar",
+    titleEn: "Cocktail Bar",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
+    bodyEn: "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+  {
+    blockType: "outro",
+    bodyIt: "Oltre alla nostra selezione di cocktail, il bar offre grandi classici internazionali, una scelta di whisky, rum e spirits, più birre e altre referenze.",
+    bodyEn: "In addition to our cocktail selection, the bar offers great international classics, a curated selection of whiskies, rums and spirits, plus beers and other offerings.",
+    bodyFontSize: 16,
+    bodyFontSizeMobile: 14,
+    sortOrder: 2,
+  },
+];
+
+export const EVENTI_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Eventi",
+    titleEn: "Events",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "Scopri i nostri eventi speciali: serate a tema, degustazioni, musica dal vivo e molto altro.",
+    bodyEn: "Discover our special events: themed nights, tastings, live music and much more.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+];
+
+export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Eventi Privati",
+    titleEn: "Private Events",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "Camera con Vista offre spazi esclusivi e servizi personalizzati per rendere ogni occasione indimenticabile. Dal party aziendale alla celebrazione privata, ogni dettaglio è curato con la massima attenzione.",
+    bodyEn: "Camera con Vista offers exclusive spaces and personalized services to make every occasion unforgettable. From corporate parties to private celebrations, every detail is curated with the utmost attention.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+  {
+    blockType: "section-title",
+    titleIt: "Il tuo evento, la nostra passione",
+    titleEn: "Your event, our passion",
+    titleFontSize: 36,
+    titleFontSizeMobile: 28,
+    sortOrder: 2,
+  },
+];
+
+export const GALLERIA_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Galleria",
+    titleEn: "Gallery",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "Scopri l'atmosfera unica di Camera con Vista attraverso i nostri album fotografici.",
+    bodyEn: "Discover the unique atmosphere of Camera con Vista through our photo albums.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+];
+
+export const CONTATTI_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    titleIt: "Contatti",
+    titleEn: "Contact",
+    titleFontSize: 72,
+    titleFontSizeMobile: 40,
+    imageUrl: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    bodyIt: "Nel cuore di Bologna..\na 200 metri dalle Due Torri\nraggiungibile in 3 minuti a piedi.",
+    bodyEn: "In the heart of Bologna..\n200 meters from the Two Towers\njust a 3-minute walk.",
+    bodyFontSize: 20,
+    bodyFontSizeMobile: 14,
+    sortOrder: 1,
+  },
+];
