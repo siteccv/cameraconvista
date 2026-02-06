@@ -17,6 +17,8 @@ import {
   Edit2,
   Image as ImageIcon,
   EyeOff,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import type { Gallery } from "@shared/schema";
 
@@ -58,6 +60,16 @@ export default function GalleryPage() {
     },
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: async ({ id, sortOrder }: { id: number; sortOrder: number }) => {
+      const response = await apiRequest("PATCH", `/api/admin/galleries/${id}`, { sortOrder });
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
+    },
+  });
+
   const handleDelete = (gallery: Gallery) => {
     if (confirm(t("Sei sicuro di voler eliminare questo album e tutte le sue immagini?", "Are you sure you want to delete this album and all its images?"))) {
       deleteMutation.mutate(gallery.id);
@@ -65,6 +77,22 @@ export default function GalleryPage() {
   };
 
   const sortedGalleries = [...galleries].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+  const handleMoveUp = (index: number) => {
+    if (index <= 0) return;
+    const current = sortedGalleries[index];
+    const prev = sortedGalleries[index - 1];
+    reorderMutation.mutate({ id: current.id, sortOrder: prev.sortOrder ?? index - 1 });
+    reorderMutation.mutate({ id: prev.id, sortOrder: current.sortOrder ?? index });
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (index >= sortedGalleries.length - 1) return;
+    const current = sortedGalleries[index];
+    const next = sortedGalleries[index + 1];
+    reorderMutation.mutate({ id: current.id, sortOrder: next.sortOrder ?? index + 1 });
+    reorderMutation.mutate({ id: next.id, sortOrder: current.sortOrder ?? index });
+  };
 
   return (
     <AdminLayout>
@@ -102,7 +130,7 @@ export default function GalleryPage() {
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedGalleries.map((gallery) => (
+            {sortedGalleries.map((gallery, index) => (
               <Card key={gallery.id} className="overflow-hidden" data-testid={`gallery-card-${gallery.id}`}>
                 <div 
                   className="relative aspect-square bg-muted cursor-pointer hover-elevate"
@@ -130,7 +158,7 @@ export default function GalleryPage() {
                   </div>
                 </div>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={gallery.isVisible}
@@ -143,7 +171,25 @@ export default function GalleryPage() {
                         {gallery.isVisible ? t("Visibile", "Visible") : t("Nascosto", "Hidden")}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleMoveUp(index)}
+                        disabled={index === 0 || reorderMutation.isPending}
+                        data-testid={`button-move-up-${gallery.id}`}
+                      >
+                        <ChevronUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleMoveDown(index)}
+                        disabled={index === sortedGalleries.length - 1 || reorderMutation.isPending}
+                        data-testid={`button-move-down-${gallery.id}`}
+                      >
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="outline"
                         size="icon"
@@ -155,7 +201,7 @@ export default function GalleryPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        className="bg-white text-primary border-primary/20 hover:bg-primary/5"
+                        className="bg-white text-primary border-primary/20"
                         onClick={() => handleDelete(gallery)}
                         data-testid={`button-delete-gallery-${gallery.id}`}
                       >

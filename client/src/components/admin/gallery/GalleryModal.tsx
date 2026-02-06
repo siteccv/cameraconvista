@@ -60,8 +60,6 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
     },
   });
 
-  const [sortOrder, setSortOrder] = useState(gallery?.sortOrder ?? 0);
-
   const handleSubmit = () => {
     const data: InsertGallery = {
       titleIt,
@@ -71,7 +69,7 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
       coverOffsetX,
       coverOffsetY,
       isVisible: gallery?.isVisible ?? true,
-      sortOrder,
+      sortOrder: gallery?.sortOrder ?? 0,
     };
     if (gallery) {
       updateMutation.mutate(data);
@@ -202,19 +200,6 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
                 )}
               </div>
               
-              <div className="space-y-2">
-                <Label>{t("Ordine di visualizzazione", "Sort Order")}</Label>
-                <Input
-                  type="number"
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(parseInt(e.target.value) || 0)}
-                  placeholder="0"
-                  data-testid="input-gallery-sort-order"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t("Valori più bassi appaiono per primi", "Lower values appear first")}
-                </p>
-              </div>
             </div>
           </div>
 
