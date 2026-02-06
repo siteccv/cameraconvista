@@ -1,0 +1,118 @@
+Report layout “box” Home (sezione dopo Prenota)
+Quella sezione è costruita come una sequenza di Teaser Sections (Ristorante/Menu, Vini, Cocktail, Eventi, Eventi Privati) renderizzate in client/src/pages/home.tsx dopo l’Hero.
+
+1) Dove nasce l’alternanza dx/sx e lo sfondo alternato
+A) Alternanza sfondo (colore leggermente diverso)
+È gestita dal wrapper Section:
+
+File: client/src/components/ui/section.tsx
+Classe base:
+padding verticale: py-16 md:py-24 lg:py-32
+contenitore: max-w-7xl mx-auto px-4 md:px-6
+Alternanza colore:
+se alternate=true => bg-card
+se alternate=false => bg-background
+Quindi lo “sfondo leggermente diverso alternato” non è hardcoded per ogni box: dipende dal prop alternate.
+
+B) Alternanza dx/sx (testo vs immagine)
+Ogni teaser è una griglia a 2 colonne su desktop:
+
+struttura comune:
+div className="grid md:grid-cols-2 gap-12 items-center"
+L’allineamento dx/sx viene fatto con order-* sui due figli:
+
+Esempio EventsTeaser:
+testo: className={reverse ? "order-1" : "order-1 md:order-2"}
+immagine: className={reverse ? "order-2" : "order-2 md:order-1"}
+Quindi:
+
+su mobile (senza md:) resta quasi sempre “testo sopra / immagine sotto” (ordine 1/2)
+su desktop md: si può invertire mettendo testo a destra e immagine a sinistra (o viceversa).
+2) Come viene composta la sezione in Home
+File: client/src/pages/home.tsx
+sortedBlocks = blocchi CMS “home” ordinati per order
+si esclude hero, poi si mappa tutto il resto con un indice idx e:
+alternate = idx % 2 === 0
+Eccezioni importanti:
+
+EventsTeaser (eventi pubblici) viene forzato:
+alternate={false} (quindi sfondo non alternato in quel punto)
+EventsTeaser (eventi privati):
+alternate={alternate}
+reverse attivo (quindi inversione dx/sx)
+Per Menu/Wine/Cocktail l’alternanza sfondo dipende da alternate passato dalla Home.
+
+3) Contenuto dei box (testi e CTA)
+Tutti i teaser hanno lo stesso schema contenuti:
+
+Title: block.titleIt/titleEn (fallback su traduzioni t.nav.*)
+Subtitle: block.subtitleIt/subtitleEn (fallback su translations.*.<section>.subtitle oppure t.<section>.subtitle)
+Body: block.bodyIt/bodyEn (fallback su t.<section>.description)
+CTA:
+label: block.buttonLabelIt/buttonLabelEn (fallback su t.<section>.cta)
+link: block.buttonTarget (fallback su path default, es. /menu, /cocktail, /carta-vini, /eventi)
+UI CTA:
+
+<Button variant="outline" className="group">
+icon: ArrowRight con group-hover:translate-x-1 (questa è già presente nel progetto)
+4) Tipografia (classi Tailwind effettive)
+SectionTitle (titolo + sottotitolo + linea)
+Subtitle:
+text-gold uppercase tracking-widest text-[11px] md:text-base font-medium mb-3
+Title:
+font-display text-4xl md:text-5xl font-light text-foreground
+Linea:
+mt-6 h-px bg-gold/30 max-w-24
+Body text (descrizione)
+Nei teaser (Menu/Cocktail/Wine/Events):
+
+text-sm md:text-lg text-muted-foreground mb-8 leading-relaxed
+5) Immagini: dimensioni, ratio, container, trasformazioni
+A) Ratio e dimensioni “logiche”
+Nei teaser l’immagine usa:
+
+aspectClassName="aspect-[4/3]"
+containerClassName="rounded-2xl overflow-hidden relative"
+Quindi:
+
+aspect ratio: 4/3 (stabile)
+rounded corners: rounded-2xl
+cropping/overflow: overflow-hidden
+positioning: relative (serve per overlay/toolbar admin)
+B) Come viene renderizzata l’immagine
+I teaser usano TeaserImagePlaceholder, che a sua volta usa StandardImagePlaceholder (con transforms e ora revealAfterDecode nel tuo ramo recente).
+
+StandardImagePlaceholder:
+
+applica transform via inline style:
+translate(panX%, panY%) scale(scalePercent/100)
+usa objectFit (nei teaser spesso "contain")
+container: position:relative; width/height 100%; overflow hidden; aspectRatio (se passata)
+Nota importante per “dimensioni”: non c’è un width/height fisso in px, ma dipende dalla larghezza colonna e dal ratio aspect-[4/3].
+
+6) “Eventi privati” vs “Eventi”
+La differenza principale:
+
+Eventi privati usa EventsTeaser con reverse per invertire dx/sx
+e usa un resolvedCta hardcoded se buttonTestId è quello dei private events:
+IT: "Crea il tuo evento"
+EN: "Create your event"
+7) Checklist pratica per replicare su Replit
+Per replicare identico il layout:
+
+Crea un wrapper Section con:
+py-16 md:py-24 lg:py-32
+contenuto max-w-7xl mx-auto px-4 md:px-6
+sfondo alternato: alternate ? bg-card : bg-background
+Dentro ogni box:
+grid md:grid-cols-2 gap-12 items-center
+Colonna testo:
+SectionTitle con le classi sopra
+body text-sm md:text-lg text-muted-foreground mb-8 leading-relaxed
+button outline + arrow
+Colonna immagine:
+container aspect-[4/3] rounded-2xl overflow-hidden relative
+StandardImagePlaceholder/img con w-full h-full
+Alternanza:
+sfondo: passa alternate alternato
+dx/sx: passa reverse (o usa order-1 md:order-2 / order-2 md:order-1)

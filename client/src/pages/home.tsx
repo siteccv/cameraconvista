@@ -12,13 +12,12 @@ import type { PageBlock } from "@shared/schema";
 import logoImg from "@assets/Logo_ccv_nobistrot.png";
 import { Button } from "@/components/ui/button";
 import { 
-  TeaserCard, 
   BookingDialog, 
-  PhilosophySection, 
   HOME_PAGE_ID, 
   DEFAULT_BLOCKS, 
-  TEASER_CARDS 
+  TEASER_SECTIONS 
 } from "@/components/home";
+import { TeaserSection } from "@/components/home/TeaserSection";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -38,7 +37,6 @@ export default function Home() {
   });
 
   const heroBlock = blocks.find(b => b.blockType === "hero");
-  const conceptBlock = blocks.find(b => b.blockType === "concept");
   const brandingBlock = blocks.find(b => b.blockType === "branding");
 
   const createBlockMutation = useMutation({
@@ -78,40 +76,22 @@ export default function Home() {
 
   useEffect(() => {
     const needsHero = !heroBlock && !isLoading;
-    const needsConcept = !conceptBlock && !isLoading;
     const needsBranding = !brandingBlock && !isLoading;
     
     if (needsHero && !hasInitialized && !createBlockMutation.isPending) {
       setHasInitialized(true);
       createBlockMutation.mutate(DEFAULT_BLOCKS.hero, {
         onSuccess: () => {
-          if (needsConcept) {
-            createBlockMutation.mutate(DEFAULT_BLOCKS.concept, {
-              onSuccess: () => {
-                if (needsBranding) {
-                  createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
-                }
-              }
-            });
-          } else if (needsBranding) {
-            createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
-          }
-        }
-      });
-    } else if (needsConcept && heroBlock && !hasInitialized && !createBlockMutation.isPending) {
-      setHasInitialized(true);
-      createBlockMutation.mutate(DEFAULT_BLOCKS.concept, {
-        onSuccess: () => {
           if (needsBranding) {
             createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
           }
         }
       });
-    } else if (needsBranding && heroBlock && conceptBlock && !hasInitialized && !createBlockMutation.isPending) {
+    } else if (needsBranding && heroBlock && !hasInitialized && !createBlockMutation.isPending) {
       setHasInitialized(true);
       createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
     }
-  }, [isLoading, heroBlock, conceptBlock, brandingBlock, hasInitialized, createBlockMutation.isPending]);
+  }, [isLoading, heroBlock, brandingBlock, hasInitialized, createBlockMutation.isPending]);
 
   const handleHeroImageSave = (data: {
     src: string;
@@ -163,32 +143,6 @@ export default function Home() {
     });
   };
 
-  const handleConceptTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    if (!conceptBlock) return;
-    updateBlockMutation.mutate({
-      id: conceptBlock.id,
-      data: {
-        titleIt: data.textIt,
-        titleEn: data.textEn,
-        titleFontSize: data.fontSizeDesktop,
-        titleFontSizeMobile: data.fontSizeMobile,
-      },
-    });
-  };
-
-  const handleConceptBodySave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    if (!conceptBlock) return;
-    updateBlockMutation.mutate({
-      id: conceptBlock.id,
-      data: {
-        bodyIt: data.textIt,
-        bodyEn: data.textEn,
-        bodyFontSize: data.fontSizeDesktop,
-        bodyFontSizeMobile: data.fontSizeMobile,
-      },
-    });
-  };
-
   const heroImage = {
     src: heroBlock?.imageUrl || DEFAULT_BLOCKS.hero.imageUrl,
     zoomDesktop: heroBlock?.imageScaleDesktop || DEFAULT_BLOCKS.hero.imageScaleDesktop,
@@ -213,26 +167,7 @@ export default function Home() {
     fontSizeMobile: brandingBlock?.bodyFontSizeMobile || DEFAULT_BLOCKS.branding.bodyFontSizeMobile,
   };
 
-  const conceptTitle = {
-    it: conceptBlock?.titleIt || DEFAULT_BLOCKS.concept.titleIt,
-    en: conceptBlock?.titleEn || DEFAULT_BLOCKS.concept.titleEn,
-    fontSizeDesktop: conceptBlock?.titleFontSize || DEFAULT_BLOCKS.concept.titleFontSize,
-    fontSizeMobile: conceptBlock?.titleFontSizeMobile || DEFAULT_BLOCKS.concept.titleFontSizeMobile,
-  };
-
-  const conceptBody = {
-    it: conceptBlock?.bodyIt || DEFAULT_BLOCKS.concept.bodyIt,
-    en: conceptBlock?.bodyEn || DEFAULT_BLOCKS.concept.bodyEn,
-    fontSizeDesktop: conceptBlock?.bodyFontSize || DEFAULT_BLOCKS.concept.bodyFontSize,
-    fontSizeMobile: conceptBlock?.bodyFontSizeMobile || DEFAULT_BLOCKS.concept.bodyFontSizeMobile,
-  };
-
   const heroHeight = "h-[60vh]";
-  const sectionPadding = isMobile ? "py-10" : "py-20";
-  const titleMargin = isMobile ? "mb-8" : "mb-12";
-  const cardGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid grid-cols-3 gap-8";
-  const twoColGrid = isMobile ? "grid grid-cols-1 gap-6" : "grid-cols-2 gap-12 items-center";
-  const titleSize = isMobile ? "text-3xl" : "text-4xl";
   const logoHeight = isMobile ? "h-5" : "h-11";
 
   if (isLoading) {
@@ -338,45 +273,15 @@ export default function Home() {
         isMobile={isMobile} 
       />
 
-      <section className={sectionPadding}>
-        <div className="container mx-auto px-4">
-          <div className={`text-center max-w-3xl mx-auto ${titleMargin}`}>
-            <EditableText
-              textIt={conceptTitle.it}
-              textEn={conceptTitle.en}
-              fontSizeDesktop={conceptTitle.fontSizeDesktop}
-              fontSizeMobile={conceptTitle.fontSizeMobile}
-              as="h2"
-              className="font-display mb-4"
-              applyFontSize
-              onSave={handleConceptTitleSave}
-            />
-            <EditableText
-              textIt={conceptBody.it}
-              textEn={conceptBody.en}
-              fontSizeDesktop={conceptBody.fontSizeDesktop}
-              fontSizeMobile={conceptBody.fontSizeMobile}
-              as="p"
-              className="text-muted-foreground leading-relaxed"
-              applyFontSize
-              multiline
-              onSave={handleConceptBodySave}
-            />
-          </div>
-
-          <div className={cardGrid}>
-            {TEASER_CARDS.map((card) => (
-              <TeaserCard key={card.testId} {...card} />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <PhilosophySection 
-        sectionPadding={sectionPadding}
-        titleSize={titleSize}
-        twoColGrid={twoColGrid}
-      />
+      {TEASER_SECTIONS.map((section, idx) => (
+        <TeaserSection
+          key={section.testId}
+          data={section}
+          reverse={idx % 2 !== 0}
+          alternate={idx % 2 !== 0}
+          isMobile={isMobile}
+        />
+      ))}
     </PublicLayout>
   );
 }
