@@ -64,7 +64,7 @@ export default function GalleryPage() {
     }
   };
 
-  const sortedGalleries = [...galleries].sort((a, b) => a.sortOrder - b.sortOrder);
+  const sortedGalleries = [...galleries].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   return (
     <AdminLayout>

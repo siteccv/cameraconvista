@@ -47,7 +47,7 @@ export default function Galleria() {
 
   const visibleGalleries = galleries
     .filter(g => g.isVisible)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
