@@ -204,7 +204,7 @@ function MenuItemCard({ item }: { item: MenuItem }) {
           </h3>
           {item.price && (
             <span
-              className="price-text hidden md:inline-flex shrink-0 leading-tight"
+              className="price-text shrink-0 leading-tight"
               style={{
                 fontSize: '20px',
                 fontWeight: 500,
@@ -221,22 +221,6 @@ function MenuItemCard({ item }: { item: MenuItem }) {
           <p className="text-sm md:text-base text-muted-foreground">
             {t(item.descriptionIt, item.descriptionEn)}
           </p>
-        )}
-
-        {item.price && (
-          <div className="pt-1 md:hidden">
-            <span
-              className="price-text"
-              style={{
-                fontSize: '20px',
-                fontWeight: 500,
-                color: '#c7902f'
-              }}
-            >
-              <span>€</span>
-              <span>{item.price.replace('€', '').trim()}</span>
-            </span>
-          </div>
         )}
       </div>
     </div>
