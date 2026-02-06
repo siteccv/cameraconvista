@@ -27,7 +27,7 @@ export default function CartaVini() {
   const [introText, setIntroText] = useState({
     it: "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
     en: "A curated selection of Italian and international labels, chosen to accompany every moment of your experience.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const { data: wines, isLoading } = useQuery<Wine[]>({
@@ -185,24 +185,51 @@ function WineCard({ wine }: { wine: Wine }) {
       data-testid={`wine-item-${wine.id}`}
     >
       <div className="space-y-1">
-        {/* Nome vino */}
-        <h3 
-          className="text-base md:text-lg"
-          style={{ color: '#2f2b2a' }}
-        >
-          {t(wine.nameIt, wine.nameEn)}
-          {wine.year && <span className="ml-2 text-sm">{wine.year}</span>}
-        </h3>
+        <div className="md:flex md:items-center md:justify-between md:gap-4">
+          <h3 
+            className="text-base md:text-lg leading-tight"
+            style={{ color: '#2f2b2a' }}
+          >
+            {t(wine.nameIt, wine.nameEn)}
+            {wine.year && <span className="ml-2 text-sm">{wine.year}</span>}
+          </h3>
+          <div className="hidden md:flex gap-6 shrink-0 leading-tight">
+            {hasGlassPrice && (
+              <span 
+                className="price-text"
+                style={{ 
+                  fontSize: '20px',
+                  fontWeight: 500,
+                  color: '#c7902f'
+                }}
+              >
+                <span>€</span>
+                <span>{wine.priceGlass}</span>
+              </span>
+            )}
+            {hasBottlePrice && (
+              <span 
+                className="price-text"
+                style={{ 
+                  fontSize: '20px',
+                  fontWeight: 500,
+                  color: '#c7902f'
+                }}
+              >
+                <span>€</span>
+                <span>{wine.price}</span>
+              </span>
+            )}
+          </div>
+        </div>
         
-        {/* Cantina + Provenienza */}
         {(wine.descriptionIt || wine.descriptionEn) && (
           <p className="text-sm text-muted-foreground">
             {t(wine.descriptionIt, wine.descriptionEn)}
           </p>
         )}
         
-        {/* Prezzi */}
-        <div className="flex gap-6 pt-1">
+        <div className="flex gap-6 pt-1 md:hidden">
           {hasGlassPrice && (
             <span 
               className="price-text"

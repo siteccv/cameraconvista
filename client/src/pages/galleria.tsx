@@ -33,7 +33,7 @@ export default function Galleria() {
   const [introText, setIntroText] = useState({
     it: "Scopri l'atmosfera unica di Camera con Vista attraverso i nostri album fotografici.",
     en: "Discover the unique atmosphere of Camera con Vista through our photo albums.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const { data: galleries = [], isLoading: galleriesLoading } = useQuery<Gallery[]>({

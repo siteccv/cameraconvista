@@ -31,7 +31,7 @@ export default function CocktailBar() {
   const [introText, setIntroText] = useState({
     it: "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
     en: "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const { data: cocktails, isLoading } = useQuery<Cocktail[]>({

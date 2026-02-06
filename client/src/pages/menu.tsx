@@ -27,7 +27,7 @@ export default function Menu() {
   const [introText, setIntroText] = useState({
     it: "La nostra cucina celebra i sapori autentici della tradizione italiana, reinterpretati con creatività e ingredienti di stagione.",
     en: "Our cuisine celebrates the authentic flavors of Italian tradition, reinterpreted with creativity and seasonal ingredients.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const { data: menuItems, isLoading } = useQuery<MenuItem[]>({
@@ -169,24 +169,36 @@ function MenuItemCard({ item }: { item: MenuItem }) {
       data-testid={`menu-item-${item.id}`}
     >
       <div className="space-y-1">
-        {/* Nome piatto */}
-        <h3 
-          className="text-lg md:text-xl"
-          style={{ color: '#2f2b2a' }}
-        >
-          {t(item.nameIt, item.nameEn)}
-        </h3>
+        <div className="md:flex md:items-center md:justify-between md:gap-4">
+          <h3 
+            className="text-lg md:text-xl leading-tight"
+            style={{ color: '#2f2b2a' }}
+          >
+            {t(item.nameIt, item.nameEn)}
+          </h3>
+          {item.price && (
+            <span 
+              className="price-text hidden md:inline-flex shrink-0 leading-tight"
+              style={{ 
+                fontSize: '20px',
+                fontWeight: 500,
+                color: '#c7902f'
+              }}
+            >
+              <span>€</span>
+              <span>{item.price.replace('€', '').trim()}</span>
+            </span>
+          )}
+        </div>
         
-        {/* Descrizione */}
         {(item.descriptionIt || item.descriptionEn) && (
           <p className="text-sm md:text-base text-muted-foreground">
             {t(item.descriptionIt, item.descriptionEn)}
           </p>
         )}
         
-        {/* Prezzo */}
         {item.price && (
-          <div className="pt-1">
+          <div className="pt-1 md:hidden">
             <span 
               className="price-text"
               style={{ 

@@ -30,7 +30,7 @@ export default function Eventi() {
   const [introText, setIntroText] = useState({
     it: "Scopri i nostri eventi speciali: serate a tema, degustazioni, musica dal vivo e molto altro.",
     en: "Discover our special events: themed nights, tastings, live music and much more.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const { data: events, isLoading } = useQuery<Event[]>({

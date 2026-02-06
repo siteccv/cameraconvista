@@ -68,7 +68,7 @@ export default function Contatti() {
   const [introText, setIntroText] = useState({
     it: "Nel cuore di Bologna..\na 200 metri dalle Due Torri\nraggiungibile in 3 minuti a piedi.",
     en: "In the heart of Bologna..\n200 meters from the Two Towers\njust a 3-minute walk.",
-    fontSizeDesktop: 16, fontSizeMobile: 14
+    fontSizeDesktop: 20, fontSizeMobile: 14
   });
 
   const form = useForm<ContactFormData>({
