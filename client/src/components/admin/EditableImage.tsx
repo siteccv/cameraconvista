@@ -96,9 +96,22 @@ export function EditableImage({
     if (editSrc) {
       setNaturalDims(null);
       const img = new Image();
-      img.onload = () => setNaturalDims({ w: img.naturalWidth, h: img.naturalHeight });
-      img.onerror = () => setNaturalDims({ w: 800, h: 600 });
-      img.src = editSrc;
+      img.crossOrigin = "anonymous"; // Added to handle Supabase/CORS if needed for canvas/processing
+      img.onload = () => {
+        console.log("Image loaded successfully:", editSrc, img.naturalWidth, img.naturalHeight);
+        setNaturalDims({ w: img.naturalWidth, h: img.naturalHeight });
+      };
+      img.onerror = (err) => {
+        console.error("Image failed to load:", editSrc, err);
+        // Fallback for UI visibility even if loading fails
+        setNaturalDims({ w: 800, h: 600 });
+      };
+      // Force reload and bypass potential issues with same URL
+      if (editSrc.startsWith('http')) {
+        img.src = editSrc;
+      } else {
+        img.src = editSrc;
+      }
     }
   }, [editSrc]);
 
@@ -131,8 +144,8 @@ export function EditableImage({
   const totalScale = coverScale * (currentZoom / 100);
   const imgWidth = naturalDims ? naturalDims.w * totalScale : frameDims.w;
   const imgHeight = naturalDims ? naturalDims.h * totalScale : frameDims.h;
-  const imgLeft = frameDims.w / 2 - imgWidth / 2 + currentOffsetX * (currentZoom / 100);
-  const imgTop = frameDims.h / 2 - imgHeight / 2 + currentOffsetY * (currentZoom / 100);
+  const imgLeft = frameDims.w / 2 - imgWidth / 2 + (currentOffsetX * coverScale * (currentZoom / 100));
+  const imgTop = frameDims.h / 2 - imgHeight / 2 + (currentOffsetY * coverScale * (currentZoom / 100));
 
   const handleClick = (e: React.MouseEvent) => {
     if (adminPreview) {
@@ -349,6 +362,7 @@ export function EditableImage({
               >
                 {editSrc && naturalDims && (
                   <img
+                    key={editSrc}
                     src={editSrc}
                     alt="Preview"
                     className="absolute pointer-events-none"
@@ -357,8 +371,15 @@ export function EditableImage({
                       height: imgHeight + "px",
                       left: imgLeft + "px",
                       top: imgTop + "px",
+                      maxWidth: 'none', // Prevent interference from global styles
+                      maxHeight: 'none'
                     }}
                     draggable={false}
+                    onError={(e) => {
+                      console.error("IMG tag error:", editSrc);
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                    }}
                   />
                 )}
                 {editSrc && !naturalDims && (
