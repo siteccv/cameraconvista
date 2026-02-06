@@ -130,6 +130,7 @@ export const pageBlocks = pgTable("page_blocks", {
   
   // Draft/publish
   isDraft: boolean("is_draft").notNull().default(true),
+  publishedSnapshot: jsonb("published_snapshot"),
   
   // Extra data (flexible JSON for custom block types)
   metadata: jsonb("metadata"),

@@ -88,27 +88,53 @@ export class SupabaseStorage implements IStorage {
     return !error;
   }
 
+  private enrichBlockWithSnapshot(block: any): any {
+    const camelBlock = toCamelCase(block);
+    if (camelBlock.metadata && typeof camelBlock.metadata === 'object' && (camelBlock.metadata as any).__publishedSnapshot) {
+      camelBlock.publishedSnapshot = (camelBlock.metadata as any).__publishedSnapshot;
+    } else {
+      camelBlock.publishedSnapshot = null;
+    }
+    return camelBlock;
+  }
+
   async getPageBlocks(pageId: number): Promise<PageBlock[]> {
     const { data } = await supabaseAdmin.from('page_blocks').select('*').eq('page_id', pageId).order('sort_order', { ascending: true });
-    return toCamelCaseArray<PageBlock>(data || []);
+    return (data || []).map(row => this.enrichBlockWithSnapshot(row) as PageBlock);
   }
 
   async getPageBlock(id: number): Promise<PageBlock | undefined> {
     const { data } = await supabaseAdmin.from('page_blocks').select('*').eq('id', id).single();
-    return data ? toCamelCase(data) as PageBlock : undefined;
+    return data ? this.enrichBlockWithSnapshot(data) as PageBlock : undefined;
   }
 
   async createPageBlock(block: InsertPageBlock): Promise<PageBlock> {
-    const { data, error } = await supabaseAdmin.from('page_blocks').insert(toSnakeCase(block)).select().single();
+    const snakeData = toSnakeCase(block);
+    delete snakeData.published_snapshot;
+    const { data, error } = await supabaseAdmin.from('page_blocks').insert(snakeData).select().single();
     if (error) throw new Error(error.message);
-    return toCamelCase(data) as PageBlock;
+    return this.enrichBlockWithSnapshot(data) as PageBlock;
   }
 
   async updatePageBlock(id: number, block: Partial<InsertPageBlock>): Promise<PageBlock | undefined> {
-    const updateData = { ...toSnakeCase(block), updated_at: new Date().toISOString() };
+    const blockCopy = { ...block };
+    let publishedSnapshot: any = undefined;
+    if ('publishedSnapshot' in blockCopy) {
+      publishedSnapshot = (blockCopy as any).publishedSnapshot;
+      delete (blockCopy as any).publishedSnapshot;
+    }
+    const updateData: any = { ...toSnakeCase(blockCopy), updated_at: new Date().toISOString() };
+    delete updateData.published_snapshot;
+
+    if (publishedSnapshot !== undefined) {
+      const { data: currentBlock } = await supabaseAdmin.from('page_blocks').select('metadata').eq('id', id).single();
+      const existingMetadata = (currentBlock?.metadata && typeof currentBlock.metadata === 'object') ? currentBlock.metadata as Record<string, any> : {};
+      updateData.metadata = { ...existingMetadata, __publishedSnapshot: publishedSnapshot };
+    }
+
     const { data, error } = await supabaseAdmin.from('page_blocks').update(updateData).eq('id', id).select().single();
     if (error) return undefined;
-    return data ? toCamelCase(data) as PageBlock : undefined;
+    return data ? this.enrichBlockWithSnapshot(data) as PageBlock : undefined;
   }
 
   async deletePageBlock(id: number): Promise<boolean> {

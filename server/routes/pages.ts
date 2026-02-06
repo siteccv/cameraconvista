@@ -1,7 +1,36 @@
 import { Router } from "express";
 import { storage } from "../storage";
-import { insertPageSchema, insertPageBlockSchema } from "@shared/schema";
+import { insertPageSchema, insertPageBlockSchema, type PageBlock } from "@shared/schema";
 import { requireAuth, parseId } from "./helpers";
+
+const SNAPSHOT_FIELDS = [
+  "titleIt", "titleEn", "bodyIt", "bodyEn",
+  "ctaTextIt", "ctaTextEn", "ctaUrl",
+  "imageUrl", "imageAltIt", "imageAltEn",
+  "imageOffsetX", "imageOffsetY", "imageScaleDesktop",
+  "imageOffsetXMobile", "imageOffsetYMobile", "imageScaleMobile",
+  "titleFontSize", "bodyFontSize", "titleFontSizeMobile", "bodyFontSizeMobile",
+] as const;
+
+function extractBlockSnapshot(block: PageBlock): Record<string, unknown> {
+  const snapshot: Record<string, unknown> = {};
+  for (const field of SNAPSHOT_FIELDS) {
+    snapshot[field] = block[field];
+  }
+  return snapshot;
+}
+
+function applyPublishedSnapshot(block: PageBlock): PageBlock {
+  const snapshot = block.publishedSnapshot as Record<string, unknown> | null;
+  if (!snapshot) return block;
+  const merged = { ...block };
+  for (const field of SNAPSHOT_FIELDS) {
+    if (field in snapshot) {
+      (merged as any)[field] = snapshot[field];
+    }
+  }
+  return merged;
+}
 
 const router = Router();
 
@@ -37,7 +66,8 @@ router.get("/:pageId/blocks", async (req, res) => {
   try {
     const pageId = parseId(req.params.pageId);
     const blocks = await storage.getPageBlocks(pageId);
-    res.json(blocks);
+    const publishedBlocks = blocks.map(applyPublishedSnapshot);
+    res.json(publishedBlocks);
   } catch (error) {
     console.error("Error fetching page blocks:", error);
     res.status(500).json({ error: "Failed to fetch page blocks" });
@@ -134,7 +164,8 @@ adminPagesRouter.post("/:id/publish", requireAuth, async (req, res) => {
     }
     const blocks = await storage.getPageBlocks(pageId);
     for (const block of blocks) {
-      await storage.updatePageBlock(block.id, { isDraft: false });
+      const snapshot = extractBlockSnapshot(block);
+      await storage.updatePageBlock(block.id, { isDraft: false, publishedSnapshot: snapshot });
     }
     res.json({ success: true, page });
   } catch (error) {
@@ -184,7 +215,9 @@ adminPageBlocksRouter.post("/", requireAuth, async (req, res) => {
       return;
     }
     const block = await storage.createPageBlock(parsed.data);
-    res.status(201).json(block);
+    const snapshot = extractBlockSnapshot(block);
+    const updatedBlock = await storage.updatePageBlock(block.id, { publishedSnapshot: snapshot, isDraft: false });
+    res.status(201).json(updatedBlock || block);
   } catch (error) {
     console.error("Error creating page block:", error);
     res.status(500).json({ error: "Failed to create page block" });
@@ -238,7 +271,8 @@ publishAllRouter.post("/", requireAuth, async (req, res) => {
       await storage.updatePage(page.id, { isDraft: false, publishedAt: new Date() });
       const blocks = await storage.getPageBlocks(page.id);
       for (const block of blocks) {
-        await storage.updatePageBlock(block.id, { isDraft: false });
+        const snapshot = extractBlockSnapshot(block);
+        await storage.updatePageBlock(block.id, { isDraft: false, publishedSnapshot: snapshot });
       }
     }
     res.json({ success: true, message: "All pages published" });

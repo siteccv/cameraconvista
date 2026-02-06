@@ -22,7 +22,7 @@ import {
 
 export default function Home() {
   const { t } = useLanguage();
-  const { deviceView, forceMobileLayout } = useAdmin();
+  const { adminPreview, deviceView, forceMobileLayout } = useAdmin();
   const { toast } = useToast();
   const viewportIsMobile = useIsMobile();
 
@@ -31,10 +31,19 @@ export default function Home() {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
 
-  const blocksQueryKey = ["/api", "pages", HOME_PAGE_ID, "blocks"];
+  const blocksQueryKey = adminPreview
+    ? ["/api/admin/page-blocks", HOME_PAGE_ID, "blocks"]
+    : ["/api", "pages", HOME_PAGE_ID, "blocks"];
 
   const { data: blocks = [], isLoading } = useQuery<PageBlock[]>({
     queryKey: blocksQueryKey,
+    queryFn: adminPreview
+      ? async () => {
+          const res = await fetch(`/api/admin/page-blocks/${HOME_PAGE_ID}/blocks`, { credentials: "include" });
+          if (!res.ok) throw new Error("Failed to fetch blocks");
+          return res.json();
+        }
+      : undefined,
   });
 
   const heroBlock = blocks.find(b => b.blockType === "hero");

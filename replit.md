@@ -44,6 +44,8 @@ Preferred communication style: Simple, everyday language.
 - **Schema Location**: `shared/schema.ts` (shared between client/server)
 - **Migrations**: Drizzle Kit (`drizzle-kit push`)
 - **Storage Abstraction**: `server/storage.ts` provides interface for all data operations
+- **Supabase Backend**: When `SUPABASE_URL` is set, uses `server/supabase-storage.ts` (SupabaseStorage class) instead of local Drizzle. Converts camelCase↔snake_case automatically.
+- **Draft/Publish System**: Page blocks support draft/publish workflow. Published snapshots are stored inside the existing `metadata` JSONB column as `metadata.__publishedSnapshot` (Supabase doesn't have a separate `published_snapshot` column). The `SupabaseStorage.enrichBlockWithSnapshot()` method extracts this into `block.publishedSnapshot` for the API layer. Public routes serve published content via `applyPublishedSnapshot()`, admin routes serve draft (current) fields.
 
 ### Key Architectural Patterns
 1. **Shared Schema**: Types and schema definitions in `shared/` are used by both frontend and backend
