@@ -116,7 +116,7 @@ export default function CartaVini() {
               className="w-full h-full object-cover"
               onSave={handleHeroImageSave}
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/70 pointer-events-none" />
+            <div className="absolute inset-0 bg-black/35 pointer-events-none" />
           </div>
           <div className="relative z-10 text-center text-white">
             <EditableText
