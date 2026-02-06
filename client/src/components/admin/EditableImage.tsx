@@ -238,7 +238,7 @@ export function EditableImage({
               <img
                 src={editSrc}
                 alt="Preview"
-                className="w-full h-full object-cover pointer-events-none"
+                className="absolute inset-0 w-full h-full object-contain pointer-events-none"
                 style={{
                   transform: `scale(${currentZoom / 100}) translate(${currentOffsetX}px, ${currentOffsetY}px)`,
                   transformOrigin: "center center",
