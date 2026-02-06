@@ -345,21 +345,35 @@ export function EditableImage({
                 onWheel={handleWheel}
               >
                 {editSrc && imageLoaded ? (
-                  <img
-                    key={editSrc}
-                    src={editSrc}
-                    alt="Preview"
-                    className="absolute pointer-events-none"
-                    style={{
-                      width: naturalWidth * coverScale * s,
-                      height: naturalHeight * coverScale * s,
-                      left: (frameW - naturalWidth * coverScale * s) / 2 + offsetX * s,
-                      top: (frameH - naturalHeight * coverScale * s) / 2 + offsetY * s,
-                      maxWidth: "none",
-                      maxHeight: "none",
-                    }}
-                    draggable={false}
-                  />
+                  zoom >= 100 ? (
+                    <img
+                      key={editSrc + "-cover"}
+                      src={editSrc}
+                      alt="Preview"
+                      className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      style={{
+                        transform: `scale(${s}) translate(${offsetX}px, ${offsetY}px)`,
+                        transformOrigin: "center center",
+                      }}
+                      draggable={false}
+                    />
+                  ) : (
+                    <img
+                      key={editSrc + "-fit"}
+                      src={editSrc}
+                      alt="Preview"
+                      className="absolute pointer-events-none"
+                      style={{
+                        width: naturalWidth * coverScale * s,
+                        height: naturalHeight * coverScale * s,
+                        left: (frameW - naturalWidth * coverScale * s) / 2 + offsetX * s,
+                        top: (frameH - naturalHeight * coverScale * s) / 2 + offsetY * s,
+                        maxWidth: "none",
+                        maxHeight: "none",
+                      }}
+                      draggable={false}
+                    />
+                  )
                 ) : editSrc ? (
                   <div className="absolute inset-0 flex items-center justify-center text-white/50 text-sm">
                     {t("Caricamento...", "Loading...")}
