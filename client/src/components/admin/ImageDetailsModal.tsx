@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -16,10 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Save, Loader2, X, RotateCcw, RotateCw } from "lucide-react";
-import type { Media } from "@shared/schema";
+import type { Media, MediaCategory } from "@shared/schema";
 import { formatSize, formatDate } from "@/lib/formatters";
-
-const CATEGORIES = ["varie", "interni", "food", "drink", "eventi"] as const;
 
 interface ImageDetailsModalProps {
   media: Media | null;
@@ -28,7 +26,7 @@ interface ImageDetailsModalProps {
 }
 
 export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsModalProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { toast } = useToast();
 
   const [altIt, setAltIt] = useState("");
@@ -38,6 +36,11 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   const [tagInput, setTagInput] = useState("");
   const [displayUrl, setDisplayUrl] = useState("");
   const [displaySize, setDisplaySize] = useState(0);
+
+  const { data: dbCategories = [] } = useQuery<MediaCategory[]>({
+    queryKey: ["/api/admin/media-categories"],
+    enabled: open,
+  });
 
   useEffect(() => {
     if (media) {
@@ -231,9 +234,9 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
                 <SelectValue placeholder={t("Seleziona cartella", "Select folder")} />
               </SelectTrigger>
               <SelectContent>
-                {CATEGORIES.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                {dbCategories.map((cat) => (
+                  <SelectItem key={cat.slug} value={cat.slug}>
+                    {language === "it" ? cat.labelIt : cat.labelEn}
                   </SelectItem>
                 ))}
               </SelectContent>
