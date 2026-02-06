@@ -111,7 +111,8 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
 
   return (
     <section
-      className={`${isMobile ? "py-10" : "py-16 md:py-24 lg:py-32"} ${alternate ? "bg-card" : "bg-background"}`}
+      className={`${isMobile ? "py-10" : "py-16 md:py-24 lg:py-32"}`}
+      style={alternate ? { backgroundColor: 'hsl(34 60% 94.5%)' } : undefined}
       data-testid={`section-${testId}`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6">
