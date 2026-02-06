@@ -10,6 +10,16 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { EventModal } from "@/components/admin/EventModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Plus, 
   Calendar, 
@@ -26,6 +36,7 @@ export default function AdminEvents() {
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Event | null>(null);
 
   const { data: events = [], isLoading } = useQuery<Event[]>({
     queryKey: ["/api/admin/events"],
@@ -86,8 +97,13 @@ export default function AdminEvents() {
   };
 
   const handleDeleteEvent = (event: Event) => {
-    if (confirm(t(`Sei sicuro di voler eliminare "${event.titleIt}"?`, `Are you sure you want to delete "${event.titleEn}"?`))) {
-      deleteMutation.mutate(event.id);
+    setDeleteTarget(event);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      deleteMutation.mutate(deleteTarget.id);
+      setDeleteTarget(null);
     }
   };
 
@@ -310,6 +326,34 @@ export default function AdminEvents() {
         onOpenChange={setModalOpen}
         event={editingEvent}
       />
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("Elimina evento", "Delete event")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                `Sei sicuro di voler eliminare "${deleteTarget?.titleIt}"? Questa azione non può essere annullata.`,
+                `Are you sure you want to delete "${deleteTarget?.titleEn}"? This action cannot be undone.`
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">
+              {t("Annulla", "Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {t("Elimina", "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }
