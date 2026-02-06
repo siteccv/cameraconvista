@@ -186,7 +186,7 @@ export default function AdminPages() {
                   {activePageData.isDraft ? (
                     <Button
                       size="sm"
-                      className="no-default-hover-elevate no-default-active-elevate"
+                      className="no-default-hover-elevate no-default-active-elevate animate-subtle-pulse"
                       style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
                       onClick={() => publishPageMutation.mutate(activePageData.id)}
                       disabled={publishPageMutation.isPending}
@@ -202,8 +202,8 @@ export default function AdminPages() {
                   ) : (
                     <Button
                       size="sm"
-                      variant="outline"
-                      style={{ backgroundColor: 'rgba(34, 139, 34, 0.12)', borderColor: 'rgba(34, 139, 34, 0.3)', color: '#16a34a' }}
+                      className="no-default-hover-elevate no-default-active-elevate cursor-default publish-done"
+                      style={{ backgroundColor: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
                       disabled
                       data-testid="button-publish-page"
                     >

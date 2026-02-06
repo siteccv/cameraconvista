@@ -10,6 +10,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@keyframes subtle-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.75; }
+}
+.animate-subtle-pulse {
+  animation: subtle-pulse 2.5s ease-in-out infinite;
+}
+.publish-done:disabled {
+  opacity: 1 !important;
+  pointer-events: none;
+}
+
 /* Price text - aligned numerals */
 .price-text {
   font-family: 'Spectral', Georgia, serif;

@@ -137,7 +137,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   ) : hasPendingChanges ? (
                     <Button
                       size="sm"
-                      className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate"
+                      className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate animate-subtle-pulse"
                       style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
                       onClick={() => publishAllMutation.mutate()}
                       disabled={publishAllMutation.isPending}
@@ -153,9 +153,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                   ) : (
                     <Button
                       size="sm"
-                      variant="outline"
-                      className="w-full justify-start gap-2"
-                      style={{ backgroundColor: 'rgba(34, 139, 34, 0.12)', borderColor: 'rgba(34, 139, 34, 0.3)', color: '#16a34a' }}
+                      className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate cursor-default publish-done"
+                      style={{ backgroundColor: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
                       disabled
                       data-testid="button-publish-site"
                     >
