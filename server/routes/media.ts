@@ -78,6 +78,68 @@ adminMediaRouter.put("/:id", requireAuth, async (req, res) => {
   }
 });
 
+adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
+  try {
+    const id = parseId(req.params.id);
+    const { direction } = req.body as { direction?: "cw" | "ccw" };
+    const angle = direction === "ccw" ? -90 : 90;
+
+    const mediaItem = await storage.getMediaItem(id);
+    if (!mediaItem) {
+      res.status(404).json({ error: "Media not found" });
+      return;
+    }
+
+    const imageResponse = await fetch(mediaItem.url);
+    if (!imageResponse.ok) {
+      res.status(500).json({ error: "Failed to download image" });
+      return;
+    }
+    const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
+
+    const sharpResult = sharp(imageBuffer).rotate(angle);
+    const rotatedBuffer = await sharpResult.toBuffer();
+    const rotatedMeta = await sharp(rotatedBuffer).metadata();
+
+    const { supabaseAdmin } = await import("../supabase");
+
+    const timestamp = Date.now();
+    const sanitizedName = (mediaItem.filename || "image.jpg").replace(/[^a-zA-Z0-9._-]/g, '_');
+    const storagePath = `public/${timestamp}-rot-${sanitizedName}`;
+
+    const mimeType = mediaItem.mimeType || "image/jpeg";
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from('media-public')
+      .upload(storagePath, rotatedBuffer, {
+        contentType: mimeType,
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error("Supabase upload error during rotation:", uploadError);
+      res.status(500).json({ error: "Failed to upload rotated image" });
+      return;
+    }
+
+    const { data: urlData } = supabaseAdmin.storage
+      .from('media-public')
+      .getPublicUrl(storagePath);
+
+    const updated = await storage.updateMedia(id, {
+      url: urlData.publicUrl,
+      size: rotatedBuffer.length,
+      width: rotatedMeta.width || null,
+      height: rotatedMeta.height || null,
+    });
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error rotating image:", error);
+    res.status(500).json({ error: "Failed to rotate image" });
+  }
+});
+
 adminMediaRouter.delete("/:id", requireAuth, async (req, res) => {
   try {
     const deleted = await storage.deleteMedia(parseId(req.params.id));

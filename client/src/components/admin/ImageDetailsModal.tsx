@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Trash2, Save, Loader2, X } from "lucide-react";
+import { Trash2, Save, Loader2, X, RotateCcw, RotateCw } from "lucide-react";
 import type { Media } from "@shared/schema";
 import { formatSize, formatDate } from "@/lib/formatters";
 
@@ -64,6 +64,28 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
       toast({
         title: t("Errore", "Error"),
         description: t("Impossibile salvare i dettagli.", "Failed to save details."),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const rotateMutation = useMutation({
+    mutationFn: async (direction: "cw" | "ccw") => {
+      if (!media) return;
+      const response = await apiRequest("POST", `/api/admin/media/${media.id}/rotate`, { direction });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/media"] });
+      toast({
+        title: t("Ruotato", "Rotated"),
+        description: t("Immagine ruotata con successo.", "Image rotated successfully."),
+      });
+    },
+    onError: () => {
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile ruotare l'immagine.", "Failed to rotate image."),
         variant: "destructive",
       });
     },
@@ -133,12 +155,42 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="aspect-video bg-muted rounded-md overflow-hidden">
-            <img
-              src={media.url}
-              alt={altIt || media.filename}
-              className="w-full h-full object-contain"
-            />
+          <div className="relative">
+            <div className="aspect-video bg-muted rounded-md overflow-hidden">
+              {rotateMutation.isPending ? (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+              ) : (
+                <img
+                  src={media.url}
+                  alt={altIt || media.filename}
+                  className="w-full h-full object-contain"
+                />
+              )}
+            </div>
+            <div className="flex items-center justify-center gap-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => rotateMutation.mutate("ccw")}
+                disabled={rotateMutation.isPending}
+                data-testid="button-rotate-ccw"
+              >
+                <RotateCcw className="h-4 w-4 mr-1" />
+                {t("Ruota sx", "Rotate left")}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => rotateMutation.mutate("cw")}
+                disabled={rotateMutation.isPending}
+                data-testid="button-rotate-cw"
+              >
+                <RotateCw className="h-4 w-4 mr-1" />
+                {t("Ruota dx", "Rotate right")}
+              </Button>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
