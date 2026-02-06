@@ -99,7 +99,7 @@ export const TEASER_BLOCK_DEFAULTS: TeaserBlockDefault[] = [
     bodyEn: "A curated selection of Italian and international labels, chosen to accompany every moment of your experience. From the glass to the bottle, each wine tells the story of its territory.",
     ctaTextIt: "Esplora la carta",
     ctaTextEn: "Explore the list",
-    ctaUrl: "/carta-vini",
+    ctaUrl: "/lista-vini",
     imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,

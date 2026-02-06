@@ -13,6 +13,11 @@ import syncRouter from "./sync";
 
 export function mountRoutes(app: Express): void {
   // ========================================
+  // URL Redirects (301)
+  // ========================================
+  app.get("/carta-vini", (_req, res) => res.redirect(301, "/lista-vini"));
+
+  // ========================================
   // Public API Routes
   // ========================================
   

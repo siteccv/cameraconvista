@@ -11,7 +11,7 @@ import type { Page } from "@shared/schema";
 const allNavItems = [
   { slug: "home", path: "/", labelIt: "Home", labelEn: "Home" },
   { slug: "menu", path: "/menu", labelIt: "Menù", labelEn: "Menu" },
-  { slug: "carta-vini", path: "/carta-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
+  { slug: "carta-vini", path: "/lista-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
   { slug: "cocktail-bar", path: "/cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar" },
   { slug: "eventi", path: "/eventi", labelIt: "Eventi", labelEn: "Events" },
   { slug: "eventi-privati", path: "/eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events" },

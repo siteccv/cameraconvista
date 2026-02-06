@@ -71,7 +71,8 @@ function Router() {
       <Switch>
       <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
       <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
-      <Route path="/carta-vini">{() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}</Route>
+      <Route path="/lista-vini">{() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}</Route>
+      <Route path="/carta-vini">{() => { window.location.replace("/lista-vini"); return null; }}</Route>
       <Route path="/cocktail-bar">{() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}</Route>
       <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
       <Route path="/eventi/:id" component={EventDetail} />
