@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -13,11 +13,12 @@ import logoImg from "@assets/Logo_ccv_nobistrot.png";
 import { Button } from "@/components/ui/button";
 import { 
   BookingDialog, 
+  TeaserSection,
   HOME_PAGE_ID, 
   DEFAULT_BLOCKS, 
-  TEASER_SECTIONS 
+  TEASER_BLOCK_DEFAULTS,
+  TEASER_BLOCK_TYPES,
 } from "@/components/home";
-import { TeaserSection } from "@/components/home/TeaserSection";
 
 export default function Home() {
   const { t } = useLanguage();
@@ -38,21 +39,7 @@ export default function Home() {
 
   const heroBlock = blocks.find(b => b.blockType === "hero");
   const brandingBlock = blocks.find(b => b.blockType === "branding");
-
-  const createBlockMutation = useMutation({
-    mutationFn: async (blockData: Partial<PageBlock>) => {
-      return apiRequest("POST", "/api/admin/page-blocks", {
-        ...blockData,
-        pageId: HOME_PAGE_ID,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: blocksQueryKey });
-    },
-    onError: () => {
-      setHasInitialized(false);
-    },
-  });
+  const teaserBlocks = TEASER_BLOCK_TYPES.map(type => blocks.find(b => b.blockType === type) || null);
 
   const updateBlockMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<PageBlock> }) => {
@@ -75,23 +62,40 @@ export default function Home() {
   });
 
   useEffect(() => {
-    const needsHero = !heroBlock && !isLoading;
-    const needsBranding = !brandingBlock && !isLoading;
-    
-    if (needsHero && !hasInitialized && !createBlockMutation.isPending) {
+    if (isLoading || hasInitialized) return;
+
+    const missingBlocks: Partial<PageBlock>[] = [];
+
+    if (!heroBlock) missingBlocks.push(DEFAULT_BLOCKS.hero as Partial<PageBlock>);
+    if (!brandingBlock) missingBlocks.push(DEFAULT_BLOCKS.branding as Partial<PageBlock>);
+
+    TEASER_BLOCK_DEFAULTS.forEach((def) => {
+      const existing = blocks.find(b => b.blockType === def.blockType);
+      if (!existing) missingBlocks.push(def as unknown as Partial<PageBlock>);
+    });
+
+    if (missingBlocks.length > 0) {
       setHasInitialized(true);
-      createBlockMutation.mutate(DEFAULT_BLOCKS.hero, {
-        onSuccess: () => {
-          if (needsBranding) {
-            createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
+      const createSequentially = async () => {
+        for (const blockData of missingBlocks) {
+          try {
+            await apiRequest("POST", "/api/admin/page-blocks", {
+              ...blockData,
+              pageId: HOME_PAGE_ID,
+            });
+          } catch {
+            // continue with remaining blocks
           }
         }
-      });
-    } else if (needsBranding && heroBlock && !hasInitialized && !createBlockMutation.isPending) {
-      setHasInitialized(true);
-      createBlockMutation.mutate(DEFAULT_BLOCKS.branding);
+        queryClient.invalidateQueries({ queryKey: blocksQueryKey });
+      };
+      createSequentially();
     }
-  }, [isLoading, heroBlock, brandingBlock, hasInitialized, createBlockMutation.isPending]);
+  }, [isLoading, blocks, hasInitialized]);
+
+  const handleUpdateBlock = useCallback((id: number, data: Partial<PageBlock>) => {
+    updateBlockMutation.mutate({ id, data });
+  }, [updateBlockMutation]);
 
   const handleHeroImageSave = (data: {
     src: string;
@@ -103,43 +107,34 @@ export default function Home() {
     offsetYMobile: number;
   }) => {
     if (!heroBlock) return;
-    updateBlockMutation.mutate({
-      id: heroBlock.id,
-      data: {
-        imageUrl: data.src,
-        imageScaleDesktop: data.zoomDesktop,
-        imageScaleMobile: data.zoomMobile,
-        imageOffsetX: data.offsetXDesktop,
-        imageOffsetY: data.offsetYDesktop,
-        imageOffsetXMobile: data.offsetXMobile,
-        imageOffsetYMobile: data.offsetYMobile,
-      },
+    handleUpdateBlock(heroBlock.id, {
+      imageUrl: data.src,
+      imageScaleDesktop: data.zoomDesktop,
+      imageScaleMobile: data.zoomMobile,
+      imageOffsetX: data.offsetXDesktop,
+      imageOffsetY: data.offsetYDesktop,
+      imageOffsetXMobile: data.offsetXMobile,
+      imageOffsetYMobile: data.offsetYMobile,
     });
   };
 
   const handleBrandingTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!brandingBlock) return;
-    updateBlockMutation.mutate({
-      id: brandingBlock.id,
-      data: {
-        titleIt: data.textIt,
-        titleEn: data.textEn,
-        titleFontSize: data.fontSizeDesktop,
-        titleFontSizeMobile: data.fontSizeMobile,
-      },
+    handleUpdateBlock(brandingBlock.id, {
+      titleIt: data.textIt,
+      titleEn: data.textEn,
+      titleFontSize: data.fontSizeDesktop,
+      titleFontSizeMobile: data.fontSizeMobile,
     });
   };
 
   const handleBrandingTaglineSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!brandingBlock) return;
-    updateBlockMutation.mutate({
-      id: brandingBlock.id,
-      data: {
-        bodyIt: data.textIt,
-        bodyEn: data.textEn,
-        bodyFontSize: data.fontSizeDesktop,
-        bodyFontSizeMobile: data.fontSizeMobile,
-      },
+    handleUpdateBlock(brandingBlock.id, {
+      bodyIt: data.textIt,
+      bodyEn: data.textEn,
+      bodyFontSize: data.fontSizeDesktop,
+      bodyFontSizeMobile: data.fontSizeMobile,
     });
   };
 
@@ -273,13 +268,14 @@ export default function Home() {
         isMobile={isMobile} 
       />
 
-      {TEASER_SECTIONS.map((section, idx) => (
+      {TEASER_BLOCK_DEFAULTS.map((def, idx) => (
         <TeaserSection
-          key={section.testId}
-          data={section}
+          key={def.blockType}
+          block={teaserBlocks[idx]}
+          defaults={def}
           reverse={idx % 2 !== 0}
           alternate={idx % 2 !== 0}
-          isMobile={isMobile}
+          onUpdateBlock={handleUpdateBlock}
         />
       ))}
     </PublicLayout>
