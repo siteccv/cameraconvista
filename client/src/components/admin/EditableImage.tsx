@@ -256,11 +256,6 @@ export function EditableImage({
     transformOrigin: "center center",
   } : {};
 
-  const previewTransform: React.CSSProperties = {
-    transform: `scale(${zoom / 100}) translate(${offsetX}px, ${offsetY}px)`,
-    transformOrigin: "center center",
-  };
-
   if (!adminPreview) {
     return (
       <div className={containerClassName}>
@@ -337,6 +332,8 @@ export function EditableImage({
                 className="relative overflow-hidden cursor-move mx-auto select-none"
                 style={{
                   aspectRatio: `${previewAspect}`,
+                  backgroundImage: "repeating-conic-gradient(#333 0% 25%, #222 0% 50%)",
+                  backgroundSize: "16px 16px",
                 }}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
@@ -352,8 +349,15 @@ export function EditableImage({
                     key={editSrc}
                     src={editSrc}
                     alt="Preview"
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                    style={previewTransform}
+                    className="absolute pointer-events-none"
+                    style={{
+                      width: naturalWidth * coverScale * s,
+                      height: naturalHeight * coverScale * s,
+                      left: (frameW - naturalWidth * coverScale * s) / 2 + offsetX * s,
+                      top: (frameH - naturalHeight * coverScale * s) / 2 + offsetY * s,
+                      maxWidth: "none",
+                      maxHeight: "none",
+                    }}
                     draggable={false}
                   />
                 ) : editSrc ? (
