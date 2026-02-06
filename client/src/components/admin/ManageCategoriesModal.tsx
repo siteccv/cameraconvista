@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Pencil, Trash2, Plus, Check, X, Loader2 } from "lucide-react";
-import { TranslateButton } from "./TranslateButton";
 import type { MediaCategory, InsertMediaCategory } from "@shared/schema";
 
 interface ManageCategoriesModalProps {
@@ -27,11 +26,8 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
   
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editLabelIt, setEditLabelIt] = useState("");
-  const [editLabelEn, setEditLabelEn] = useState("");
   const [isCreating, setIsCreating] = useState(false);
-  const [newSlug, setNewSlug] = useState("");
   const [newLabelIt, setNewLabelIt] = useState("");
-  const [newLabelEn, setNewLabelEn] = useState("");
 
   const { data: categories = [], isLoading } = useQuery<MediaCategory[]>({
     queryKey: ["/api/admin/media-categories"],
@@ -83,17 +79,16 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
 
   const resetCreateForm = () => {
     setIsCreating(false);
-    setNewSlug("");
     setNewLabelIt("");
-    setNewLabelEn("");
   };
 
   const handleCreate = () => {
-    if (!newSlug.trim() || !newLabelIt.trim() || !newLabelEn.trim()) return;
+    if (!newLabelIt.trim()) return;
+    const slug = newLabelIt.toLowerCase().replace(/\s+/g, "-");
     createMutation.mutate({
-      slug: newSlug.toLowerCase().replace(/\s+/g, "-"),
+      slug,
       labelIt: newLabelIt,
-      labelEn: newLabelEn,
+      labelEn: newLabelIt,
       sortOrder: categories.length,
     });
   };
@@ -101,14 +96,13 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
   const handleStartEdit = (category: MediaCategory) => {
     setEditingId(category.id);
     setEditLabelIt(category.labelIt);
-    setEditLabelEn(category.labelEn);
   };
 
   const handleSaveEdit = () => {
-    if (!editingId || !editLabelIt.trim() || !editLabelEn.trim()) return;
+    if (!editingId || !editLabelIt.trim()) return;
     updateMutation.mutate({
       id: editingId,
-      data: { labelIt: editLabelIt, labelEn: editLabelEn },
+      data: { labelIt: editLabelIt, labelEn: editLabelIt },
     });
   };
 
@@ -146,30 +140,14 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                   >
                     {editingId === category.id ? (
                       <>
-                        <div className="flex-1 space-y-2">
+                        <div className="flex-1">
                           <Input
                             value={editLabelIt}
                             onChange={(e) => setEditLabelIt(e.target.value)}
-                            placeholder="Nome IT"
+                            placeholder={t("Nome cartella", "Folder name")}
                             className="h-8"
                             data-testid="input-edit-label-it"
                           />
-                          <div className="flex items-center gap-1">
-                            <Input
-                              value={editLabelEn}
-                              onChange={(e) => setEditLabelEn(e.target.value)}
-                              placeholder="Name EN"
-                              className="h-8 flex-1"
-                              data-testid="input-edit-label-en"
-                            />
-                            <TranslateButton
-                              textIt={editLabelIt}
-                              onTranslated={setEditLabelEn}
-                              context="media folder name for restaurant website"
-                              size="icon"
-                              className="h-8 w-8 shrink-0"
-                            />
-                          </div>
                         </div>
                         <Button 
                           size="icon" 
@@ -193,7 +171,6 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                       <>
                         <div className="flex-1">
                           <p className="font-medium text-sm">{category.labelIt}</p>
-                          <p className="text-xs text-muted-foreground">{category.labelEn}</p>
                         </div>
                         <Button 
                           size="icon" 
@@ -222,49 +199,20 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
               {isCreating ? (
                 <div className="p-3 border rounded-md bg-muted/30 space-y-3">
                   <div>
-                    <Label className="text-xs">{t("Identificatore (slug)", "Identifier (slug)")}</Label>
-                    <Input
-                      value={newSlug}
-                      onChange={(e) => setNewSlug(e.target.value)}
-                      placeholder="es: desserts"
-                      className="h-8 mt-1"
-                      data-testid="input-new-slug"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs">{t("Nome italiano", "Italian name")}</Label>
+                    <Label className="text-xs">{t("Nome cartella", "Folder name")}</Label>
                     <Input
                       value={newLabelIt}
                       onChange={(e) => setNewLabelIt(e.target.value)}
-                      placeholder="es: Dolci"
+                      placeholder={t("es: Dolci", "e.g: Desserts")}
                       className="h-8 mt-1"
                       data-testid="input-new-label-it"
-                    />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1">
-                      <Label className="text-xs flex-1">{t("Nome inglese", "English name")}</Label>
-                      <TranslateButton
-                        textIt={newLabelIt}
-                        onTranslated={setNewLabelEn}
-                        context="media folder name for restaurant website"
-                        size="icon"
-                        className="h-6 w-6"
-                      />
-                    </div>
-                    <Input
-                      value={newLabelEn}
-                      onChange={(e) => setNewLabelEn(e.target.value)}
-                      placeholder="e.g: Desserts"
-                      className="h-8 mt-1"
-                      data-testid="input-new-label-en"
                     />
                   </div>
                   <div className="flex gap-2">
                     <Button 
                       size="sm" 
                       onClick={handleCreate}
-                      disabled={createMutation.isPending || !newSlug.trim() || !newLabelIt.trim() || !newLabelEn.trim()}
+                      disabled={createMutation.isPending || !newLabelIt.trim()}
                       data-testid="button-confirm-create"
                     >
                       {createMutation.isPending && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
