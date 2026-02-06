@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -53,6 +53,7 @@ export function EditableImage({
   const { adminPreview, forceMobileLayout } = useAdmin();
   const { t } = useLanguage();
   const viewportIsMobile = useIsMobile();
+
   const [isOpen, setIsOpen] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
 
@@ -65,9 +66,13 @@ export function EditableImage({
   const [editOffsetYMobile, setEditOffsetYMobile] = useState(offsetYMobile);
   const [activeTab, setActiveTab] = useState<"desktop" | "mobile">(deviceView);
 
-  const [naturalDims, setNaturalDims] = useState<{ w: number; h: number } | null>(null);
+  const [naturalWidth, setNaturalWidth] = useState(0);
+  const [naturalHeight, setNaturalHeight] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
+
   const frameRef = useRef<HTMLDivElement>(null);
-  const [frameDims, setFrameDims] = useState<{ w: number; h: number }>({ w: 400, h: 300 });
+  const [frameW, setFrameW] = useState(400);
+  const [frameH, setFrameH] = useState(300);
 
   const isDragging = useRef(false);
   const dragStart = useRef({ x: 0, y: 0 });
@@ -75,32 +80,38 @@ export function EditableImage({
 
   const [previewAspect, setPreviewAspect] = useState(16 / 9);
 
-  const currentZoom = activeTab === "desktop" ? editZoomDesktop : editZoomMobile;
-  const currentOffsetX = activeTab === "desktop" ? editOffsetXDesktop : editOffsetXMobile;
-  const currentOffsetY = activeTab === "desktop" ? editOffsetYDesktop : editOffsetYMobile;
+  const zoom = activeTab === "desktop" ? editZoomDesktop : editZoomMobile;
+  const offsetX = activeTab === "desktop" ? editOffsetXDesktop : editOffsetXMobile;
+  const offsetY = activeTab === "desktop" ? editOffsetYDesktop : editOffsetYMobile;
 
-  const setCurrentZoom = (val: number) => {
+  const setZoom = useCallback((val: number) => {
     if (activeTab === "desktop") setEditZoomDesktop(val);
     else setEditZoomMobile(val);
-  };
-  const setCurrentOffsetX = (val: number) => {
+  }, [activeTab]);
+
+  const setOffsetX = useCallback((val: number) => {
     if (activeTab === "desktop") setEditOffsetXDesktop(val);
     else setEditOffsetXMobile(val);
-  };
-  const setCurrentOffsetY = (val: number) => {
+  }, [activeTab]);
+
+  const setOffsetY = useCallback((val: number) => {
     if (activeTab === "desktop") setEditOffsetYDesktop(val);
     else setEditOffsetYMobile(val);
-  };
+  }, [activeTab]);
 
   useEffect(() => {
     if (isOpen && editSrc) {
-      setNaturalDims(null);
+      setImageLoaded(false);
       const img = new Image();
       img.onload = () => {
-        setNaturalDims({ w: img.naturalWidth, h: img.naturalHeight });
+        setNaturalWidth(img.naturalWidth);
+        setNaturalHeight(img.naturalHeight);
+        setImageLoaded(true);
       };
       img.onerror = () => {
-        setNaturalDims({ w: 800, h: 600 });
+        setNaturalWidth(800);
+        setNaturalHeight(600);
+        setImageLoaded(true);
       };
       img.src = editSrc;
     }
@@ -112,7 +123,8 @@ export function EditableImage({
       if (frameRef.current) {
         const rect = frameRef.current.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
-          setFrameDims({ w: rect.width, h: rect.height });
+          setFrameW(rect.width);
+          setFrameH(rect.height);
         }
       }
     };
@@ -122,53 +134,52 @@ export function EditableImage({
     return () => observer.disconnect();
   }, [isOpen, previewAspect]);
 
-  const coverScale = naturalDims
-    ? Math.max(frameDims.w / naturalDims.w, frameDims.h / naturalDims.h)
+  const coverScale = (naturalWidth > 0 && naturalHeight > 0)
+    ? Math.max(frameW / naturalWidth, frameH / naturalHeight)
     : 1;
 
-  const containScale = naturalDims
-    ? Math.min(frameDims.w / naturalDims.w, frameDims.h / naturalDims.h)
+  const containScale = (naturalWidth > 0 && naturalHeight > 0)
+    ? Math.min(frameW / naturalWidth, frameH / naturalHeight)
     : 1;
 
-  const fitZoom = naturalDims ? Math.round((containScale / coverScale) * 100) : 100;
+  const fitZoom = Math.max(10, Math.round((containScale / coverScale) * 100));
 
-  const totalScale = coverScale * (currentZoom / 100);
-  const imgWidth = naturalDims ? naturalDims.w * totalScale : frameDims.w;
-  const imgHeight = naturalDims ? naturalDims.h * totalScale : frameDims.h;
-  const imgLeft = frameDims.w / 2 - imgWidth / 2 + (currentOffsetX * coverScale * (currentZoom / 100));
-  const imgTop = frameDims.h / 2 - imgHeight / 2 + (currentOffsetY * coverScale * (currentZoom / 100));
+  const s = zoom / 100;
+  const imgW = naturalWidth * coverScale * s;
+  const imgH = naturalHeight * coverScale * s;
+  const imgLeft = (frameW - imgW) / 2 + offsetX * s;
+  const imgTop = (frameH - imgH) / 2 + offsetY * s;
 
-  const handleClick = (e: React.MouseEvent) => {
-    if (adminPreview) {
-      e.preventDefault();
-      e.stopPropagation();
-      const rect = e.currentTarget.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setPreviewAspect(rect.width / rect.height);
-      }
-      setEditSrc(src);
-      setEditZoomDesktop(zoomDesktop);
-      setEditZoomMobile(zoomMobile);
-      setEditOffsetXDesktop(offsetXDesktop);
-      setEditOffsetYDesktop(offsetYDesktop);
-      setEditOffsetXMobile(offsetXMobile);
-      setEditOffsetYMobile(offsetYMobile);
-      setActiveTab(deviceView);
-      setNaturalDims(null);
-      setIsOpen(true);
+  const openEditor = (e: React.MouseEvent) => {
+    if (!adminPreview) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const rect = e.currentTarget.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      setPreviewAspect(rect.width / rect.height);
     }
+    setEditSrc(src);
+    setEditZoomDesktop(zoomDesktop);
+    setEditZoomMobile(zoomMobile);
+    setEditOffsetXDesktop(offsetXDesktop);
+    setEditOffsetYDesktop(offsetYDesktop);
+    setEditOffsetXMobile(offsetXMobile);
+    setEditOffsetYMobile(offsetYMobile);
+    setActiveTab(deviceView);
+    setImageLoaded(false);
+    setIsOpen(true);
   };
 
   const handleReset = () => {
-    setCurrentZoom(100);
-    setCurrentOffsetX(0);
-    setCurrentOffsetY(0);
+    setZoom(100);
+    setOffsetX(0);
+    setOffsetY(0);
   };
 
   const handleFit = () => {
-    setCurrentZoom(Math.max(10, fitZoom));
-    setCurrentOffsetX(0);
-    setCurrentOffsetY(0);
+    setZoom(Math.max(10, fitZoom));
+    setOffsetX(0);
+    setOffsetY(0);
   };
 
   const handleSave = () => {
@@ -190,16 +201,15 @@ export function EditableImage({
     e.preventDefault();
     isDragging.current = true;
     dragStart.current = { x: e.clientX, y: e.clientY };
-    dragStartOffset.current = { x: currentOffsetX, y: currentOffsetY };
+    dragStartOffset.current = { x: offsetX, y: offsetY };
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDragging.current) return;
     const dx = e.clientX - dragStart.current.x;
     const dy = e.clientY - dragStart.current.y;
-    const zoomFactor = currentZoom / 100;
-    setCurrentOffsetX(dragStartOffset.current.x + dx / zoomFactor);
-    setCurrentOffsetY(dragStartOffset.current.y + dy / zoomFactor);
+    setOffsetX(dragStartOffset.current.x + dx / s);
+    setOffsetY(dragStartOffset.current.y + dy / s);
   };
 
   const handleMouseUp = () => {
@@ -210,7 +220,7 @@ export function EditableImage({
     if (e.touches.length !== 1) return;
     isDragging.current = true;
     dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    dragStartOffset.current = { x: currentOffsetX, y: currentOffsetY };
+    dragStartOffset.current = { x: offsetX, y: offsetY };
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -218,9 +228,8 @@ export function EditableImage({
     e.preventDefault();
     const dx = e.touches[0].clientX - dragStart.current.x;
     const dy = e.touches[0].clientY - dragStart.current.y;
-    const zoomFactor = currentZoom / 100;
-    setCurrentOffsetX(dragStartOffset.current.x + dx / zoomFactor);
-    setCurrentOffsetY(dragStartOffset.current.y + dy / zoomFactor);
+    setOffsetX(dragStartOffset.current.x + dx / s);
+    setOffsetY(dragStartOffset.current.y + dy / s);
   };
 
   const handleTouchEnd = () => {
@@ -230,10 +239,9 @@ export function EditableImage({
   const handleWheel = (e: React.WheelEvent) => {
     e.stopPropagation();
     const delta = e.deltaY > 0 ? -5 : 5;
-    const newZoom = Math.min(300, Math.max(Math.max(10, fitZoom), currentZoom + delta));
-    if (newZoom !== currentZoom) {
-      setCurrentZoom(newZoom);
-    }
+    const minZoom = Math.max(10, fitZoom);
+    const newZoom = Math.min(300, Math.max(minZoom, zoom + delta));
+    if (newZoom !== zoom) setZoom(newZoom);
   };
 
   const handleMediaSelect = (media: Media) => {
@@ -246,7 +254,7 @@ export function EditableImage({
   const displayOffsetX = isMobile ? offsetXMobile : offsetXDesktop;
   const displayOffsetY = isMobile ? offsetYMobile : offsetYDesktop;
 
-  const imageStyle = {
+  const siteTransform = {
     transform: `scale(${displayZoom / 100}) translate(${displayOffsetX}px, ${displayOffsetY}px)`,
     transformOrigin: "center center",
   };
@@ -254,12 +262,7 @@ export function EditableImage({
   if (!adminPreview) {
     return (
       <div className={containerClassName}>
-        <img
-          src={src}
-          alt={alt}
-          className={className}
-          style={imageStyle}
-        />
+        <img src={src} alt={alt} className={className} style={siteTransform} />
       </div>
     );
   }
@@ -270,15 +273,10 @@ export function EditableImage({
     <>
       <div
         className={`${containerClassName} cursor-pointer group`}
-        onClick={handleClick}
+        onClick={openEditor}
         data-testid="editable-image-container"
       >
-        <img
-          src={src}
-          alt={alt}
-          className={className}
-          style={imageStyle}
-        />
+        <img src={src} alt={alt} className={className} style={siteTransform} />
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
           <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-lg p-2 flex items-center gap-2">
             <ImageIcon className="h-4 w-4" />
@@ -338,8 +336,7 @@ export function EditableImage({
                 className="relative overflow-hidden cursor-move mx-auto select-none"
                 style={{
                   aspectRatio: `${previewAspect}`,
-                  backgroundImage:
-                    "repeating-conic-gradient(#333 0% 25%, #222 0% 50%)",
+                  backgroundImage: "repeating-conic-gradient(#333 0% 25%, #222 0% 50%)",
                   backgroundSize: "16px 16px",
                 }}
                 onMouseDown={handleMouseDown}
@@ -351,33 +348,27 @@ export function EditableImage({
                 onTouchEnd={handleTouchEnd}
                 onWheel={handleWheel}
               >
-                {editSrc && naturalDims && (
+                {editSrc && imageLoaded ? (
                   <img
                     key={editSrc}
                     src={editSrc}
                     alt="Preview"
                     className="absolute pointer-events-none"
                     style={{
-                      width: imgWidth + "px",
-                      height: imgHeight + "px",
-                      left: imgLeft + "px",
-                      top: imgTop + "px",
-                      maxWidth: 'none', // Prevent interference from global styles
-                      maxHeight: 'none'
+                      width: imgW,
+                      height: imgH,
+                      left: imgLeft,
+                      top: imgTop,
+                      maxWidth: "none",
+                      maxHeight: "none",
                     }}
                     draggable={false}
-                    onError={(e) => {
-                      console.error("IMG tag error:", editSrc);
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                    }}
                   />
-                )}
-                {editSrc && !naturalDims && (
+                ) : editSrc ? (
                   <div className="absolute inset-0 flex items-center justify-center text-white/50 text-sm">
                     {t("Caricamento...", "Loading...")}
                   </div>
-                )}
+                ) : null}
                 <div className="absolute inset-0 ring-2 ring-inset ring-white/20 pointer-events-none z-10 rounded-sm" />
                 <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded z-10">
                   {t("Trascina per spostare · Scroll per zoom", "Drag to pan · Scroll to zoom")}
@@ -392,11 +383,11 @@ export function EditableImage({
                     <ZoomIn className="h-4 w-4" />
                     Zoom ({activeTab === "desktop" ? "Desktop" : "Mobile"})
                   </Label>
-                  <span className="text-sm text-muted-foreground">{currentZoom}%</span>
+                  <span className="text-sm text-muted-foreground">{zoom}%</span>
                 </div>
                 <Slider
-                  value={[currentZoom]}
-                  onValueChange={([val]) => setCurrentZoom(val)}
+                  value={[zoom]}
+                  onValueChange={([val]) => setZoom(val)}
                   min={minZoom}
                   max={300}
                   step={5}
@@ -429,16 +420,16 @@ export function EditableImage({
                   </Label>
                   <Input
                     type="number"
-                    value={Math.round(currentOffsetX)}
-                    onChange={(e) => setCurrentOffsetX(Number(e.target.value))}
+                    value={Math.round(offsetX)}
+                    onChange={(e) => setOffsetX(Number(e.target.value))}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label>Offset Y</Label>
                   <Input
                     type="number"
-                    value={Math.round(currentOffsetY)}
-                    onChange={(e) => setCurrentOffsetY(Number(e.target.value))}
+                    value={Math.round(offsetY)}
+                    onChange={(e) => setOffsetY(Number(e.target.value))}
                   />
                 </div>
               </div>
