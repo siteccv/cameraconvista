@@ -85,15 +85,17 @@ export function EditableText({
 
   const TextInput = multiline ? Textarea : Input;
 
+  const textStyle = multiline ? { ...combinedStyle, whiteSpace: 'pre-line' as const } : combinedStyle;
+
   if (!adminPreview) {
-    return <Component className={className} style={combinedStyle}>{displayText}</Component>;
+    return <Component className={className} style={textStyle}>{displayText}</Component>;
   }
 
   return (
     <>
       <Component
         className={`${className} relative cursor-pointer group`}
-        style={combinedStyle}
+        style={textStyle}
         onClick={handleClick}
       >
         {displayText}
