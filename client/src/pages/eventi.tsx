@@ -204,8 +204,7 @@ function EventCard({ event }: { event: Event }) {
       month: 'long' 
     };
     const formatted = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", options);
-    // Capitalize first letter
-    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+    return formatted.toUpperCase();
   };
 
   return (
@@ -216,12 +215,12 @@ function EventCard({ event }: { event: Event }) {
       >
         <div className="mb-4 text-center">
           {event.startAt && (
-            <div className="text-sm md:text-base tracking-tight mb-1 font-sans text-muted-foreground">
+            <div className="text-xs md:text-sm tracking-widest mb-1 font-sans text-muted-foreground uppercase">
               {formatDateLine(event.startAt)}
             </div>
           )}
 
-          <h3 className="font-display text-lg md:text-2xl line-clamp-2 uppercase tracking-wide" style={{ color: '#722F37' }}>
+          <h3 className="font-display text-lg md:text-2xl line-clamp-2 tracking-wide" style={{ color: '#722F37' }}>
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
         </div>
