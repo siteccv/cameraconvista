@@ -207,41 +207,41 @@ function EventCard({ event }: { event: Event }) {
   return (
     <Link href={`/eventi/${event.id}`}>
       <div
-        className="group relative aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border cursor-pointer hover-elevate"
+        className="group relative flex flex-col cursor-pointer"
         data-testid={`event-card-${event.id}`}
       >
-        {event.posterUrl ? (
-          <div className="w-full h-full overflow-hidden">
-            <img
-              src={event.posterUrl}
-              alt={language === "it" ? event.titleIt : event.titleEn}
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-              style={{ transformOrigin: "center center" }}
-            />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center bg-muted">
-            <Calendar className="h-12 w-12 text-muted-foreground" />
-          </div>
-        )}
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-center md:text-left">
+        <div className="mb-4 text-center">
           {event.startAt && (() => {
             const { month, day, weekday } = formatDateLine(event.startAt);
             return (
-              <div className="text-base md:text-lg tracking-tight mb-2">
-                <span className="text-white">{month}</span>
-                <span className="text-yellow-200 font-semibold">{day}</span>
-                <span className="text-white">{weekday}</span>
+              <div className="text-sm md:text-base tracking-tight mb-1 font-sans">
+                <span className="text-muted-foreground mr-1">{month}</span>
+                <span className="text-[#c7902f] font-semibold mr-1">{day}</span>
+                <span className="text-muted-foreground">{weekday}</span>
               </div>
             );
           })()}
 
-          <h3 className="font-display text-base md:text-xl line-clamp-2">
+          <h3 className="font-display text-lg md:text-2xl line-clamp-2 uppercase tracking-wide" style={{ color: '#722F37' }}>
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
+        </div>
+
+        <div className="relative aspect-[9/16] rounded-lg overflow-hidden bg-card border border-border hover-elevate">
+          {event.posterUrl ? (
+            <div className="w-full h-full overflow-hidden">
+              <img
+                src={event.posterUrl}
+                alt={language === "it" ? event.titleIt : event.titleEn}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                style={{ transformOrigin: "center center" }}
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <Calendar className="h-12 w-12 text-muted-foreground" />
+            </div>
+          )}
         </div>
       </div>
     </Link>
