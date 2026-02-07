@@ -319,7 +319,13 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createGallery(gallery: InsertGallery): Promise<Gallery> {
-    const { data, error } = await supabaseAdmin.from('galleries').insert(toSnakeCase(gallery)).select().single();
+    const snaked = toSnakeCase(gallery);
+    delete snaked.id;
+    delete snaked.created_at;
+    delete snaked.updated_at;
+    const { data: maxRow } = await supabaseAdmin.from('galleries').select('id').order('id', { ascending: false }).limit(1).single();
+    const nextId = (maxRow?.id ?? 0) + 1;
+    const { data, error } = await supabaseAdmin.from('galleries').insert({ ...snaked, id: nextId }).select().single();
     if (error) throw new Error(error.message);
     return toCamelCase(data) as Gallery;
   }
@@ -347,7 +353,12 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage> {
-    const { data, error } = await supabaseAdmin.from('gallery_images').insert(toSnakeCase(image)).select().single();
+    const snaked = toSnakeCase(image);
+    delete snaked.id;
+    delete snaked.created_at;
+    const { data: maxRow } = await supabaseAdmin.from('gallery_images').select('id').order('id', { ascending: false }).limit(1).single();
+    const nextId = (maxRow?.id ?? 0) + 1;
+    const { data, error } = await supabaseAdmin.from('gallery_images').insert({ ...snaked, id: nextId }).select().single();
     if (error) throw new Error(error.message);
     return toCamelCase(data) as GalleryImage;
   }
