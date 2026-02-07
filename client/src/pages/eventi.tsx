@@ -196,12 +196,16 @@ function EventCard({ event }: { event: Event }) {
   const { t, language } = useLanguage();
 
   const formatDateLine = (dateStr: string | Date | null) => {
-    if (!dateStr) return { month: "", day: "", weekday: "" };
+    if (!dateStr) return "";
     const date = new Date(dateStr);
-    const month = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", { month: "short" }).toUpperCase().replace(".", "");
-    const day = date.getDate().toString().padStart(2, "0");
-    const weekday = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", { weekday: "long" }).toUpperCase();
-    return { month, day, weekday };
+    const options: Intl.DateTimeFormatOptions = { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long' 
+    };
+    const formatted = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", options);
+    // Capitalize first letter
+    return formatted.charAt(0).toUpperCase() + formatted.slice(1);
   };
 
   return (
@@ -211,16 +215,11 @@ function EventCard({ event }: { event: Event }) {
         data-testid={`event-card-${event.id}`}
       >
         <div className="mb-4 text-center">
-          {event.startAt && (() => {
-            const { month, day, weekday } = formatDateLine(event.startAt);
-            return (
-              <div className="text-sm md:text-base tracking-tight mb-1 font-sans">
-                <span className="text-muted-foreground mr-1">{month}</span>
-                <span className="text-[#c7902f] font-semibold mr-1">{day}</span>
-                <span className="text-muted-foreground">{weekday}</span>
-              </div>
-            );
-          })()}
+          {event.startAt && (
+            <div className="text-sm md:text-base tracking-tight mb-1 font-sans text-muted-foreground">
+              {formatDateLine(event.startAt)}
+            </div>
+          )}
 
           <h3 className="font-display text-lg md:text-2xl line-clamp-2 uppercase tracking-wide" style={{ color: '#722F37' }}>
             {language === "it" ? event.titleIt : event.titleEn}
