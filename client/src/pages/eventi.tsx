@@ -215,7 +215,7 @@ function EventCard({ event }: { event: Event }) {
       >
         <div className="mb-4 text-center">
           {event.startAt && (
-            <div className="text-xs md:text-sm tracking-widest mb-1 font-sans text-muted-foreground uppercase">
+            <div className="text-xs md:text-sm tracking-normal mb-1 font-sans text-muted-foreground uppercase">
               {formatDateLine(event.startAt)}
             </div>
           )}
