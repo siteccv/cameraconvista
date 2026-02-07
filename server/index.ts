@@ -37,6 +37,16 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+if (process.env.NODE_ENV !== "production") {
+  app.use("/api", (_req, res, next) => {
+    res.set("Cache-Control", "no-store");
+    res.set("ETag", "false");
+    res.removeHeader("ETag");
+    next();
+  });
+  app.set("etag", false);
+}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
@@ -99,7 +109,6 @@ app.use((req, res, next) => {
     {
       port,
       host: "0.0.0.0",
-      reusePort: true,
     },
     () => {
       log(`serving on port ${port}`);

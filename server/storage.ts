@@ -491,16 +491,21 @@ export class DatabaseStorage implements IStorage {
 
 import { SupabaseStorage } from './supabase-storage';
 
-const USE_SUPABASE = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
+const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+const HAS_DATABASE_URL = !!process.env.DATABASE_URL;
 
 let storage: IStorage;
 
-if (USE_SUPABASE) {
+if (HAS_SUPABASE) {
   storage = new SupabaseStorage();
   console.log('Using Supabase as database backend');
-} else {
+} else if (HAS_DATABASE_URL) {
   storage = new DatabaseStorage();
-  console.log('Using Replit PostgreSQL as database backend');
+  console.log('Using PostgreSQL (Drizzle) as database backend');
+} else {
+  throw new Error(
+    'No database configured. Set either SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY, or DATABASE_URL.'
+  );
 }
 
 export { storage };
