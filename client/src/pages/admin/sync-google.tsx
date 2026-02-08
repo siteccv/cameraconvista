@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater } from "lucide-react";
+import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, ExternalLink } from "lucide-react";
 
 type SyncTarget = "menu" | "wines" | "cocktails";
 
@@ -120,6 +120,12 @@ export default function AdminSyncGoogle() {
     }
   };
 
+  const GOOGLE_SHEET_URLS: Record<SyncTarget, string> = {
+    menu: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/edit#gid=1122482173",
+    wines: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pubhtml",
+    cocktails: "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/edit#gid=1122482173",
+  };
+
   const sections: { target: SyncTarget; icon: any; label: string; desc: string }[] = [
     {
       target: "menu",
@@ -205,6 +211,16 @@ export default function AdminSyncGoogle() {
                       {isPublishing
                         ? t("Pubblicando...", "Publishing...")
                         : t("Pubblica online", "Publish online")}
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      className="bg-green-600 border-green-700 text-white"
+                      onClick={() => window.open(GOOGLE_SHEET_URLS[target], "_blank")}
+                      data-testid={`button-open-sheet-${target}`}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1.5" />
+                      GOOGLE SHEET
                     </Button>
                   </div>
                 </CardContent>
