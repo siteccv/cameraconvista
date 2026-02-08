@@ -63,7 +63,16 @@
 ## Doppio Backend
 
 Il progetto supporta due backend database intercambiabili:
-- **Replit PostgreSQL** (default): Usa Drizzle ORM direttamente (`DatabaseStorage`)
-- **Supabase**: Quando `SUPABASE_URL` è configurato, usa `SupabaseStorage` con conversione automatica camelCase↔snake_case
+- **PostgreSQL diretto** (via `DATABASE_URL`): Usa Drizzle ORM (`DatabaseStorage`)
+- **Supabase** (via `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`): Usa `SupabaseStorage` con conversione automatica camelCase↔snake_case
 
-La selezione avviene in `server/storage.ts` tramite la variabile `USE_SUPABASE`.
+La selezione è deterministica e fail-fast in `server/storage.ts`: Supabase ha priorità, poi PostgreSQL locale, altrimenti errore esplicito (nessun fallback silenzioso).
+
+## Portabilità
+
+Il progetto è **100% portabile** fuori da Replit (Windsurf, macchina locale):
+- `reusePort` rimosso dal server listen (evita crash su macOS/Windows)
+- ETag disabilitato in dev per le API (evita 304 problematici)
+- Plugin Vite `@replit/*` gated da `REPL_ID` (ignorati fuori Replit)
+- Storage selection deterministica senza fallback ambigui
+- Avvio locale: `NODE_ENV=development npm run dev` con `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`

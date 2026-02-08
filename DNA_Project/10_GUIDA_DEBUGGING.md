@@ -132,17 +132,29 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 3. Verificare che `forceMobileLayout` sia sincronizzato con `deviceView`
 4. Il valore default è: titolo desktop 48px, mobile 32px; body desktop 16px, mobile 14px
 
-### 9. Supabase vs Replit DB Switching
+### 9. Supabase vs PostgreSQL Diretto Switching
 
 **Sintomo**: Errori dopo switch tra backend.
 
 **Debug steps**:
 1. Verificare le variabili d'ambiente:
    - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` tutte presenti
-   - Replit DB: `DATABASE_URL` presente
-2. Se switch da Supabase a Replit: assicurarsi che lo schema locale sia aggiornato (`npm run db:push`)
-3. Se switch da Replit a Supabase: verificare che le tabelle Supabase abbiano tutte le colonne
-4. Controllare log server per conferma: "Using Supabase as database backend" vs "Using Replit PostgreSQL as database backend"
+   - PostgreSQL diretto: `DATABASE_URL` presente
+   - Se nessuna variabile presente: il server si arresta con errore esplicito
+2. Se switch da Supabase a PostgreSQL diretto: assicurarsi che lo schema locale sia aggiornato (`npm run db:push`)
+3. Se switch da PostgreSQL diretto a Supabase: verificare che le tabelle Supabase abbiano tutte le colonne
+4. Controllare log server per conferma: "Using Supabase as database backend" vs "Using PostgreSQL (Drizzle) as database backend"
+
+### 11. Problemi di Portabilità (Windsurf / Locale)
+
+**Sintomo**: App non parte o API rispondono 304 fuori da Replit.
+
+**Verifiche**:
+1. **reusePort**: Rimosso dal progetto. Se presente per errore → `ENOTSUP` su macOS/Windows
+2. **ETag 304**: In dev, ETag è disabilitato per `/api/*`. Verificare che `NODE_ENV=development`
+3. **Plugin Replit**: Gated da `REPL_ID`. Fuori Replit vengono saltati automaticamente
+4. **Variabili env**: Servono almeno `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
+5. **Porta**: Default 5000, configurabile con `PORT=XXXX`
 
 ### 10. Errore "Vite manifest not found"
 

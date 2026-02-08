@@ -4,9 +4,17 @@
 
 ### Sviluppo (Replit)
 - **Comando**: `npm run dev` → `NODE_ENV=development tsx server/index.ts`
-- **Porta**: 5000 (unica porta non firewalled)
+- **Porta**: 5000 (unica porta non firewalled su Replit)
 - **Vite**: HMR attivo, serve frontend e backend sulla stessa porta
-- **Database**: PostgreSQL Replit (Neon-backed) via `DATABASE_URL`
+- **Database**: PostgreSQL (Neon-backed) via `DATABASE_URL`
+- **ETag API**: Disabilitato in dev per evitare 304 problematici
+
+### Sviluppo (Locale / Windsurf)
+- **Comando**: `NODE_ENV=development npm run dev`
+- **Porta**: 5000 (default) o configurabile via `PORT=XXXX`
+- **Env richieste**: `DATABASE_URL` oppure `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
+- **Plugin Replit**: Ignorati automaticamente (gated da `REPL_ID`)
+- **Server listen**: Nessun flag speciale (`reusePort` rimosso per compatibilità macOS/Windows)
 
 ### Produzione
 - **Build**: `npm run build` → `tsx script/build.ts`
@@ -17,11 +25,13 @@
 
 ## Variabili d'Ambiente
 
-### Obbligatorie
+### Obbligatorie (almeno uno dei due gruppi database)
 | Variabile | Descrizione |
 |-----------|-------------|
-| `DATABASE_URL` | Connection string PostgreSQL |
+| `DATABASE_URL` | Connection string PostgreSQL (se non si usa Supabase) |
 | `SESSION_SECRET` | Secret per le sessioni |
+
+Se nessuna variabile database è configurata, il server si arresta con errore esplicito (fail-fast).
 
 ### Object Storage
 | Variabile | Descrizione |
@@ -37,7 +47,7 @@
 | `SUPABASE_SERVICE_ROLE_KEY` | Chiave service role Supabase |
 | `SUPABASE_ANON_KEY` | Chiave anonima Supabase |
 
-Se `SUPABASE_URL` è configurata, il backend usa `SupabaseStorage` invece di `DatabaseStorage`.
+Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa `SupabaseStorage` (priorità). Altrimenti usa `DatabaseStorage` con `DATABASE_URL`. Se nessuno è presente, errore esplicito.
 
 ### Opzionali - AI
 | Variabile | Descrizione |
@@ -47,9 +57,9 @@ Se `SUPABASE_URL` è configurata, il backend usa `SupabaseStorage` invece di `Da
 
 ## Database
 
-### Replit PostgreSQL (Default)
-- Provisioned automaticamente tramite Replit
-- Connessione via `DATABASE_URL` environment variable
+### PostgreSQL Diretto (Default senza Supabase)
+- Su Replit: provisioned automaticamente
+- In locale: qualsiasi PostgreSQL raggiungibile via `DATABASE_URL`
 - Drizzle ORM per schema management
 - `drizzle-kit push` per sincronizzazione schema
 

@@ -35,7 +35,7 @@
             │                 │
     ┌───────┴──────┐  ┌───────┴──────┐
     │  PostgreSQL  │  │   Supabase   │
-    │  (Replit)    │  │   (Remote)   │
+    │  (locale)    │  │   (Remote)   │
     └──────────────┘  └──────────────┘
 ```
 
@@ -78,7 +78,8 @@ QueryClientProvider
 1. `cookieParser()` — parsing dei cookie per sessioni admin
 2. `express.json()` — parsing body JSON con rawBody capture
 3. `express.urlencoded()` — parsing form data
-4. Request logger — log delle API calls con timing
+4. **Dev-only**: Disabilitazione ETag e `Cache-Control: no-store` per `/api/*` — evita risposte 304 che possono bloccare il client
+5. Request logger — log delle API calls con timing
 
 ### Authentication Flow
 
@@ -95,9 +96,11 @@ QueryClientProvider
 1. **DatabaseStorage**: Usa Drizzle ORM con PostgreSQL diretto
 2. **SupabaseStorage**: Usa Supabase REST API con conversione automatica camelCase↔snake_case
 
-Selezione runtime:
+Selezione runtime (fail-fast, deterministica):
 ```typescript
-const USE_SUPABASE = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY;
+const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+const HAS_DATABASE_URL = !!process.env.DATABASE_URL;
+// Priorità: Supabase → PostgreSQL locale → errore esplicito (niente fallback ambigui)
 ```
 
 ### API Route Organization
