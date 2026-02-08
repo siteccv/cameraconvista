@@ -51,6 +51,7 @@ export interface GoogleSheetsConfig {
     syncUrl: string;
   };
   wines: {
+    spreadsheetUrl: string;
     categories: { category: string; syncUrl: string }[];
   };
   cocktails: {
@@ -63,6 +64,7 @@ const DEFAULT_CONFIG: GoogleSheetsConfig = {
     syncUrl: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/export?format=csv&gid=1122482173",
   },
   wines: {
+    spreadsheetUrl: "https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?usp=sharing",
     categories: [
       { category: "Bollicine Italiane", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=294419425&single=true&output=csv" },
       { category: "Bollicine Francesi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=700257433&single=true&output=csv" },

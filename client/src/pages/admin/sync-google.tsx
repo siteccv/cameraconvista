@@ -26,6 +26,7 @@ interface GoogleSheetsConfig {
     syncUrl: string;
   };
   wines: {
+    spreadsheetUrl: string;
     categories: { category: string; syncUrl: string }[];
   };
   cocktails: {
@@ -352,6 +353,16 @@ export default function AdminSyncGoogle() {
                     <Plus className="h-3.5 w-3.5 mr-1" />
                     {t("Aggiungi", "Add")}
                   </Button>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">{t("Link generico foglio Vini", "Generic Wines sheet link")}</label>
+                  <Input
+                    value={editConfig.wines.spreadsheetUrl}
+                    onChange={(e) => updateConfig((c) => { c.wines.spreadsheetUrl = e.target.value; })}
+                    placeholder="https://docs.google.com/spreadsheets/d/..."
+                    data-testid="input-wines-spreadsheet-url"
+                  />
                 </div>
 
                 <div className="space-y-3">
