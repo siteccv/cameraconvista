@@ -11,7 +11,7 @@ import type { Wine } from "@shared/schema";
 
 export default function CartaVini() {
   const { t } = useLanguage();
-  const { deviceView } = useAdmin();
+  const { deviceView, adminPreview } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["carta-vini"],
@@ -24,8 +24,9 @@ export default function CartaVini() {
   const heroDef = CARTA_VINI_DEFAULTS[0];
   const introDef = CARTA_VINI_DEFAULTS[1];
 
+  const winesEndpoint = adminPreview ? "/api/admin/wines" : "/api/wines";
   const { data: wines, isLoading: winesLoading } = useQuery<Wine[]>({
-    queryKey: ["/api/wines"],
+    queryKey: [winesEndpoint],
   });
 
   const CATEGORY_ORDER = [

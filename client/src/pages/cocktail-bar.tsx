@@ -11,7 +11,7 @@ import type { Cocktail } from "@shared/schema";
 
 export default function CocktailBar() {
   const { t } = useLanguage();
-  const { deviceView } = useAdmin();
+  const { deviceView, adminPreview } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["cocktail-bar"],
@@ -26,8 +26,9 @@ export default function CocktailBar() {
   const introDef = COCKTAIL_BAR_DEFAULTS[1];
   const outroDef = COCKTAIL_BAR_DEFAULTS[2];
 
+  const cocktailsEndpoint = adminPreview ? "/api/admin/cocktails" : "/api/cocktails";
   const { data: cocktails, isLoading: cocktailsLoading } = useQuery<Cocktail[]>({
-    queryKey: ["/api/cocktails"],
+    queryKey: [cocktailsEndpoint],
   });
 
   const categorizedCocktails = cocktails?.reduce((acc, cocktail) => {

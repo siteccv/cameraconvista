@@ -11,7 +11,7 @@ import type { MenuItem } from "@shared/schema";
 
 export default function Menu() {
   const { t } = useLanguage();
-  const { deviceView } = useAdmin();
+  const { deviceView, adminPreview } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS.menu,
@@ -24,8 +24,9 @@ export default function Menu() {
   const heroDef = MENU_DEFAULTS[0];
   const introDef = MENU_DEFAULTS[1];
 
+  const menuEndpoint = adminPreview ? "/api/admin/menu-items" : "/api/menu-items";
   const { data: menuItems, isLoading: menuLoading } = useQuery<MenuItem[]>({
-    queryKey: ["/api/menu-items"],
+    queryKey: [menuEndpoint],
   });
 
   const categorizedItems = menuItems?.reduce((acc, item) => {
