@@ -122,7 +122,7 @@ export default function AdminSyncGoogle() {
 
   const GOOGLE_SHEET_URLS: Record<SyncTarget, string> = {
     menu: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/edit#gid=1122482173",
-    wines: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pubhtml",
+    wines: "https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?usp=sharing",
     cocktails: "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/edit#gid=1122482173",
   };
 
