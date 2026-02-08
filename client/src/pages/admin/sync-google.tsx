@@ -369,20 +369,9 @@ export default function AdminSyncGoogle() {
 
             <Card>
               <CardContent className="p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Wine className="h-5 w-5 text-primary" />
-                    <CardTitle className="text-base">{t("Vini", "Wines")}</CardTitle>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={addWineCategory}
-                    data-testid="button-add-wine-category"
-                  >
-                    <Plus className="h-3.5 w-3.5 mr-1" />
-                    {t("Aggiungi", "Add")}
-                  </Button>
+                <div className="flex items-center gap-2">
+                  <Wine className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-base">{t("Vini", "Wines")}</CardTitle>
                 </div>
 
                 <div className="space-y-1">
@@ -398,23 +387,7 @@ export default function AdminSyncGoogle() {
                 <div className="space-y-3">
                   {editConfig.wines.categories.map((cat, idx) => (
                     <div key={idx} className="space-y-1.5 border-b pb-3 last:border-b-0 last:pb-0">
-                      <div className="flex items-center gap-2">
-                        <Input
-                          className="flex-1"
-                          placeholder={t("Nome categoria (es. Bollicine Italiane)", "Category name (e.g. Italian Sparkling)")}
-                          value={cat.category}
-                          onChange={(e) => updateConfig((c) => { c.wines.categories[idx].category = e.target.value; })}
-                          data-testid={`input-wine-cat-name-${idx}`}
-                        />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeWineCategory(idx)}
-                          data-testid={`button-remove-wine-cat-${idx}`}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
+                      <label className="text-xs font-medium text-muted-foreground">{cat.category}</label>
                       <Input
                         placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"
                         value={cat.syncUrl}
