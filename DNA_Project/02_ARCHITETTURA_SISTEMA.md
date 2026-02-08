@@ -80,6 +80,8 @@ QueryClientProvider
 3. `express.urlencoded()` — parsing form data
 4. **Dev-only**: Disabilitazione ETag e `Cache-Control: no-store` per `/api/*` — evita risposte 304 che possono bloccare il client
 5. Request logger — log delle API calls con timing
+6. **SEO Middleware** (`server/seo.ts`) — wrappa `res.send/res.end` per iniettare meta tags (title, description, canonical, OG, Twitter Card, hreflang, JSON-LD) nell'HTML prima che venga servito. Usa `req.originalUrl` per identificare la pagina. Esclude `/admina` e asset statici. Dettagli completi in `11_SEO_SISTEMA.md`
+7. **SEO Routes** — `/sitemap.xml` (dinamica), `robots.txt` (statico in `client/public/`)
 
 ### Authentication Flow
 
@@ -117,5 +119,8 @@ Routes organizzate in moduli separati sotto `server/routes/`:
 | `media.ts` | GET media | CRUD media, upload, media categories |
 | `settings.ts` | GET site-settings, footer | PUT settings, footer |
 | `sync.ts` | — | Google Sheets sync (placeholder) |
+| `seo.ts`* | GET /sitemap.xml | — (middleware auto-injection) |
+
+*`seo.ts` non è nella cartella routes/ ma è un modulo separato montato direttamente in `server/index.ts`.
 
 Helper condivisi in `helpers.ts`: `requireAuth`, `parseId`, `validateId`, `generateSessionToken`, `verifyPassword`.

@@ -168,6 +168,34 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 3. Verificare che `dist/index.cjs` esista
 4. Non modificare mai `vite.config.ts` o `server/vite.ts`
 
+### 12. SEO Meta Tag Non Iniettati
+
+**Sintomo**: Titolo generico su tutte le pagine, meta tag mancanti nell'HTML.
+
+**Debug steps**:
+1. Verificare con curl che i meta tag siano presenti:
+   ```bash
+   curl -s https://dominio.com/menu | grep -E '<title>|<meta name="description"'
+   ```
+2. Verificare che `req.originalUrl` restituisca il path corretto (non sempre `/`)
+3. Controllare che il mapping `PATH_TO_SLUG` in `server/seo.ts` includa il path
+4. Verificare che la pagina non sia esclusa (percorsi `/admina` e asset `.js/.css/.png` sono esclusi)
+5. Controllare che i meta personalizzati siano salvati nel DB:
+   ```sql
+   SELECT slug, meta_title_it, meta_title_en, meta_description_it, meta_description_en FROM pages;
+   ```
+
+**Causa comune**: Uso di `req.path` invece di `req.originalUrl` — Vite può riscrivere il path prima che `res.send()` venga chiamato.
+
+### 13. Sitemap Vuota o Incompleta
+
+**Sintomo**: `/sitemap.xml` non contiene tutte le pagine o gli eventi.
+
+**Debug steps**:
+1. Verificare che le pagine siano visibili: `SELECT slug, is_visible FROM pages;`
+2. Verificare che gli eventi siano attivi e nel range di visibilità
+3. Controllare il mapping `SLUG_TO_PATH` in `server/seo.ts` — pagine non mappate vengono escluse
+
 ## Strumenti di Debug
 
 ### Log Server
@@ -222,3 +250,8 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 8. [ ] Eventi con date formattate correttamente
 9. [ ] Footer mostra dati dal database
 10. [ ] Cookie consent appare
+11. [ ] SEO: Ogni pagina ha title unico (verificare con curl)
+12. [ ] SEO: `/sitemap.xml` contiene tutte le pagine visibili
+13. [ ] SEO: `/robots.txt` blocca `/admina` e `/api/admin/`
+14. [ ] SEO: JSON-LD Restaurant presente su Home
+15. [ ] SEO: hreflang IT/EN/x-default su tutte le pagine

@@ -50,8 +50,15 @@
 - **Galleria Album**: Gestione album e immagini
 - **Libreria Media**: Upload, categorizzazione, gestione media
 - **Anteprima**: Preview mobile (iPhone 15 Pro frame)
-- **SEO & Metadata**: Gestione meta tag per pagina
+- **SEO & Metadata**: Gestione meta tag per pagina (vedi `11_SEO_SISTEMA.md`)
 - **Impostazioni**: Password, footer, configurazioni
+
+### SEO Enterprise-Grade
+- **robots.txt**: Blocca admin e API admin
+- **Sitemap XML dinamica**: Pagine visibili + eventi attivi con hreflang IT/EN
+- **Meta injection server-side**: Title, description, canonical, OG, Twitter Card, JSON-LD
+- **JSON-LD**: Restaurant, Menu, Event, BreadcrumbList
+- **Admin SEO panel**: Personalizzazione meta per pagina
 
 ## Flusso Draft/Publish
 

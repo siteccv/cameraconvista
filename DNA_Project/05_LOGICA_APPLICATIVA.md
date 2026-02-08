@@ -163,6 +163,22 @@ Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono anda
 - Admin può creare/modificare/eliminare categorie ("Gestisci cartelle")
 - Upload assegna automaticamente la categoria selezionata o la prima disponibile
 
+## Sistema SEO
+
+> Documentazione completa: vedi `11_SEO_SISTEMA.md`
+
+### Relazione con Draft/Publish
+I meta tag SEO (title, description) **non** sono soggetti al sistema draft/publish. Quando l'admin salva un meta tag nel pannello SEO (`/admina/seo`), questo è immediatamente attivo per i crawler alla prossima richiesta.
+
+### Relazione con Google Sheets Sync
+Il sync Google Sheets aggiorna solo `menu_items`, `wines`, `cocktails` — tabelle senza campi SEO. I meta tag delle pagine menu/vini/cocktail sono gestiti separatamente nel pannello SEO admin e salvati nella tabella `pages`.
+
+### Relazione con Footer
+Il JSON-LD `Restaurant` (iniettato nella Home) legge telefono, email e social links dal `footer_settings` per mantenere i dati strutturati sincronizzati con il footer pubblico.
+
+### Relazione con Bilinguismo
+Il middleware SEO rileva la lingua dal parametro `?lang=en` e serve meta tag nella lingua corretta. I tag hreflang sono sempre presenti in entrambe le direzioni (IT→EN, EN→IT, x-default→IT).
+
 ## Footer Database-Driven
 
 Il footer è completamente gestito dal database:

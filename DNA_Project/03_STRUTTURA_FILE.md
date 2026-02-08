@@ -29,7 +29,8 @@ client/
 │   ├── icon-192.png           # PWA icon
 │   ├── icon-512.png           # PWA icon large
 │   ├── apple-touch-icon.png   # iOS icon
-│   └── manifest.json          # PWA manifest
+│   ├── manifest.json          # PWA manifest
+│   └── robots.txt             # Direttive per crawler (blocca /admina, /api/admin/)
 ├── replit_integrations/
 │   └── audio/                 # Audio utils (voice recorder, playback)
 └── src/
@@ -115,6 +116,7 @@ server/
 ├── index.ts               # Entry point Express + middleware
 ├── db.ts                  # Connessione PostgreSQL (Drizzle)
 ├── storage.ts             # IStorage interface + DatabaseStorage + export
+├── seo.ts                 # SEO middleware + sitemap + JSON-LD (vedi 11_SEO_SISTEMA.md)
 ├── supabase.ts            # Client Supabase (admin + public)
 ├── supabase-storage.ts    # SupabaseStorage implementazione
 ├── static.ts              # Serve static files in production

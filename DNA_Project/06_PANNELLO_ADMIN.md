@@ -130,10 +130,17 @@ In modalità admin preview:
 
 ## SEO & Metadata (`/admina/seo`)
 
+> Documentazione completa del sistema SEO: vedi `11_SEO_SISTEMA.md`
+
 ### Funzionalità
-- Per ogni pagina: meta title IT/EN, meta description IT/EN
-- Campi: `metaTitleIt`, `metaTitleEn`, `metaDescriptionIt`, `metaDescriptionEn`
-- Salvati nella tabella `pages`
+- Card per ogni pagina del sito con 4 campi editabili
+- Per ogni pagina: meta title IT/EN (input, contatore /60 caratteri), meta description IT/EN (textarea, contatore /160 caratteri)
+- Campi DB: `metaTitleIt`, `metaTitleEn`, `metaDescriptionIt`, `metaDescriptionEn` nella tabella `pages`
+- Salvataggio via `PATCH /api/admin/pages/:id`
+- Pulsante "Salva" attivo solo se ci sono modifiche pendenti
+- Indicatore visivo: check verde "Salvato" quando non ci sono modifiche
+- I metadati vengono usati dal SEO middleware (`server/seo.ts`) per iniettare title/description nell'HTML servito ai crawler
+- Le modifiche SEO sono **immediate** (non soggette al sistema draft/publish)
 
 ## Impostazioni (`/admina/settings`)
 
