@@ -1,5 +1,50 @@
-import { db } from "./db";
-import { menuItems, wines, cocktails, type InsertMenuItem, type InsertWine, type InsertCocktail } from "@shared/schema";
+import { type InsertMenuItem, type InsertWine, type InsertCocktail } from "@shared/schema";
+
+const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+
+function toSnakeCase(obj: Record<string, any>): Record<string, any> {
+  const result: Record<string, any> = {};
+  for (const key in obj) {
+    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    result[snakeKey] = obj[key];
+  }
+  return result;
+}
+
+async function getDbClient() {
+  if (HAS_SUPABASE) {
+    const { supabaseAdmin } = await import("./supabase");
+    return {
+      async deleteAll(table: string) {
+        const { error } = await supabaseAdmin.from(table).delete().gte('id', 0);
+        if (error) throw new Error(`Delete ${table} failed: ${error.message}`);
+      },
+      async insertMany(table: string, items: Record<string, any>[]) {
+        const snakeItems = items.map(toSnakeCase);
+        const batchSize = 100;
+        for (let i = 0; i < snakeItems.length; i += batchSize) {
+          const batch = snakeItems.slice(i, i + batchSize);
+          const { error } = await supabaseAdmin.from(table).insert(batch);
+          if (error) throw new Error(`Insert ${table} batch failed: ${error.message}`);
+        }
+      }
+    };
+  } else {
+    const { db } = await import("./db");
+    const { menuItems, wines, cocktails } = await import("@shared/schema");
+    const tableMap: Record<string, any> = { menu_items: menuItems, wines, cocktails };
+    return {
+      async deleteAll(table: string) {
+        await db.delete(tableMap[table]);
+      },
+      async insertMany(table: string, items: Record<string, any>[]) {
+        if (items.length > 0) {
+          await db.insert(tableMap[table]).values(items);
+        }
+      }
+    };
+  }
+}
 
 const SHEET_IDS = {
   menu: "1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY",
@@ -100,6 +145,7 @@ async function fetchPublishedCsv(pubId: string, gid: string): Promise<string[][]
 
 export async function syncMenuFromSheets(): Promise<{ count: number; error?: string }> {
   try {
+    const client = await getDbClient();
     const rows = await fetchSheetData(SHEET_IDS.menu, SHEET_GIDS.menu);
     if (rows.length < 2) {
       return { count: 0, error: "No data rows found" };
@@ -135,20 +181,21 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
       });
     }
 
-    await db.delete(menuItems);
-    if (items.length > 0) {
-      await db.insert(menuItems).values(items);
-    }
+    await client.deleteAll('menu_items');
+    await client.insertMany('menu_items', items);
 
+    console.log(`[sheets-sync] Menu synced: ${items.length} items`);
     return { count: items.length };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[sheets-sync] Menu sync error:", message);
     return { count: 0, error: message };
   }
 }
 
 export async function syncWinesFromSheets(): Promise<{ count: number; error?: string }> {
   try {
+    const client = await getDbClient();
     const allWines: InsertWine[] = [];
     let globalSortOrder = 0;
 
@@ -195,24 +242,25 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
           });
         }
       } catch (err) {
-        console.error(`Error fetching wine category ${category}:`, err);
+        console.error(`[sheets-sync] Error fetching wine category ${category}:`, err);
       }
     }
 
-    await db.delete(wines);
-    if (allWines.length > 0) {
-      await db.insert(wines).values(allWines);
-    }
+    await client.deleteAll('wines');
+    await client.insertMany('wines', allWines);
 
+    console.log(`[sheets-sync] Wines synced: ${allWines.length} items`);
     return { count: allWines.length };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[sheets-sync] Wines sync error:", message);
     return { count: 0, error: message };
   }
 }
 
 export async function syncCocktailsFromSheets(): Promise<{ count: number; error?: string }> {
   try {
+    const client = await getDbClient();
     const rows = await fetchSheetData(SHEET_IDS.cocktails, SHEET_GIDS.cocktails);
     if (rows.length < 2) {
       return { count: 0, error: "No data rows found" };
@@ -246,14 +294,14 @@ export async function syncCocktailsFromSheets(): Promise<{ count: number; error?
       });
     }
 
-    await db.delete(cocktails);
-    if (items.length > 0) {
-      await db.insert(cocktails).values(items);
-    }
+    await client.deleteAll('cocktails');
+    await client.insertMany('cocktails', items);
 
+    console.log(`[sheets-sync] Cocktails synced: ${items.length} items`);
     return { count: items.length };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Unknown error";
+    console.error("[sheets-sync] Cocktails sync error:", message);
     return { count: 0, error: message };
   }
 }
