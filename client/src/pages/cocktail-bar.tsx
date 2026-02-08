@@ -219,8 +219,7 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
 
   return (
     <div
-      className="pb-7 mb-7 last:border-0 last:mb-0 last:pb-0"
-      style={{ borderBottom: '1px solid #e5d6b6' }}
+      className="pb-7 mb-7 last:mb-0 last:pb-0 [border-bottom:1px_solid_#e5d6b6] last:[border-bottom:none]"
       data-testid={`cocktail-item-${cocktail.id}`}
     >
       <div className="space-y-1">
