@@ -1,9 +1,10 @@
+import { useEffect } from "react";
 import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { LanguageProvider } from "@/contexts/LanguageContext";
+import { LanguageProvider, useLanguage } from "@/contexts/LanguageContext";
 import { AdminProvider, useAdmin } from "@/contexts/AdminContext";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
@@ -37,10 +38,32 @@ function ProtectedAdminRoute({ component: Component }: { component: React.Compon
   return <Component />;
 }
 
+const PAGE_TITLES: Record<string, { it: string; en: string }> = {
+  home: { it: "Camera con Vista - Ristorante & Cocktail Bar Bologna", en: "Camera con Vista - Restaurant & Cocktail Bar Bologna" },
+  menu: { it: "Menu - Camera con Vista | Ristorante Bologna", en: "Menu - Camera con Vista | Restaurant Bologna" },
+  "carta-vini": { it: "Lista Vini - Camera con Vista | Wine List Bologna", en: "Wine List - Camera con Vista | Bologna" },
+  "cocktail-bar": { it: "Cocktail Bar - Camera con Vista | Bologna", en: "Cocktail Bar - Camera con Vista | Bologna" },
+  eventi: { it: "Eventi - Camera con Vista | Events Bologna", en: "Events - Camera con Vista | Bologna" },
+  "eventi-privati": { it: "Eventi Privati - Camera con Vista | Bologna", en: "Private Events - Camera con Vista | Bologna" },
+  galleria: { it: "Galleria - Camera con Vista | Gallery Bologna", en: "Gallery - Camera con Vista | Bologna" },
+  contatti: { it: "Contatti - Camera con Vista | Contact Bologna", en: "Contact - Camera con Vista | Bologna" },
+};
+
 function PublicPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
+  const { language } = useLanguage();
   const { data: visiblePages = [], isLoading } = useQuery<Page[]>({
     queryKey: ["/api/pages"],
   });
+
+  const page = visiblePages.find(p => p.slug === slug);
+  const titles = PAGE_TITLES[slug];
+
+  useEffect(() => {
+    if (!titles) return;
+    const langKey = language === "en" ? "en" : "it";
+    const customTitle = langKey === "it" ? page?.metaTitleIt : page?.metaTitleEn;
+    document.title = customTitle || titles[langKey];
+  }, [slug, language, page?.metaTitleIt, page?.metaTitleEn, titles]);
   
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;

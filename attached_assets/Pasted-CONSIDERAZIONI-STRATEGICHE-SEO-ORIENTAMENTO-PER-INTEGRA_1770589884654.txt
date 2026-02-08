@@ -1,0 +1,101 @@
+CONSIDERAZIONI STRATEGICHE SEO — ORIENTAMENTO PER INTEGRAZIONE
+
+Il piano SEO proposto è concettualmente corretto e coerente con l’obiettivo di migliorare indicizzazione e visibilità senza toccare React, UI o UX.
+L’idea di concentrare tutto nel layer Express che serve l’HTML iniziale è valida e tecnicamente pulita.
+
+1. Valutazione generale
+
+L’approccio “Livelli” (Fondamenta → SEO Admin → JSON-LD → Multilingua) è corretto.
+
+L’iniezione server-side di metadata, canonical, hreflang, Open Graph e Twitter Card prima del bootstrap React è una scelta sensata in un contesto SPA.
+
+Collegare la pagina SEO Admin al database trasforma una UI cosmetica in uno strumento realmente utile.
+
+Questo piano migliora in modo concreto:
+
+crawlability
+
+qualità dell’indicizzazione
+
+anteprime social
+
+riconoscimento dell’entità “ristorante” da parte dei motori
+
+2. Limite strutturale da tenere presente (non bloccante, ma reale)
+
+Anche con metadata perfetti:
+
+il sito rimane una SPA pura
+
+il contenuto principale (menu, eventi, testi) viene comunque caricato via JS
+
+Questo significa che:
+
+i motori possono indicizzare, ma
+
+l’efficacia è inferiore rispetto a prerender/SSR
+
+Il piano attuale non risolve questo aspetto, ma è comunque un passo forte e legittimo se si vuole evitare un refactor architetturale.
+
+3. Multilingua: punto più delicato
+
+La gestione proposta con ?lang=en:
+
+è funzionale
+
+ma meno robusta lato SEO rispetto a URL distinti (/en/…)
+
+Non è sbagliata in assoluto, ma:
+
+richiede canonical e hreflang estremamente coerenti
+
+è più fragile su duplicazioni e Search Console
+
+è la parte con maggior rischio residuo
+
+Va vista come soluzione di compromesso, non come ideale SEO.
+
+4. Dati strutturati
+
+L’introduzione di JSON-LD (LocalBusiness, Restaurant, Event, Menu, Breadcrumb):
+
+è fortemente consigliabile
+
+aumenta comprensione semantica e rich result
+
+non ha impatti negativi
+
+È correttamente posizionata dopo le fondamenta.
+
+5. Cosa questo piano fa bene
+
+Non tocca componenti React
+
+Non altera layout o routing frontend
+
+Non introduce regressioni UX
+
+Centralizza SEO in un unico punto controllabile (Express)
+
+6. Visione d’insieme
+
+Questo piano:
+
+non è il massimo teorico SEO
+
+ma è ottimo come step strutturale intermedio
+
+prepara il terreno per un eventuale prerender/SSR futuro
+
+riduce drasticamente le attuali criticità SEO più gravi
+
+7. Conclusione strategica
+
+L’integrazione proposta è sensata, coerente e difendibile.
+L’unica cosa da tenere sempre chiara è che:
+
+i metadata risolvono come il sito viene descritto
+
+il rendering risolve come il sito viene visto
+
+Questo piano migliora molto il primo punto, senza affrontare radicalmente il secondo — scelta legittima se consapevole.

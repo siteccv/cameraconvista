@@ -4,6 +4,7 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
+import { mountSeoRoutes, generateSeoHtml, injectSeoIntoHtml } from "./seo";
 
 const app = express();
 const httpServer = createServer(app);
@@ -88,6 +89,55 @@ app.use((req, res, next) => {
     }
 
     return res.status(status).json({ message });
+  });
+
+  mountSeoRoutes(app);
+
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api") || req.path.startsWith("/admina") || req.path.startsWith("/vite-hmr")) {
+      return next();
+    }
+
+    const ext = req.path.split(".").pop();
+    if (ext && ["js", "css", "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf", "map", "json", "txt", "xml", "webp", "mp4"].includes(ext)) {
+      return next();
+    }
+
+    const originalEnd = res.end;
+    const originalSend = res.send;
+
+    res.send = function (body: any) {
+      if (typeof body === "string" && body.includes("</head>") && body.includes('<div id="root">')) {
+        generateSeoHtml(req)
+          .then((metaTags) => {
+            const injected = injectSeoIntoHtml(body, metaTags);
+            res.set("Content-Length", Buffer.byteLength(injected).toString());
+            originalEnd.call(res, injected, "utf-8" as any);
+          })
+          .catch(() => {
+            originalSend.call(res, body);
+          });
+        return res;
+      }
+      return originalSend.call(res, body);
+    } as any;
+
+    res.end = function (chunk: any, encoding?: any, callback?: any) {
+      if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
+        generateSeoHtml(req)
+          .then((metaTags) => {
+            const injected = injectSeoIntoHtml(chunk, metaTags);
+            originalEnd.call(res, injected, "utf-8" as any);
+          })
+          .catch(() => {
+            originalEnd.call(res, chunk, encoding, callback);
+          });
+        return res;
+      }
+      return originalEnd.call(res, chunk, encoding, callback);
+    } as any;
+
+    next();
   });
 
   // importantly only setup vite in development and after
