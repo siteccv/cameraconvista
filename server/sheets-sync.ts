@@ -48,44 +48,32 @@ async function getDbClient() {
 
 export interface GoogleSheetsConfig {
   menu: {
-    spreadsheetId: string;
-    gid: string;
-    url: string;
+    syncUrl: string;
   };
   wines: {
-    publishedKey: string;
-    spreadsheetUrl: string;
-    categories: { gid: string; category: string }[];
+    categories: { category: string; syncUrl: string }[];
   };
   cocktails: {
-    spreadsheetId: string;
-    gid: string;
-    url: string;
+    syncUrl: string;
   };
 }
 
 const DEFAULT_CONFIG: GoogleSheetsConfig = {
   menu: {
-    spreadsheetId: "1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY",
-    gid: "1122482173",
-    url: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/edit#gid=1122482173",
+    syncUrl: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/export?format=csv&gid=1122482173",
   },
   wines: {
-    publishedKey: "2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy",
-    spreadsheetUrl: "https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?usp=sharing",
     categories: [
-      { gid: "294419425", category: "Bollicine Italiane" },
-      { gid: "700257433", category: "Bollicine Francesi" },
-      { gid: "2127910877", category: "Bianchi" },
-      { gid: "254687727", category: "Rossi" },
-      { gid: "498630601", category: "Rosati" },
-      { gid: "1582691495", category: "Vini Dolci" },
+      { category: "Bollicine Italiane", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=294419425&single=true&output=csv" },
+      { category: "Bollicine Francesi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=700257433&single=true&output=csv" },
+      { category: "Bianchi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=2127910877&single=true&output=csv" },
+      { category: "Rossi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=254687727&single=true&output=csv" },
+      { category: "Rosati", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=498630601&single=true&output=csv" },
+      { category: "Vini Dolci", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=1582691495&single=true&output=csv" },
     ],
   },
   cocktails: {
-    spreadsheetId: "1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ",
-    gid: "1122482173",
-    url: "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/edit#gid=1122482173",
+    syncUrl: "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/export?format=csv&gid=1122482173",
   },
 };
 
@@ -97,8 +85,11 @@ export async function getGoogleSheetsConfig(): Promise<GoogleSheetsConfig> {
     const { storage } = await import("./storage");
     const setting = await storage.getSiteSetting("google_sheets_config");
     if (setting?.valueIt) {
-      cachedConfig = JSON.parse(setting.valueIt);
-      return cachedConfig!;
+      const parsed = JSON.parse(setting.valueIt);
+      if (parsed.menu?.syncUrl && parsed.wines?.categories && parsed.cocktails?.syncUrl) {
+        cachedConfig = parsed;
+        return cachedConfig!;
+      }
     }
   } catch (e) {
     console.error("[sheets-sync] Error loading config from DB, using defaults:", e);
@@ -119,14 +110,6 @@ export async function saveGoogleSheetsConfig(config: GoogleSheetsConfig): Promis
 
 export function invalidateConfigCache(): void {
   cachedConfig = null;
-}
-
-function getCsvUrl(sheetId: string, gid: string): string {
-  return `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv&gid=${gid}`;
-}
-
-function getPublishedCsvUrl(pubId: string, gid: string): string {
-  return `https://docs.google.com/spreadsheets/d/e/${pubId}/pub?gid=${gid}&single=true&output=csv`;
 }
 
 function parseCSV(csvText: string): string[][] {
@@ -178,21 +161,10 @@ function parseCSV(csvText: string): string[][] {
   return rows;
 }
 
-async function fetchSheetData(sheetId: string, gid: string): Promise<string[][]> {
-  const url = getCsvUrl(sheetId, gid);
+async function fetchCsvFromUrl(url: string): Promise<string[][]> {
   const response = await fetch(url, { redirect: "follow" });
   if (!response.ok) {
     throw new Error(`Failed to fetch sheet: ${response.statusText}`);
-  }
-  const csvText = await response.text();
-  return parseCSV(csvText);
-}
-
-async function fetchPublishedCsv(pubId: string, gid: string): Promise<string[][]> {
-  const url = getPublishedCsvUrl(pubId, gid);
-  const response = await fetch(url, { redirect: "follow" });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch published sheet: ${response.statusText}`);
   }
   const csvText = await response.text();
   return parseCSV(csvText);
@@ -202,7 +174,7 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
   try {
     const config = await getGoogleSheetsConfig();
     const client = await getDbClient();
-    const rows = await fetchSheetData(config.menu.spreadsheetId, config.menu.gid);
+    const rows = await fetchCsvFromUrl(config.menu.syncUrl);
     if (rows.length < 2) {
       return { count: 0, error: "No data rows found" };
     }
@@ -256,9 +228,9 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
     const allWines: InsertWine[] = [];
     let globalSortOrder = 0;
 
-    for (const { gid, category } of config.wines.categories) {
+    for (const { syncUrl, category } of config.wines.categories) {
       try {
-        const rows = await fetchPublishedCsv(config.wines.publishedKey, gid);
+        const rows = await fetchCsvFromUrl(syncUrl);
         if (rows.length < 2) continue;
 
         const headers = rows[0].map(h => h.toLowerCase().trim());
@@ -319,7 +291,7 @@ export async function syncCocktailsFromSheets(): Promise<{ count: number; error?
   try {
     const config = await getGoogleSheetsConfig();
     const client = await getDbClient();
-    const rows = await fetchSheetData(config.cocktails.spreadsheetId, config.cocktails.gid);
+    const rows = await fetchCsvFromUrl(config.cocktails.syncUrl);
     if (rows.length < 2) {
       return { count: 0, error: "No data rows found" };
     }

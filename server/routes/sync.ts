@@ -121,26 +121,22 @@ router.get("/sheets-config", requireAuth, async (req, res) => {
 router.put("/sheets-config", requireAuth, async (req, res) => {
   try {
     const config = req.body;
-    if (!config.menu?.spreadsheetId?.trim() || !config.menu?.gid?.trim() || !config.menu?.url?.trim()) {
-      res.status(400).json({ error: "Menu config requires spreadsheetId, gid, and url" });
-      return;
-    }
-    if (!config.wines?.publishedKey?.trim() || !config.wines?.spreadsheetUrl?.trim()) {
-      res.status(400).json({ error: "Wines config requires publishedKey and spreadsheetUrl" });
+    if (!config.menu?.syncUrl?.trim()) {
+      res.status(400).json({ error: "Menu sync URL is required" });
       return;
     }
     if (!Array.isArray(config.wines?.categories) || config.wines.categories.length === 0) {
-      res.status(400).json({ error: "Wines must have at least one category" });
+      res.status(400).json({ error: "At least one wine category is required" });
       return;
     }
     for (const cat of config.wines.categories) {
-      if (!cat.gid?.trim() || !cat.category?.trim()) {
-        res.status(400).json({ error: "Each wine category requires both name and GID" });
+      if (!cat.syncUrl?.trim() || !cat.category?.trim()) {
+        res.status(400).json({ error: "Each wine category requires both name and sync URL" });
         return;
       }
     }
-    if (!config.cocktails?.spreadsheetId?.trim() || !config.cocktails?.gid?.trim() || !config.cocktails?.url?.trim()) {
-      res.status(400).json({ error: "Cocktails config requires spreadsheetId, gid, and url" });
+    if (!config.cocktails?.syncUrl?.trim()) {
+      res.status(400).json({ error: "Cocktails sync URL is required" });
       return;
     }
     invalidateConfigCache();

@@ -17,30 +17,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, ExternalLink, Settings, Save, Plus, Trash2, Check } from "lucide-react";
+import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, Settings, Save, Plus, Trash2, Check } from "lucide-react";
 
 type SyncTarget = "menu" | "wines" | "cocktails";
 
-interface WineCategory {
-  gid: string;
-  category: string;
-}
-
 interface GoogleSheetsConfig {
   menu: {
-    spreadsheetId: string;
-    gid: string;
-    url: string;
+    syncUrl: string;
   };
   wines: {
-    publishedKey: string;
-    spreadsheetUrl: string;
-    categories: WineCategory[];
+    categories: { category: string; syncUrl: string }[];
   };
   cocktails: {
-    spreadsheetId: string;
-    gid: string;
-    url: string;
+    syncUrl: string;
   };
 }
 
@@ -80,7 +69,7 @@ export default function AdminSyncGoogle() {
     queryKey: ["/api/admin/sync/publish-status"],
   });
 
-  const { data: sheetsConfig, isLoading: configLoading } = useQuery<GoogleSheetsConfig>({
+  const { data: sheetsConfig } = useQuery<GoogleSheetsConfig>({
     queryKey: ["/api/admin/sync/sheets-config"],
   });
 
@@ -89,15 +78,6 @@ export default function AdminSyncGoogle() {
       setEditConfig(JSON.parse(JSON.stringify(sheetsConfig)));
     }
   }, [sheetsConfig]);
-
-  const getSheetUrl = (target: SyncTarget): string => {
-    const config = sheetsConfig;
-    if (!config) return "#";
-    if (target === "menu") return config.menu.url;
-    if (target === "wines") return config.wines.spreadsheetUrl;
-    if (target === "cocktails") return config.cocktails.url;
-    return "#";
-  };
 
   const handleSync = async (target: SyncTarget) => {
     setSyncingTarget(target);
@@ -169,25 +149,21 @@ export default function AdminSyncGoogle() {
 
   const handleSaveConfig = async () => {
     if (!editConfig) return;
-    if (!editConfig.menu.spreadsheetId.trim() || !editConfig.menu.gid.trim() || !editConfig.menu.url.trim()) {
-      toast({ title: t("Errore", "Error"), description: t("Tutti i campi del Menù sono obbligatori", "All Menu fields are required"), variant: "destructive" });
-      return;
-    }
-    if (!editConfig.wines.publishedKey.trim() || !editConfig.wines.spreadsheetUrl.trim()) {
-      toast({ title: t("Errore", "Error"), description: t("I campi principali dei Vini sono obbligatori", "Main Wines fields are required"), variant: "destructive" });
+    if (!editConfig.menu.syncUrl.trim()) {
+      toast({ title: t("Errore", "Error"), description: t("Il link di sincronizzazione Menù è obbligatorio", "Menu sync link is required"), variant: "destructive" });
       return;
     }
     if (editConfig.wines.categories.length === 0) {
       toast({ title: t("Errore", "Error"), description: t("Aggiungi almeno una categoria vini", "Add at least one wine category"), variant: "destructive" });
       return;
     }
-    const invalidCat = editConfig.wines.categories.find(c => !c.gid.trim() || !c.category.trim());
+    const invalidCat = editConfig.wines.categories.find(c => !c.syncUrl.trim() || !c.category.trim());
     if (invalidCat) {
-      toast({ title: t("Errore", "Error"), description: t("Ogni categoria vino deve avere nome e GID", "Each wine category needs name and GID"), variant: "destructive" });
+      toast({ title: t("Errore", "Error"), description: t("Ogni categoria vino deve avere nome e link", "Each wine category needs name and link"), variant: "destructive" });
       return;
     }
-    if (!editConfig.cocktails.spreadsheetId.trim() || !editConfig.cocktails.gid.trim() || !editConfig.cocktails.url.trim()) {
-      toast({ title: t("Errore", "Error"), description: t("Tutti i campi Cocktail sono obbligatori", "All Cocktail fields are required"), variant: "destructive" });
+    if (!editConfig.cocktails.syncUrl.trim()) {
+      toast({ title: t("Errore", "Error"), description: t("Il link di sincronizzazione Cocktail è obbligatorio", "Cocktails sync link is required"), variant: "destructive" });
       return;
     }
     setSavingConfig(true);
@@ -197,7 +173,7 @@ export default function AdminSyncGoogle() {
       setConfigDirty(false);
       toast({
         title: t("Configurazione salvata", "Configuration saved"),
-        description: t("Gli indirizzi Google Sheets sono stati aggiornati", "Google Sheets URLs have been updated"),
+        description: t("I link di sincronizzazione sono stati aggiornati", "Sync links have been updated"),
       });
     } catch (error) {
       toast({
@@ -220,7 +196,7 @@ export default function AdminSyncGoogle() {
 
   const addWineCategory = () => {
     updateConfig((c) => {
-      c.wines.categories.push({ gid: "", category: "" });
+      c.wines.categories.push({ syncUrl: "", category: "" });
     });
   };
 
@@ -316,20 +292,6 @@ export default function AdminSyncGoogle() {
                         ? t("Pubblicando...", "Publishing...")
                         : t("Pubblica online", "Publish online")}
                     </Button>
-
-                    <Button
-                      size="sm"
-                      className="bg-green-600 border-green-700 text-white"
-                      disabled={!sheetsConfig}
-                      onClick={() => {
-                        const url = getSheetUrl(target);
-                        if (url && url !== "#") window.open(url, "_blank");
-                      }}
-                      data-testid={`button-open-sheet-${target}`}
-                    >
-                      <ExternalLink className="h-4 w-4 mr-1.5" />
-                      GOOGLE SHEET
-                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -350,113 +312,74 @@ export default function AdminSyncGoogle() {
             data-testid="button-toggle-config"
           >
             <Settings className="h-4 w-4 mr-2" />
-            {t("Gestione indirizzi Google Sheets", "Manage Google Sheets URLs")}
+            {t("Link di sincronizzazione", "Sync links")}
           </Button>
         </div>
 
         {showConfig && editConfig && (
           <div className="space-y-4" data-testid="section-sheets-config">
             <Card>
-              <CardContent className="p-4 space-y-4">
+              <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <UtensilsCrossed className="h-5 w-5 text-primary" />
                   <CardTitle className="text-base">{t("Menù", "Menu")}</CardTitle>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Spreadsheet ID</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
                   <Input
-                    value={editConfig.menu.spreadsheetId}
-                    onChange={(e) => updateConfig((c) => { c.menu.spreadsheetId = e.target.value; })}
-                    data-testid="input-menu-spreadsheet-id"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">GID</label>
-                  <Input
-                    value={editConfig.menu.gid}
-                    onChange={(e) => updateConfig((c) => { c.menu.gid = e.target.value; })}
-                    data-testid="input-menu-gid"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link diretto al foglio", "Direct sheet link")}</label>
-                  <Input
-                    value={editConfig.menu.url}
-                    onChange={(e) => updateConfig((c) => { c.menu.url = e.target.value; })}
-                    data-testid="input-menu-url"
+                    value={editConfig.menu.syncUrl}
+                    onChange={(e) => updateConfig((c) => { c.menu.syncUrl = e.target.value; })}
+                    placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..."
+                    data-testid="input-menu-sync-url"
                   />
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-4 space-y-4">
-                <div className="flex items-center gap-2">
-                  <Wine className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-base">{t("Vini", "Wines")}</CardTitle>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link generico foglio Vini", "Generic Wines sheet link")}</label>
-                  <Input
-                    value={editConfig.wines.spreadsheetUrl}
-                    onChange={(e) => updateConfig((c) => { c.wines.spreadsheetUrl = e.target.value; })}
-                    data-testid="input-wines-spreadsheet-url"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Published CSV Key ({t("per sincronizzazione", "for sync")})</label>
-                  <Input
-                    value={editConfig.wines.publishedKey}
-                    onChange={(e) => updateConfig((c) => { c.wines.publishedKey = e.target.value; })}
-                    data-testid="input-wines-published-key"
-                  />
+              <CardContent className="p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Wine className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">{t("Vini", "Wines")}</CardTitle>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={addWineCategory}
+                    data-testid="button-add-wine-category"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1" />
+                    {t("Aggiungi", "Add")}
+                  </Button>
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      {t("Categorie vini (foglio + GID)", "Wine categories (sheet + GID)")}
-                    </label>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={addWineCategory}
-                      data-testid="button-add-wine-category"
-                    >
-                      <Plus className="h-3.5 w-3.5 mr-1" />
-                      {t("Aggiungi", "Add")}
-                    </Button>
-                  </div>
-
                   {editConfig.wines.categories.map((cat, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
+                    <div key={idx} className="space-y-1.5 border-b pb-3 last:border-b-0 last:pb-0">
+                      <div className="flex items-center gap-2">
+                        <Input
+                          className="flex-1"
+                          placeholder={t("Nome categoria (es. Bollicine Italiane)", "Category name (e.g. Italian Sparkling)")}
+                          value={cat.category}
+                          onChange={(e) => updateConfig((c) => { c.wines.categories[idx].category = e.target.value; })}
+                          data-testid={`input-wine-cat-name-${idx}`}
+                        />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeWineCategory(idx)}
+                          data-testid={`button-remove-wine-cat-${idx}`}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
                       <Input
-                        className="flex-1"
-                        placeholder={t("Nome categoria", "Category name")}
-                        value={cat.category}
-                        onChange={(e) => updateConfig((c) => { c.wines.categories[idx].category = e.target.value; })}
-                        data-testid={`input-wine-cat-name-${idx}`}
+                        placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"
+                        value={cat.syncUrl}
+                        onChange={(e) => updateConfig((c) => { c.wines.categories[idx].syncUrl = e.target.value; })}
+                        data-testid={`input-wine-cat-url-${idx}`}
                       />
-                      <Input
-                        className="w-36"
-                        placeholder="GID"
-                        value={cat.gid}
-                        onChange={(e) => updateConfig((c) => { c.wines.categories[idx].gid = e.target.value; })}
-                        data-testid={`input-wine-cat-gid-${idx}`}
-                      />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeWineCategory(idx)}
-                        data-testid={`button-remove-wine-cat-${idx}`}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
                     </div>
                   ))}
                 </div>
@@ -464,36 +387,18 @@ export default function AdminSyncGoogle() {
             </Card>
 
             <Card>
-              <CardContent className="p-4 space-y-4">
+              <CardContent className="p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <GlassWater className="h-5 w-5 text-primary" />
                   <CardTitle className="text-base">{t("Cocktail", "Cocktails")}</CardTitle>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">Spreadsheet ID</label>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium text-muted-foreground">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
                   <Input
-                    value={editConfig.cocktails.spreadsheetId}
-                    onChange={(e) => updateConfig((c) => { c.cocktails.spreadsheetId = e.target.value; })}
-                    data-testid="input-cocktails-spreadsheet-id"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">GID</label>
-                  <Input
-                    value={editConfig.cocktails.gid}
-                    onChange={(e) => updateConfig((c) => { c.cocktails.gid = e.target.value; })}
-                    data-testid="input-cocktails-gid"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link diretto al foglio", "Direct sheet link")}</label>
-                  <Input
-                    value={editConfig.cocktails.url}
-                    onChange={(e) => updateConfig((c) => { c.cocktails.url = e.target.value; })}
-                    data-testid="input-cocktails-url"
+                    value={editConfig.cocktails.syncUrl}
+                    onChange={(e) => updateConfig((c) => { c.cocktails.syncUrl = e.target.value; })}
+                    placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..."
+                    data-testid="input-cocktails-sync-url"
                   />
                 </div>
               </CardContent>
@@ -529,22 +434,20 @@ export default function AdminSyncGoogle() {
               <AlertDialogTitle>
                 {t("Conferma pubblicazione", "Confirm publication")}
               </AlertDialogTitle>
-              <AlertDialogHeader>
-                <AlertDialogDescription>
-                  {confirmPublish === "menu" && t(
-                    "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Menu will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                  {confirmPublish === "wines" && t(
-                    "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Wine List will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                  {confirmPublish === "cocktails" && t(
-                    "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Cocktail list will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
+              <AlertDialogDescription>
+                {confirmPublish === "menu" && t(
+                  "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
+                  "The current Menu will be published online and visible to customers. Do you want to proceed?"
+                )}
+                {confirmPublish === "wines" && t(
+                  "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                  "The current Wine List will be published online and visible to customers. Do you want to proceed?"
+                )}
+                {confirmPublish === "cocktails" && t(
+                  "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                  "The current Cocktail list will be published online and visible to customers. Do you want to proceed?"
+                )}
+              </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel data-testid="button-cancel-publish">
