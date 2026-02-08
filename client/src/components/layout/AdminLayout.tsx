@@ -33,6 +33,7 @@ import {
   LogOut,
   Loader2,
   Check,
+  RefreshCw,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -42,6 +43,7 @@ const adminNavItems = [
   { slug: "/admina/media", icon: Image, labelIt: "Libreria Media", labelEn: "Media Library" },
   { slug: "/admina/preview", icon: Eye, labelIt: "Anteprima", labelEn: "Preview" },
   { slug: "/admina/seo", icon: Search, labelIt: "SEO & Metadata", labelEn: "SEO & Metadata" },
+  { slug: "/admina/sync-google", icon: RefreshCw, labelIt: "Sync Google", labelEn: "Sync Google" },
   { slug: "/admina/settings", icon: Settings, labelIt: "Impostazioni", labelEn: "Settings" },
 ];
 

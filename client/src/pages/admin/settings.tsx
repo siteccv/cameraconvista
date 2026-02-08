@@ -21,30 +21,7 @@ import {
 import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 
-type SettingsSection = "main" | "password" | "footer" | "google-sheets";
-
-type SyncTarget = "menu" | "wines" | "cocktails";
-
-interface PublishStatus {
-  menu: { publishedAt: string; count: number } | null;
-  wines: { publishedAt: string; count: number } | null;
-  cocktails: { publishedAt: string; count: number } | null;
-}
-
-function formatDate(dateStr: string): string {
-  try {
-    const d = new Date(dateStr);
-    return d.toLocaleDateString("it-IT", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch {
-    return dateStr;
-  }
-}
+type SettingsSection = "main" | "password" | "footer";
 
 export default function AdminSettings() {
   const { t } = useLanguage();
@@ -55,83 +32,6 @@ export default function AdminSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const [syncingTarget, setSyncingTarget] = useState<SyncTarget | null>(null);
-  const [publishingTarget, setPublishingTarget] = useState<SyncTarget | null>(null);
-  const [confirmPublish, setConfirmPublish] = useState<SyncTarget | null>(null);
-
-  const { data: publishStatus } = useQuery<PublishStatus>({
-    queryKey: ["/api/admin/sync/publish-status"],
-    enabled: activeSection === "google-sheets",
-  });
-
-  const handleSync = async (target: SyncTarget) => {
-    setSyncingTarget(target);
-    try {
-      const response = await apiRequest("POST", `/api/admin/sync/${target}`);
-      const data = await response.json();
-
-      if (data.success) {
-        queryClient.invalidateQueries({ queryKey: [`/api/admin/menu-items`] });
-        queryClient.invalidateQueries({ queryKey: [`/api/admin/wines`] });
-        queryClient.invalidateQueries({ queryKey: [`/api/admin/cocktails`] });
-        const labels: Record<SyncTarget, string> = {
-          menu: t("Menù", "Menu"),
-          wines: t("Vini", "Wines"),
-          cocktails: t("Cocktail", "Cocktails"),
-        };
-        toast({
-          title: t("Sincronizzazione completata", "Sync completed"),
-          description: `${labels[target]}: ${data.count} ${t("elementi aggiornati", "items updated")}`,
-        });
-      } else {
-        throw new Error(data.error || "Sync failed");
-      }
-    } catch (error) {
-      toast({
-        title: t("Errore", "Error"),
-        description: t("Errore durante la sincronizzazione", "Error during synchronization"),
-        variant: "destructive",
-      });
-    } finally {
-      setSyncingTarget(null);
-    }
-  };
-
-  const handlePublish = async (target: SyncTarget) => {
-    setConfirmPublish(null);
-    setPublishingTarget(target);
-    try {
-      const response = await apiRequest("POST", `/api/admin/sync/publish-${target}`);
-      const data = await response.json();
-
-      if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/cocktails"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/sync/publish-status"] });
-        const labels: Record<SyncTarget, string> = {
-          menu: t("Menù", "Menu"),
-          wines: t("Vini", "Wines"),
-          cocktails: t("Cocktail", "Cocktails"),
-        };
-        toast({
-          title: t("Pubblicazione completata", "Publication completed"),
-          description: `${labels[target]}: ${data.count} ${t("elementi pubblicati online", "items published online")}`,
-        });
-      } else {
-        throw new Error(data.error || "Publish failed");
-      }
-    } catch (error) {
-      toast({
-        title: t("Errore", "Error"),
-        description: t("Errore durante la pubblicazione", "Error during publication"),
-        variant: "destructive",
-      });
-    } finally {
-      setPublishingTarget(null);
-    }
-  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -503,25 +403,6 @@ export default function AdminSettings() {
                 <CardTitle className="text-base mb-0.5">{t("Impostazioni Footer", "Footer Settings")}</CardTitle>
                 <CardDescription className="text-sm">
                   {t("Descrizione, contatti, orari, social e link", "Description, contacts, hours, social and links")}
-                </CardDescription>
-              </div>
-              <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
-            </CardContent>
-          </Card>
-
-          <Card
-            className="cursor-pointer hover-elevate transition-all"
-            onClick={() => setActiveSection("google-sheets")}
-            data-testid="card-google-sheets-section"
-          >
-            <CardContent className="p-4 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <RefreshCw className="h-6 w-6 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <CardTitle className="text-base mb-0.5">{t("Google Sheets", "Google Sheets")}</CardTitle>
-                <CardDescription className="text-sm">
-                  {t("Sincronizza e pubblica Menù, Vini e Cocktail", "Sync and publish Menu, Wines and Cocktails")}
                 </CardDescription>
               </div>
               <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />

@@ -17,6 +17,7 @@ import Galleria from "@/pages/galleria";
 import Contatti from "@/pages/contatti";
 import AdminLogin from "@/pages/admin/login";
 import AdminSettings from "@/pages/admin/settings";
+import AdminSyncGoogle from "@/pages/admin/sync-google";
 import AdminPages from "@/pages/admin/pages";
 import AdminEvents from "@/pages/admin/events";
 import AdminMedia from "@/pages/admin/media";
@@ -82,6 +83,9 @@ function Router() {
       <Route path="/admina/login" component={AdminLoginRoute} />
       <Route path="/admina/settings">
         {() => <ProtectedAdminRoute component={AdminSettings} />}
+      </Route>
+      <Route path="/admina/sync-google">
+        {() => <ProtectedAdminRoute component={AdminSyncGoogle} />}
       </Route>
             <Route path="/admina/events">
         {() => <ProtectedAdminRoute component={AdminEvents} />}
