@@ -8,9 +8,8 @@ import { requireAuth, parseId } from "./helpers";
 // ========================================
 export const publicMenuRouter = Router();
 
-async function getPublishedOrLive<T extends { isAvailable?: boolean }>(
+async function getPublishedSnapshot<T extends { isAvailable?: boolean }>(
   settingKey: string,
-  liveFetcher: () => Promise<T[]>,
 ): Promise<T[]> {
   const setting = await storage.getSiteSetting(settingKey);
   if (setting?.valueIt) {
@@ -21,13 +20,12 @@ async function getPublishedOrLive<T extends { isAvailable?: boolean }>(
       console.error(`[menu] Failed to parse published snapshot for ${settingKey}`);
     }
   }
-  const items = await liveFetcher();
-  return items.filter((item: any) => item.isAvailable !== false);
+  return [];
 }
 
 publicMenuRouter.get("/menu-items", async (req, res) => {
   try {
-    const items = await getPublishedOrLive("published_menu_items", () => storage.getMenuItems());
+    const items = await getPublishedSnapshot("published_menu_items");
     res.json(items);
   } catch (error) {
     console.error("Error fetching menu items:", error);
@@ -37,7 +35,7 @@ publicMenuRouter.get("/menu-items", async (req, res) => {
 
 publicMenuRouter.get("/wines", async (req, res) => {
   try {
-    const wines = await getPublishedOrLive("published_wines", () => storage.getWines());
+    const wines = await getPublishedSnapshot("published_wines");
     res.json(wines);
   } catch (error) {
     console.error("Error fetching wines:", error);
@@ -47,7 +45,7 @@ publicMenuRouter.get("/wines", async (req, res) => {
 
 publicMenuRouter.get("/cocktails", async (req, res) => {
   try {
-    const cocktails = await getPublishedOrLive("published_cocktails", () => storage.getCocktails());
+    const cocktails = await getPublishedSnapshot("published_cocktails");
     res.json(cocktails);
   } catch (error) {
     console.error("Error fetching cocktails:", error);
