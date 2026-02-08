@@ -6,10 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft } from "lucide-react";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, RefreshCw } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
-import { RefreshCw } from "lucide-react";
 
 type SettingsSection = "main" | "password" | "footer";
 
@@ -31,6 +30,12 @@ export default function AdminSettings() {
       const data = await response.json();
       
       if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/cocktails"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/menu-items"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/wines"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/cocktails"] });
         toast({
           title: t("Successo", "Success"),
           description: t("Sincronizzazione completata con successo", "Synchronization completed successfully"),
