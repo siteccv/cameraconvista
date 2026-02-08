@@ -333,6 +333,12 @@ export default function AdminSyncGoogle() {
         <div className="mt-8 mb-4">
           <Button
             variant="outline"
+            size="lg"
+            className={`w-full py-8 text-lg font-semibold transition-all duration-300 ${
+              showConfig 
+                ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600 shadow-inner" 
+                : "bg-amber-400 text-amber-950 border-amber-500 hover:bg-amber-500 shadow-md"
+            }`}
             onClick={() => {
               if (!showConfig && sheetsConfig) {
                 setEditConfig(JSON.parse(JSON.stringify(sheetsConfig)));
@@ -342,7 +348,7 @@ export default function AdminSyncGoogle() {
             }}
             data-testid="button-toggle-config"
           >
-            <Settings className="h-4 w-4 mr-2" />
+            <Settings className={`h-6 w-6 mr-3 ${showConfig ? "rotate-90" : ""} transition-transform duration-500`} />
             {t("Link di sincronizzazione", "Sync links")}
           </Button>
         </div>
