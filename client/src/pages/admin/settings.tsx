@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,18 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest, queryClient } from "@/lib/queryClient";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
+import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 
 type SettingsSection = "main" | "password" | "footer";
@@ -209,150 +198,6 @@ export default function AdminSettings() {
           </div>
 
           <FooterSettingsForm />
-        </div>
-      </AdminLayout>
-    );
-  }
-
-  if (activeSection === "google-sheets") {
-    const sections: { target: SyncTarget; icon: typeof UtensilsCrossed; label: string; desc: string }[] = [
-      {
-        target: "menu",
-        icon: UtensilsCrossed,
-        label: t("Menù", "Menu"),
-        desc: t("Piatti e portate dal foglio Google", "Dishes and courses from Google Sheet"),
-      },
-      {
-        target: "wines",
-        icon: Wine,
-        label: t("Vini", "Wines"),
-        desc: t("Carta dei vini dal foglio Google", "Wine list from Google Sheet"),
-      },
-      {
-        target: "cocktails",
-        icon: GlassWater,
-        label: t("Cocktail", "Cocktails"),
-        desc: t("Cocktail bar dal foglio Google", "Cocktail bar from Google Sheet"),
-      },
-    ];
-
-    return (
-      <AdminLayout>
-        <div className="p-4 md:p-6 max-w-2xl">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setActiveSection("main")}
-            className="mb-4 -ml-2"
-            data-testid="button-back-to-settings"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            {t("Indietro", "Back")}
-          </Button>
-
-          <div className="mb-6">
-            <h1 className="font-display text-2xl" data-testid="text-sheets-title">
-              {t("Google Sheets", "Google Sheets")}
-            </h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {t(
-                "Sincronizza i dati dai fogli Google e pubblica online quando sei pronto",
-                "Sync data from Google Sheets and publish online when ready"
-              )}
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {sections.map(({ target, icon: Icon, label, desc }) => {
-              const status = publishStatus?.[target];
-              const isSyncing = syncingTarget === target;
-              const isPublishing = publishingTarget === target;
-
-              return (
-                <Card key={target} data-testid={`card-sheets-${target}`}>
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Icon className="h-5 w-5 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <CardTitle className="text-base">{label}</CardTitle>
-                        <CardDescription className="text-sm">{desc}</CardDescription>
-                      </div>
-                    </div>
-
-                    {status && (
-                      <p className="text-xs text-muted-foreground pl-[52px]">
-                        {t("Ultimo aggiornamento online", "Last published")}: {formatDate(status.publishedAt)} ({status.count} {t("elementi", "items")})
-                      </p>
-                    )}
-
-                    <div className="flex items-center gap-2 pl-[52px] flex-wrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        disabled={isSyncing || isPublishing}
-                        onClick={() => handleSync(target)}
-                        data-testid={`button-sync-${target}`}
-                      >
-                        <RefreshCw className={`h-4 w-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`} />
-                        {isSyncing
-                          ? t("Sincronizzando...", "Syncing...")
-                          : t("Sincronizza da Google", "Sync from Google")}
-                      </Button>
-
-                      <Button
-                        size="sm"
-                        disabled={isSyncing || isPublishing}
-                        onClick={() => setConfirmPublish(target)}
-                        data-testid={`button-publish-${target}`}
-                      >
-                        <Upload className={`h-4 w-4 mr-1.5 ${isPublishing ? "animate-spin" : ""}`} />
-                        {isPublishing
-                          ? t("Pubblicando...", "Publishing...")
-                          : t("Pubblica online", "Publish online")}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-
-          <AlertDialog open={confirmPublish !== null} onOpenChange={(open) => { if (!open) setConfirmPublish(null); }}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>
-                  {t("Conferma pubblicazione", "Confirm publication")}
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {confirmPublish === "menu" && t(
-                    "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Menu will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                  {confirmPublish === "wines" && t(
-                    "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Wine List will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                  {confirmPublish === "cocktails" && t(
-                    "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                    "The current Cocktail list will be published online and visible to customers. Do you want to proceed?"
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel data-testid="button-cancel-publish">
-                  {t("Annulla", "Cancel")}
-                </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => confirmPublish && handlePublish(confirmPublish)}
-                  data-testid="button-confirm-publish"
-                >
-                  {t("Pubblica", "Publish")}
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </div>
       </AdminLayout>
     );
