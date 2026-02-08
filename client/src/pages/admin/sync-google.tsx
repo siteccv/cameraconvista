@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, Settings, Save, Plus, Trash2, Check } from "lucide-react";
+import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, ExternalLink, Settings, Save, Plus, Trash2, Check } from "lucide-react";
 
 type SyncTarget = "menu" | "wines" | "cocktails";
 
@@ -79,6 +79,22 @@ export default function AdminSyncGoogle() {
       setEditConfig(JSON.parse(JSON.stringify(sheetsConfig)));
     }
   }, [sheetsConfig]);
+
+  const getSheetEditUrl = (target: SyncTarget): string => {
+    if (!sheetsConfig) return "";
+    if (target === "wines") return sheetsConfig.wines.spreadsheetUrl || "";
+    const syncUrl = target === "menu" ? sheetsConfig.menu.syncUrl : sheetsConfig.cocktails.syncUrl;
+    try {
+      const match = syncUrl.match(/\/spreadsheets\/d\/([^/]+)\//);
+      const gidMatch = syncUrl.match(/gid=(\d+)/);
+      if (match) {
+        const id = match[1];
+        const gid = gidMatch ? gidMatch[1] : "0";
+        return `https://docs.google.com/spreadsheets/d/${id}/edit#gid=${gid}`;
+      }
+    } catch {}
+    return syncUrl;
+  };
 
   const handleSync = async (target: SyncTarget) => {
     setSyncingTarget(target);
@@ -292,6 +308,20 @@ export default function AdminSyncGoogle() {
                       {isPublishing
                         ? t("Pubblicando...", "Publishing...")
                         : t("Pubblica online", "Publish online")}
+                    </Button>
+
+                    <Button
+                      size="sm"
+                      className="bg-green-600 border-green-700 text-white"
+                      disabled={!sheetsConfig}
+                      onClick={() => {
+                        const url = getSheetEditUrl(target);
+                        if (url) window.open(url, "_blank");
+                      }}
+                      data-testid={`button-open-sheet-${target}`}
+                    >
+                      <ExternalLink className="h-4 w-4 mr-1.5" />
+                      GOOGLE SHEET
                     </Button>
                   </div>
                 </CardContent>
