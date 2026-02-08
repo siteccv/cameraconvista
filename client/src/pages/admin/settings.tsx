@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,10 +8,43 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, RefreshCw } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 
-type SettingsSection = "main" | "password" | "footer";
+type SettingsSection = "main" | "password" | "footer" | "google-sheets";
+
+type SyncTarget = "menu" | "wines" | "cocktails";
+
+interface PublishStatus {
+  menu: { publishedAt: string; count: number } | null;
+  wines: { publishedAt: string; count: number } | null;
+  cocktails: { publishedAt: string; count: number } | null;
+}
+
+function formatDate(dateStr: string): string {
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString("it-IT", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch {
+    return dateStr;
+  }
+}
 
 export default function AdminSettings() {
   const { t } = useLanguage();
@@ -21,24 +55,34 @@ export default function AdminSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  const handleSyncAll = async () => {
-    setIsSyncing(true);
+  const [syncingTarget, setSyncingTarget] = useState<SyncTarget | null>(null);
+  const [publishingTarget, setPublishingTarget] = useState<SyncTarget | null>(null);
+  const [confirmPublish, setConfirmPublish] = useState<SyncTarget | null>(null);
+
+  const { data: publishStatus } = useQuery<PublishStatus>({
+    queryKey: ["/api/admin/sync/publish-status"],
+    enabled: activeSection === "google-sheets",
+  });
+
+  const handleSync = async (target: SyncTarget) => {
+    setSyncingTarget(target);
     try {
-      const response = await apiRequest("POST", "/api/admin/sync/all");
+      const response = await apiRequest("POST", `/api/admin/sync/${target}`);
       const data = await response.json();
-      
+
       if (data.success) {
-        queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/cocktails"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/menu-items"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/wines"] });
-        queryClient.invalidateQueries({ queryKey: ["/api/admin/cocktails"] });
+        queryClient.invalidateQueries({ queryKey: [`/api/admin/menu-items`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/admin/wines`] });
+        queryClient.invalidateQueries({ queryKey: [`/api/admin/cocktails`] });
+        const labels: Record<SyncTarget, string> = {
+          menu: t("Menù", "Menu"),
+          wines: t("Vini", "Wines"),
+          cocktails: t("Cocktail", "Cocktails"),
+        };
         toast({
-          title: t("Successo", "Success"),
-          description: t("Sincronizzazione completata con successo", "Synchronization completed successfully"),
+          title: t("Sincronizzazione completata", "Sync completed"),
+          description: `${labels[target]}: ${data.count} ${t("elementi aggiornati", "items updated")}`,
         });
       } else {
         throw new Error(data.error || "Sync failed");
@@ -50,13 +94,48 @@ export default function AdminSettings() {
         variant: "destructive",
       });
     } finally {
-      setIsSyncing(false);
+      setSyncingTarget(null);
+    }
+  };
+
+  const handlePublish = async (target: SyncTarget) => {
+    setConfirmPublish(null);
+    setPublishingTarget(target);
+    try {
+      const response = await apiRequest("POST", `/api/admin/sync/publish-${target}`);
+      const data = await response.json();
+
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/menu-items"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/wines"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/cocktails"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/sync/publish-status"] });
+        const labels: Record<SyncTarget, string> = {
+          menu: t("Menù", "Menu"),
+          wines: t("Vini", "Wines"),
+          cocktails: t("Cocktail", "Cocktails"),
+        };
+        toast({
+          title: t("Pubblicazione completata", "Publication completed"),
+          description: `${labels[target]}: ${data.count} ${t("elementi pubblicati online", "items published online")}`,
+        });
+      } else {
+        throw new Error(data.error || "Publish failed");
+      }
+    } catch (error) {
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Errore durante la pubblicazione", "Error during publication"),
+        variant: "destructive",
+      });
+    } finally {
+      setPublishingTarget(null);
     }
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (newPassword !== confirmPassword) {
       toast({
         title: t("Errore", "Error"),
@@ -188,8 +267,8 @@ export default function AdminSettings() {
                   </button>
                 </div>
 
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={isLoading || !currentPassword || !newPassword || !confirmPassword}
                   className="w-full"
                   data-testid="button-save-password"
@@ -235,6 +314,150 @@ export default function AdminSettings() {
     );
   }
 
+  if (activeSection === "google-sheets") {
+    const sections: { target: SyncTarget; icon: typeof UtensilsCrossed; label: string; desc: string }[] = [
+      {
+        target: "menu",
+        icon: UtensilsCrossed,
+        label: t("Menù", "Menu"),
+        desc: t("Piatti e portate dal foglio Google", "Dishes and courses from Google Sheet"),
+      },
+      {
+        target: "wines",
+        icon: Wine,
+        label: t("Vini", "Wines"),
+        desc: t("Carta dei vini dal foglio Google", "Wine list from Google Sheet"),
+      },
+      {
+        target: "cocktails",
+        icon: GlassWater,
+        label: t("Cocktail", "Cocktails"),
+        desc: t("Cocktail bar dal foglio Google", "Cocktail bar from Google Sheet"),
+      },
+    ];
+
+    return (
+      <AdminLayout>
+        <div className="p-4 md:p-6 max-w-2xl">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setActiveSection("main")}
+            className="mb-4 -ml-2"
+            data-testid="button-back-to-settings"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            {t("Indietro", "Back")}
+          </Button>
+
+          <div className="mb-6">
+            <h1 className="font-display text-2xl" data-testid="text-sheets-title">
+              {t("Google Sheets", "Google Sheets")}
+            </h1>
+            <p className="text-muted-foreground text-sm mt-1">
+              {t(
+                "Sincronizza i dati dai fogli Google e pubblica online quando sei pronto",
+                "Sync data from Google Sheets and publish online when ready"
+              )}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            {sections.map(({ target, icon: Icon, label, desc }) => {
+              const status = publishStatus?.[target];
+              const isSyncing = syncingTarget === target;
+              const isPublishing = publishingTarget === target;
+
+              return (
+                <Card key={target} data-testid={`card-sheets-${target}`}>
+                  <CardContent className="p-4 space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <Icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base">{label}</CardTitle>
+                        <CardDescription className="text-sm">{desc}</CardDescription>
+                      </div>
+                    </div>
+
+                    {status && (
+                      <p className="text-xs text-muted-foreground pl-[52px]">
+                        {t("Ultimo aggiornamento online", "Last published")}: {formatDate(status.publishedAt)} ({status.count} {t("elementi", "items")})
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-2 pl-[52px] flex-wrap">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={isSyncing || isPublishing}
+                        onClick={() => handleSync(target)}
+                        data-testid={`button-sync-${target}`}
+                      >
+                        <RefreshCw className={`h-4 w-4 mr-1.5 ${isSyncing ? "animate-spin" : ""}`} />
+                        {isSyncing
+                          ? t("Sincronizzando...", "Syncing...")
+                          : t("Sincronizza da Google", "Sync from Google")}
+                      </Button>
+
+                      <Button
+                        size="sm"
+                        disabled={isSyncing || isPublishing}
+                        onClick={() => setConfirmPublish(target)}
+                        data-testid={`button-publish-${target}`}
+                      >
+                        <Upload className={`h-4 w-4 mr-1.5 ${isPublishing ? "animate-spin" : ""}`} />
+                        {isPublishing
+                          ? t("Pubblicando...", "Publishing...")
+                          : t("Pubblica online", "Publish online")}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          <AlertDialog open={confirmPublish !== null} onOpenChange={(open) => { if (!open) setConfirmPublish(null); }}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  {t("Conferma pubblicazione", "Confirm publication")}
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {confirmPublish === "menu" && t(
+                    "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Menu will be published online and visible to customers. Do you want to proceed?"
+                  )}
+                  {confirmPublish === "wines" && t(
+                    "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Wine List will be published online and visible to customers. Do you want to proceed?"
+                  )}
+                  {confirmPublish === "cocktails" && t(
+                    "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Cocktail list will be published online and visible to customers. Do you want to proceed?"
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel data-testid="button-cancel-publish">
+                  {t("Annulla", "Cancel")}
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => confirmPublish && handlePublish(confirmPublish)}
+                  data-testid="button-confirm-publish"
+                >
+                  {t("Pubblica", "Publish")}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout>
       <div className="p-4 md:p-6 max-w-2xl">
@@ -248,7 +471,7 @@ export default function AdminSettings() {
         </div>
 
         <div className="space-y-3">
-          <Card 
+          <Card
             className="cursor-pointer hover-elevate transition-all"
             onClick={() => setActiveSection("password")}
             data-testid="card-password-section"
@@ -267,7 +490,7 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
 
-          <Card 
+          <Card
             className="cursor-pointer hover-elevate transition-all"
             onClick={() => setActiveSection("footer")}
             data-testid="card-footer-section"
@@ -286,24 +509,22 @@ export default function AdminSettings() {
             </CardContent>
           </Card>
 
-          <Card 
+          <Card
             className="cursor-pointer hover-elevate transition-all"
-            onClick={handleSyncAll}
-            data-testid="card-sync-section"
+            onClick={() => setActiveSection("google-sheets")}
+            data-testid="card-google-sheets-section"
           >
             <CardContent className="p-4 flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                <RefreshCw className={`h-6 w-6 text-primary ${isSyncing ? "animate-spin" : ""}`} />
+                <RefreshCw className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base mb-0.5">{t("Sincronizzazione Google Sheets", "Google Sheets Sync")}</CardTitle>
+                <CardTitle className="text-base mb-0.5">{t("Google Sheets", "Google Sheets")}</CardTitle>
                 <CardDescription className="text-sm">
-                  {t("Aggiorna Menu, Vini e Cocktail dai fogli Google", "Update Menu, Wines and Cocktails from Google Sheets")}
+                  {t("Sincronizza e pubblica Menù, Vini e Cocktail", "Sync and publish Menu, Wines and Cocktails")}
                 </CardDescription>
               </div>
-              <div className="text-xs font-medium text-primary uppercase flex-shrink-0">
-                {isSyncing ? t("Sincronizzando...", "Syncing...") : t("Sincronizza", "Sync Now")}
-              </div>
+              <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
             </CardContent>
           </Card>
         </div>

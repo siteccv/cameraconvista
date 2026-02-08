@@ -4,14 +4,31 @@ import { insertMenuItemSchema, insertWineSchema, insertCocktailSchema } from "@s
 import { requireAuth, parseId } from "./helpers";
 
 // ========================================
-// Public Routes
+// Public Routes (serve published snapshots when available)
 // ========================================
 export const publicMenuRouter = Router();
 
+async function getPublishedOrLive<T extends { isAvailable?: boolean }>(
+  settingKey: string,
+  liveFetcher: () => Promise<T[]>,
+): Promise<T[]> {
+  const setting = await storage.getSiteSetting(settingKey);
+  if (setting?.valueIt) {
+    try {
+      const items = JSON.parse(setting.valueIt) as T[];
+      return items.filter((item: any) => item.isAvailable !== false);
+    } catch {
+      console.error(`[menu] Failed to parse published snapshot for ${settingKey}`);
+    }
+  }
+  const items = await liveFetcher();
+  return items.filter((item: any) => item.isAvailable !== false);
+}
+
 publicMenuRouter.get("/menu-items", async (req, res) => {
   try {
-    const items = await storage.getMenuItems();
-    res.json(items.filter(item => item.isAvailable));
+    const items = await getPublishedOrLive("published_menu_items", () => storage.getMenuItems());
+    res.json(items);
   } catch (error) {
     console.error("Error fetching menu items:", error);
     res.status(500).json({ error: "Failed to fetch menu items" });
@@ -20,8 +37,8 @@ publicMenuRouter.get("/menu-items", async (req, res) => {
 
 publicMenuRouter.get("/wines", async (req, res) => {
   try {
-    const wines = await storage.getWines();
-    res.json(wines.filter(wine => wine.isAvailable));
+    const wines = await getPublishedOrLive("published_wines", () => storage.getWines());
+    res.json(wines);
   } catch (error) {
     console.error("Error fetching wines:", error);
     res.status(500).json({ error: "Failed to fetch wines" });
@@ -30,8 +47,8 @@ publicMenuRouter.get("/wines", async (req, res) => {
 
 publicMenuRouter.get("/cocktails", async (req, res) => {
   try {
-    const cocktails = await storage.getCocktails();
-    res.json(cocktails.filter(cocktail => cocktail.isAvailable));
+    const cocktails = await getPublishedOrLive("published_cocktails", () => storage.getCocktails());
+    res.json(cocktails);
   } catch (error) {
     console.error("Error fetching cocktails:", error);
     res.status(500).json({ error: "Failed to fetch cocktails" });

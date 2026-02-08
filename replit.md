@@ -83,6 +83,14 @@ Preferred communication style: Simple, everyday language.
    - **Home Special Case**: Shows branding block (logo + tagline + booking button) instead of intro text
    - **Scrollable Content**: Main content sections placed after the above-fold wrapper, visible on scroll
 13. **GitHub Sync**: Project synced to https://github.com/siteccv/cameraconvista.git - when user says "esegui commit in github", push current state to GitHub main branch
+14. **Menu/Wines/Cocktails Draft-Publish System**: Staged publish workflow for Google Sheets data.
+   - **Sync** (Google Sheets → tables): Updates `menu_items`, `wines`, `cocktails` tables = "draft" data. Admin always sees this.
+   - **Publish** (tables → site_settings snapshot): Copies current table data as JSON snapshot to `site_settings` keys: `published_menu_items`, `published_wines`, `published_cocktails`.
+   - **Public API**: Reads from published snapshot in `site_settings`. Falls back to live table data if no snapshot exists (backwards compatibility).
+   - **Admin API**: Always reads from live tables (draft data).
+   - **Independent buttons**: Menu, Wines, and Cocktails each have separate Sync and Publish buttons in Admin → Impostazioni → Google Sheets.
+   - **Confirmation modal**: Publishing requires explicit confirmation via AlertDialog.
+   - **Important**: "Pubblica sito/pagina" buttons do NOT trigger Google Sheets sync. They only handle page blocks via the existing draft/publish workflow.
 
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
