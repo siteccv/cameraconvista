@@ -187,30 +187,28 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <Monitor className="h-4 w-4" />
                     {t("Vedi Sito Local", "View Local Site")}
                   </Button>
-                  {siteLinks?.adminSiteUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start gap-2"
-                      onClick={() => window.open(siteLinks.adminSiteUrl, "_blank")}
-                      data-testid="button-view-site-admin"
-                    >
-                      <ShieldCheck className="h-4 w-4" />
-                      {t("Vedi Sito Admin", "View Admin Site")}
-                    </Button>
-                  )}
-                  {siteLinks?.publicSiteUrl && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start gap-2"
-                      onClick={() => window.open(siteLinks.publicSiteUrl, "_blank")}
-                      data-testid="button-view-site-public"
-                    >
-                      <Globe className="h-4 w-4" />
-                      {t("Vedi Sito", "View Site")}
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                    disabled={!siteLinks?.adminSiteUrl}
+                    onClick={() => siteLinks?.adminSiteUrl && window.open(siteLinks.adminSiteUrl, "_blank")}
+                    data-testid="button-view-site-admin"
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                    {t("Vedi Sito Admin", "View Admin Site")}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-start gap-2"
+                    disabled={!siteLinks?.publicSiteUrl}
+                    onClick={() => siteLinks?.publicSiteUrl && window.open(siteLinks.publicSiteUrl, "_blank")}
+                    data-testid="button-view-site-public"
+                  >
+                    <Globe className="h-4 w-4" />
+                    {t("Vedi Sito", "View Site")}
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"
