@@ -384,16 +384,22 @@ export default function AdminSyncGoogle() {
                   />
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {editConfig.wines.categories.map((cat, idx) => (
-                    <div key={idx} className="space-y-1.5 border-b pb-3 last:border-b-0 last:pb-0">
-                      <label className="text-xs font-medium text-muted-foreground">{cat.category}</label>
-                      <Input
-                        placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"
-                        value={cat.syncUrl}
-                        onChange={(e) => updateConfig((c) => { c.wines.categories[idx].syncUrl = e.target.value; })}
-                        data-testid={`input-wine-cat-url-${idx}`}
-                      />
+                    <div key={idx} className="space-y-1.5 border-b pb-4 last:border-b-0 last:pb-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">{cat.category}</h3>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-medium uppercase text-muted-foreground ml-0.5">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
+                        <Input
+                          placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"
+                          value={cat.syncUrl}
+                          onChange={(e) => updateConfig((c) => { c.wines.categories[idx].syncUrl = e.target.value; })}
+                          data-testid={`input-wine-cat-url-${idx}`}
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>
