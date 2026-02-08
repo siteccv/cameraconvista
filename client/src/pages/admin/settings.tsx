@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -6,11 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
-import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, Link2, ShieldCheck, Globe } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 
-type SettingsSection = "main" | "password" | "footer";
+type SettingsSection = "main" | "password" | "footer" | "site-links";
+
+interface SiteLinks {
+  adminSiteUrl: string;
+  publicSiteUrl: string;
+}
 
 export default function AdminSettings() {
   const { t } = useLanguage();
@@ -203,6 +209,10 @@ export default function AdminSettings() {
     );
   }
 
+  if (activeSection === "site-links") {
+    return <SiteLinksSection onBack={() => setActiveSection("main")} />;
+  }
+
   return (
     <AdminLayout>
       <div className="p-4 md:p-6 max-w-2xl">
@@ -253,7 +263,159 @@ export default function AdminSettings() {
               <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
             </CardContent>
           </Card>
+
+          <Card
+            className="cursor-pointer hover-elevate transition-all"
+            onClick={() => setActiveSection("site-links")}
+            data-testid="card-site-links-section"
+          >
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Link2 className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base mb-0.5">{t("Link Sito", "Site Links")}</CardTitle>
+                <CardDescription className="text-sm">
+                  {t("URL del sito admin e sito pubblico", "Admin site and public site URLs")}
+                </CardDescription>
+              </div>
+              <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
+            </CardContent>
+          </Card>
         </div>
+      </div>
+    </AdminLayout>
+  );
+}
+
+function SiteLinksSection({ onBack }: { onBack: () => void }) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [adminUrl, setAdminUrl] = useState("");
+  const [publicUrl, setPublicUrl] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: siteLinks, isLoading } = useQuery<SiteLinks>({
+    queryKey: ["/api/admin/site-links"],
+  });
+
+  useEffect(() => {
+    if (siteLinks) {
+      setAdminUrl(siteLinks.adminSiteUrl || "");
+      setPublicUrl(siteLinks.publicSiteUrl || "");
+    }
+  }, [siteLinks]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const response = await apiRequest("PUT", "/api/admin/site-links", {
+        adminSiteUrl: adminUrl.trim(),
+        publicSiteUrl: publicUrl.trim(),
+      });
+      const data = await response.json();
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/site-links"] });
+        toast({
+          title: t("Salvato", "Saved"),
+          description: t("Link del sito aggiornati", "Site links updated"),
+        });
+      }
+    } catch {
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile salvare i link", "Failed to save links"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <div className="p-4 md:p-6 max-w-xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="mb-4 -ml-2"
+          data-testid="button-back-to-settings"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("Indietro", "Back")}
+        </Button>
+
+        <div className="mb-6">
+          <h1 className="font-display text-2xl" data-testid="text-site-links-title">
+            {t("Link Sito", "Site Links")}
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {t(
+              "Configura gli URL per i pulsanti nella barra laterale",
+              "Configure URLs for the sidebar buttons"
+            )}
+          </p>
+        </div>
+
+        <Card>
+          <CardContent className="pt-6">
+            <form onSubmit={handleSave} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="adminSiteUrl" className="flex items-center gap-2">
+                  <ShieldCheck className="h-4 w-4 text-primary" />
+                  {t("URL Sito Admin", "Admin Site URL")}
+                </Label>
+                <Input
+                  id="adminSiteUrl"
+                  type="url"
+                  placeholder="https://admin.example.com"
+                  value={adminUrl}
+                  onChange={(e) => setAdminUrl(e.target.value)}
+                  data-testid="input-admin-site-url"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "URL del pannello admin sul sito di produzione",
+                    "URL of the admin panel on the production site"
+                  )}
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="publicSiteUrl" className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-primary" />
+                  {t("URL Sito Pubblico", "Public Site URL")}
+                </Label>
+                <Input
+                  id="publicSiteUrl"
+                  type="url"
+                  placeholder="https://www.example.com"
+                  value={publicUrl}
+                  onChange={(e) => setPublicUrl(e.target.value)}
+                  data-testid="input-public-site-url"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "URL del sito pubblico visibile ai clienti",
+                    "URL of the public site visible to customers"
+                  )}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSaving || isLoading}
+                className="w-full"
+                data-testid="button-save-site-links"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? t("Salvataggio...", "Saving...") : t("Salva Link", "Save Links")}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );

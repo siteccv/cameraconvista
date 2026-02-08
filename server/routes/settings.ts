@@ -5,6 +5,7 @@ import { insertSiteSettingsSchema, footerSettingsSchema, defaultFooterSettings }
 import { requireAuth } from "./helpers";
 
 const FOOTER_SETTINGS_KEY = "footer_settings";
+const SITE_LINKS_KEY = "site_links";
 
 // ========================================
 // Public Routes
@@ -108,6 +109,51 @@ adminSettingsRouter.put("/footer-settings", requireAuth, async (req, res) => {
   } catch (error) {
     console.error("Error saving footer settings:", error);
     res.status(500).json({ error: "Failed to save footer settings" });
+  }
+});
+
+// ========================================
+// Site Links API
+// ========================================
+const siteLinksSchema = z.object({
+  adminSiteUrl: z.string().default(""),
+  publicSiteUrl: z.string().default(""),
+});
+
+adminSettingsRouter.get("/site-links", requireAuth, async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting(SITE_LINKS_KEY);
+    if (setting?.valueIt) {
+      const parsed = siteLinksSchema.safeParse(JSON.parse(setting.valueIt));
+      if (parsed.success) {
+        res.json(parsed.data);
+        return;
+      }
+    }
+    res.json({ adminSiteUrl: "", publicSiteUrl: "" });
+  } catch (error) {
+    console.error("Error fetching site links:", error);
+    res.json({ adminSiteUrl: "", publicSiteUrl: "" });
+  }
+});
+
+adminSettingsRouter.put("/site-links", requireAuth, async (req, res) => {
+  try {
+    const parsed = siteLinksSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const jsonValue = JSON.stringify(parsed.data);
+    await storage.upsertSiteSetting({
+      key: SITE_LINKS_KEY,
+      valueIt: jsonValue,
+      valueEn: jsonValue,
+    });
+    res.json({ success: true, data: parsed.data });
+  } catch (error) {
+    console.error("Error saving site links:", error);
+    res.status(500).json({ error: "Failed to save site links" });
   }
 });
 

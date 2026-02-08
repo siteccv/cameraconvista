@@ -34,6 +34,8 @@ import {
   Loader2,
   Check,
   RefreshCw,
+  ShieldCheck,
+  Monitor,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -51,6 +53,11 @@ interface AdminLayoutProps {
   children: ReactNode;
 }
 
+interface SiteLinks {
+  adminSiteUrl: string;
+  publicSiteUrl: string;
+}
+
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useLanguage();
   const { logout } = useAdmin();
@@ -60,6 +67,10 @@ export function AdminLayout({ children }: AdminLayoutProps) {
   const { data: dbPages = [], isLoading: pagesLoading } = useQuery<Page[]>({
     queryKey: ["/api/admin/pages"],
     refetchInterval: 5000,
+  });
+
+  const { data: siteLinks } = useQuery<SiteLinks>({
+    queryKey: ["/api/admin/site-links"],
   });
 
   const hasPendingChanges = dbPages.some(p => p.isDraft);
@@ -171,11 +182,35 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     size="sm"
                     className="w-full justify-start gap-2"
                     onClick={() => window.open("/", "_blank")}
-                    data-testid="button-view-site"
+                    data-testid="button-view-site-local"
                   >
-                    <Globe className="h-4 w-4" />
-                    {t("Vedi Sito", "View Site")}
+                    <Monitor className="h-4 w-4" />
+                    {t("Vedi Sito Local", "View Local Site")}
                   </Button>
+                  {siteLinks?.adminSiteUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start gap-2"
+                      onClick={() => window.open(siteLinks.adminSiteUrl, "_blank")}
+                      data-testid="button-view-site-admin"
+                    >
+                      <ShieldCheck className="h-4 w-4" />
+                      {t("Vedi Sito Admin", "View Admin Site")}
+                    </Button>
+                  )}
+                  {siteLinks?.publicSiteUrl && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start gap-2"
+                      onClick={() => window.open(siteLinks.publicSiteUrl, "_blank")}
+                      data-testid="button-view-site-public"
+                    >
+                      <Globe className="h-4 w-4" />
+                      {t("Vedi Sito", "View Site")}
+                    </Button>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"
