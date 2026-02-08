@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 5 Febbraio 2026 (ore 16:25)
+**Ultimo aggiornamento:** 9 Febbraio 2026
 
 ---
 
@@ -36,7 +36,7 @@
 | **Anteprima in Sezioni Pagine** (`/admina/pages`) | 🟡 Parziale | Mostra anteprima delle pagine pubbliche embedded con IPhoneFrame. L'editing click-to-edit funziona in admin preview mode. |
 | **Pagina Anteprima** (`/admina/preview`) | 🟡 Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine |
 | **Workflow Draft/Publish** | 🟡 Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish |
-| **Admin SEO** (`/admina/seo`) | 🟡 Parziale | Pagina esiste, visualizza metadati ma editing limitato |
+| **Admin SEO** (`/admina/seo`) | ✅ Completo | Pagina con editing meta title/description IT/EN per ogni pagina, contatori caratteri, salvataggio immediato |
 
 ---
 
@@ -45,7 +45,7 @@
 | Requisito | Stato | Note |
 |-----------|-------|------|
 | **Editing blocchi pagina avanzato** | ❌ Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
-| **Sincronizzazione Google Sheets** | ❌ Non implementato | Schema prevede `sheetRowIndex` ma nessuna logica di sync implementata |
+| **Sincronizzazione Google Sheets** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
 
 ---
 
@@ -67,9 +67,10 @@
 | Mobile Responsive | 98% |
 | Admin Mobile Preview | 100% |
 | Traduzione Automatica | 100% |
-| Admin SEO | 40% |
+| Admin SEO | 100% |
+| Google Sheets Sync | 100% |
 
-**Completamento globale stimato: ~94%** rispetto ai requisiti originali completi.
+**Completamento globale stimato: ~97%** rispetto ai requisiti originali completi.
 
 ---
 
@@ -88,7 +89,9 @@
 - `server/routes/gallery.ts` - API galleria e album
 - `server/routes/media.ts` - API media library e categorie
 - `server/routes/settings.ts` - API site settings e footer
-- `server/routes/sync.ts` - Endpoint sync Google Sheets (placeholder)
+- `server/routes/sync.ts` - Endpoint sync Google Sheets (menu, vini, cocktail)
+- `server/sheets-sync.ts` - Logica sync CSV da Google Sheets (parse, validazione, aggiornamento tabelle)
+- `server/seo.ts` - Middleware SEO server-side per meta tag, JSON-LD, sitemap
 - `server/routes/helpers.ts` - Utility parseId, validateId, requireAuth
 - `server/db.ts` - Connessione PostgreSQL
 
@@ -111,6 +114,7 @@
 - `client/src/pages/admin/media.tsx` - Media library (COMPLETO)
 - `client/src/pages/admin/gallery.tsx` - Gestione album galleria (COMPLETO)
 - `client/src/pages/admin/seo.tsx` - Gestione SEO
+- `client/src/pages/admin/sync-google.tsx` - Sincronizzazione Google Sheets con configurazione URL semplificata
 - `client/src/pages/admin/settings.tsx` - Impostazioni e cambio password
 
 ### Componenti Admin WYSIWYG
@@ -181,6 +185,26 @@
 ---
 
 ## PROGRESSI RECENTI
+
+### Google Sheets Sync System Completo (8-9 Feb 2026)
+- **Configurazione semplificata**: Rimossi campi tecnici (spreadsheetId, GID, publishedKey)
+- Configurazione basata su URL diretti CSV memorizzati in `site_settings.google_sheets_config`
+- **Menu e Cocktail**: Un singolo URL di sincronizzazione CSV ciascuno
+- **Vini**: URL generico foglio (per editing) + 6 URL CSV per categorie fisse (Bollicine Italiane/Francesi, Bianchi, Rossi, Rosati, Vini Dolci)
+- Categorie vini **read-only**: Nomi visualizzati come titoli con indicatore colorato (non input box editabili)
+- Pulsanti verdi "GOOGLE SHEET" per ogni sezione (Menu, Vini, Cocktail) che aprono fogli in nuova tab
+- **Pulsante "Link di sincronizzazione"**: Tutta larghezza, sfondo ambra (`bg-amber-400/500`), icona ingranaggio con animazione rotazione 90°, dimensioni ingrandite
+- Sistema draft/publish indipendente: Sync aggiorna tabelle draft, Pubblica crea snapshot JSON
+- Conferma AlertDialog prima di pubblicare
+- Validazione client-side e server-side degli URL
+
+### SEO System Completo (7-8 Feb 2026)
+- Middleware server-side per iniezione meta tag nell'HTML
+- robots.txt, sitemap.xml dinamico con hreflang
+- JSON-LD Restaurant, BreadcrumbList, Event schema
+- Admin `/admina/seo` con editing meta title/description IT/EN per ogni pagina
+- Contatori caratteri (/60 title, /160 description)
+- Salvataggio immediato (non soggetto a draft/publish)
 
 ### Fix Gallery Drag & Drop e Aggiunta Immagini (5 Feb 2026)
 - **Problema risolto:** Errore "Impossibile aggiungere l'immagine" nella gestione album

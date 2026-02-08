@@ -153,6 +153,54 @@ In modalità admin preview:
    - Social links (tipo + URL)
    - Link legali (privacy, cookie)
 
+## Google Sheets Sync (`/admina/sync-google`)
+
+### Interfaccia
+Pagina dedicata per sincronizzazione menu, vini e cocktail da Google Sheets.
+
+### Struttura Sezioni
+Per ciascuna sezione (Menu, Vini, Cocktail):
+- **Pulsante verde "GOOGLE SHEET"**: Apre il foglio di lavoro in nuova tab
+- **Pulsante "Sincronizza"**: Scarica dati dal CSV e aggiorna le tabelle draft
+- **Pulsante "Pubblica"**: Copia i dati correnti nello snapshot pubblico (richiede conferma AlertDialog)
+
+### Pulsante "Link di sincronizzazione"
+- Pulsante a tutta larghezza, sfondo ambra (`bg-amber-400`), con icona ingranaggio animata
+- Apre/chiude il pannello di configurazione URL
+- Quando aperto, l'icona ruota di 90° con transizione fluida
+
+### Configurazione URL (pannello espandibile)
+Struttura semplificata senza campi tecnici (spreadsheetId, GID, publishedKey rimossi):
+
+1. **Menu**: Un singolo campo URL di sincronizzazione CSV
+2. **Cocktails**: Un singolo campo URL di sincronizzazione CSV
+3. **Vini**: URL generico del foglio (per editing) + 6 URL CSV per categorie fisse:
+   - Bollicine Italiane, Bollicine Francesi, Bianchi, Rossi, Rosati, Vini Dolci
+   - I nomi delle categorie sono **read-only** (titoli con indicatore colorato, non input box)
+   - Non è possibile aggiungere o rimuovere categorie via UI
+
+### Salvataggio Config
+- Pulsante "Salva configurazione" attivo solo se ci sono modifiche
+- Validazione client-side: verifica che gli URL non siano vuoti
+- Salvataggio in `site_settings` tabella, chiave `google_sheets_config`
+
+### Sync Flow
+```
+1. Admin inserisce URL CSV nel pannello config
+2. Admin clicca "Sincronizza" su una sezione
+3. Server scarica CSV dall'URL → parse → aggiorna tabelle (menu_items/wines/cocktails)
+4. Dati aggiornati visibili in admin (draft)
+5. Admin clicca "Pubblica" → snapshot JSON salvato in site_settings
+6. Sito pubblico aggiornato con nuovi dati
+```
+
+### Draft/Publish per Sheets
+- **Sync**: Aggiorna tabelle `menu_items`, `wines`, `cocktails` = dati draft
+- **Pubblica**: Copia dati tabelle come snapshot JSON in `site_settings` (`published_menu_items`, `published_wines`, `published_cocktails`)
+- **API pubblica**: Legge da snapshot in `site_settings`, fallback su tabelle se non esiste snapshot
+- **API admin**: Legge sempre da tabelle (dati draft)
+- Menu, Vini e Cocktail hanno pulsanti Sync e Pubblica **indipendenti**
+
 ## Workflow di Pubblicazione
 
 ```

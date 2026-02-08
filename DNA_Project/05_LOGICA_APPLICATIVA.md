@@ -179,6 +179,55 @@ Il JSON-LD `Restaurant` (iniettato nella Home) legge telefono, email e social li
 ### Relazione con Bilinguismo
 Il middleware SEO rileva la lingua dal parametro `?lang=en` e serve meta tag nella lingua corretta. I tag hreflang sono sempre presenti in entrambe le direzioni (IT→EN, EN→IT, x-default→IT).
 
+## Google Sheets Sync System
+
+### Configurazione
+La configurazione è semplificata e memorizzata in `site_settings` con chiave `google_sheets_config`:
+```json
+{
+  "menu": { "syncUrl": "https://docs.google.com/spreadsheets/d/.../export?format=csv" },
+  "cocktails": { "syncUrl": "https://docs.google.com/spreadsheets/d/.../export?format=csv" },
+  "wines": {
+    "spreadsheetUrl": "https://docs.google.com/spreadsheets/d/.../edit",
+    "categories": {
+      "bollicine_italiane": { "syncUrl": "..." },
+      "bollicine_francesi": { "syncUrl": "..." },
+      "bianchi": { "syncUrl": "..." },
+      "rossi": { "syncUrl": "..." },
+      "rosati": { "syncUrl": "..." },
+      "vini_dolci": { "syncUrl": "..." }
+    }
+  }
+}
+```
+
+### Sync Flow
+1. Admin configura URL CSV nel pannello `/admina/sync-google`
+2. **Sync** (`POST /api/admin/sync/menu|wines|cocktails`):
+   - Scarica CSV dall'URL configurato
+   - Parsa le righe e aggiorna tabelle (`menu_items`, `wines`, `cocktails`)
+   - I dati aggiornati sono visibili solo in admin (draft)
+3. **Pubblica** (`POST /api/admin/publish/menu|wines|cocktails`):
+   - Copia dati correnti delle tabelle come snapshot JSON
+   - Salva in `site_settings` con chiavi: `published_menu_items`, `published_wines`, `published_cocktails`
+   - Il sito pubblico usa lo snapshot
+
+### Lettura Pubblica
+```
+GET /api/menu-items  → legge da site_settings["published_menu_items"]
+                     → fallback: legge da tabella menu_items
+GET /api/wines       → legge da site_settings["published_wines"]
+                     → fallback: legge da tabella wines
+GET /api/cocktails   → legge da site_settings["published_cocktails"]
+                     → fallback: legge da tabella cocktails
+```
+
+### UI Admin
+- Pulsante "Link di sincronizzazione": tutta larghezza, sfondo ambra, icona ingranaggio con animazione rotazione
+- Categorie vini: 6 categorie fisse, nomi read-only (titoli, non input box)
+- Pulsanti Sync e Pubblica indipendenti per Menu, Vini, Cocktail
+- Conferma AlertDialog prima di pubblicare
+
 ## Footer Database-Driven
 
 Il footer è completamente gestito dal database:
