@@ -92,6 +92,17 @@ Preferred communication style: Simple, everyday language.
    - **Confirmation modal**: Publishing requires explicit confirmation via AlertDialog.
    - **Important**: "Pubblica sito/pagina" buttons do NOT trigger Google Sheets sync. They only handle page blocks via the existing draft/publish workflow.
 
+15. **SEO System**: Enterprise-grade SEO with server-side metadata injection.
+   - **Middleware**: `server/seo.ts` - Express middleware wraps `res.send/res.end` to inject SEO tags into HTML head
+   - **robots.txt**: Static file at `client/public/robots.txt` - blocks `/admina` and `/api/admin/`
+   - **Sitemap**: Dynamic `/sitemap.xml` endpoint with hreflang alternates (it/en/x-default) for all visible pages + active events
+   - **Per-page metadata**: title, description, canonical, Open Graph (title, description, type, url, site_name, locale, image), Twitter Card
+   - **JSON-LD**: Restaurant schema with address/geo/menu, BreadcrumbList per page, Event schema for event detail pages
+   - **Bilingual**: hreflang tags with `?lang=en` parameter support, canonical per language
+   - **Admin**: `/admina/seo` - Edit metaTitleIt/En and metaDescriptionIt/En per page, saved via PATCH `/api/admin/pages/:id`
+   - **Client-side titles**: `PublicPageRoute` in App.tsx sets `document.title` on route changes for SPA navigation UX
+   - **Path detection**: Uses `req.originalUrl` (not `req.path`) to correctly identify page paths after Vite URL processing
+
 ### Design Tokens
 - **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
 
