@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
+import { RefreshCw } from "lucide-react";
 
 type SettingsSection = "main" | "password" | "footer";
 
@@ -21,6 +22,32 @@ export default function AdminSettings() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPasswords, setShowPasswords] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  const handleSyncAll = async () => {
+    setIsSyncing(true);
+    try {
+      const response = await apiRequest("POST", "/api/admin/sync/all");
+      const data = await response.json();
+      
+      if (data.success) {
+        toast({
+          title: t("Successo", "Success"),
+          description: t("Sincronizzazione completata con successo", "Synchronization completed successfully"),
+        });
+      } else {
+        throw new Error(data.error || "Sync failed");
+      }
+    } catch (error) {
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Errore durante la sincronizzazione", "Error during synchronization"),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -251,6 +278,27 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
               <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="cursor-pointer hover-elevate transition-all"
+            onClick={handleSyncAll}
+            data-testid="card-sync-section"
+          >
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <RefreshCw className={`h-6 w-6 text-primary ${isSyncing ? "animate-spin" : ""}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base mb-0.5">{t("Sincronizzazione Google Sheets", "Google Sheets Sync")}</CardTitle>
+                <CardDescription className="text-sm">
+                  {t("Aggiorna Menu, Vini e Cocktail dai fogli Google", "Update Menu, Wines and Cocktails from Google Sheets")}
+                </CardDescription>
+              </div>
+              <div className="text-xs font-medium text-primary uppercase flex-shrink-0">
+                {isSyncing ? t("Sincronizzando...", "Syncing...") : t("Sincronizza", "Sync Now")}
+              </div>
             </CardContent>
           </Card>
         </div>
