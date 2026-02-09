@@ -1,0 +1,71 @@
+# CORREZIONE TASK — AGGIORNAMENTO DOCUMENTAZIONE SEO (DNA_Project)
+
+## ERRORE DA CORREGGERE
+NON creare nuove cartelle.
+La cartella **DNA_Project ESISTE GIÀ** ed è questa:
+
+DNA_Project/
+└── 11_SEO_SISTEMA.md
+
+Qualsiasi creazione di una nuova cartella “dna”, “dna_project”, “DNA”, ecc. è **ERRATA**.
+
+## TASK CORRETTO (UNICO)
+Aggiornare **ESCLUSIVAMENTE** il file esistente:
+
+DNA_Project/11_SEO_SISTEMA.md
+
+## Contenuto da aggiornare (sintesi obbligatoria)
+Il file deve riflettere lo **stato SEO finale attuale**, includendo:
+
+### Stato SEO (CHIUSO)
+- SEO tecnico server-side COMPLETATO e funzionante in PRODUZIONE (Render)
+- Iniezione `<head>` attiva per tutte le pagine pubbliche:
+  - title dinamico
+  - meta description
+  - canonical
+  - hreflang IT / EN / x-default
+  - Open Graph
+  - Twitter Card
+  - JSON-LD (Restaurant, Menu, Event, Breadcrumb)
+
+### Search Console
+- Proprietà **Prefisso URL** verificata su:
+  https://cameraconvista.onrender.com
+- Metodo di verifica: **File HTML**
+- Sitemap inviata: `/sitemap.xml`
+- Nessun errore bloccante noto
+
+### Sitemap / Robots
+- robots.txt con URL assoluto alla sitemap
+- sitemap.xml dinamica con:
+  - pagine pubbliche
+  - eventi attivi
+  - hreflang completo (IT / EN / x-default)
+
+### Multilingua
+- Gestione lingua via `?lang=en`
+- hreflang server-side coerente
+- Nota: URL `/en/` valutabile come ottimizzazione futura (non implementata)
+
+### Limiti noti (ACCETTATI)
+- SPA senza SSR / prerender
+- Indicizzazione contenuti demandata a Googlebot JS
+- SSR/prerender documentati come **upgrade futuro**, non necessario ora
+
+### Stato progetto
+- Task SEO su Replit: **CONCLUSO**
+- Nessun ulteriore intervento richiesto lato codice
+- Prossimo step SEO: **switch dominio ufficiale** (fase separata)
+
+## VINCOLI
+- NON creare nuove cartelle
+- NON rinominare file
+- NON modificare altri file in DNA_Project
+- Aggiornare SOLO `11_SEO_SISTEMA.md`
+
+## OUTPUT ATTESO
+- Commit che modifica **solo**:
+  DNA_Project/11_SEO_SISTEMA.md
+- Nota finale nel file che attesta la chiusura del task SEO
+
+Fine task.

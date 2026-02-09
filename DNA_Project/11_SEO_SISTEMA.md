@@ -435,3 +435,57 @@ curl -s https://dominio.com/robots.txt
 - [x] Admin panel per personalizzazione meta tag per pagina
 - [x] Client-side title update per navigazione SPA
 - [x] Escape/sanitizzazione di tutti i valori iniettati
+- [x] SEO middleware funzionante in produzione (Render)
+- [x] Google Search Console verificata e sitemap inviata
+
+---
+
+## Stato Produzione SEO — CHIUSO (9 Febbraio 2026)
+
+### Deployment attivo
+- **URL produzione**: https://cameraconvista.onrender.com
+- **SEO server-side**: ATTIVO e funzionante su tutte le pagine pubbliche
+- **Nessun errore bloccante** rilevato
+
+### Google Search Console
+- **Proprietà**: Prefisso URL `https://cameraconvista.onrender.com`
+- **Metodo verifica**: File HTML (`google2c3b1fd28b11c04d.html` in `client/public/`)
+- **Stato verifica**: VERIFICATA
+- **Sitemap**: Inviata con successo (`/sitemap.xml`)
+
+### Fix produzione applicato
+Il middleware SEO originale intercettava `res.send()` verificando `typeof chunk === "string"`. In produzione, `res.sendFile()` (usato in `server/static.ts`) invia Buffer tramite streaming, bypassando il controllo. **Fix**: il catch-all in `server/static.ts` ora legge `index.html` come stringa, chiama `generateSeoHtml()` + `injectSeoIntoHtml()`, e risponde con `res.send(html)`.
+
+### robots.txt
+- Ora servito come **endpoint Express dinamico** (non più file statico)
+- URL Sitemap: assoluto (es. `https://cameraconvista.onrender.com/sitemap.xml`)
+- Conforme alle specifiche Google
+
+### Sitemap
+- Pagine pubbliche + eventi attivi
+- hreflang completo: IT / EN / x-default (inclusi eventi)
+- Cache: `max-age=3600` (1 ora)
+
+### Multilingua SEO
+- Lingua gestita via parametro `?lang=en`
+- hreflang server-side coerente su tutte le pagine e eventi
+- `x-default` punta sempre alla versione italiana
+- Nota: URL con prefisso `/en/` valutabile come ottimizzazione futura (non implementata, non necessaria ora)
+
+### Limiti noti (accettati)
+- SPA senza SSR / prerender — scelta consapevole e documentata
+- Indicizzazione contenuti JS demandata a Googlebot (supportato da Google)
+- SSR/prerender documentato come upgrade futuro, non necessario ora
+- `og:image` presente solo su eventi (poster) — estendibile in futuro con campo dedicato per pagina
+
+### Conclusione task
+- **Task SEO su Replit: CONCLUSO**
+- Nessun ulteriore intervento richiesto lato codice
+- Nessuna modifica React/UX/UI effettuata
+- Nessuna dipendenza aggiunta
+
+### Prossimi step futuri (strategici, non richiedono codice ora)
+1. **Switch dominio ufficiale**: Quando il dominio definitivo sarà attivo, aggiornare la proprietà Search Console e verificare che `baseUrl` dinamico funzioni correttamente
+2. **Ranking locale**: Attivare Google Business Profile e collegarlo al sito
+3. **SSR/Prerender**: Valutabile solo se l'indicizzazione Google risulta insufficiente (monitorare via Search Console → Copertura)
+4. **og:image per pagina**: Aggiungere campo `ogImageUrl` alla tabella `pages` per social sharing con anteprima visiva
