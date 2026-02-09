@@ -346,6 +346,23 @@ export async function generateSeoHtml(req: Request): Promise<string> {
 }
 
 export function mountSeoRoutes(app: Express): void {
+  app.get("/robots.txt", (req: Request, res: Response) => {
+    const baseUrl = getBaseUrl(req);
+    const body = [
+      "User-agent: *",
+      "Allow: /",
+      "Disallow: /admina",
+      "Disallow: /admina/",
+      "Disallow: /api/admin/",
+      "",
+      `Sitemap: ${baseUrl}/sitemap.xml`,
+      "",
+    ].join("\n");
+    res.set("Content-Type", "text/plain; charset=utf-8");
+    res.set("Cache-Control", "public, max-age=86400");
+    res.send(body);
+  });
+
   app.get("/sitemap.xml", async (req: Request, res: Response) => {
     try {
       const baseUrl = getBaseUrl(req);
@@ -402,6 +419,7 @@ export function mountSeoRoutes(app: Express): void {
         xml += `    <priority>0.6</priority>\n`;
         xml += `    <xhtml:link rel="alternate" hreflang="it" href="${escapeXml(url)}" />\n`;
         xml += `    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(url + "?lang=en")}" />\n`;
+        xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(url)}" />\n`;
         xml += `  </url>\n`;
       }
 
