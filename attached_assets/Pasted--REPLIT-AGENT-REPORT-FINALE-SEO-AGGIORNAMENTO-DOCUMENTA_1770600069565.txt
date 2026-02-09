@@ -1,0 +1,67 @@
+# REPLIT AGENT — REPORT FINALE SEO + AGGIORNAMENTO DOCUMENTAZIONE
+
+## Contesto
+Il sito **Camera con Vista** è deployato e pubblico su Render:
+https://cameraconvista.onrender.com
+
+È stata completata **con successo** tutta la configurazione SEO tecnica e l’attivazione di Google Search Console sul deploy Render (non sul dominio ufficiale, che verrà migrato in seguito).
+
+## Stato finale (ESITO)
+✅ SEO server-side **attivo e funzionante in produzione**  
+✅ Iniezione corretta in `<head>` per tutte le pagine pubbliche:
+- `<title>` dinamico per pagina
+- `<meta description>`
+- `<link rel="canonical">`
+- `hreflang` IT / EN / x-default
+- Open Graph completo
+- Twitter Card
+- JSON-LD (Restaurant, Menu, Event, Breadcrumb)
+
+✅ `robots.txt` corretto (Sitemap con URL assoluto)  
+✅ `sitemap.xml` dinamica corretta:
+- include solo pagine pubbliche + eventi attivi
+- hreflang IT / EN / x-default anche sugli eventi
+
+✅ Google Search Console:
+- Proprietà **Prefisso URL** verificata su `https://cameraconvista.onrender.com`
+- Verifica tramite **file HTML**
+- Sitemap inviata con successo (`/sitemap.xml`)
+
+❗ Nessun refactor React
+❗ Nessuna modifica UX/UI
+❗ Nessuna modifica routing frontend
+❗ Nessuna dipendenza aggiunta
+
+## Nota importante
+Il progetto resta una **SPA senza SSR/prerender**:
+- scelta consapevole e documentata
+- SEO attuale conforme agli standard Google per SPA
+- eventuale SSR/prerender resta **ottimizzazione futura**, non necessaria ora
+
+## Task richiesto ORA (solo documentazione)
+1) Apri il file SEO già presente nella cartella:
+   `DNA_project/`
+
+2) Aggiorna il file (o se previsto, la sezione SEO) includendo:
+   - stato SEO attuale = COMPLETO
+   - Search Console attiva su Render
+   - sitemap inviata
+   - middleware SEO funzionante in produzione
+   - multilingua gestito via `?lang=en` + hreflang
+   - dominio ufficiale **non ancora migrato** (step futuro)
+
+3) Il documento deve riflettere:
+   - che **su Replit il task SEO è concluso**
+   - che le prossime azioni SEO NON richiedono codice
+   - che lo switch dominio sarà gestito in uno step dedicato
+
+## Vincoli
+- NON introdurre nuove modifiche al codice
+- NON cambiare configurazioni esistenti
+- Aggiornare **solo** la documentazione in `DNA_project`
+
+## Output atteso
+- File SEO aggiornato in `DNA_project`
+- Changelog/nota finale che attesta la chiusura del task SEO su Replit
+
+Fine task.
