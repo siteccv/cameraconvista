@@ -1,0 +1,66 @@
+# REPLIT AGENT — FIX MIRATO SEO IN PROD (Render) + micro-fix — con report finale
+
+## Contesto (dato certo)
+Deploy pubblico: https://cameraconvista.onrender.com
+Il dominio ufficiale NON va toccato ora (punta al vecchio sito).
+Report forense: su Render il middleware SEO NON inietta i meta tag; tutte le pagine servono i tag statici dell’index.html. Sitemap e robots invece rispondono correttamente. :contentReference[oaicite:0]{index=0}
+
+## Obiettivo (scope minimo)
+Ripristinare in PRODUZIONE (Render) l’iniezione server-side dei meta tag SEO nell’HTML iniziale delle pagine pubbliche, senza toccare React/UX.
+In più: due micro-fix non invasivi già emersi dal report.
+
+## Vincoli (non negoziabili)
+- NON modificare componenti React, layout, routing frontend, context, publish/draft.
+- NESSUN refactor invasivo.
+- NESSUNA logica “doppia” permanente: una sola via canonica per l’iniezione SEO.
+- NON toccare il dominio ufficiale.
+- Mantieni compatibilità dev + prod.
+- Alla fine: report dettagliato + comandi di test + riavvia app su 5001.
+
+## Problema accertato (da verificare nel codice)
+In produzione su Render, l’HTML sembra essere servito in un modo che bypassa l’hook attuale (wrap di `res.send/res.end`) quindi l’iniezione non avviene. :contentReference[oaicite:1]{index=1}
+Possibili cause (da confermare): `express.static`, `res.sendFile`, stream, ordine middleware, differenza dev (Vite) vs prod.
+
+## Cosa devi fare (tu decidi la soluzione migliore)
+1) Analizza la pipeline di serving dell’HTML in PROD:
+   - dove e come viene servito `index.html` (o equivalente) in `server/index.ts` e file collegati
+   - in che ordine vengono montati: SEO middleware, static, catch-all SPA route, vite/prod handler
+   - se viene usato `res.sendFile()` o streaming che non passa dalla logica attuale
+
+2) Scegli e applica un FIX MINIMO per garantire che l’iniezione avvenga in prod:
+   - Obiettivo tecnico: intercettare l’HTML *prima* della risposta e inserire i tag in `<head>`.
+   - Mantieni la logica già documentata (title/description/canonical/hreflang/OG/Twitter/JSON-LD).
+   - Evita soluzioni “workaround” pesanti (rendertron/dynamic rendering esterni) e duplicazioni.
+
+3) Verifica che l’iniezione sia esclusa per:
+   - `/admina` e sotto-percorsi
+   - asset statici (.js/.css/.png/.svg/.ico/.webp ecc.)
+   - endpoint API
+
+## Micro-fix da includere (solo se non invasivi)
+A) robots.txt: la direttiva `Sitemap:` deve usare URL assoluto completo (non relativo). :contentReference[oaicite:2]{index=2}
+B) sitemap.xml: per gli URL evento `/eventi/:id` manca hreflang `x-default` → rendi coerente con le pagine statiche. :contentReference[oaicite:3]{index=3}
+
+## Test obbligatori (prima/dopo)
+Esegui test locali (dev/prod-like) e documentali nel report:
+- `curl -s http://localhost:5001/menu | grep -E '<title>|canonical|hreflang|og:|twitter:|application/ld\\+json'`
+- `curl -s http://localhost:5001/menu?lang=en | grep -E '<title>|canonical|hreflang'`
+- `curl -s http://localhost:5001/robots.txt`
+- `curl -s http://localhost:5001/sitemap.xml | head`
+Atteso: title/description diversi per pagina, canonical presente, hreflang presenti, JSON-LD presente almeno dove previsto.
+
+## Output richiesto (obbligatorio)
+1) Aggiorna/crea report: `report/REPORT_FIX_SEO_MIDDLEWARE_PROD.md` con:
+   - Sintesi problema (con evidenze)
+   - Root cause reale (con file/righe)
+   - Soluzione scelta (perché è la meno invasiva)
+   - File toccati (lista)
+   - Risultati test (comandi + output sintetico)
+   - Rischi residui (max 5 bullet)
+2) NON introdurre nuove dipendenze se non strettamente necessario.
+
+## Nota importante
+Questo fix è priorità massima: senza iniezione SEO in prod, Google indicizza pagine “tutte uguali” (title/description statici) e mancano canonical/hreflang/JSON-LD. :contentReference[oaicite:4]{index=4}
+
+## Chiusura
+Alla fine: riavvia app in locale su 5001.
