@@ -1,0 +1,48 @@
+# REPLIT AGENT — FIX MIRATO GSC VERIFY FILE (NO SIDE EFFECTS)
+
+## Problema osservato (dato certo)
+L’URL pubblico:
+https://cameraconvista.onrender.com/google2c3b1fd28b11c04d.html
+mostra la 404 della SPA → il file NON viene servito come static asset in produzione.
+
+Il file attualmente è stato messo qui:
+client/public/google2c3b1fd28b11c04d.html
+ma in produzione quella directory non risulta essere la static root realmente servita.
+
+## Obiettivo
+Servire il file di verifica come static asset con HTTP 200 al path root:
+`/google2c3b1fd28b11c04d.html`
+
+Quindi deve funzionare:
+https://cameraconvista.onrender.com/google2c3b1fd28b11c04d.html
+
+## Vincoli (non negoziabili)
+- NON modificare React/UX/UI
+- NON aggiungere nuove route Express dedicate
+- NON toccare SEO middleware, sitemap, robots, JSON-LD
+- NON aggiungere dipendenze
+- Solo: mettere il file nella directory statica *già* servita in produzione, o estendere in modo minimo il static serving già esistente senza cambiare comportamento.
+
+## Azione richiesta (tu scegli la soluzione corretta)
+1) Individua qual è la directory effettivamente servita in PROD come static root:
+   - cerca `express.static(...)` e la configurazione in `server/static.ts` (o file equivalente)
+   - verifica il percorso usato (es. `dist/public`, `dist/client`, `client/dist`, `public`, ecc.)
+
+2) Fai in modo che il file `google2c3b1fd28b11c04d.html` venga incluso e servito da quella static root:
+   - opzione preferita: spostare/copiare il file nella cartella corretta del progetto che finisce nella build prod
+   - solo se necessario: aggiungere (minimo) una seconda `express.static(...)` per includere anche `client/public` *prima* del catch-all SPA, ma senza rompere asset e senza cambiare routing pubblico
+
+3) Deploy su Render.
+
+## Verifica obbligatoria (post-deploy)
+Conferma che:
+- `GET /google2c3b1fd28b11c04d.html` → HTTP 200
+- body contiene: `google-site-verification: google2c3b1fd28b11c04d.html`
+- NON viene renderizzata la 404 della SPA
+
+## Output richiesto
+- File/percorsi toccati (lista)
+- Dove risiede ora il file nel repo
+- Conferma che l’URL pubblico funziona (HTTP 200)
+
+Fine task.
