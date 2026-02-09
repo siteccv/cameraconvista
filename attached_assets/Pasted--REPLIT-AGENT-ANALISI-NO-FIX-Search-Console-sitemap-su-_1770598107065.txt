@@ -1,0 +1,73 @@
+# REPLIT AGENT — ANALISI (NO FIX) — Search Console + sitemap su Render (Camera con Vista)
+
+## Contesto
+Il nuovo sito è deployato e pubblico su Render: https://cameraconvista.onrender.com  
+Il dominio ufficiale al momento punta ancora al sito obsoleto (non va toccato ora).  
+Nel progetto è già documentato un “Sistema SEO Enterprise-Grade” (middleware Express che inietta meta/OG/Twitter/hreflang + robots.txt + sitemap.xml + JSON-LD + SEO admin).
+
+## Obiettivo di questo step
+Fare **solo analisi e considerazioni** su cosa conviene fare **adesso** (sul deploy Render) per:
+- preparare correttamente l’indicizzazione
+- attivare Google Search Console sul dominio Render
+- verificare che sitemap/robots/canonical/hreflang siano coerenti
+Senza eseguire alcun fix o modifica.
+
+## Vincoli (non negoziabili)
+- **NO modifiche al codice**
+- **NO refactor**
+- **NO interventi invasivi**
+- **NO cambi UX/UI**
+- **NO tocchi al dominio ufficiale** (è ancora sul vecchio sito)
+- Se trovi problemi: descrivili e proponi opzioni, ma **non implementare**
+
+## Analisi richiesta (checklist)
+1) **Deploy attuale e indicizzabilità**
+- Conferma che il sito su Render serva correttamente:
+  - `/robots.txt`
+  - `/sitemap.xml`
+  - pagine principali (home, menu, lista-vini, cocktail-bar, eventi, eventi-privati, galleria, contatti)
+- Verifica che `robots.txt` punti a `Sitemap: /sitemap.xml` e che non blocchi pagine pubbliche.
+- Verifica che admin e API admin siano disallow (ok) e che non ci siano blocchi non voluti.
+
+2) **Sitemap**
+- Controlla che `/sitemap.xml` includa:
+  - solo pagine “visibili” (se esiste concetto isVisible)
+  - eventi coerenti con la logica pubblica
+  - `lastmod`, `changefreq`, `priority`
+  - alternate `hreflang` (it/en/x-default) come da documentazione
+- Nota eventuali rischi: URL errati, trailing slash, baseUrl sbagliato dietro proxy.
+
+3) **Head tags server-side (solo verifica)**
+Per 3–4 URL campione, verifica che l’HTML iniziale (prima di React) contenga:
+- `<title>` specifico pagina
+- `<meta name="description">` specifico pagina
+- `<link rel="canonical">` corretto (inclusione o meno di `?lang=en` coerente)
+- `<link rel="alternate" hreflang=...>` corretto e bidirezionale
+- Open Graph completi (og:title, og:description, og:url, og:site_name, og:image se disponibile)
+- Twitter card (summary_large_image + title/desc/image se disponibile)
+
+4) **Multilingua attuale**
+- Valuta la scelta `?lang=en` dal punto di vista SEO (pro/contro) SENZA cambiare nulla.
+- Evidenzia i principali rischi residui: duplicazioni, canonical, indicizzazione lingua EN, coerenza sitemap/hreflang.
+
+5) **Search Console “cosa fare ora”**
+- Fornisci considerazioni su:
+  - perché ha senso attivare Search Console ora su `cameraconvista.onrender.com`
+  - cosa NON fare ora (Search Console sul dominio ufficiale, redirect, migrazioni)
+  - cosa monitorare nei primi giorni (Coverage, Sitemaps, Page indexing, canonical, hreflang)
+
+## Output richiesto (obbligatorio)
+Crea un report Markdown:
+- Path: `report/REPORT_SEARCH_CONSOLE_RENDER.md`
+- Struttura minima:
+  1. Stato attuale (Render vs dominio ufficiale)
+  2. Verifica endpoints (robots/sitemap)
+  3. Verifica head tags (campioni URL + esito)
+  4. Considerazioni su `?lang=en` (rischi e mitigazioni teoriche, no fix)
+  5. Raccomandazioni non invasive: cosa fare ora in Search Console (solo azioni esterne, non codice)
+  6. Rischi residui e priorità (solo elenco)
+- Linguaggio: sintetico, concreto, senza supposizioni non verificabili.
+
+## Nota finale
+Se per verificare serve ispezionare output HTML, usa strumenti non invasivi (es. fetch/curl lato ambiente) e riporta solo risultati osservati.
+Nessun fix in questo step.
