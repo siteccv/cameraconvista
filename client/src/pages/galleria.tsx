@@ -172,34 +172,32 @@ export default function Galleria() {
           ) : (
             <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"}`}>
               {visibleGalleries.map((gallery) => (
-                <button
-                  key={gallery.id}
-                  onClick={() => handleAlbumClick(gallery)}
-                  className="group relative aspect-square rounded-lg overflow-hidden bg-muted cursor-pointer"
-                  data-testid={`album-cover-${gallery.id}`}
-                >
-                  {gallery.coverUrl ? (
-                    <img
-                      src={gallery.coverUrl}
-                      alt={language === "it" ? gallery.titleIt : gallery.titleEn}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                      style={{
-                        transform: `scale(${(gallery.coverZoom || 100) / 100}) translate(${gallery.coverOffsetX || 0}%, ${gallery.coverOffsetY || 0}%)`,
-                      }}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Images className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <h3 className="font-display text-2xl md:text-3xl text-white text-center px-4 drop-shadow-lg">
-                      {language === "it" ? gallery.titleIt : gallery.titleEn}
-                    </h3>
-                  </div>
-                </button>
+                <div key={gallery.id} className="flex flex-col items-center">
+                  <h3 className="font-display text-xl md:text-2xl text-[#2f2b2a] text-center mb-3">
+                    {language === "it" ? gallery.titleIt : gallery.titleEn}
+                  </h3>
+                  <button
+                    onClick={() => handleAlbumClick(gallery)}
+                    className="group relative aspect-square w-full rounded-lg overflow-hidden bg-muted cursor-pointer"
+                    data-testid={`album-cover-${gallery.id}`}
+                  >
+                    {gallery.coverUrl ? (
+                      <img
+                        src={gallery.coverUrl}
+                        alt={language === "it" ? gallery.titleIt : gallery.titleEn}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        style={{
+                          transform: `scale(${(gallery.coverZoom || 100) / 100}) translate(${gallery.coverOffsetX || 0}%, ${gallery.coverOffsetY || 0}%)`,
+                        }}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <Images className="h-16 w-16 text-muted-foreground" />
+                      </div>
+                    )}
+                  </button>
+                </div>
               ))}
             </div>
           )}
