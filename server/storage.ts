@@ -456,7 +456,7 @@ export class DatabaseStorage implements IStorage {
       { slug: "eventi", titleIt: "Eventi", titleEn: "Events", isVisible: true, isDraft: false, sortOrder: 4 },
       { slug: "eventi-privati", titleIt: "Eventi Privati", titleEn: "Private Events", isVisible: true, isDraft: false, sortOrder: 5 },
       { slug: "galleria", titleIt: "Galleria", titleEn: "Gallery", isVisible: true, isDraft: false, sortOrder: 6 },
-      { slug: "contatti", titleIt: "Contatti", titleEn: "Contacts", isVisible: true, isDraft: false, sortOrder: 7 },
+      { slug: "dove-siamo", titleIt: "Dove Siamo", titleEn: "Where We Are", isVisible: true, isDraft: false, sortOrder: 7 },
     ];
 
     for (const page of seedPages) {

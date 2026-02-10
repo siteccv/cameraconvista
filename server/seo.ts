@@ -16,7 +16,7 @@ const SLUG_TO_PATH: Record<string, string> = {
   eventi: "/eventi",
   "eventi-privati": "/eventi-privati",
   galleria: "/galleria",
-  contatti: "/contatti",
+  "dove-siamo": "/dove-siamo",
 };
 
 const PATH_TO_SLUG: Record<string, string> = {};
@@ -32,7 +32,7 @@ const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
   eventi: "Eventi - Camera con Vista | Events Bologna",
   "eventi-privati": "Eventi Privati - Camera con Vista | Private Events Bologna",
   galleria: "Galleria - Camera con Vista | Photo Gallery Bologna",
-  contatti: "Contatti - Camera con Vista | Contact Bologna",
+  "dove-siamo": "Dove Siamo - Camera con Vista | Bologna",
 };
 
 const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
@@ -43,7 +43,7 @@ const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
   eventi: "Events - Camera con Vista | Events Bologna",
   "eventi-privati": "Private Events - Camera con Vista | Private Events Bologna",
   galleria: "Gallery - Camera con Vista | Photo Gallery Bologna",
-  contatti: "Contact - Camera con Vista | Contact Bologna",
+  "dove-siamo": "Where We Are - Camera con Vista | Bologna",
 };
 
 const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
@@ -54,7 +54,7 @@ const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
   eventi: "Scopri gli eventi in programma da Camera con Vista a Bologna. Serate speciali, degustazioni e appuntamenti esclusivi.",
   "eventi-privati": "Organizza il tuo evento privato da Camera con Vista a Bologna. Spazi esclusivi per cene private, aperitivi e celebrazioni.",
   galleria: "La galleria fotografica di Camera con Vista. Scopri l'atmosfera del nostro ristorante e cocktail bar a Bologna.",
-  contatti: "Contatta Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e prenotazioni.",
+  "dove-siamo": "Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.",
 };
 
 const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
@@ -65,7 +65,7 @@ const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
   eventi: "Discover upcoming events at Camera con Vista in Bologna. Special evenings, tastings and exclusive appointments.",
   "eventi-privati": "Organize your private event at Camera con Vista in Bologna. Exclusive spaces for private dinners, aperitifs and celebrations.",
   galleria: "The photo gallery of Camera con Vista. Discover the atmosphere of our restaurant and cocktail bar in Bologna.",
-  contatti: "Contact Camera con Vista in Bologna. Address, opening hours, phone and reservations.",
+  "dove-siamo": "Find Camera con Vista in Bologna. Address, opening hours, phone and directions.",
 };
 
 interface SeoData {

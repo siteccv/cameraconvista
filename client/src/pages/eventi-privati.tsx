@@ -246,7 +246,7 @@ export default function EventiPrivati() {
                 "Contact us to discuss your needs and create the perfect event together."
               )}
             </p>
-            <Link href="/contatti">
+            <Link href="/dove-siamo">
               <Button size="lg" data-testid="button-request-quote">
                 {t("Contattaci", "Contact Us")}
                 <ArrowRight className="ml-2 h-4 w-4" />

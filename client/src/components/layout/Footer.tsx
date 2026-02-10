@@ -181,7 +181,7 @@ export function Footer() {
 
           <div>
             <h4 className="font-medium uppercase tracking-wider text-sm mb-4">
-              {t("Contatti", "Contact")}
+              {t("Dove Siamo", "Where We Are")}
             </h4>
             <ul className="space-y-3 text-sm text-background/70">
               <li className="flex items-start gap-3">

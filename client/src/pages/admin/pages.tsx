@@ -17,7 +17,7 @@ import CocktailBar from "@/pages/cocktail-bar";
 import Eventi from "@/pages/eventi";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
-import Contatti from "@/pages/contatti";
+import DoveSiamo from "@/pages/dove-siamo";
 
 const pageComponents = [
   { slug: "home", labelIt: "Home", labelEn: "Home", component: Home },
@@ -27,7 +27,7 @@ const pageComponents = [
   { slug: "eventi", labelIt: "Eventi", labelEn: "Events", component: Eventi },
   { slug: "eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events", component: EventiPrivati },
   { slug: "galleria", labelIt: "Galleria", labelEn: "Gallery", component: Galleria },
-  { slug: "contatti", labelIt: "Contatti", labelEn: "Contacts", component: Contatti },
+  { slug: "dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are", component: DoveSiamo },
 ];
 
 export default function AdminPages() {

@@ -8,7 +8,7 @@ export const PAGE_IDS = {
   eventi: 5,
   "eventi-privati": 6,
   galleria: 7,
-  contatti: 8,
+  "dove-siamo": 8,
 } as const;
 
 export const MENU_DEFAULTS: BlockDefault[] = [
@@ -249,11 +249,11 @@ export const GALLERIA_DEFAULTS: BlockDefault[] = [
   },
 ];
 
-export const CONTATTI_DEFAULTS: BlockDefault[] = [
+export const DOVE_SIAMO_DEFAULTS: BlockDefault[] = [
   {
     blockType: "hero",
-    titleIt: "Contatti",
-    titleEn: "Contact",
+    titleIt: "Dove Siamo",
+    titleEn: "Where We Are",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
     imageUrl: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",

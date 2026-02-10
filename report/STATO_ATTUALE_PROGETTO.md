@@ -12,7 +12,7 @@
 | **Database PostgreSQL** | ✅ Completo | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions |
 | **Contenuti bilingui IT/EN** | ✅ Completo | Tutti i campi supportano italiano e inglese con helper `t(it, en)` |
 | **Autenticazione Admin** | ✅ Completo | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password |
-| **Pagine pubbliche con dati reali** | ✅ Completo | Menu, Carta Vini, Cocktail Bar, Eventi, Galleria, Contatti - tutte collegano al database via React Query. Contatti senza form contatto (rimosso). |
+| **Pagine pubbliche con dati reali** | ✅ Completo | Menu, Carta Vini, Cocktail Bar, Eventi, Galleria, Dove Siamo - tutte collegano al database via React Query. |
 | **Cambio lingua pubblico** | ✅ Completo | Toggle IT/EN funzionante su tutte le pagine |
 | **Schema draft/publish** | ✅ Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema |
 | **Device-specific overrides** | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
@@ -103,7 +103,7 @@
 - `client/src/pages/eventi.tsx` - Pagina eventi con card Instagram Story 9:16
 - `client/src/pages/event-detail.tsx` - Dettaglio singolo evento con prenotazione
 - `client/src/pages/galleria.tsx` - Galleria album-based con copertine e GallerySlideViewer
-- `client/src/pages/contatti.tsx` - Contatti con layout responsive
+- `client/src/pages/dove-siamo.tsx` - Dove Siamo (ex Contatti) con mappa e indicazioni stradali
 
 ### Frontend Admin
 - `client/src/pages/admin/login.tsx` - Login admin
@@ -187,10 +187,11 @@
 ## PROGRESSI RECENTI
 
 ### Modifiche Pagine Pubbliche (10 Feb 2026)
-- **Cocktail Bar**: Aggiunte 3 immagini editabili (gallery-1/2/3) tra intro e lista cocktail, gestibili da admin preview con EditableImage
+- **Rinominata pagina Contatti → Dove Siamo**: Slug `/contatti` → `/dove-siamo`, titolo IT "Dove Siamo", EN "Where We Are". Aggiornati: header, footer, SEO server-side, admin pages/seo, page-defaults, database, link interni (homepage, eventi privati). Redirect 301 da `/contatti` a `/dove-siamo` per compatibilità.
+- **Cocktail Bar**: Aggiunte 3 immagini editabili (gallery-1/2/3) tra intro e lista cocktail, gestibili da admin preview con EditableImage. Su mobile: aspect-ratio 4/5 (come homepage), su desktop: 4/3.
 - **Eventi Privati**: Le 3 immagini "I nostri spazi" (spaces-1/2/3) ora sono editabili da admin preview con EditableImage
-- **Contatti**: Rimossa sezione "Inviaci un messaggio" (form contatto). Puliti tutti gli import e codice morto (zod schema, useForm, Card, Input, Textarea, ecc.)
-- **Fix usePageBlocks**: Il hook ora crea automaticamente i blocchi mancanti nel database anche quando ci sono già altri blocchi sulla pagina (prima li creava solo se la pagina era completamente vuota)
+- **Dove Siamo**: Rimossa sezione "Inviaci un messaggio" (form contatto). Puliti tutti gli import e codice morto.
+- **Fix usePageBlocks**: Il hook ora crea automaticamente i blocchi mancanti nel database anche quando ci sono già altri blocchi sulla pagina
 
 ### Google Sheets Sync System Completo (8-9 Feb 2026)
 - **Configurazione semplificata**: Rimossi campi tecnici (spreadsheetId, GID, publishedKey)

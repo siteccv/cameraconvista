@@ -34,7 +34,7 @@ export function PhilosophySection({ sectionPadding, titleSize, twoColGrid }: Phi
                 )}
               </p>
             </div>
-            <Link href="/contatti">
+            <Link href="/dove-siamo">
               <Button className="mt-6" data-testid="button-contact-us">
                 {t("Contattaci", "Contact Us")}
                 <ArrowRight className="ml-2 h-4 w-4" />

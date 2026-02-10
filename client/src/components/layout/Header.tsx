@@ -16,7 +16,7 @@ const allNavItems = [
   { slug: "eventi", path: "/eventi", labelIt: "Eventi", labelEn: "Events" },
   { slug: "eventi-privati", path: "/eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events" },
   { slug: "galleria", path: "/galleria", labelIt: "Galleria", labelEn: "Gallery" },
-  { slug: "contatti", path: "/contatti", labelIt: "Contatti", labelEn: "Contact" },
+  { slug: "dove-siamo", path: "/dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are" },
 ];
 
 export function Header() {

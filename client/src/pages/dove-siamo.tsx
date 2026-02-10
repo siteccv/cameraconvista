@@ -9,25 +9,25 @@ import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
-import { PAGE_IDS, CONTATTI_DEFAULTS } from "@/lib/page-defaults";
+import { PAGE_IDS, DOVE_SIAMO_DEFAULTS } from "@/lib/page-defaults";
 import type { FooterSettings } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
-export default function Contatti() {
+export default function DoveSiamo() {
   const { t } = useLanguage();
   const { deviceView } = useAdmin();
   const [showMapsModal, setShowMapsModal] = useState(false);
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
-    pageId: PAGE_IDS.contatti,
-    defaults: CONTATTI_DEFAULTS,
+    pageId: PAGE_IDS["dove-siamo"],
+    defaults: DOVE_SIAMO_DEFAULTS,
   });
 
   const heroBlock = getBlock("hero");
   const introBlock = getBlock("intro");
 
-  const heroDef = CONTATTI_DEFAULTS[0];
-  const introDef = CONTATTI_DEFAULTS[1];
+  const heroDef = DOVE_SIAMO_DEFAULTS[0];
+  const introDef = DOVE_SIAMO_DEFAULTS[1];
 
   const { data: footerSettings } = useQuery<FooterSettings>({
     queryKey: ["/api/footer-settings"],

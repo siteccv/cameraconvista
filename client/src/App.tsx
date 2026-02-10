@@ -15,7 +15,7 @@ import Eventi from "@/pages/eventi";
 import EventDetail from "@/pages/event-detail";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
-import Contatti from "@/pages/contatti";
+import DoveSiamo from "@/pages/dove-siamo";
 import AdminLogin from "@/pages/admin/login";
 import AdminSettings from "@/pages/admin/settings";
 import AdminSyncGoogle from "@/pages/admin/sync-google";
@@ -46,7 +46,7 @@ const PAGE_TITLES: Record<string, { it: string; en: string }> = {
   eventi: { it: "Eventi - Camera con Vista | Events Bologna", en: "Events - Camera con Vista | Bologna" },
   "eventi-privati": { it: "Eventi Privati - Camera con Vista | Bologna", en: "Private Events - Camera con Vista | Bologna" },
   galleria: { it: "Galleria - Camera con Vista | Gallery Bologna", en: "Gallery - Camera con Vista | Bologna" },
-  contatti: { it: "Contatti - Camera con Vista | Contact Bologna", en: "Contact - Camera con Vista | Bologna" },
+  "dove-siamo": { it: "Dove Siamo - Camera con Vista | Bologna", en: "Where We Are - Camera con Vista | Bologna" },
 };
 
 function PublicPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
@@ -102,7 +102,8 @@ function Router() {
       <Route path="/eventi/:id" component={EventDetail} />
       <Route path="/eventi-privati">{() => <PublicPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
       <Route path="/galleria">{() => <PublicPageRoute component={Galleria} slug="galleria" />}</Route>
-      <Route path="/contatti">{() => <PublicPageRoute component={Contatti} slug="contatti" />}</Route>
+      <Route path="/dove-siamo">{() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}</Route>
+      <Route path="/contatti">{() => { window.location.replace("/dove-siamo"); return null; }}</Route>
       <Route path="/admina/login" component={AdminLoginRoute} />
       <Route path="/admina/settings">
         {() => <ProtectedAdminRoute component={AdminSettings} />}
