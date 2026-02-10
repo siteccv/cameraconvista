@@ -43,6 +43,39 @@ adminMediaRouter.get("/", requireAuth, async (req, res) => {
   }
 });
 
+adminMediaRouter.post("/rename-all", requireAuth, async (req, res) => {
+  try {
+    const allMedia = await storage.getMedia();
+    const grouped: Record<string, typeof allMedia> = {};
+    for (const item of allMedia) {
+      const cat = item.category || "uncategorized";
+      if (!grouped[cat]) grouped[cat] = [];
+      grouped[cat].push(item);
+    }
+
+    let renamed = 0;
+    for (const [category, items] of Object.entries(grouped)) {
+      if (category === "uncategorized") continue;
+      const prefix = category.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+      const sorted = items.sort((a, b) => a.id - b.id);
+      for (let i = 0; i < sorted.length; i++) {
+        const num = String(i + 1).padStart(2, "0");
+        const ext = (sorted[i].filename.match(/\.[^.]+$/) || [".jpg"])[0];
+        const newName = `${prefix}_${num}${ext}`;
+        if (sorted[i].filename !== newName) {
+          await storage.updateMedia(sorted[i].id, { filename: newName });
+          renamed++;
+        }
+      }
+    }
+
+    res.json({ success: true, renamed });
+  } catch (error) {
+    console.error("Error renaming media:", error);
+    res.status(500).json({ error: "Failed to rename media" });
+  }
+});
+
 adminMediaRouter.post("/", requireAuth, async (req, res) => {
   try {
     const parsed = insertMediaSchema.safeParse(req.body);
