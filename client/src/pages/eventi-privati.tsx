@@ -3,7 +3,6 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Link } from "wouter";
 import { Users, Utensils, Music, Star, ArrowRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
@@ -268,12 +267,12 @@ export default function EventiPrivati() {
                 "Contact us to discuss your needs and create the perfect event together."
               )}
             </p>
-            <Link href="/dove-siamo">
+            <a href="mailto:info@cameraconvista.it">
               <Button size="lg" data-testid="button-request-quote">
                 {t("Contattaci", "Contact Us")}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-            </Link>
+            </a>
           </div>
         </div>
       </section>
