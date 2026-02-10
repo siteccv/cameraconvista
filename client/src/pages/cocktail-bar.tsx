@@ -180,7 +180,7 @@ export default function CocktailBar() {
 
       <section className="py-10 md:py-16">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-6">
             {[
               { block: gallery1Block, def: gallery1Def, idx: 1 },
               { block: gallery2Block, def: gallery2Def, idx: 2 },
@@ -196,7 +196,7 @@ export default function CocktailBar() {
                   offsetXMobile={block?.imageOffsetXMobile || def.imageOffsetXMobile || 0}
                   offsetYMobile={block?.imageOffsetYMobile || def.imageOffsetYMobile || 0}
                   deviceView={deviceView}
-                  containerClassName="aspect-[4/3] rounded-2xl overflow-hidden relative"
+                  containerClassName="aspect-[4/5] md:aspect-[4/3] rounded-2xl overflow-hidden relative"
                   className="w-full h-full object-cover"
                   onSave={makeGalleryImageSave(block)}
                 />
