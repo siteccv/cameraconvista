@@ -265,6 +265,29 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createMedia(mediaItem: InsertMedia): Promise<Media> {
+    if (mediaItem.category) {
+      const prefix = mediaItem.category.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+      const { data: categoryMedia } = await supabaseAdmin
+        .from('media')
+        .select('filename')
+        .eq('category', mediaItem.category);
+      
+      const pattern = new RegExp(`^${prefix}_(\\d+)`, "i");
+      let maxNum = 0;
+      for (const m of (categoryMedia || [])) {
+        const match = (m.filename as string).match(pattern);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+
+      const nextNum = maxNum + 1;
+      const padded = String(nextNum).padStart(2, "0");
+      const ext = (mediaItem.filename.match(/\.[^.]+$/) || [".jpg"])[0];
+      mediaItem = { ...mediaItem, filename: `${prefix}_${padded}${ext}` };
+    }
+
     const { data, error } = await supabaseAdmin.from('media').insert(toSnakeCase(mediaItem)).select().single();
     if (error) throw new Error(error.message);
     return toCamelCase(data) as Media;

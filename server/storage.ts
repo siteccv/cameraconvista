@@ -283,6 +283,28 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createMedia(mediaItem: InsertMedia): Promise<Media> {
+    if (mediaItem.category) {
+      const prefix = mediaItem.category.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+      const categoryMedia = await db.select({ filename: media.filename })
+        .from(media)
+        .where(eq(media.category, mediaItem.category));
+      
+      const pattern = new RegExp(`^${prefix}_(\\d+)`, "i");
+      let maxNum = 0;
+      for (const m of categoryMedia) {
+        const match = m.filename.match(pattern);
+        if (match) {
+          const num = parseInt(match[1], 10);
+          if (num > maxNum) maxNum = num;
+        }
+      }
+
+      const nextNum = maxNum + 1;
+      const padded = String(nextNum).padStart(2, "0");
+      const ext = (mediaItem.filename.match(/\.[^.]+$/) || [".jpg"])[0];
+      mediaItem = { ...mediaItem, filename: `${prefix}_${padded}${ext}` };
+    }
+
     const result = await db.insert(media).values(mediaItem).returning();
     return result[0];
   }

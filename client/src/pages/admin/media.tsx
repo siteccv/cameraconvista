@@ -63,17 +63,6 @@ export default function AdminMedia() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/media"] });
-      toast({
-        title: t("Caricato", "Uploaded"),
-        description: t("File caricato con successo.", "File uploaded successfully."),
-      });
-    },
-    onError: () => {
-      toast({
-        title: t("Errore", "Error"),
-        description: t("Impossibile salvare il file.", "Failed to save file."),
-        variant: "destructive",
-      });
     },
   });
 
@@ -217,7 +206,7 @@ export default function AdminMedia() {
           category: uploadCategory,
         };
 
-        createMediaMutation.mutate(mediaData);
+        await createMediaMutation.mutateAsync(mediaData);
         successCount++;
       }
 
