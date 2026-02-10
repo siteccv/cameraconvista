@@ -120,6 +120,7 @@ export default function DoveSiamo() {
               deviceView={deviceView}
               containerClassName="absolute inset-0"
               className="w-full h-full object-cover"
+              loading="eager"
               onSave={handleHeroImageSave}
             />
             <div className="absolute inset-0 bg-black/35 pointer-events-none" />

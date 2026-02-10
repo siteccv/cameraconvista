@@ -3,10 +3,31 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { queryClient } from "@/lib/queryClient";
 import logoImg from "@assets/logo_ccv.png";
-import type { Page } from "@shared/schema";
+import type { Page, PageBlock } from "@shared/schema";
+
+const prefetchedSlugs = new Set<string>();
+function prefetchPageData(slug: string) {
+  if (prefetchedSlugs.has(slug)) return;
+  prefetchedSlugs.add(slug);
+  queryClient.prefetchQuery({
+    queryKey: ["/api/pages/slug", slug, "blocks"],
+    staleTime: 5 * 60 * 1000,
+  }).then(() => {
+    const blocks = queryClient.getQueryData<PageBlock[]>(["/api/pages/slug", slug, "blocks"]);
+    if (blocks) {
+      blocks.forEach(b => {
+        if (b.imageUrl) {
+          const img = new Image();
+          img.src = b.imageUrl;
+        }
+      });
+    }
+  });
+}
 
 const allNavItems = [
   { slug: "home", path: "/", labelIt: "Home", labelEn: "Home" },
@@ -131,6 +152,7 @@ export function Header() {
                       <span
                         className={navClassName}
                         data-testid={`nav-${item.slug || "home"}`}
+                        onMouseEnter={() => prefetchPageData(item.slug)}
                       >
                         {t(item.labelIt, item.labelEn)}
                       </span>

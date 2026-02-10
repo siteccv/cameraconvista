@@ -48,6 +48,22 @@ router.get("/", async (req, res) => {
   }
 });
 
+router.get("/slug/:slug/blocks", async (req, res) => {
+  try {
+    const page = await storage.getPageBySlug(req.params.slug);
+    if (!page || !page.isVisible) {
+      res.json([]);
+      return;
+    }
+    const blocks = await storage.getPageBlocks(page.id);
+    const publishedBlocks = blocks.map(applyPublishedSnapshot);
+    res.json(publishedBlocks);
+  } catch (error) {
+    console.error("Error fetching page blocks by slug:", error);
+    res.json([]);
+  }
+});
+
 router.get("/:slug", async (req, res) => {
   try {
     const page = await storage.getPageBySlug(req.params.slug);

@@ -166,6 +166,7 @@ export default function EventiPrivati() {
               deviceView={deviceView}
               containerClassName="absolute inset-0"
               className="w-full h-full object-cover"
+              loading="eager"
               onSave={handleHeroImageSave}
             />
             <div className="absolute inset-0 bg-black/35 pointer-events-none" />
@@ -300,6 +301,7 @@ export default function EventiPrivati() {
                   deviceView={deviceView}
                   containerClassName="aspect-[4/3] rounded-placeholder overflow-hidden relative"
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onSave={makeSpacesImageSave(block)}
                 />
               </div>

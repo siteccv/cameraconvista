@@ -143,6 +143,7 @@ export default function CocktailBar() {
               deviceView={deviceView}
               containerClassName="absolute inset-0"
               className="w-full h-full object-cover"
+              loading="eager"
               onSave={handleHeroImageSave}
             />
             <div className="absolute inset-0 bg-black/35 pointer-events-none" />
@@ -198,6 +199,7 @@ export default function CocktailBar() {
                   deviceView={deviceView}
                   containerClassName="aspect-[4/5] md:aspect-[4/3] rounded-2xl overflow-hidden relative"
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onSave={makeGalleryImageSave(block)}
                 />
               </div>

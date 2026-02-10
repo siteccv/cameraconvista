@@ -195,6 +195,7 @@ export default function Home() {
               deviceView={deviceView}
               containerClassName="absolute inset-0"
               className="w-full h-full object-cover"
+              loading="eager"
               onSave={handleHeroImageSave}
             />
           </div>

@@ -24,6 +24,7 @@ interface EditableImageProps {
   offsetXMobile?: number;
   offsetYMobile?: number;
   deviceView?: "desktop" | "mobile";
+  loading?: "eager" | "lazy";
   onSave?: (data: {
     src: string;
     zoomDesktop: number;
@@ -48,6 +49,7 @@ export function EditableImage({
   offsetXMobile = 0,
   offsetYMobile = 0,
   deviceView = "desktop",
+  loading,
   onSave,
 }: EditableImageProps) {
   const { adminPreview, forceMobileLayout } = useAdmin();
@@ -259,7 +261,7 @@ export function EditableImage({
   if (!adminPreview) {
     return (
       <div className={containerClassName}>
-        <img src={src} alt={alt} className={`${className} absolute inset-0`} style={siteTransform} />
+        <img src={src} alt={alt} className={`${className} absolute inset-0`} style={siteTransform} loading={loading} />
       </div>
     );
   }

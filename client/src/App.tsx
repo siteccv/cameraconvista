@@ -26,6 +26,7 @@ import AdminGallery from "@/pages/admin/gallery";
 import AdminSeo from "@/pages/admin/seo";
 import AdminPreview from "@/pages/admin/preview";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { useImagePreloader } from "@/hooks/use-image-preloader";
 import type { Page } from "@shared/schema";
 
 function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
@@ -135,12 +136,18 @@ function Router() {
   );
 }
 
+function ImagePreloaderInit() {
+  useImagePreloader();
+  return null;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LanguageProvider>
           <AdminProvider>
+            <ImagePreloaderInit />
             <Toaster />
             <Router />
           </AdminProvider>

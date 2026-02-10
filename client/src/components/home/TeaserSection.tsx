@@ -187,6 +187,7 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
               deviceView={deviceView}
               containerClassName="aspect-[4/3] rounded-2xl overflow-hidden relative"
               className="w-full h-full object-cover"
+              loading="lazy"
               onSave={handleImageSave}
             />
           </div>

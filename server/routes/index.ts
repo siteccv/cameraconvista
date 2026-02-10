@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "http";
 
 // Import routers
@@ -11,6 +11,15 @@ import { publicMediaRouter, adminMediaRouter, adminUploadsRouter, adminMediaCate
 import { publicSettingsRouter, adminSettingsRouter } from "./settings";
 import syncRouter from "./sync";
 
+function publicCache(maxAge: number = 60) {
+  return (_req: Request, res: Response, next: NextFunction) => {
+    if (process.env.NODE_ENV === "production") {
+      res.set("Cache-Control", `public, max-age=${maxAge}, stale-while-revalidate=${maxAge * 2}`);
+    }
+    next();
+  };
+}
+
 export function mountRoutes(app: Express): void {
   // ========================================
   // URL Redirects (301)
@@ -18,25 +27,29 @@ export function mountRoutes(app: Express): void {
   app.get("/carta-vini", (_req, res) => res.redirect(301, "/lista-vini"));
 
   // ========================================
-  // Public API Routes
+  // Public API Routes (with production caching)
   // ========================================
   
   // Pages
-  app.use("/api/pages", pagesRouter);
+  app.use("/api/pages", publicCache(60), pagesRouter);
   
   // Menu, Wines, Cocktails
+  app.use("/api/menu-items", publicCache(120));
+  app.use("/api/wines", publicCache(120));
+  app.use("/api/cocktails", publicCache(120));
   app.use("/api", publicMenuRouter);
   
   // Events
-  app.use("/api/events", publicEventsRouter);
+  app.use("/api/events", publicCache(60), publicEventsRouter);
   
   // Gallery
-  app.use("/api/galleries", publicGalleryRouter);
+  app.use("/api/galleries", publicCache(120), publicGalleryRouter);
   
   // Media
-  app.use("/api/media", publicMediaRouter);
+  app.use("/api/media", publicCache(120), publicMediaRouter);
   
   // Settings
+  app.use("/api/footer-settings", publicCache(300));
   app.use("/api", publicSettingsRouter);
   
   // ========================================
