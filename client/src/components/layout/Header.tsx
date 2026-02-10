@@ -192,7 +192,6 @@ export function Header() {
 
               <div className="mt-4 pt-4 border-t border-border px-4">
                 <div className="flex items-center gap-3 font-display text-base">
-                  <span className="text-muted-foreground">{t("Lingua:", "Language:")}</span>
                   <button
                     onClick={() => { setLanguage("it"); setMobileMenuOpen(false); }}
                     className={`px-3 py-1.5 rounded transition-colors ${
