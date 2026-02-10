@@ -78,11 +78,18 @@ export function usePageBlocks({ pageId, defaults }: UsePageBlocksOptions) {
   });
 
   useEffect(() => {
-    if (!adminPreview || isLoading || hasInitialized || blocks.length > 0) return;
+    if (!adminPreview || isLoading || hasInitialized) return;
+
+    const existingTypes = new Set(blocks.map((b) => b.blockType));
+    const missingDefaults = defaults.filter((d) => !existingTypes.has(d.blockType));
+    if (missingDefaults.length === 0) {
+      setHasInitialized(true);
+      return;
+    }
     setHasInitialized(true);
 
     const createSequentially = async () => {
-      for (const blockData of defaults) {
+      for (const blockData of missingDefaults) {
         try {
           await apiRequest("POST", "/api/admin/page-blocks", {
             ...blockData,
@@ -95,7 +102,7 @@ export function usePageBlocks({ pageId, defaults }: UsePageBlocksOptions) {
       queryClient.invalidateQueries({ queryKey: blocksQueryKey });
     };
     createSequentially();
-  }, [adminPreview, isLoading, blocks.length, hasInitialized, pageId, defaults, blocksQueryKey]);
+  }, [adminPreview, isLoading, blocks, hasInitialized, pageId, defaults, blocksQueryKey]);
 
   const updateBlock = useCallback(
     (id: number, data: Partial<PageBlock>) => {
