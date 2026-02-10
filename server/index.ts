@@ -28,10 +28,21 @@ app.use(
 app.use(express.urlencoded({ extended: false }));
 
 app.use((req, res, next) => {
-  if (req.path !== "/" && req.path.endsWith("/") && !req.path.startsWith("/api")) {
-    const cleanPath = req.path.replace(/\/+$/, "");
+  if (req.path.startsWith("/api")) return next();
+
+  const canonicalHost = "www.cameraconvista.it";
+  const host = req.hostname;
+  const needsWww = process.env.NODE_ENV === "production" && host !== canonicalHost && (host === "cameraconvista.it" || host.endsWith(".cameraconvista.it"));
+  const needsSlashStrip = req.path !== "/" && req.path.endsWith("/");
+
+  if (needsWww || needsSlashStrip) {
+    const targetHost = needsWww ? canonicalHost : host;
+    const targetPath = needsSlashStrip ? req.path.replace(/\/+$/, "") : req.path;
     const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
-    return res.redirect(301, cleanPath + query);
+    const targetUrl = needsWww
+      ? `https://${targetHost}${targetPath}${query}`
+      : `${targetPath}${query}`;
+    return res.redirect(301, targetUrl);
   }
   next();
 });
