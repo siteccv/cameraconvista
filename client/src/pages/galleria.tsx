@@ -159,9 +159,9 @@ export default function Galleria() {
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
           {galleriesLoading ? (
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"}`}>
-              {[...Array(3)].map((_, i) => (
-                <Skeleton key={i} className="aspect-square rounded-lg" />
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
+              {[...Array(4)].map((_, i) => (
+                <Skeleton key={i} className="aspect-[3/4] rounded-lg" />
               ))}
             </div>
           ) : visibleGalleries.length === 0 ? (
@@ -170,7 +170,7 @@ export default function Galleria() {
               <p>{t("La galleria sarà presto disponibile.", "Gallery coming soon.")}</p>
             </div>
           ) : (
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 md:grid-cols-3"}`}>
+            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
               {visibleGalleries.map((gallery) => (
                 <div key={gallery.id} className="flex flex-col items-center">
                   <h3 className="font-display text-xl md:text-2xl text-[#2f2b2a] text-center mb-3">
@@ -178,7 +178,7 @@ export default function Galleria() {
                   </h3>
                   <button
                     onClick={() => handleAlbumClick(gallery)}
-                    className="group relative aspect-square w-full rounded-lg overflow-hidden bg-muted cursor-pointer"
+                    className="group relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-muted cursor-pointer"
                     data-testid={`album-cover-${gallery.id}`}
                   >
                     {gallery.coverUrl ? (
