@@ -174,7 +174,19 @@ adminMediaRouter.delete("/:id", requireAuth, async (req, res) => {
 // ========================================
 export const adminUploadsRouter = Router();
 
-adminUploadsRouter.post("/direct", requireAuth, upload.single("file"), async (req, res) => {
+adminUploadsRouter.post("/direct", requireAuth, (req, res, next) => {
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        res.status(413).json({ error: "File too large. Maximum size is 25MB." });
+        return;
+      }
+      res.status(400).json({ error: err.message || "Upload error" });
+      return;
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
     const { supabaseAdmin } = await import("../supabase");
     

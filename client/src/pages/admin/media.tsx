@@ -197,8 +197,8 @@ export default function AdminMedia() {
         });
 
         if (!uploadResponse.ok) {
-          const error = await uploadResponse.json();
-          throw new Error(error.error || "Upload failed");
+          const errorData = await uploadResponse.json().catch(() => ({}));
+          throw new Error(errorData.error || `Upload failed (${uploadResponse.status})`);
         }
 
         const uploadResult = await uploadResponse.json();
@@ -229,9 +229,10 @@ export default function AdminMedia() {
       });
     } catch (error) {
       console.error("Upload error:", error);
+      const errMsg = error instanceof Error ? error.message : "";
       toast({
         title: t("Errore", "Error"),
-        description: t("Impossibile caricare il file.", "Failed to upload file."),
+        description: errMsg || t("Impossibile caricare il file.", "Failed to upload file."),
         variant: "destructive",
       });
     } finally {
