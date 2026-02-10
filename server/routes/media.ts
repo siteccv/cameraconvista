@@ -9,7 +9,7 @@ import sharp from "sharp";
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 20 * 1024 * 1024, // 20MB max
+    fileSize: 26 * 1024 * 1024, // 26MB max (supports 25MB uploads with overhead)
   },
 });
 

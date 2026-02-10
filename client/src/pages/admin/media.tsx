@@ -152,7 +152,7 @@ export default function AdminMedia() {
   const [isDragging, setIsDragging] = useState(false);
   const dragCounterRef = useRef(0);
 
-  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const MAX_FILE_SIZE = 25 * 1024 * 1024; // 25MB
   const MAX_FILES = 10;
 
   const processFiles = useCallback(async (files: FileList | File[]) => {
@@ -174,7 +174,7 @@ export default function AdminMedia() {
       if (file.size > MAX_FILE_SIZE) {
         toast({
           title: t("Errore", "Error"),
-          description: t(`Il file "${file.name}" supera i 10MB.`, `File "${file.name}" exceeds 10MB.`),
+          description: t(`Il file "${file.name}" supera i 25MB.`, `File "${file.name}" exceeds 25MB.`),
           variant: "destructive",
         });
         return;
@@ -314,7 +314,7 @@ export default function AdminMedia() {
             <div className="bg-background/90 backdrop-blur-sm px-8 py-6 rounded-lg shadow-lg text-center">
               <Upload className="h-12 w-12 mx-auto mb-3 text-primary" />
               <p className="text-lg font-medium">{t("Rilascia qui le immagini", "Drop images here")}</p>
-              <p className="text-sm text-muted-foreground mt-1">{t("Max 10 file, 10MB ciascuno", "Max 10 files, 10MB each")}</p>
+              <p className="text-sm text-muted-foreground mt-1">{t("Max 10 file, 25MB ciascuno", "Max 10 files, 25MB each")}</p>
             </div>
           </div>
         )}
