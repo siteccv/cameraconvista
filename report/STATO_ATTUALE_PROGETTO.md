@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 10 Febbraio 2026
+**Ultimo aggiornamento:** 11 Febbraio 2026
 
 ---
 
@@ -10,9 +10,10 @@
 | Area | Stato | Dettagli |
 |------|-------|----------|
 | **Database PostgreSQL** | ✅ Completo | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions |
+| **Supabase Backend** | ✅ Completo | Produzione su Supabase con `SupabaseStorage`, conversione automatica camelCase↔snake_case, snapshot draft/publish in `metadata.__publishedSnapshot` |
 | **Contenuti bilingui IT/EN** | ✅ Completo | Tutti i campi supportano italiano e inglese con helper `t(it, en)` |
 | **Autenticazione Admin** | ✅ Completo | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password |
-| **Pagine pubbliche con dati reali** | ✅ Completo | Menu, Carta Vini, Cocktail Bar, Eventi, Galleria, Dove Siamo - tutte collegano al database via React Query. |
+| **Pagine pubbliche con dati reali** | ✅ Completo | Home, Menu, Carta Vini, Cocktail Bar, Eventi, Eventi Privati, Galleria, Dove Siamo - tutte collegano al database via React Query |
 | **Cambio lingua pubblico** | ✅ Completo | Toggle IT/EN funzionante su tutte le pagine |
 | **Schema draft/publish** | ✅ Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema |
 | **Device-specific overrides** | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
@@ -26,6 +27,11 @@
 | **Scroll to Top Navigation** | ✅ Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
 | **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI, hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
 | **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
+| **Google Sheets Sync** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
+| **SEO System** | ✅ Completo | Middleware server-side, robots.txt, sitemap.xml dinamico, JSON-LD, Open Graph, hreflang, admin `/admina/seo` |
+| **Canonical URL Redirect** | ✅ Completo | Middleware server-side 301 redirect per trailing slash e www enforcement in produzione |
+| **Image Loading Optimization** | ✅ Completo | DNS preconnect Supabase, loading eager/lazy, prefetch hover navigazione, cache headers produzione, preloader staggered |
+| **Eventi Privati** | ✅ Completo | Pagina con 4 service box editabili (package-1 to package-4), 3 immagini editabili "I nostri spazi", pulsante "Contattaci" con mailto:info@cameraconvista.it |
 
 ---
 
@@ -36,7 +42,6 @@
 | **Anteprima in Sezioni Pagine** (`/admina/pages`) | 🟡 Parziale | Mostra anteprima delle pagine pubbliche embedded con IPhoneFrame. L'editing click-to-edit funziona in admin preview mode. |
 | **Pagina Anteprima** (`/admina/preview`) | 🟡 Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine |
 | **Workflow Draft/Publish** | 🟡 Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish |
-| **Admin SEO** (`/admina/seo`) | ✅ Completo | Pagina con editing meta title/description IT/EN per ogni pagina, contatori caratteri, salvataggio immediato |
 
 ---
 
@@ -45,7 +50,6 @@
 | Requisito | Stato | Note |
 |-----------|-------|------|
 | **Editing blocchi pagina avanzato** | ❌ Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
-| **Sincronizzazione Google Sheets** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
 
 ---
 
@@ -69,8 +73,21 @@
 | Traduzione Automatica | 100% |
 | Admin SEO | 100% |
 | Google Sheets Sync | 100% |
+| Image Loading / Performance | 100% |
+| Canonical URL / Redirect | 100% |
 
 **Completamento globale stimato: ~97%** rispetto ai requisiti originali completi.
+
+---
+
+## DEPLOYMENT
+
+| Piattaforma | URL | Stato |
+|-------------|-----|-------|
+| **Render** | https://cameraconvista.onrender.com | ✅ Attivo |
+| **Dominio Produzione** | https://www.cameraconvista.it | ✅ Attivo |
+| **GitHub** | https://github.com/siteccv/cameraconvista.git | ✅ Sincronizzato |
+| **Supabase** | Database produzione | ✅ Attivo |
 
 ---
 
@@ -80,10 +97,12 @@
 - `shared/schema.ts` - Definizioni tabelle Drizzle ORM (events, media_categories aggiunti)
 
 ### Backend
+- `server/index.ts` - Bootstrap Express con middleware canonical redirect (www + trailing slash)
 - `server/storage.ts` - DatabaseStorage con CRUD operations (eventi, media categories, footer settings)
-- `server/routes/index.ts` - Entry point con mount dei router modulari
+- `server/supabase-storage.ts` - SupabaseStorage per produzione (camelCase↔snake_case, publishedSnapshot)
+- `server/routes/index.ts` - Entry point con mount dei router modulari + cache headers produzione
 - `server/routes/auth.ts` - Autenticazione admin, login/logout, cambio password
-- `server/routes/pages.ts` - API pagine e page blocks
+- `server/routes/pages.ts` - API pagine e page blocks (incluso endpoint `/slug/:slug/blocks`)
 - `server/routes/menu.ts` - API menu items, vini, cocktails
 - `server/routes/events.ts` - API eventi pubbliche e admin
 - `server/routes/gallery.ts` - API galleria e album
@@ -102,6 +121,7 @@
 - `client/src/pages/cocktail-bar.tsx` - Pagina cocktail con dati da DB
 - `client/src/pages/eventi.tsx` - Pagina eventi con card Instagram Story 9:16
 - `client/src/pages/event-detail.tsx` - Dettaglio singolo evento con prenotazione
+- `client/src/pages/eventi-privati.tsx` - Eventi privati con 4 service box editabili e pulsante contattaci (mailto)
 - `client/src/pages/galleria.tsx` - Galleria album-based con copertine e GallerySlideViewer
 - `client/src/pages/dove-siamo.tsx` - Dove Siamo (ex Contatti) con mappa e indicazioni stradali
 
@@ -119,7 +139,7 @@
 
 ### Componenti Admin WYSIWYG
 - `client/src/components/admin/EditableText.tsx` - Editing inline testi con traduzione automatica
-- `client/src/components/admin/EditableImage.tsx` - Editing inline immagini con zoom/offset
+- `client/src/components/admin/EditableImage.tsx` - Editing inline immagini con zoom/offset, loading eager/lazy
 - `client/src/components/admin/EventModal.tsx` - Modal creazione/modifica eventi con traduzione automatica
 - `client/src/components/admin/FooterSettingsForm.tsx` - Form impostazioni footer con traduzione automatica
 - `client/src/components/admin/ImageDetailsModal.tsx` - Dettagli immagine media library
@@ -142,9 +162,11 @@
 
 ### Hooks
 - `client/src/hooks/useTranslation.ts` - Hook per chiamate API traduzione con loading/error states
+- `client/src/hooks/use-image-preloader.ts` - Preloader immagini staggered con cleanup (pagine, gallery, eventi)
+- `client/src/hooks/use-page-blocks.ts` - Hook per caricamento page blocks con auto-creazione blocchi mancanti
 
 ### Layout
-- `client/src/components/layout/Header.tsx` - Header responsive con supporto forceMobileLayout
+- `client/src/components/layout/Header.tsx` - Header responsive con prefetch dati pagina su hover navigazione
 - `client/src/components/layout/Footer.tsx` - Footer responsive con layout stacked mobile
 - `client/src/components/layout/PublicLayout.tsx` - Layout pubblico con Header, Footer, CookieConsent
 - `client/src/components/layout/AdminLayout.tsx` - Layout admin con sidebar
@@ -164,16 +186,34 @@
 ## NOTE TECNICHE
 
 ### Stack Tecnologico
-- **Frontend:** React 18, TypeScript, Vite, Wouter, TanStack React Query, Tailwind CSS, shadcn/ui
+- **Frontend:** React 18.3.1, TypeScript, Vite, Wouter, TanStack React Query, Tailwind CSS, shadcn/ui
 - **Backend:** Node.js, Express, TypeScript
-- **Database:** PostgreSQL con Drizzle ORM
+- **Database:** PostgreSQL con Drizzle ORM (locale) / Supabase (produzione)
 - **Autenticazione:** Sessioni httpOnly cookies, bcrypt per hash password
-- **Storage:** Object Storage per media (configurato e funzionante)
+- **Storage:** Google Cloud Storage via Object Storage per media
 - **AI:** OpenAI gpt-4o-mini per traduzioni IT→EN
+- **Deployment:** Render (hosting), GitHub (repository), Supabase (database produzione)
 
 ### Integrazioni Attive
 - **Object Storage** - Funzionante per upload media
 - **OpenAI** - Attivo per traduzioni automatiche IT→EN con prompt contestuali hospitality
+- **Supabase** - Database produzione con conversione automatica camelCase↔snake_case
+
+### Sistema Performance / Ottimizzazione Immagini (10-11 Feb 2026)
+- **DNS Preconnect**: `client/index.html` include `<link rel="preconnect">` e `<link rel="dns-prefetch">` verso `pjrdnfbfpogvztfjuxya.supabase.co` per ridurre latenza DNS
+- **Loading Strategy**: Hero images usano `loading="eager"`, immagini below-fold usano `loading="lazy"`
+- **Image Preloader**: Hook `useImagePreloader` carica immagini di tutte le pagine in background con intervalli staggered (100ms), batch processing, cleanup su unmount
+- **Nav Hover Prefetch**: Header prefetch dati pagina + immagini hero quando utente passa il mouse sui link navigazione
+- **Cache Headers Produzione**: API pubbliche hanno `Cache-Control` 60-300s con `stale-while-revalidate`, nessun caching su route admin
+- **Slug-based Blocks Endpoint**: `/api/pages/slug/:slug/blocks` per prefetching efficiente senza necessità di conoscere page ID
+
+### Canonical URL Redirect (11 Feb 2026)
+- **Middleware server-side** in `server/index.ts` (prima di tutte le route)
+- **Trailing slash**: `/lista-vini/` → 301 → `/lista-vini` (preserva querystring)
+- **www enforcement** (solo produzione): `cameraconvista.it` → 301 → `https://www.cameraconvista.it`
+- **Combinato**: `cameraconvista.it/lista-vini/` → 301 → `https://www.cameraconvista.it/lista-vini`
+- **Escluse API**: `/api/*` non subisce redirect
+- **Compatibilità QR code**: I QR distribuiti con `/lista-vini/` ora funzionano correttamente
 
 ### Sistema Responsive Mobile
 - **Breakpoints:** Tailwind md: (768px) e lg: (1024px)
@@ -185,6 +225,13 @@
 ---
 
 ## PROGRESSI RECENTI
+
+### Canonical URL Redirect e Performance (10-11 Feb 2026)
+- **Canonical redirect middleware**: Trailing slash removal + www enforcement in produzione con 301 permanent redirect
+- **Compatibilità QR code**: `/lista-vini/` ora reindirizza correttamente a `/lista-vini`
+- **Image loading optimization**: DNS preconnect, eager/lazy loading, preloader staggered, nav hover prefetch, cache headers produzione
+- **Slug-based blocks endpoint**: `/api/pages/slug/:slug/blocks` per prefetching efficiente
+- **Eventi Privati**: 4 service box completamente editabili da admin (package-1 to package-4), pulsante "Contattaci" con mailto:info@cameraconvista.it
 
 ### Modifiche Pagine Pubbliche (10 Feb 2026)
 - **Rinominata pagina Contatti → Dove Siamo**: Slug `/contatti` → `/dove-siamo`, titolo IT "Dove Siamo", EN "Where We Are". Aggiornati: header, footer, SEO server-side, admin pages/seo, page-defaults, database, link interni (homepage, eventi privati). Redirect 301 da `/contatti` a `/dove-siamo` per compatibilità.
@@ -238,43 +285,6 @@
   - `client/src/components/admin/EditableImage.tsx` - Zoom/offset responsive
   - `client/src/components/layout/Footer.tsx` - Layout footer responsive
 - Ora il sito mostra correttamente il layout mobile su iPhone reale
-- Nota: L'admin preview non può simulare perfettamente le unità `vh` (viewport height) perché sono sempre relative al browser, non al contenitore iPhone
-
-### IPhoneFrame Content Clipping (3 Feb 2026 - notte)
-- Aggiunto `clipPath: "inset(0 round 48px)"` per contenere il contenuto nei bordi arrotondati
-- Il contenuto non deborda più dalla sagoma dell'iPhone
-
-### Sezioni Pagine Mobile Preview (3 Feb 2026 - notte)
-- Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView
-- Integrato IPhoneFrame nella pagina Sezioni Pagine
-- Ora entrambe le pagine admin usano lo stesso sistema di preview mobile
-
-### Galleria Album System (3-4 Feb 2026)
-- Implementato sistema galleria basato su album con copertine e titoli centrati
-- Schema DB: tabelle `galleries` e `gallery_images` con supporto bilingue IT/EN
-- API admin e pubbliche per CRUD album e immagini
-- Pagina admin `/admina/gallery` con:
-  - Creazione/modifica/eliminazione album
-  - MediaPickerModal per selezione immagini dalla libreria
-  - Controlli zoom/offset per copertine
-  - Switch visibilità album
-  - **Drag & Drop riordino**: Trascina le immagini per riordinare (HTML5 nativo)
-  - **Drag a 360°**: Nel modale zoom, trascina l'immagine per posizionamento libero (quando zoom > 100%)
-- Componente GallerySlideViewer per visualizzazione pubblica:
-  - Immagini formato Instagram Story (9:16)
-  - Navigazione swipe touch su mobile
-  - Navigazione frecce su desktop
-  - Indicatori dot per posizione corrente
-- Pagina pubblica `/galleria` con griglia album e titoli centrati
-- 4 gallerie test create: Il Locale, La Cucina, Cocktails, Eventi (5 foto ciascuna)
-- Test E2E completato con successo
-
-### Traduzione Automatica IT→EN (3 Feb 2026 - notte)
-- Implementato endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)
-- Creato hook `useTranslation` e componente `TranslateButton` riutilizzabili
-- Integrazione in: EditableText, EventModal, FooterSettingsForm, ManageCategoriesModal
-- Prompt contestuali per traduzioni mirate (hospitality, concise, elegant)
-- Autenticazione protetta con requireAuth
 
 ### Refactoring Architettura Modulare (4 Feb 2026 - sera)
 - **server/routes.ts refactored**: Da 1336 righe a 24 righe
@@ -289,47 +299,16 @@
   - TeaserCard, BookingDialog, PhilosophySection, homeDefaults, index
 - Tutti i test E2E passati con successo
 
-### Header Mobile Fix (4 Feb 2026)
-- Nuovo logo: `logo_ccv.png` sostituisce il precedente
-- Mobile: Logo centrato, hamburger a sinistra
-- Mobile: Selettore lingua IT/EN spostato in fondo al menu hamburger
-- Desktop: Layout invariato con selettore lingua visibile nell'header
+### Galleria Album System (3-4 Feb 2026)
+- Implementato sistema galleria basato su album con copertine e titoli centrati
+- Schema DB: tabelle `galleries` e `gallery_images` con supporto bilingue IT/EN
+- API admin e pubbliche per CRUD album e immagini
+- GallerySlideViewer per visualizzazione pubblica con swipe touch e navigazione frecce
 
-### Mobile Preview Admin Fix (3 Feb 2026 - notte)
-- Corretto problema: media queries CSS non funzionano in contenitori IPhoneFrame
-- Aggiunto `forceMobileLayout` per forzare classi mobile senza media queries responsive
-- Aggiornati: Footer.tsx, Header.tsx, home.tsx con classi condizionali
-- Ora l'anteprima mobile admin mostra correttamente il layout a colonna singola
-
-### Scroll to Top Fix (3 Feb 2026 - notte)
-- Aggiunto componente ScrollToTop che resetta lo scroll ad ogni cambio pagina
-- Risolto problema pagine che si aprivano a fondo pagina invece che all'inizio
-
-### Mobile Responsive (3 Feb 2026 - sera)
-- Implementato sistema responsive mobile-first completo
-- IPhoneFrame con Dynamic Island per preview admin
-- Header e Footer rispettano forceMobileLayout
-- Sincronizzazione deviceView con forceMobileLayout in AdminPreview
-- Padding ottimizzati per mobile (py-10 vs py-20)
-
-### Eventi (3 Feb 2026 - sera)
-- Implementato sistema eventi completo con:
-  - Admin CRUD con massimo 10 eventi
-  - Poster in formato Instagram Story (9:16)
-  - Controlli zoom/offset per poster
-  - Due modalità visibilità: ACTIVE_ONLY e UNTIL_DAYS_AFTER
-  - Integrazione prenotazioni con URL configurabile
-  - Pagina pubblica `/eventi` con card responsive
-  - Pagina dettaglio `/eventi/:id` con descrizione e pulsante prenotazione
-
-### Footer (3 Feb 2026)
-- Gestione completa footer da Admin → Impostazioni
-- Testi about bilingui, contatti, orari, social, link rapidi e legali
-
-### Media Library (3 Feb 2026)
-- Upload funzionante su Object Storage
-- Sistema categorie/cartelle dinamico
-- Gestione dettagli immagine con zoom/offset
+### Traduzione Automatica IT→EN (3 Feb 2026)
+- Endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)
+- Hook `useTranslation` e componente `TranslateButton` riutilizzabili
+- Integrazione in tutti i form bilingui admin
 
 ---
 
@@ -337,19 +316,19 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| QR code con trailing slash `/lista-vini/` non funziona | Middleware canonical redirect 301 trailing slash → senza slash | 11 Feb 2026 |
+| URL non canoniche (www/non-www) | Middleware www enforcement 301 in produzione | 11 Feb 2026 |
+| React 18 non supporta `fetchPriority` JSX prop | Rimosso fetchPriority, mantenuto solo `loading="eager"` per hero images | 10 Feb 2026 |
+| Header prefetch usava custom queryFn | Refactored per usare default fetcher + getQueryData per image preload | 10 Feb 2026 |
+| useImagePreloader memory leak su navigazione SPA | Aggiunto tracking timers con cleanup su unmount | 10 Feb 2026 |
 | Errore "Impossibile aggiungere immagine" in album galleria | Riallineato sequence database `gallery_images_id_seq` | 5 Feb 2026 |
 | Drag & Drop immagini album non funzionava | Riscritto con API HTML5 Drag & Drop nativa, rimosso dnd-kit | 5 Feb 2026 |
 | Layout mobile non funziona su iPhone reale | Aggiunto `useIsMobile()` combinato con `forceMobileLayout` in tutti i componenti | 4 Feb 2026 |
 | EditableText/Image usano dimensioni desktop su mobile | Modificata logica per usare `forceMobileLayout \|\| viewportIsMobile` | 4 Feb 2026 |
 | Contenuto deborda da IPhoneFrame | Aggiunto clipPath con bordi arrotondati | 3 Feb 2026 |
-| Sezioni Pagine non usava forceMobileLayout | Aggiunto useEffect per sincronizzare forceMobileLayout con deviceView + IPhoneFrame | 3 Feb 2026 |
 | Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
-| Footer in preview mobile mostra layout desktop | Aggiornato gridClass con isMobile condition | 3 Feb 2026 |
 | Pagine si aprono a fondo pagina | Aggiunto ScrollToTop component | 3 Feb 2026 |
-| Preview mobile non forza layout mobile | Sincronizzato deviceView con forceMobileLayout | 3 Feb 2026 |
-| IPhoneFrame overflow in viewport piccoli | Aggiunto scaling dinamico | 3 Feb 2026 |
-| Header/Footer non rispettano preview mobile | Aggiunto check forceMobileLayout | 3 Feb 2026 |
 
 ---
 
-*Questo documento è stato aggiornato con lo stato attuale del progetto.*
+*Questo documento è stato aggiornato con lo stato attuale del progetto al 11 Febbraio 2026.*
