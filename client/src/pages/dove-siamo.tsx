@@ -10,13 +10,17 @@ import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, DOVE_SIAMO_DEFAULTS } from "@/lib/page-defaults";
+import { BookingDialog } from "@/components/home/BookingDialog";
 import type { FooterSettings } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
 export default function DoveSiamo() {
   const { t } = useLanguage();
-  const { deviceView } = useAdmin();
+  const { deviceView, forceMobileLayout } = useAdmin();
   const [showMapsModal, setShowMapsModal] = useState(false);
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
+  const viewportIsMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = forceMobileLayout || viewportIsMobile;
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["dove-siamo"],
@@ -176,6 +180,20 @@ export default function DoveSiamo() {
             </Button>
           </div>
 
+          <div className="flex justify-center pt-4">
+            <Button
+              onClick={() => setBookingDialogOpen(true)}
+              className={`${isMobile ? "px-6 py-4 text-[10px] tracking-[0.08em]" : "px-10 py-5 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
+              style={{
+                backgroundColor: '#722f37',
+                fontFamily: 'Montserrat, sans-serif'
+              }}
+              data-testid="button-book-table-dove-siamo"
+            >
+              {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
+            </Button>
+          </div>
+
           {showMapsModal && (
             <div
               className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
@@ -222,6 +240,12 @@ export default function DoveSiamo() {
           )}
         </div>
       </section>
+
+      <BookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        isMobile={isMobile}
+      />
     </PublicLayout>
   );
 }
