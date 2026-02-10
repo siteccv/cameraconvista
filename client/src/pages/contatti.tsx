@@ -3,16 +3,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Send, Navigation, X } from "lucide-react";
+import { Navigation, X } from "lucide-react";
 import { SiApple, SiGooglemaps } from "react-icons/si";
-import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
@@ -21,20 +13,9 @@ import { PAGE_IDS, CONTATTI_DEFAULTS } from "@/lib/page-defaults";
 import type { FooterSettings } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
-const contactSchema = z.object({
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  subject: z.string().min(2, "Subject is required"),
-  message: z.string().min(10, "Message must be at least 10 characters"),
-});
-
-type ContactFormData = z.infer<typeof contactSchema>;
-
 export default function Contatti() {
   const { t } = useLanguage();
   const { deviceView } = useAdmin();
-  const { toast } = useToast();
   const [showMapsModal, setShowMapsModal] = useState(false);
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
@@ -107,28 +88,6 @@ export default function Contatti() {
       bodyFontSize: data.fontSizeDesktop,
       bodyFontSizeMobile: data.fontSizeMobile,
     });
-  };
-
-  const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    },
-  });
-
-  const onSubmit = async (data: ContactFormData) => {
-    toast({
-      title: t("Messaggio inviato", "Message sent"),
-      description: t(
-        "Grazie per averci contattato. Ti risponderemo al più presto.",
-        "Thank you for contacting us. We will respond as soon as possible."
-      ),
-    });
-    form.reset();
   };
 
   if (blocksLoading) {
@@ -261,98 +220,6 @@ export default function Contatti() {
               </div>
             </div>
           )}
-
-          <Card>
-            <CardContent className="p-6 md:p-8">
-              <h2 className="font-display text-2xl mb-6" data-testid="text-form-title">
-                {t("Inviaci un messaggio", "Send us a message")}
-              </h2>
-
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("Nome", "Name")} *</FormLabel>
-                        <FormControl>
-                          <Input {...field} data-testid="input-name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email *</FormLabel>
-                        <FormControl>
-                          <Input type="email" {...field} data-testid="input-email" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="phone"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("Telefono", "Phone")}</FormLabel>
-                        <FormControl>
-                          <Input type="tel" {...field} data-testid="input-phone" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="subject"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("Oggetto", "Subject")} *</FormLabel>
-                        <FormControl>
-                          <Input {...field} data-testid="input-subject" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t("Messaggio", "Message")} *</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            {...field}
-                            rows={5}
-                            className="resize-none"
-                            data-testid="input-message"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <Button type="submit" className="w-full" data-testid="button-submit">
-                    {t("Invia messaggio", "Send message")}
-                    <Send className="ml-2 h-4 w-4" />
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
         </div>
       </section>
     </PublicLayout>
