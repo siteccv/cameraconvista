@@ -150,7 +150,7 @@ export default function GalleryPage() {
                       <ImageIcon className="h-16 w-16 text-muted-foreground opacity-50" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent pointer-events-none" />
                   <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-none">
                     <h3 className="text-white text-xl font-display">
                       {language === "it" ? gallery.titleIt : gallery.titleEn}

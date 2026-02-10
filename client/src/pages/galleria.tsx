@@ -193,7 +193,7 @@ export default function Galleria() {
                       <Images className="h-16 w-16 text-muted-foreground" />
                     </div>
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <h3 className="font-display text-2xl md:text-3xl text-white text-center px-4 drop-shadow-lg">
                       {language === "it" ? gallery.titleIt : gallery.titleEn}
