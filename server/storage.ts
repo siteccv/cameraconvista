@@ -27,7 +27,7 @@ import {
   adminSessions,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, asc, lt } from "drizzle-orm";
+import { eq, asc, lt, inArray } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -76,6 +76,7 @@ export interface IStorage {
   createMedia(mediaItem: InsertMedia): Promise<Media>;
   updateMedia(id: number, mediaItem: Partial<InsertMedia>): Promise<Media | undefined>;
   deleteMedia(id: number): Promise<boolean>;
+  bulkDeleteMedia(ids: number[]): Promise<number>;
   
   getMediaCategories(): Promise<MediaCategory[]>;
   getMediaCategory(id: number): Promise<MediaCategory | undefined>;
@@ -294,6 +295,12 @@ export class DatabaseStorage implements IStorage {
   async deleteMedia(id: number): Promise<boolean> {
     const result = await db.delete(media).where(eq(media.id, id)).returning();
     return result.length > 0;
+  }
+
+  async bulkDeleteMedia(ids: number[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const result = await db.delete(media).where(inArray(media.id, ids)).returning();
+    return result.length;
   }
 
   async getMediaCategories(): Promise<MediaCategory[]> {

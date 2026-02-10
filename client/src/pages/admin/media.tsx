@@ -11,7 +11,17 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ImageDetailsModal } from "@/components/admin/ImageDetailsModal";
 import { ManageCategoriesModal } from "@/components/admin/ManageCategoriesModal";
-import { Upload, Search, Image, Settings, Loader2 } from "lucide-react";
+import { Upload, Search, Image, Settings, Loader2, CheckSquare, Trash2, X } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Media, InsertMedia, MediaCategory } from "@shared/schema";
 import { formatSize, formatDate } from "@/lib/formatters";
 
@@ -24,6 +34,9 @@ export default function AdminMedia() {
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [manageCategoriesOpen, setManageCategoriesOpen] = useState(false);
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
 
   const { data: mediaItems = [], isLoading } = useQuery<Media[]>({
     queryKey: ["/api/admin/media"],
@@ -64,6 +77,41 @@ export default function AdminMedia() {
     },
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      const response = await apiRequest("POST", "/api/admin/media/bulk-delete", { ids });
+      return response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/media"] });
+      setSelectedIds(new Set());
+      setSelectMode(false);
+      toast({
+        title: t("Eliminato", "Deleted"),
+        description: t(
+          `${data.deleted} immagini eliminate con successo.`,
+          `${data.deleted} images deleted successfully.`
+        ),
+      });
+    },
+    onError: () => {
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile eliminare le immagini.", "Failed to delete images."),
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleSelection = useCallback((id: number) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }, []);
+
   const filteredMedia = useMemo(() => {
     let items = mediaItems;
 
@@ -85,6 +133,19 @@ export default function AdminMedia() {
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   }, [mediaItems, selectedCategory, searchQuery]);
+
+  const selectAll = useCallback(() => {
+    setSelectedIds(new Set(filteredMedia.map(m => m.id)));
+  }, [filteredMedia]);
+
+  const deselectAll = useCallback(() => {
+    setSelectedIds(new Set());
+  }, []);
+
+  const exitSelectMode = useCallback(() => {
+    setSelectMode(false);
+    setSelectedIds(new Set());
+  }, []);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -267,14 +328,61 @@ export default function AdminMedia() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setManageCategoriesOpen(true)}
-              data-testid="button-manage-folders"
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              {t("Gestisci cartelle", "Manage folders")}
-            </Button>
+            {!selectMode && (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setManageCategoriesOpen(true)}
+                  data-testid="button-manage-folders"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  {t("Gestisci cartelle", "Manage folders")}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectMode(true)}
+                  data-testid="button-select-mode"
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  {t("Seleziona", "Select")}
+                </Button>
+              </>
+            )}
+            {selectMode && (
+              <>
+                <Button
+                  variant="outline"
+                  onClick={selectedIds.size === filteredMedia.length ? deselectAll : selectAll}
+                  data-testid="button-select-all"
+                >
+                  <CheckSquare className="h-4 w-4 mr-2" />
+                  {selectedIds.size === filteredMedia.length
+                    ? t("Deseleziona tutto", "Deselect all")
+                    : t("Seleziona tutto", "Select all")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={selectedIds.size === 0 || bulkDeleteMutation.isPending}
+                  onClick={() => setConfirmDeleteOpen(true)}
+                  data-testid="button-delete-selected"
+                >
+                  {bulkDeleteMutation.isPending ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  {t(`Elimina (${selectedIds.size})`, `Delete (${selectedIds.size})`)}
+                </Button>
+                <Button
+                  variant="ghost"
+                  onClick={exitSelectMode}
+                  data-testid="button-exit-select"
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  {t("Annulla", "Cancel")}
+                </Button>
+              </>
+            )}
             <input
               type="file"
               ref={fileInputRef}
@@ -284,20 +392,22 @@ export default function AdminMedia() {
               className="hidden"
               data-testid="input-file-upload"
             />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              data-testid="button-upload"
-            >
-              {isUploading ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              ) : (
-                <Upload className="h-4 w-4 mr-2" />
-              )}
-              {isUploading 
-                ? t("Caricamento...", "Uploading...") 
-                : t("Carica immagine", "Upload image")}
-            </Button>
+            {!selectMode && (
+              <Button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isUploading}
+                data-testid="button-upload"
+              >
+                {isUploading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Upload className="h-4 w-4 mr-2" />
+                )}
+                {isUploading 
+                  ? t("Caricamento...", "Uploading...") 
+                  : t("Carica immagine", "Upload image")}
+              </Button>
+            )}
           </div>
         </div>
 
@@ -358,31 +468,58 @@ export default function AdminMedia() {
           </Card>
         ) : (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {filteredMedia.map((item) => (
-              <Card
-                key={item.id}
-                className="overflow-hidden cursor-pointer hover-elevate transition-all group"
-                onClick={() => openDetails(item)}
-                data-testid={`media-item-${item.id}`}
-              >
-                <div className="aspect-square bg-muted relative overflow-hidden">
-                  <img
-                    src={item.url}
-                    alt={language === "it" ? (item.altIt || item.filename) : (item.altEn || item.filename)}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    loading="lazy"
-                  />
-                </div>
-                <CardContent className="p-2">
-                  <p className="text-sm font-medium truncate" title={item.filename}>
-                    {language === "it" ? (item.altIt || item.filename) : (item.altEn || item.filename)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDate(item.createdAt)} · {formatSize(item.size)}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
+            {filteredMedia.map((item) => {
+              const isSelected = selectedIds.has(item.id);
+              return (
+                <Card
+                  key={item.id}
+                  className={`overflow-hidden cursor-pointer hover-elevate transition-all group ${selectMode && isSelected ? "ring-2 ring-primary" : ""}`}
+                  onClick={() => {
+                    if (selectMode) {
+                      toggleSelection(item.id);
+                    } else {
+                      openDetails(item);
+                    }
+                  }}
+                  data-testid={`media-item-${item.id}`}
+                >
+                  <div className="aspect-square bg-muted relative overflow-hidden">
+                    <img
+                      src={item.url}
+                      alt={language === "it" ? (item.altIt || item.filename) : (item.altEn || item.filename)}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                    />
+                    {selectMode && (
+                      <div className="absolute top-2 left-2 z-10">
+                        <div
+                          className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                            isSelected
+                              ? "bg-primary border-primary text-primary-foreground"
+                              : "bg-background/80 border-muted-foreground/50 backdrop-blur-sm"
+                          }`}
+                          data-testid={`checkbox-media-${item.id}`}
+                        >
+                          {isSelected && (
+                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M11.5 3.5L5.5 9.5L2.5 6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                            </svg>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-2">
+                    <p className="text-sm font-medium truncate" title={item.filename}>
+                      {language === "it" ? (item.altIt || item.filename) : (item.altEn || item.filename)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDate(item.createdAt)} · {formatSize(item.size)}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         )}
 
@@ -404,6 +541,35 @@ export default function AdminMedia() {
         open={manageCategoriesOpen}
         onOpenChange={setManageCategoriesOpen}
       />
+
+      <AlertDialog open={confirmDeleteOpen} onOpenChange={setConfirmDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              {t("Conferma eliminazione", "Confirm deletion")}
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {t(
+                `Stai per eliminare ${selectedIds.size} immagini. Questa azione non può essere annullata.`,
+                `You are about to delete ${selectedIds.size} images. This action cannot be undone.`
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">
+              {t("Annulla", "Cancel")}
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => bulkDeleteMutation.mutate(Array.from(selectedIds))}
+              data-testid="button-confirm-delete"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              {t("Elimina", "Delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AdminLayout>
   );
 }

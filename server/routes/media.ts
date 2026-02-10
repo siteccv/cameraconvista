@@ -140,6 +140,21 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
   }
 });
 
+adminMediaRouter.post("/bulk-delete", requireAuth, async (req, res) => {
+  try {
+    const { ids } = req.body as { ids?: number[] };
+    if (!Array.isArray(ids) || ids.length === 0) {
+      res.status(400).json({ error: "ids array is required" });
+      return;
+    }
+    const deleted = await storage.bulkDeleteMedia(ids);
+    res.json({ success: true, deleted });
+  } catch (error) {
+    console.error("Error bulk deleting media:", error);
+    res.status(500).json({ error: "Failed to bulk delete media" });
+  }
+});
+
 adminMediaRouter.delete("/:id", requireAuth, async (req, res) => {
   try {
     const deleted = await storage.deleteMedia(parseId(req.params.id));

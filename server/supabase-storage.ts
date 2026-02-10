@@ -281,6 +281,13 @@ export class SupabaseStorage implements IStorage {
     return !error;
   }
 
+  async bulkDeleteMedia(ids: number[]): Promise<number> {
+    if (ids.length === 0) return 0;
+    const { data, error } = await supabaseAdmin.from('media').delete().in('id', ids).select();
+    if (error) return 0;
+    return data?.length || 0;
+  }
+
   async getMediaCategories(): Promise<MediaCategory[]> {
     const { data } = await supabaseAdmin.from('media_categories').select('*').order('sort_order', { ascending: true });
     return toCamelCaseArray<MediaCategory>(data || []);
