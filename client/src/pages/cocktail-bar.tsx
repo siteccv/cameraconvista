@@ -20,11 +20,17 @@ export default function CocktailBar() {
 
   const heroBlock = getBlock("hero");
   const introBlock = getBlock("intro");
+  const gallery1Block = getBlock("gallery-1");
+  const gallery2Block = getBlock("gallery-2");
+  const gallery3Block = getBlock("gallery-3");
   const outroBlock = getBlock("outro");
 
   const heroDef = COCKTAIL_BAR_DEFAULTS[0];
   const introDef = COCKTAIL_BAR_DEFAULTS[1];
-  const outroDef = COCKTAIL_BAR_DEFAULTS[2];
+  const gallery1Def = COCKTAIL_BAR_DEFAULTS[2];
+  const gallery2Def = COCKTAIL_BAR_DEFAULTS[3];
+  const gallery3Def = COCKTAIL_BAR_DEFAULTS[4];
+  const outroDef = COCKTAIL_BAR_DEFAULTS[5];
 
   const cocktailsEndpoint = adminPreview ? "/api/admin/cocktails" : "/api/cocktails";
   const { data: cocktails, isLoading: cocktailsLoading } = useQuery<Cocktail[]>({
@@ -90,6 +96,27 @@ export default function CocktailBar() {
     });
   };
 
+  const makeGalleryImageSave = (block: typeof gallery1Block) => (data: {
+    src: string;
+    zoomDesktop: number;
+    zoomMobile: number;
+    offsetXDesktop: number;
+    offsetYDesktop: number;
+    offsetXMobile: number;
+    offsetYMobile: number;
+  }) => {
+    if (!block) return;
+    updateBlock(block.id, {
+      imageUrl: data.src,
+      imageScaleDesktop: data.zoomDesktop,
+      imageScaleMobile: data.zoomMobile,
+      imageOffsetX: data.offsetXDesktop,
+      imageOffsetY: data.offsetYDesktop,
+      imageOffsetXMobile: data.offsetXMobile,
+      imageOffsetYMobile: data.offsetYMobile,
+    });
+  };
+
   if (blocksLoading) {
     return (
       <PublicLayout>
@@ -150,6 +177,34 @@ export default function CocktailBar() {
           </div>
         </section>
       </div>
+
+      <section className="py-8 md:py-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {[
+              { block: gallery1Block, def: gallery1Def, idx: 1 },
+              { block: gallery2Block, def: gallery2Def, idx: 2 },
+              { block: gallery3Block, def: gallery3Def, idx: 3 },
+            ].map(({ block, def, idx }) => (
+              <div key={idx} className="aspect-[4/3] rounded-placeholder overflow-hidden" data-testid={`cocktail-gallery-image-${idx}`}>
+                <EditableImage
+                  src={block?.imageUrl || def.imageUrl || ""}
+                  zoomDesktop={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
+                  offsetXDesktop={block?.imageOffsetX || def.imageOffsetX || 0}
+                  offsetYDesktop={block?.imageOffsetY || def.imageOffsetY || 0}
+                  offsetXMobile={block?.imageOffsetXMobile || def.imageOffsetXMobile || 0}
+                  offsetYMobile={block?.imageOffsetYMobile || def.imageOffsetYMobile || 0}
+                  deviceView={deviceView}
+                  containerClassName="w-full h-full"
+                  className="w-full h-full object-cover"
+                  onSave={makeGalleryImageSave(block)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4 max-w-4xl">

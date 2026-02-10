@@ -22,10 +22,16 @@ export default function EventiPrivati() {
   const heroBlock = getBlock("hero");
   const introBlock = getBlock("intro");
   const sectionTitleBlock = getBlock("section-title");
+  const spaces1Block = getBlock("spaces-1");
+  const spaces2Block = getBlock("spaces-2");
+  const spaces3Block = getBlock("spaces-3");
 
   const heroDef = EVENTI_PRIVATI_DEFAULTS[0];
   const introDef = EVENTI_PRIVATI_DEFAULTS[1];
   const sectionTitleDef = EVENTI_PRIVATI_DEFAULTS[2];
+  const spaces1Def = EVENTI_PRIVATI_DEFAULTS[3];
+  const spaces2Def = EVENTI_PRIVATI_DEFAULTS[4];
+  const spaces3Def = EVENTI_PRIVATI_DEFAULTS[5];
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
@@ -75,6 +81,27 @@ export default function EventiPrivati() {
       titleEn: data.textEn,
       titleFontSize: data.fontSizeDesktop,
       titleFontSizeMobile: data.fontSizeMobile,
+    });
+  };
+
+  const makeSpacesImageSave = (block: typeof spaces1Block) => (data: {
+    src: string;
+    zoomDesktop: number;
+    zoomMobile: number;
+    offsetXDesktop: number;
+    offsetYDesktop: number;
+    offsetXMobile: number;
+    offsetYMobile: number;
+  }) => {
+    if (!block) return;
+    updateBlock(block.id, {
+      imageUrl: data.src,
+      imageScaleDesktop: data.zoomDesktop,
+      imageScaleMobile: data.zoomMobile,
+      imageOffsetX: data.offsetXDesktop,
+      imageOffsetY: data.offsetYDesktop,
+      imageOffsetXMobile: data.offsetXMobile,
+      imageOffsetYMobile: data.offsetYMobile,
     });
   };
 
@@ -235,27 +262,27 @@ export default function EventiPrivati() {
             {t("I nostri spazi", "Our Spaces")}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt={t("Sala principale", "Main hall") || "Main hall"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt={t("Sala privata", "Private room") || "Private room"}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="aspect-[4/3] rounded-placeholder overflow-hidden">
-              <img
-                src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt={t("Bar", "Bar") || "Bar"}
-                className="w-full h-full object-cover"
-              />
-            </div>
+            {[
+              { block: spaces1Block, def: spaces1Def, idx: 1 },
+              { block: spaces2Block, def: spaces2Def, idx: 2 },
+              { block: spaces3Block, def: spaces3Def, idx: 3 },
+            ].map(({ block, def, idx }) => (
+              <div key={idx} className="aspect-[4/3] rounded-placeholder overflow-hidden" data-testid={`spaces-image-${idx}`}>
+                <EditableImage
+                  src={block?.imageUrl || def.imageUrl || ""}
+                  zoomDesktop={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
+                  offsetXDesktop={block?.imageOffsetX || def.imageOffsetX || 0}
+                  offsetYDesktop={block?.imageOffsetY || def.imageOffsetY || 0}
+                  offsetXMobile={block?.imageOffsetXMobile || def.imageOffsetXMobile || 0}
+                  offsetYMobile={block?.imageOffsetYMobile || def.imageOffsetYMobile || 0}
+                  deviceView={deviceView}
+                  containerClassName="w-full h-full"
+                  className="w-full h-full object-cover"
+                  onSave={makeSpacesImageSave(block)}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </section>
