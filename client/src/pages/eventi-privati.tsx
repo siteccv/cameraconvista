@@ -22,16 +22,24 @@ export default function EventiPrivati() {
   const heroBlock = getBlock("hero");
   const introBlock = getBlock("intro");
   const sectionTitleBlock = getBlock("section-title");
+  const pkg1Block = getBlock("package-1");
+  const pkg2Block = getBlock("package-2");
+  const pkg3Block = getBlock("package-3");
+  const pkg4Block = getBlock("package-4");
   const spaces1Block = getBlock("spaces-1");
   const spaces2Block = getBlock("spaces-2");
   const spaces3Block = getBlock("spaces-3");
 
-  const heroDef = EVENTI_PRIVATI_DEFAULTS[0];
-  const introDef = EVENTI_PRIVATI_DEFAULTS[1];
-  const sectionTitleDef = EVENTI_PRIVATI_DEFAULTS[2];
-  const spaces1Def = EVENTI_PRIVATI_DEFAULTS[3];
-  const spaces2Def = EVENTI_PRIVATI_DEFAULTS[4];
-  const spaces3Def = EVENTI_PRIVATI_DEFAULTS[5];
+  const heroDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "hero")!;
+  const introDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "intro")!;
+  const sectionTitleDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "section-title")!;
+  const pkg1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-1")!;
+  const pkg2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-2")!;
+  const pkg3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-3")!;
+  const pkg4Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-4")!;
+  const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-1")!;
+  const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-2")!;
+  const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-3")!;
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
@@ -105,35 +113,31 @@ export default function EventiPrivati() {
     });
   };
 
-  const packages = [
-    {
-      icon: Users,
-      titleIt: "Aperitivo Esclusivo",
-      titleEn: "Exclusive Aperitivo",
-      descriptionIt: "Cocktail personalizzati e finger food selezionati per i tuoi ospiti. Ideale per 20-50 persone.",
-      descriptionEn: "Personalized cocktails and selected finger food for your guests. Ideal for 20-50 people.",
-    },
-    {
-      icon: Utensils,
-      titleIt: "Cena Privata",
-      titleEn: "Private Dinner",
-      descriptionIt: "Menu degustazione con abbinamento vini in sala riservata. Ideale per 10-30 persone.",
-      descriptionEn: "Tasting menu with wine pairing in a private room. Ideal for 10-30 people.",
-    },
-    {
-      icon: Music,
-      titleIt: "Party & Celebrazioni",
-      titleEn: "Parties & Celebrations",
-      descriptionIt: "Location completa con DJ, cocktail bar dedicato e catering. Ideale per 50-100 persone.",
-      descriptionEn: "Complete venue with DJ, dedicated cocktail bar and catering. Ideal for 50-100 people.",
-    },
-    {
-      icon: Star,
-      titleIt: "Experience Premium",
-      titleEn: "Premium Experience",
-      descriptionIt: "Pacchetto su misura con mixology class e menu personalizzato. Per gruppi esclusivi.",
-      descriptionEn: "Tailored package with mixology class and personalized menu. For exclusive groups.",
-    },
+  const makePackageTitleSave = (block: ReturnType<typeof getBlock>) => (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!block) return;
+    updateBlock(block.id, {
+      titleIt: data.textIt,
+      titleEn: data.textEn,
+      titleFontSize: data.fontSizeDesktop,
+      titleFontSizeMobile: data.fontSizeMobile,
+    });
+  };
+
+  const makePackageBodySave = (block: ReturnType<typeof getBlock>) => (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+    if (!block) return;
+    updateBlock(block.id, {
+      bodyIt: data.textIt,
+      bodyEn: data.textEn,
+      bodyFontSize: data.fontSizeDesktop,
+      bodyFontSizeMobile: data.fontSizeMobile,
+    });
+  };
+
+  const packageItems = [
+    { icon: Users, block: pkg1Block, def: pkg1Def },
+    { icon: Utensils, block: pkg2Block, def: pkg2Def },
+    { icon: Music, block: pkg3Block, def: pkg3Def },
+    { icon: Star, block: pkg4Block, def: pkg4Def },
   ];
 
   if (blocksLoading) {
@@ -213,7 +217,7 @@ export default function EventiPrivati() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {packages.map((pkg, index) => (
+            {packageItems.map((pkg, index) => (
               <Card key={index} className="hover-elevate" data-testid={`card-package-${index}`}>
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
@@ -221,10 +225,27 @@ export default function EventiPrivati() {
                       <pkg.icon className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-display text-xl mb-2">{t(pkg.titleIt, pkg.titleEn)}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {t(pkg.descriptionIt, pkg.descriptionEn)}
-                      </p>
+                      <EditableText
+                        textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
+                        textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
+                        fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
+                        fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
+                        as="h3"
+                        className="font-display mb-2"
+                        applyFontSize
+                        onSave={makePackageTitleSave(pkg.block)}
+                      />
+                      <EditableText
+                        textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
+                        textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
+                        fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
+                        fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
+                        as="p"
+                        className="text-muted-foreground"
+                        multiline
+                        applyFontSize
+                        onSave={makePackageBodySave(pkg.block)}
+                      />
                     </div>
                   </div>
                 </CardContent>
