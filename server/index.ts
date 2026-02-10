@@ -27,6 +27,15 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+app.use((req, res, next) => {
+  if (req.path !== "/" && req.path.endsWith("/") && !req.path.startsWith("/api")) {
+    const cleanPath = req.path.replace(/\/+$/, "");
+    const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    return res.redirect(301, cleanPath + query);
+  }
+  next();
+});
+
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {
     hour: "numeric",
