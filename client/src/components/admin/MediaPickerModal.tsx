@@ -13,13 +13,23 @@ interface MediaPickerModalProps {
   open: boolean;
   onClose: () => void;
   onSelect: (media: Media) => void;
+  multiple?: false;
 }
 
-export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalProps) {
+interface MediaPickerMultipleProps {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (media: Media[]) => void;
+  multiple: true;
+}
+
+export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMultipleProps) {
+  const { open, onClose, multiple } = props;
   const { t, language } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const [selectedMultiple, setSelectedMultiple] = useState<Map<number, Media>>(new Map());
 
   const { data: mediaList = [], isLoading: mediaLoading } = useQuery<Media[]>({
     queryKey: ["/api/admin/media"],
@@ -46,31 +56,82 @@ export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalPr
     return matchesSearch && matchesCategory && isImage;
   });
 
-  const handleSelect = () => {
-    if (selectedMedia) {
-      onSelect(selectedMedia);
+  const handleConfirm = () => {
+    if (multiple) {
+      const selected = Array.from(selectedMultiple.values());
+      if (selected.length > 0) {
+        (props as MediaPickerMultipleProps).onSelect(selected);
+        setSelectedMultiple(new Map());
+        onClose();
+      }
+    } else {
+      if (selectedMedia) {
+        (props as MediaPickerModalProps).onSelect(selectedMedia);
+        setSelectedMedia(null);
+        onClose();
+      }
+    }
+  };
+
+  const handleMediaClick = (media: Media) => {
+    if (multiple) {
+      setSelectedMultiple(prev => {
+        const next = new Map(prev);
+        if (next.has(media.id)) {
+          next.delete(media.id);
+        } else {
+          next.set(media.id, media);
+        }
+        return next;
+      });
+    } else {
+      setSelectedMedia(media);
+    }
+  };
+
+  const handleDoubleClick = (media: Media) => {
+    if (!multiple) {
+      (props as MediaPickerModalProps).onSelect(media);
       setSelectedMedia(null);
       onClose();
     }
   };
 
-  const handleMediaClick = (media: Media) => {
-    setSelectedMedia(media);
+  const isSelected = (media: Media) => {
+    if (multiple) return selectedMultiple.has(media.id);
+    return selectedMedia?.id === media.id;
   };
 
-  const handleDoubleClick = (media: Media) => {
-    onSelect(media);
-    setSelectedMedia(null);
-    onClose();
+  const selectionCount = multiple ? selectedMultiple.size : (selectedMedia ? 1 : 0);
+
+  const getFooterText = () => {
+    if (multiple) {
+      if (selectedMultiple.size === 0) {
+        return t("Clicca per selezionare una o più immagini", "Click to select one or more images");
+      }
+      return t(`${selectedMultiple.size} immagini selezionate`, `${selectedMultiple.size} images selected`);
+    }
+    if (selectedMedia) {
+      return t(`Selezionato: ${selectedMedia.filename}`, `Selected: ${selectedMedia.filename}`);
+    }
+    return t("Clicca per selezionare, doppio click per confermare", "Click to select, double click to confirm");
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) {
+        setSelectedMedia(null);
+        setSelectedMultiple(new Map());
+        onClose();
+      }
+    }}>
       <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="h-5 w-5" />
-            {t("Seleziona Immagine", "Select Image")}
+            {multiple
+              ? t("Seleziona Immagini", "Select Images")
+              : t("Seleziona Immagine", "Select Image")}
           </DialogTitle>
         </DialogHeader>
 
@@ -122,7 +183,7 @@ export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalPr
                       className={`
                         relative aspect-square rounded-lg overflow-hidden bg-muted
                         transition-all hover:ring-2 hover:ring-primary/50
-                        ${selectedMedia?.id === media.id ? "ring-2 ring-primary" : ""}
+                        ${isSelected(media) ? "ring-2 ring-primary" : ""}
                       `}
                       data-testid={`media-item-${media.id}`}
                     >
@@ -132,7 +193,7 @@ export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalPr
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
-                      {selectedMedia?.id === media.id && (
+                      {isSelected(media) && (
                         <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                           <div className="bg-primary text-primary-foreground rounded-full p-1">
                             <Check className="h-4 w-4" />
@@ -149,16 +210,20 @@ export function MediaPickerModal({ open, onClose, onSelect }: MediaPickerModalPr
 
         <div className="flex justify-between items-center pt-4 border-t mt-4">
           <p className="text-sm text-muted-foreground">
-            {selectedMedia
-              ? t(`Selezionato: ${selectedMedia.filename}`, `Selected: ${selectedMedia.filename}`)
-              : t("Clicca per selezionare, doppio click per confermare", "Click to select, double click to confirm")}
+            {getFooterText()}
           </p>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={() => {
+              setSelectedMedia(null);
+              setSelectedMultiple(new Map());
+              onClose();
+            }}>
               {t("Annulla", "Cancel")}
             </Button>
-            <Button onClick={handleSelect} disabled={!selectedMedia} data-testid="button-confirm-media">
-              {t("Seleziona", "Select")}
+            <Button onClick={handleConfirm} disabled={selectionCount === 0} data-testid="button-confirm-media">
+              {multiple && selectionCount > 0
+                ? t(`Aggiungi (${selectionCount})`, `Add (${selectionCount})`)
+                : t("Seleziona", "Select")}
             </Button>
           </div>
         </div>

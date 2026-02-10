@@ -48,13 +48,6 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
       const response = await apiRequest("POST", `/api/admin/galleries/${gallery.id}/images`, data);
       return response.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries", gallery.id, "images"] });
-      toast({ title: t("Aggiunta", "Added"), description: t("Immagine aggiunta all'album.", "Image added to album.") });
-    },
-    onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiungere l'immagine.", "Failed to add image."), variant: "destructive" });
-    },
   });
 
   const updateImageMutation = useMutation({
@@ -101,19 +94,37 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
     },
   });
 
-  const handleMediaSelect = (media: Media) => {
-    // Calculate next sortOrder based on current max
-    const maxSortOrder = orderedImages.length > 0 
+  const handleMediaSelect = async (mediaItems: Media[]) => {
+    setShowMediaPicker(false);
+    let nextSortOrder = orderedImages.length > 0 
       ? Math.max(...orderedImages.map(img => img.sortOrder)) + 1 
       : 0;
     
-    addImageMutation.mutate({
-      imageUrl: media.url,
-      altIt: media.altIt || null,
-      altEn: media.altEn || null,
-      sortOrder: maxSortOrder,
-    });
-    setShowMediaPicker(false);
+    let addedCount = 0;
+    for (const media of mediaItems) {
+      try {
+        await addImageMutation.mutateAsync({
+          imageUrl: media.url,
+          altIt: media.altIt || null,
+          altEn: media.altEn || null,
+          sortOrder: nextSortOrder,
+        });
+        nextSortOrder++;
+        addedCount++;
+      } catch {
+        toast({ title: t("Errore", "Error"), description: t(`Impossibile aggiungere "${media.filename}".`, `Failed to add "${media.filename}".`), variant: "destructive" });
+      }
+    }
+    
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries", gallery.id, "images"] });
+    if (addedCount > 0) {
+      toast({
+        title: t("Aggiunta", "Added"),
+        description: addedCount > 1
+          ? t(`${addedCount} immagini aggiunte all'album.`, `${addedCount} images added to album.`)
+          : t("Immagine aggiunta all'album.", "Image added to album."),
+      });
+    }
   };
 
   const handleDeleteImage = (image: GalleryImage) => {
@@ -284,6 +295,7 @@ export function AlbumImagesModal({ open, onClose, gallery }: AlbumImagesModalPro
         open={showMediaPicker}
         onClose={() => setShowMediaPicker(false)}
         onSelect={handleMediaSelect}
+        multiple
       />
 
       {editingImage && (
