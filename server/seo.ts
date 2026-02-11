@@ -17,6 +17,8 @@ const SLUG_TO_PATH: Record<string, string> = {
   "eventi-privati": "/eventi-privati",
   galleria: "/galleria",
   "dove-siamo": "/dove-siamo",
+  privacy: "/privacy",
+  cookie: "/cookie",
 };
 
 const PATH_TO_SLUG: Record<string, string> = {};
@@ -33,6 +35,8 @@ const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
   "eventi-privati": "Eventi Privati - Camera con Vista | Private Events Bologna",
   galleria: "Galleria - Camera con Vista | Photo Gallery Bologna",
   "dove-siamo": "Dove Siamo - Camera con Vista | Bologna",
+  privacy: "Privacy Policy - Camera con Vista",
+  cookie: "Cookie Policy - Camera con Vista",
 };
 
 const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
@@ -44,6 +48,8 @@ const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
   "eventi-privati": "Private Events - Camera con Vista | Private Events Bologna",
   galleria: "Gallery - Camera con Vista | Photo Gallery Bologna",
   "dove-siamo": "Where We Are - Camera con Vista | Bologna",
+  privacy: "Privacy Policy - Camera con Vista",
+  cookie: "Cookie Policy - Camera con Vista",
 };
 
 const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
@@ -55,6 +61,8 @@ const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
   "eventi-privati": "Organizza il tuo evento privato da Camera con Vista a Bologna. Spazi esclusivi per cene private, aperitivi e celebrazioni.",
   galleria: "La galleria fotografica di Camera con Vista. Scopri l'atmosfera del nostro ristorante e cocktail bar a Bologna.",
   "dove-siamo": "Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.",
+  privacy: "Informativa sulla privacy di Camera con Vista. Come trattiamo i tuoi dati personali, basi giuridiche e diritti dell'interessato.",
+  cookie: "Cookie Policy di Camera con Vista. Dettagli sui cookie utilizzati, categorie e gestione del consenso.",
 };
 
 const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
@@ -66,6 +74,8 @@ const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
   "eventi-privati": "Organize your private event at Camera con Vista in Bologna. Exclusive spaces for private dinners, aperitifs and celebrations.",
   galleria: "The photo gallery of Camera con Vista. Discover the atmosphere of our restaurant and cocktail bar in Bologna.",
   "dove-siamo": "Find Camera con Vista in Bologna. Address, opening hours, phone and directions.",
+  privacy: "Privacy Policy of Camera con Vista. How we process your personal data, legal bases and your rights.",
+  cookie: "Cookie Policy of Camera con Vista. Details on cookies used, categories and consent management.",
 };
 
 interface SeoData {

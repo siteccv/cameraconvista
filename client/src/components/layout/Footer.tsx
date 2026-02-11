@@ -249,14 +249,28 @@ export function Footer() {
         </div>
 
         <div className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}>
-          <p className="text-center">© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
-          <div className="flex gap-4">
+          <div className="text-center md:text-left space-y-1">
+            <p>© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
+            <p>CAMERA CON VISTA S.A.S. di Matteo Bonetti Camera Roda &amp; C.</p>
+            <p>Via Santo Stefano 14/2A – 40125 Bologna (BO) | P.IVA / C.F.: 03488971205</p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4">
             <Link href={footer.legalLinks.privacyUrl} className="hover:text-background transition-colors">
               {language === "it" ? footer.legalLinks.privacyLabelIt : footer.legalLinks.privacyLabelEn}
             </Link>
             <Link href={footer.legalLinks.cookieUrl} className="hover:text-background transition-colors">
               {language === "it" ? footer.legalLinks.cookieLabelIt : footer.legalLinks.cookieLabelEn}
             </Link>
+            <button
+              onClick={() => {
+                localStorage.removeItem("ccv_cookie_consent");
+                window.dispatchEvent(new Event("ccv_consent_reset"));
+              }}
+              className="hover:text-background transition-colors"
+              data-testid="button-cookie-preferences-footer"
+            >
+              {t("Preferenze cookie", "Cookie preferences")}
+            </button>
           </div>
         </div>
       </div>

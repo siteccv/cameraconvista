@@ -32,6 +32,10 @@
 | **Canonical URL Redirect** | ✅ Completo | Middleware server-side 301 redirect per trailing slash e www enforcement in produzione |
 | **Image Loading Optimization** | ✅ Completo | DNS preconnect Supabase, loading eager/lazy, prefetch hover navigazione, cache headers produzione, preloader staggered |
 | **Eventi Privati** | ✅ Completo | Pagina con 4 service box editabili (package-1 to package-4), 3 immagini editabili "I nostri spazi", pulsante "Contattaci" con mailto:info@cameraconvista.it |
+| **Privacy Policy** | ✅ Completo | Pagina `/privacy` bilingue con dati titolare, dati trattati, finalità, base giuridica, conservazione, destinatari, diritti interessato, link a Cookie Policy |
+| **Cookie Policy** | ✅ Completo | Pagina `/cookie` bilingue con categorie cookie (essenziali, analytics, marketing), gestione consenso, opt-out terze parti, link a Privacy Policy |
+| **Consenso Cookie (GDPR)** | ✅ Completo | Banner con 3 opzioni (Accetta tutti / Solo essenziali / Preferenze granulari), GA e Meta Pixel caricati SOLO dopo consenso, link footer per riaprire preferenze |
+| **Dati Societari Footer** | ✅ Completo | Ragione sociale, sede legale, P.IVA/C.F. visibili nel footer di ogni pagina |
 
 ---
 

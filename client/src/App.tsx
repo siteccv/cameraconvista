@@ -16,6 +16,8 @@ import EventDetail from "@/pages/event-detail";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
 import DoveSiamo from "@/pages/dove-siamo";
+import PrivacyPolicy from "@/pages/privacy-policy";
+import CookiePolicy from "@/pages/cookie-policy";
 import AdminLogin from "@/pages/admin/login";
 import AdminSettings from "@/pages/admin/settings";
 import AdminSyncGoogle from "@/pages/admin/sync-google";
@@ -48,6 +50,8 @@ const PAGE_TITLES: Record<string, { it: string; en: string }> = {
   "eventi-privati": { it: "Eventi Privati - Camera con Vista | Bologna", en: "Private Events - Camera con Vista | Bologna" },
   galleria: { it: "Galleria - Camera con Vista | Gallery Bologna", en: "Gallery - Camera con Vista | Bologna" },
   "dove-siamo": { it: "Dove Siamo - Camera con Vista | Bologna", en: "Where We Are - Camera con Vista | Bologna" },
+  privacy: { it: "Privacy Policy - Camera con Vista", en: "Privacy Policy - Camera con Vista" },
+  cookie: { it: "Cookie Policy - Camera con Vista", en: "Cookie Policy - Camera con Vista" },
 };
 
 function PublicPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
@@ -79,6 +83,18 @@ function PublicPageRoute({ component: Component, slug }: { component: React.Comp
   return <Component />;
 }
 
+function StaticPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
+  const { language } = useLanguage();
+  const titles = PAGE_TITLES[slug];
+
+  useEffect(() => {
+    if (!titles) return;
+    document.title = titles[language === "en" ? "en" : "it"];
+  }, [slug, language, titles]);
+
+  return <Component />;
+}
+
 function AdminLoginRoute() {
   const { isAuthenticated } = useAdmin();
   
@@ -104,6 +120,8 @@ function Router() {
       <Route path="/eventi-privati">{() => <PublicPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
       <Route path="/galleria">{() => <PublicPageRoute component={Galleria} slug="galleria" />}</Route>
       <Route path="/dove-siamo">{() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}</Route>
+      <Route path="/privacy">{() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}</Route>
+      <Route path="/cookie">{() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}</Route>
       <Route path="/contatti">{() => { window.location.replace("/dove-siamo"); return null; }}</Route>
       <Route path="/admina/login" component={AdminLoginRoute} />
       <Route path="/admina/settings">
