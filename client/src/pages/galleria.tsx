@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
@@ -48,6 +48,22 @@ export default function Galleria() {
   const visibleGalleries = galleries
     .filter(g => g.isVisible)
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+  useEffect(() => {
+    if (visibleGalleries.length === 0 || selectedGallery) return;
+    const params = new URLSearchParams(window.location.search);
+    const albumParam = params.get("album");
+    if (!albumParam) return;
+    const match = visibleGalleries.find(g => {
+      const slugIt = (g.titleIt || "").toLowerCase().replace(/\s+/g, "-");
+      const slugEn = (g.titleEn || "").toLowerCase().replace(/\s+/g, "-");
+      return slugIt === albumParam || slugEn === albumParam || String(g.id) === albumParam;
+    });
+    if (match) {
+      setSelectedGallery(match);
+      setViewerOpen(true);
+    }
+  }, [visibleGalleries, selectedGallery]);
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
