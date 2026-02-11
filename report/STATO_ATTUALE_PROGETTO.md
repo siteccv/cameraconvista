@@ -25,7 +25,7 @@
 | **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
 | **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
 | **Scroll to Top Navigation** | ✅ Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
-| **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI, hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
+| **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI (dual-mode: `OPENAI_API_KEY` diretto per Render + AI Integrations proxy per Replit), hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
 | **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
 | **Google Sheets Sync** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
 | **SEO System** | ✅ Completo | Middleware server-side, robots.txt, sitemap.xml dinamico, JSON-LD, Open Graph, hreflang, admin `/admina/seo` |
@@ -128,6 +128,8 @@
 - `client/src/pages/eventi-privati.tsx` - Eventi privati con 4 service box editabili e pulsante contattaci (mailto)
 - `client/src/pages/galleria.tsx` - Galleria album-based con copertine e GallerySlideViewer
 - `client/src/pages/dove-siamo.tsx` - Dove Siamo (ex Contatti) con mappa e indicazioni stradali
+- `client/src/pages/privacy-policy.tsx` - Privacy Policy bilingue IT/EN
+- `client/src/pages/cookie-policy.tsx` - Cookie Policy bilingue IT/EN
 
 ### Frontend Admin
 - `client/src/pages/admin/login.tsx` - Login admin
@@ -172,7 +174,9 @@
 ### Layout
 - `client/src/components/layout/Header.tsx` - Header responsive con prefetch dati pagina su hover navigazione
 - `client/src/components/layout/Footer.tsx` - Footer responsive con layout stacked mobile
-- `client/src/components/layout/PublicLayout.tsx` - Layout pubblico con Header, Footer, CookieConsent
+- `client/src/components/layout/PublicLayout.tsx` - Layout pubblico con Header, Footer, CookieConsent, ConsentTracking
+- `client/src/components/CookieConsent.tsx` - Banner consenso cookie GDPR con preferenze granulari
+- `client/src/components/ConsentTracking.tsx` - Caricamento condizionale GA/Meta Pixel post-consenso
 - `client/src/components/layout/AdminLayout.tsx` - Layout admin con sidebar
 
 ### Utilities
@@ -195,7 +199,7 @@
 - **Database:** PostgreSQL con Drizzle ORM (locale) / Supabase (produzione)
 - **Autenticazione:** Sessioni httpOnly cookies, bcrypt per hash password
 - **Storage:** Google Cloud Storage via Object Storage per media
-- **AI:** OpenAI gpt-4o-mini per traduzioni IT→EN
+- **AI:** OpenAI per traduzioni IT→EN (dual-mode: `OPENAI_API_KEY` diretto con gpt-4o-mini per Render, AI Integrations proxy con gpt-5-nano per Replit)
 - **Deployment:** Render (hosting), GitHub (repository), Supabase (database produzione)
 
 ### Integrazioni Attive
@@ -229,6 +233,17 @@
 ---
 
 ## PROGRESSI RECENTI
+
+### Privacy, Cookie Policy e Consenso GDPR (11 Feb 2026)
+- **Privacy Policy** (`/privacy`): Pagina bilingue IT/EN con dati titolare, dati trattati, finalità, base giuridica, conservazione, destinatari, diritti interessato
+- **Cookie Policy** (`/cookie`): Pagina bilingue IT/EN con categorie cookie (essenziali, analytics, marketing), gestione consenso, opt-out terze parti
+- **Consenso Cookie GDPR**: Banner con 3 opzioni (Accetta tutti / Solo essenziali / Preferenze granulari con toggle analytics/marketing)
+- **Consent-Gated Tracking**: Google Analytics e Meta Pixel caricati SOLO dopo consenso esplicito (`ConsentTracking.tsx`)
+- **Dati Societari Footer**: Ragione sociale, sede legale, P.IVA/C.F. in footer responsive (2 righe desktop, 3 righe mobile)
+- **Footer links**: Privacy Policy, Cookie Policy, Preferenze cookie (riapre banner consenso)
+- **SEO**: Meta tag e entry sitemap per pagine privacy e cookie
+- **Fix traduzione automatica**: Endpoint dual-mode per funzionare sia su Replit (AI Integrations proxy) che su Render (`OPENAI_API_KEY` diretto)
+- **Variabile ambiente Render**: Aggiungere `OPENAI_API_KEY` nelle env vars del progetto Render per abilitare traduzione in produzione
 
 ### Canonical URL Redirect e Performance (10-11 Feb 2026)
 - **Canonical redirect middleware**: Trailing slash removal + www enforcement in produzione con 301 permanent redirect
@@ -309,10 +324,13 @@
 - API admin e pubbliche per CRUD album e immagini
 - GallerySlideViewer per visualizzazione pubblica con swipe touch e navigazione frecce
 
-### Traduzione Automatica IT→EN (3 Feb 2026)
-- Endpoint `/api/admin/translate` con OpenAI (gpt-4o-mini)
+### Traduzione Automatica IT→EN (3 Feb 2026, fix 11 Feb 2026)
+- Endpoint `/api/admin/translate` con OpenAI dual-mode:
+  - **Render (produzione):** `OPENAI_API_KEY` diretto → modello `gpt-4o-mini`, `temperature: 0.3`, `max_tokens: 1000`
+  - **Replit (sviluppo):** AI Integrations proxy → modello `gpt-5-nano`, `max_completion_tokens: 1000`
 - Hook `useTranslation` e componente `TranslateButton` riutilizzabili
 - Integrazione in tutti i form bilingui admin
+- **Fix 11 Feb:** Risolto errore traduzione su deploy Render (proxy Replit AI non raggiungibile da server esterni)
 
 ---
 
@@ -320,6 +338,7 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Traduzione automatica non funziona su deploy Render | Aggiunto dual-mode: `OPENAI_API_KEY` diretto per Render + AI Integrations proxy per Replit | 11 Feb 2026 |
 | QR code con trailing slash `/lista-vini/` non funziona | Middleware canonical redirect 301 trailing slash → senza slash | 11 Feb 2026 |
 | URL non canoniche (www/non-www) | Middleware www enforcement 301 in produzione | 11 Feb 2026 |
 | React 18 non supporta `fetchPriority` JSX prop | Rimosso fetchPriority, mantenuto solo `loading="eager"` per hero images | 10 Feb 2026 |
