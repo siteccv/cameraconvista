@@ -249,10 +249,16 @@ export function Footer() {
         </div>
 
         <div className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}>
-          <div className="text-center md:text-left space-y-1">
-            <p>© {new Date().getFullYear()} Camera con Vista. {t("Tutti i diritti riservati.", "All rights reserved.")}</p>
-            <p>CAMERA CON VISTA S.A.S. di Matteo Bonetti Camera Roda &amp; C.</p>
-            <p>Via Santo Stefano 14/2A – 40125 Bologna (BO) | P.IVA / C.F.: 03488971205</p>
+          <div className="text-center text-sm md:text-xs opacity-80 leading-relaxed">
+            <div className="md:hidden">
+              <p>© {new Date().getFullYear()} Camera con Vista bistrot</p>
+              <p>CAMERA CON VISTA S.A.S.</p>
+              <p>Via Santo Stefano 14/2A – Bologna | P.IVA 03488971205</p>
+            </div>
+            <div className="hidden md:block">
+              <p>© {new Date().getFullYear()} Camera con Vista bistrot — CAMERA CON VISTA S.A.S.</p>
+              <p>Via Santo Stefano 14/2A – 40125 Bologna (BO) | P.IVA 03488971205</p>
+            </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href={footer.legalLinks.privacyUrl} className="hover:text-background transition-colors">
