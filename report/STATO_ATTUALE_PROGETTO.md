@@ -338,6 +338,8 @@
 
 | Problema | Soluzione | Data |
 |----------|-----------|------|
+| Orario evento: selezionare 20:00 salva 19:00 | Sostituito `toISOString()` (UTC) con formatter fuso orario locale nel campo datetime-local | 11 Feb 2026 |
+| Modale modifica evento mostra orario vecchio | Fresh copy dell'evento al click + formatter locale per datetime input | 11 Feb 2026 |
 | Traduzione automatica non funziona su deploy Render | Aggiunto dual-mode: `OPENAI_API_KEY` diretto per Render + AI Integrations proxy per Replit | 11 Feb 2026 |
 | QR code con trailing slash `/lista-vini/` non funziona | Middleware canonical redirect 301 trailing slash → senza slash | 11 Feb 2026 |
 | URL non canoniche (www/non-www) | Middleware www enforcement 301 in produzione | 11 Feb 2026 |
