@@ -200,13 +200,12 @@ ${context ? `Context: ${context}` : ""}
 Respond with ONLY the English translation, nothing else.`;
 
     const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-nano",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: text }
       ],
-      temperature: 0.3,
-      max_tokens: 1000,
+      max_completion_tokens: 1000,
     });
 
     const translation = response.choices[0]?.message?.content?.trim() || "";
@@ -217,8 +216,9 @@ Respond with ONLY the English translation, nothing else.`;
     }
 
     res.json({ translation });
-  } catch (error) {
-    console.error("Translation error:", error);
-    res.status(500).json({ error: "Translation failed" });
+  } catch (error: any) {
+    console.error("Translation error:", error?.message || error);
+    const detail = error?.message || "Unknown error";
+    res.status(500).json({ error: `Translation failed: ${detail}` });
   }
 });
