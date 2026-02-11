@@ -62,6 +62,11 @@ export default function Galleria() {
     if (match) {
       setSelectedGallery(match);
       setViewerOpen(true);
+      params.delete("album");
+      const newUrl = params.toString()
+        ? `${window.location.pathname}?${params.toString()}`
+        : window.location.pathname;
+      window.history.replaceState({}, "", newUrl);
     }
   }, [visibleGalleries, selectedGallery]);
 
