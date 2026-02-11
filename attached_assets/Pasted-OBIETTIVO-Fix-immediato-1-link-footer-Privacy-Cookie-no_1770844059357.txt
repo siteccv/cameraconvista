@@ -1,0 +1,42 @@
+OBIETTIVO
+Fix immediato: (1) link footer Privacy/Cookie non devono andare in 404; (2) click “Preferenze” nel banner cookie deve aprire il pannello preferenze. Nessun cambio grafico, solo wiring/logica.
+
+EVIDENZA
+- Su produzione, aprendo https://www.cameraconvista.it/privacy ottengo 404.
+- Stesso per Cookie Policy (link footer).
+- Nel banner cookie, click su “Preferenze” non fa nulla (non apre pannello).
+
+CONTESTO CODICE (DA REPORT)
+- Route attese: /privacy e /cookie
+- File attesi: client/src/pages/privacy-policy.tsx e client/src/pages/cookie-policy.tsx
+- Router: App.tsx dovrebbe registrare le route
+- Footer: link a /privacy e /cookie
+- Cookie banner: client/src/components/CookieConsent.tsx “Preferenze” dovrebbe aprire un pannello/toggle
+
+TASK 1 — ROUTING: ELIMINARE IL 404 SU /privacy e /cookie
+1) Controlla in client/src/App.tsx che le route /privacy e /cookie siano davvero registrate e raggiungibili (component montati correttamente).
+2) Controlla che il router (wouter o equivalente) non abbia basepath o lang-prefix che rende invalidi /privacy e /cookie.
+3) Controlla Footer.tsx: gli href devono combaciare ESATTAMENTE con le route registrate (niente /privacy-policy o /cookie-policy se non esistono).
+4) Controlla il 404 page: assicurati che non stia intercettando /privacy e /cookie per errore (ordine route / fallback).
+5) Se il server/prerender gestisce path-side: assicurati che Express serva la SPA fallback per /privacy e /cookie (stesso comportamento delle altre pagine) e che server/seo.ts abbia le entry coerenti (già indicate nel report).
+
+OUTPUT atteso:
+- Aprendo /privacy e /cookie (incognito) vedo le pagine policy, non 404.
+
+TASK 2 — BANNER: “PREFERENZE” DEVE APRIRE IL PANNELLO
+1) In client/src/components/CookieConsent.tsx verifica che il bottone “Preferenze” abbia onClick che:
+   - setta uno stato locale (es. setIsPrefsOpen(true)) oppure apre un modal/pannello.
+2) Verifica che il pannello preferenze sia effettivamente renderizzato quando lo stato è true (non dietro condizioni errate).
+3) Verifica che il tasto “X” e/o “Solo essenziali / Accetta tutti” chiudano correttamente.
+4) NON cambiare testi/UI: solo far funzionare l’apertura pannello.
+
+TEST OBBLIGATORI (REPORT BREVE)
+- Test 1: /privacy apre pagina corretta
+- Test 2: /cookie apre pagina corretta
+- Test 3: Click “Preferenze” apre pannello con toggle
+- Test 4: I link footer puntano alle route corrette
+- Scrivi un mini report in report/REPORT_PRIVACY_COOKIE_CONSENT_FIX.md con: file toccati + cosa era rotto + come verificato.
+
+VINCOLI
+- Niente refactor estetici o nuove dipendenze.
+- Niente duplicazioni: una sola pagina privacy e una sola pagina cookie, una sola logica banner.
