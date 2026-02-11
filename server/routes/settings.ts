@@ -175,16 +175,21 @@ adminSettingsRouter.post("/translate", requireAuth, async (req, res) => {
 
     const { text, context } = parsed.data;
     
-    const apiKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
-    const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+    const directKey = process.env.OPENAI_API_KEY;
+    const integrationKey = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    const integrationBaseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
+    
+    const apiKey = directKey || integrationKey;
+    const baseURL = directKey ? undefined : integrationBaseURL;
+    const model = directKey ? "gpt-4o-mini" : "gpt-5-nano";
     
     if (!apiKey) {
-      res.status(500).json({ error: "OpenAI API key not configured" });
+      res.status(500).json({ error: "OpenAI API key not configured. Set OPENAI_API_KEY or AI_INTEGRATIONS_OPENAI_API_KEY." });
       return;
     }
 
     const OpenAI = (await import("openai")).default;
-    const openai = new OpenAI({ apiKey, baseURL });
+    const openai = new OpenAI({ apiKey, ...(baseURL ? { baseURL } : {}) });
 
     const systemPrompt = `You are a professional translator specializing in hospitality and fine dining.
 
@@ -199,13 +204,14 @@ ${context ? `Context: ${context}` : ""}
 
 Respond with ONLY the English translation, nothing else.`;
 
+    const useDirectApi = !!directKey;
     const response = await openai.chat.completions.create({
-      model: "gpt-5-nano",
+      model,
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: text }
       ],
-      max_completion_tokens: 1000,
+      ...(useDirectApi ? { max_tokens: 1000, temperature: 0.3 } : { max_completion_tokens: 1000 }),
     });
 
     const translation = response.choices[0]?.message?.content?.trim() || "";
