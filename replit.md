@@ -2,13 +2,13 @@
 
 ## Overview
 
-This is a bilingual (Italian/English) restaurant and cocktail bar website for "Camera con Vista" in Bologna. The project features a public-facing website with menu, wine list, cocktail bar, events, gallery, and contact pages, plus an admin panel for content management with WYSIWYG click-to-edit capabilities.
-
-The stack is **Vite + React + Express + Drizzle ORM** with PostgreSQL as the database. The architecture supports draft/publish workflows, media library management, and Google Sheets sync for menu items.
+This project is a bilingual (Italian/English) website for "Camera con Vista," a restaurant and cocktail bar in Bologna. It features a public-facing site with menu, wine list, cocktail bar, events, gallery, and contact pages, complemented by an admin panel for content management. The admin panel includes WYSIWYG click-to-edit functionalities, a draft/publish workflow, media library management, and Google Sheets synchronization for menu items. The goal is to provide a comprehensive, easily manageable online presence for the venue.
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+
+**Agent mode recommendation**: Before every action, always recommend the optimal Agent mode (Fast, or Autonomous: Low / Medium / High / Max) to save credits. Suggest the lowest effective level for the task at hand.
 
 **Automatic documentation update**: Always update `report/STATO_ATTUALE_PROGETTO.md` with the current project state after implementing new features or fixes.
 
@@ -21,170 +21,52 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
-- **Framework**: React 18 with TypeScript
-- **Routing**: Wouter (lightweight router)
-- **State Management**: TanStack React Query for server state
-- **UI Components**: shadcn/ui built on Radix primitives
-- **Styling**: Tailwind CSS with CSS variables for theming
-- **Build Tool**: Vite with HMR support
+### Core Technologies
+The application is built using a modern full-stack approach:
+-   **Frontend**: React 18 with TypeScript, Wouter for routing, TanStack React Query for server state, shadcn/ui (Radix primitives) for UI, and Tailwind CSS for styling. Vite is used for development and bundling.
+-   **Backend**: Node.js with Express and TypeScript (ESM modules). It exposes RESTful API endpoints and handles server-side session-based authentication with httpOnly cookies for the admin panel.
+-   **Database**: PostgreSQL managed by Drizzle ORM. Drizzle Kit is used for migrations. A storage abstraction layer allows switching to Supabase as a backend if `SUPABASE_URL` is configured.
 
-### Backend Architecture
-- **Runtime**: Node.js with Express
-- **Language**: TypeScript (ESM modules)
-- **API Pattern**: RESTful endpoints under `/api/*`
-- **Authentication**: Server-side session-based admin auth with httpOnly cookies
-  - Admin URL: `/admina` (secret path)
-  - Default password: 1909 (stored in site_settings, changeable via settings page)
-  - Session cookies: httpOnly, 24-hour expiry
-  - Protected routes require valid session cookie
+### Key Features and Design Patterns
 
-### Data Layer
-- **ORM**: Drizzle ORM with PostgreSQL dialect
-- **Schema Location**: `shared/schema.ts` (shared between client/server)
-- **Migrations**: Drizzle Kit (`drizzle-kit push`)
-- **Storage Abstraction**: `server/storage.ts` provides interface for all data operations
-- **Supabase Backend**: When `SUPABASE_URL` is set, uses `server/supabase-storage.ts` (SupabaseStorage class) instead of local Drizzle. Converts camelCase↔snake_case automatically.
-- **Draft/Publish System**: Page blocks support draft/publish workflow. Published snapshots are stored inside the existing `metadata` JSONB column as `metadata.__publishedSnapshot` (Supabase doesn't have a separate `published_snapshot` column). The `SupabaseStorage.enrichBlockWithSnapshot()` method extracts this into `block.publishedSnapshot` for the API layer. Public routes serve published content via `applyPublishedSnapshot()`, admin routes serve draft (current) fields.
+1.  **Bilingual Content Management**: Supports Italian and English with `t(it, en)` translation helper and `valueIt`/`valueEn` fields for content.
+2.  **Admin Panel with WYSIWYG Editing**: Public pages feature `EditableText` and `EditableImage` components for direct content editing in admin preview mode.
+3.  **Draft/Publish Workflow**: Content blocks and Google Sheets-synced data (menus, wines, cocktails) support separate draft and published states, allowing administrators to prepare content before making it live.
+4.  **Responsive Design**: Mobile-first design with a specialized admin preview mode that simulates an iPhone 15 Pro, including independent font size adjustments for mobile and desktop views.
+5.  **Modular Content Systems**:
+    *   **Events**: Comprehensive CRUD for events with public display, Instagram Story-style posters, and booking integration.
+    *   **Gallery**: Album-based photo gallery with admin management and a story-style public viewer.
+    *   **Footer**: Database-driven and editable via admin settings, supporting bilingual content, contacts, and social links.
+    *   **Media Library**: Dynamic category management for uploaded media.
+6.  **SEO Optimization**: Enterprise-grade SEO features including server-side metadata injection, dynamic sitemap with `hreflang` alternates, per-page meta tags, JSON-LD schemas (Restaurant, Event, BreadcrumbList), and `robots.txt` configuration.
+7.  **Consistent UI/UX**: Utilizes a specific above-the-fold layout pattern for public pages and a defined typography system for menu-related content, ensuring visual consistency and readability.
+8.  **Shared Schema**: TypeScript types and Drizzle schema definitions are shared between frontend and backend to maintain data consistency.
+9.  **GitHub Sync**: Integration to push project state to a GitHub repository on user command.
 
-### Key Architectural Patterns
-1. **Shared Schema**: Types and schema definitions in `shared/` are used by both frontend and backend
-2. **Path Aliases**: `@/*` maps to client source, `@shared/*` to shared modules
-3. **Language Context**: React Context provides `t(it, en)` translation helper throughout the app
-4. **Admin Context**: Manages authentication state, admin preview mode, device view (desktop/mobile), and forceMobileLayout for true mobile emulation in admin preview
-5. **Bilingual Content**: All content fields support IT/EN variants (e.g., `valueIt`, `valueEn`)
-6. **WYSIWYG Editing**: All public pages use `EditableText` and `EditableImage` components for click-to-edit functionality in admin preview mode. Components are located in `client/src/components/admin/`.
-7. **Footer Management**: Footer content is database-driven and editable via Admin → Impostazioni. Settings include about text (IT/EN), contacts, opening hours, social links, quick links, and legal links. Stored as JSON in `site_settings` table under key `footer_settings`.
-8. **Media Categories Management**: Dynamic folder/category system for media library. Categories stored in `media_categories` table with slug, labelIt, labelEn, sortOrder. Admin can create/edit/delete categories via "Gestisci cartelle" button. Uploaded media automatically assigned to selected category filter or first available.
-9. **Events Management**: Complete events system with admin CRUD and public display.
-   - **Admin**: `/admina/events` - Create/edit/delete events with max 10 concurrent events
-   - **Public**: `/eventi` - Events listing with Instagram Story-style poster cards (9:16 aspect ratio)
-   - **Detail**: `/eventi/:id` - Individual event page with poster, description, and booking button
-   - **Fields**: titleIt/En, descriptionIt/En, detailsIt/En, posterUrl with zoom/offset controls
-   - **Visibility**: Two modes - ACTIVE_ONLY (manual control) or UNTIL_DAYS_AFTER (auto-hide after event ends)
-   - **Booking**: Optional integration with configurable URL (default: https://cameraconvista.resos.com/booking)
-10. **Gallery Album System**: Album-based photo gallery with covers and centered title overlays.
-   - **Admin**: `/admina/gallery` - Create/edit/delete albums with MediaPickerModal for image selection
-   - **Public**: `/galleria` - Album grid with covers, clicking opens GallerySlideViewer
-   - **Viewer**: Instagram Story format (9:16), swipe navigation on mobile, arrow keys on desktop
-   - **Fields**: titleIt/En, coverUrl with zoom/offset, gallery_images with individual zoom/offset
-11. **Mobile Responsive System**: Complete mobile-first responsive design.
-   - **Admin Preview**: iPhone 15 Pro frame simulation (430x932px) with Dynamic Island, uses CSS `zoom` for accurate preview
-   - **IPhoneFrame Component**: `client/src/components/admin/IPhoneFrame.tsx` - Uses CSS zoom (not transform:scale) for better pixel accuracy
-   - **forceMobileLayout**: AdminContext state that forces mobile layout regardless of viewport (used in admin preview)
-   - **deviceView**: Synchronized with forceMobileLayout to ensure EditableImage and EditableText components respond correctly
-   - **Independent Font Sizes**: EditableText allows editing desktop/mobile font sizes independently - changes in mobile view only affect mobile, and vice versa
-   - **Header/Footer**: Respect forceMobileLayout to switch between desktop/mobile layouts
-   - **Responsive Breakpoints**: Uses Tailwind md: (768px) and lg: (1024px) with optimized mobile padding (py-10 vs py-20)
-12. **Above-the-Fold Layout Pattern**: All public pages use consistent "clean" layout structure.
-   - **Wrapper**: `min-h-[calc(100vh-80px)] flex flex-col` - full viewport minus header
-   - **Hero Section**: `h-[60vh] shrink-0` - fixed height hero image with title overlay
-   - **Intro Section**: `flex-1 flex items-center justify-center` - centers intro text in remaining space
-   - **Home Special Case**: Shows branding block (logo + tagline + booking button) instead of intro text
-   - **Scrollable Content**: Main content sections placed after the above-fold wrapper, visible on scroll
-13. **GitHub Sync**: Project synced to https://github.com/siteccv/cameraconvista.git - when user says "esegui commit in github", push current state to GitHub main branch
-14. **Menu/Wines/Cocktails Draft-Publish System**: Staged publish workflow for Google Sheets data.
-   - **Sync** (Google Sheets → tables): Updates `menu_items`, `wines`, `cocktails` tables = "draft" data. Admin always sees this.
-   - **Publish** (tables → site_settings snapshot): Copies current table data as JSON snapshot to `site_settings` keys: `published_menu_items`, `published_wines`, `published_cocktails`.
-   - **Public API**: Reads from published snapshot in `site_settings`. Falls back to live table data if no snapshot exists (backwards compatibility).
-   - **Admin API**: Always reads from live tables (draft data).
-   - **Independent buttons**: Menu, Wines, and Cocktails each have separate Sync and Publish buttons in Admin → Impostazioni → Google Sheets.
-   - **Confirmation modal**: Publishing requires explicit confirmation via AlertDialog.
-   - **Important**: "Pubblica sito/pagina" buttons do NOT trigger Google Sheets sync. They only handle page blocks via the existing draft/publish workflow.
+### Design Tokens & Typography
 
-15. **SEO System**: Enterprise-grade SEO with server-side metadata injection.
-   - **Middleware**: `server/seo.ts` - Express middleware wraps `res.send/res.end` to inject SEO tags into HTML head
-   - **robots.txt**: Static file at `client/public/robots.txt` - blocks `/admina` and `/api/admin/`
-   - **Sitemap**: Dynamic `/sitemap.xml` endpoint with hreflang alternates (it/en/x-default) for all visible pages + active events
-   - **Per-page metadata**: title, description, canonical, Open Graph (title, description, type, url, site_name, locale, image), Twitter Card
-   - **JSON-LD**: Restaurant schema with address/geo/menu, BreadcrumbList per page, Event schema for event detail pages
-   - **Bilingual**: hreflang tags with `?lang=en` parameter support, canonical per language
-   - **Admin**: `/admina/seo` - Edit metaTitleIt/En and metaDescriptionIt/En per page, saved via PATCH `/api/admin/pages/:id`
-   - **Client-side titles**: `PublicPageRoute` in App.tsx sets `document.title` on route changes for SPA navigation UX
-   - **Path detection**: Uses `req.originalUrl` (not `req.path`) to correctly identify page paths after Vite URL processing
-
-### Design Tokens
-- **`--radius-placeholder`**: Shared border-radius (0.75rem/12px) for image placeholders, used via `rounded-placeholder` Tailwind class
-
-### Menu Typography System
-Consistent typography applied across Wine List, Menu, and Cocktail Bar pages:
-- **Category Title**: font-display (Playfair Display), centered, color #2f2b2a
-  - Menu/Cocktail: `text-4xl md:text-5xl`
-  - Wine List: `text-3xl md:text-4xl` (slightly smaller)
-- **Item Name**: font-display, uppercase, tracking-wide, color #2f2b2a
-  - Menu/Cocktail: `text-xl md:text-2xl`
-  - Wine List: `text-lg md:text-xl` (slightly smaller)
-- **Description/Meta**: `text-muted-foreground`
-  - Menu/Cocktail: `text-sm md:text-base`
-  - Wine List: `text-sm`
-- **Prices**: `.price-text` CSS class with Spectral font, tabular-nums, 20px, weight 500, color #c7902f (gold/ocra)
-- **Dividers**: 1px solid #e5d6b6 (warm beige)
-- **Wine List Icon**: Lucide WineIcon, color #c7902f, strokeWidth 1.5
-
-The `.price-text` class in `client/src/index.css` ensures € symbol and numbers are baseline-aligned using:
-- `font-family: 'Spectral', Georgia, serif`
-- `font-variant-numeric: tabular-nums` (prevents oldstyle numerals)
-- `display: inline-flex; align-items: baseline`
-- `line-height: 1; gap: 0.25rem`
-
-### Project Structure
-```
-├── client/           # React frontend
-│   └── src/
-│       ├── components/   # UI components
-│       │   ├── admin/gallery/  # Gallery admin components (GalleryModal, AlbumImagesModal, ImageZoomModal, SortableImage)
-│       │   └── home/           # Home page components (TeaserCard, BookingDialog, PhilosophySection)
-│       ├── contexts/     # React contexts (Language, Admin)
-│       ├── hooks/        # Custom hooks
-│       ├── lib/          # Utilities and query client
-│       └── pages/        # Route components
-├── server/           # Express backend
-│   ├── routes/       # Modular API routes
-│   │   ├── index.ts  # Router entry point (mounts all domain routers)
-│   │   ├── auth.ts   # Authentication (login, logout, change password)
-│   │   ├── pages.ts  # Pages and page blocks
-│   │   ├── menu.ts   # Menu items, wines, cocktails
-│   │   ├── events.ts # Events (public and admin)
-│   │   ├── gallery.ts # Gallery albums and images
-│   │   ├── media.ts  # Media library and categories
-│   │   ├── settings.ts # Site settings and footer
-│   │   ├── sync.ts   # Google Sheets sync (placeholder)
-│   │   └── helpers.ts # Shared utilities (parseId, validateId, requireAuth)
-│   ├── storage.ts    # Data access layer interface
-│   └── db.ts         # Database connection
-├── shared/           # Shared types and schema
-│   └── schema.ts     # Drizzle schema definitions
-└── attached_assets/  # Documentation and assets
-```
+-   **Radius**: `--radius-placeholder` (0.75rem/12px) for image placeholders.
+-   **Typography**: Specific `font-display` (Playfair Display) and `font-spectral` for various text elements like category titles, item names, and prices, ensuring a distinct and consistent visual identity. `.price-text` class handles price formatting for tabular numerals and baseline alignment.
 
 ## External Dependencies
 
 ### Database
-- **PostgreSQL**: Primary database via `DATABASE_URL` environment variable
-- **Drizzle ORM**: Schema management and queries
+-   **PostgreSQL**: Core database.
+-   **Drizzle ORM**: For database interactions and schema management.
 
-### Cloud Storage
-- **Google Cloud Storage**: Object storage for media uploads via `@google-cloud/storage`
-- **Uppy**: File upload handling with AWS S3-compatible presigned URLs
+### Cloud Services
+-   **Google Cloud Storage**: For media file uploads.
+-   **Supabase**: Optional backend for storage abstraction if configured.
 
 ### AI Integrations (Optional)
-- **OpenAI API**: Used via Replit AI Integrations for:
-  - Text translation (IT↔EN)
-  - Image generation
-  - Voice/audio processing
-- Environment variables: `AI_INTEGRATIONS_OPENAI_API_KEY`, `AI_INTEGRATIONS_OPENAI_BASE_URL`
+-   **OpenAI API**: Used for AI-powered features such as text translation, image generation, and audio processing.
 
 ### UI Libraries
-- **Radix UI**: Accessible component primitives (dialogs, dropdowns, tabs, etc.)
-- **Tailwind CSS**: Utility-first styling
-- **Lucide React**: Icon library
+-   **Radix UI**: Provides accessible, unstyled component primitives.
+-   **Tailwind CSS**: Utility-first CSS framework for styling.
+-   **Lucide React**: Icon library.
 
-### Build & Development
-- **Vite**: Development server with HMR
-- **esbuild**: Production server bundling
-- **TypeScript**: Type checking across the full stack
-
-### Environment Variables Required
-- `DATABASE_URL`: PostgreSQL connection string
-- `AI_INTEGRATIONS_OPENAI_API_KEY`: (Optional) For translation/AI features
-- `AI_INTEGRATIONS_OPENAI_BASE_URL`: (Optional) AI API endpoint
+### Development Tools
+-   **Vite**: Fast development server and build tool.
+-   **esbuild**: Production server bundling.
+-   **TypeScript**: Language for type safety.
