@@ -32,6 +32,7 @@ export interface ImageContainerProps {
   overlayMobile?: number;
   containerClassName?: string;
   aspectRatio?: string;
+  fixedCropRatio?: number;
   children?: React.ReactNode;
   testIdPrefix?: string;
   onSave?: (data: ImageContainerSaveData) => void;
@@ -45,16 +46,20 @@ export function useImageMath(
   zoom: number,
   panX: number,
   panY: number,
+  fixedCropRatio?: number,
 ) {
   if (naturalW <= 0 || naturalH <= 0 || containerW <= 0 || containerH <= 0) {
     return { imgW: 0, imgH: 0, imgLeft: 0, imgTop: 0, overflowX: 0, overflowY: 0, minZoom: 100 };
   }
 
+  const cropH = fixedCropRatio ? containerW / fixedCropRatio : containerH;
+
   const baseW = containerW;
   const baseH = containerW * (naturalH / naturalW);
 
-  const minZoom = baseH < containerH
-    ? Math.ceil((containerH / baseH) * 100)
+  const coverH = Math.max(cropH, containerH);
+  const minZoom = baseH < coverH
+    ? Math.ceil((coverH / baseH) * 100)
     : 100;
 
   const effectiveZoom = Math.max(minZoom, zoom);
@@ -63,7 +68,7 @@ export function useImageMath(
   const imgH = baseH * zoomFactor;
 
   const overflowX = Math.max(0, imgW - containerW);
-  const overflowY = Math.max(0, imgH - containerH);
+  const overflowY = Math.max(0, imgH - cropH);
 
   const clampedPanX = overflowX > 0 ? Math.max(-100, Math.min(100, panX)) : 0;
   const clampedPanY = overflowY > 0 ? Math.max(-100, Math.min(100, panY)) : 0;
@@ -89,6 +94,7 @@ export function ImageContainer({
   overlayMobile: propOverlayMobile,
   containerClassName = "",
   aspectRatio = "16/9",
+  fixedCropRatio,
   children,
   testIdPrefix = "image-container",
   onSave,
@@ -192,7 +198,7 @@ export function ImageContainer({
   const displaySrc = isEditing ? editSrc : src;
 
   const { imgW, imgH, imgLeft, imgTop, overflowX, overflowY, minZoom } = useImageMath(
-    containerW, containerH, naturalW, naturalH, activeZoom, activePanX, activePanY
+    containerW, containerH, naturalW, naturalH, activeZoom, activePanX, activePanY, fixedCropRatio
   );
 
   const updatePan = useCallback((newPanX: number, newPanY: number) => {

@@ -536,19 +536,24 @@ Durante la migrazione, le pagine non ancora migrate continuano a usare EditableI
 
 **Regola derivata**: NON usare `absolute` in containerClassName. Usare `w-full h-full` e gestire il posizionamento dal wrapper esterno.
 
-### Step 3B — Stabilizzazione Aspect Ratio Hero Menu
+### Step 3B — Stabilizzazione Aspect Ratio Hero Menu (ROLLBACK)
+**Data**: 12 Febbraio 2026
+**Stato**: ROLLBACK ↩️ — Intervento annullato perché modificava il layout (hero troppo piccola, non coerente con le altre pagine). Riportato a h-[60vh] standard.
+
+### Step 4 — Fixed Crop Ratio su Hero Menu
 **Data**: 12 Febbraio 2026
 **Stato**: COMPLETATO ✅
-**Test**: Verifica resize desktop (inquadratura costante) OK.
+**Test**: 4 viewport desktop (1920/1440/1280/1024) + admin editing + above-the-fold — tutti OK.
 
 **Cosa è stato fatto**:
-- Rimossa altezza `60vh` dalla section hero di menu.tsx.
-- Impostato `aspectRatio="16/9"` fisso su ImageContainer.
-- Semplificato il layout rimuovendo wrapper `absolute` ridondanti.
-- Obiettivo raggiunto: inquadratura e crop stabili al ridimensionamento della finestra.
+- Aggiunta prop opzionale `fixedCropRatio` a `ImageContainerProps` e `useImageMath`.
+- Quando presente, il crop dell'immagine si basa su un frame virtuale (`cropH = containerW / fixedCropRatio`) invece che sull'altezza reale del container.
+- `coverH = max(cropH, containerH)` garantisce che il container reale sia sempre coperto.
+- Applicato `fixedCropRatio={16/9}` alla hero Menu.
+- Layout invariato: `h-[60vh]` + wrapper absolute + intro sotto — identico alle altre pagine.
 
-**File modificati**: menu.tsx
-**Decisioni prese**: Passaggio da layout "viewport-dependent" (vh) a layout "proportional-dependent" (aspect-ratio) per garantire coerenza visiva del brand. Report dettagliato in `report/STEP3B_STABILIZZAZIONE_ASPECT_RATIO_MENU.md`
+**File modificati**: ImageContainer.tsx (prop + useImageMath), menu.tsx (solo `fixedCropRatio={16/9}`)
+**Decisioni prese**: Crop stabile senza cambiare layout. Backward-compatible: senza la prop tutto funziona come prima. Report dettagliato in `report/STEP4_FIXED_CROP_RATIO_MENU.md`
 
 ---
 
