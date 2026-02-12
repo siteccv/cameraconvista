@@ -88,9 +88,9 @@ export default function Menu() {
 
   return (
     <PublicLayout>
-      <div className="flex flex-col min-h-screen">
+      <div className="flex flex-col min-h-[calc(100vh-80px)]">
         <section className="relative shrink-0">
-          <div className="w-full">
+          <div className="w-full max-h-[600px] overflow-hidden">
             <ImageContainer
               src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
@@ -102,7 +102,7 @@ export default function Menu() {
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
               overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
               containerClassName="w-full"
-              aspectRatio="16/9"
+              aspectRatio="5/2"
               testIdPrefix="menu-hero"
               onSave={handleHeroImageSave}
             >
