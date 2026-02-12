@@ -1,0 +1,88 @@
+Perfetto.
+Qui sotto trovi solo la precisazione tecnica definitiva sulla questione dello zoom, senza altro.
+
+📌 Precisazione Ufficiale sulla Logica dello Zoom
+
+La base di partenza è questa:
+
+1️⃣ Stato Zero (Zoom = 1)
+
+L’immagine deve essere renderizzata in fit-to-width reale.
+
+Significa:
+larghezza immagine = larghezza container.
+
+Le proporzioni originali sono sempre mantenute.
+
+L’immagine è centrata.
+
+Se l’altezza eccede il container, deborda sopra e sotto (corretto).
+
+Questo stato rappresenta lo zoom minimo assoluto consentito.
+
+2️⃣ Regola Fondamentale
+
+Lo zoom:
+
+❌ Non deve mai permettere di rimpicciolire l’immagine sotto questo stato.
+
+❌ Non deve mai creare bande vuote.
+
+❌ Non deve mai far diventare l’immagine più stretta del container.
+
+❌ Non deve dipendere da logiche “object-cover” implicite.
+
+✅ Deve partire esattamente dallo stato fit-to-width.
+
+✅ Deve solo aumentare rispetto a quel valore.
+
+✅ Deve essere continuo e matematicamente coerente.
+
+3️⃣ Punto Critico da Chiarire
+
+Nel report è stata citata questa formulazione:
+
+Zoom minimo = il valore che garantisce nessuna banda vuota (fit-to-cover o fit-to-width, il maggiore dei due)
+
+Questa frase va precisata.
+
+Per la tua logica:
+
+La base non è “cover”.
+
+La base non è “contain”.
+
+La base è fit-to-width puro.
+
+L’immagine deve sempre coprire il container in larghezza.
+Se l’altezza è minore del container (caso raro ma possibile con immagini molto panoramiche), allora e solo allora la soglia minima deve impedire bande vuote verticali.
+
+Ma il principio guida resta:
+
+👉 Lo zoom minimo è lo stato iniziale corretto del container reale, non un valore dinamico calcolato per coprire tutto a tutti i costi.
+
+4️⃣ Centro dello Zoom
+
+Lo zoom deve essere centrato sul centro del container.
+
+Non sul punto mouse.
+
+Non su coordinate arbitrarie.
+
+Questo garantisce coerenza e prevedibilità.
+
+5️⃣ Sintesi Definitiva
+
+Lo zoom deve essere:
+
+Monodirezionale (solo ingrandimento)
+
+Ancorato allo stato iniziale reale
+
+Clampato implicitamente tramite pan
+
+Totalmente coerente tra admin e sito pubblico
+
+Indipendente dalle dimensioni del modale
+
+Indipendente dal device

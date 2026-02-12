@@ -13,12 +13,16 @@ L'immagine va trattata come se fosse vista **attraverso un foro (container)**:
 - Il **container** = finestra fissa, non si muove e non cambia dimensione
 - L'**immagine** = sta dietro la finestra, l'admin sceglie quale porzione mostrare
 
-### Stato Iniziale (Zoom = 1 / 100%)
-- L'immagine mantiene le proporzioni originali
-- Viene adattata in modalità **fit-to-width**: larghezza immagine = larghezza container
-- L'altezza risultante dipende dal formato dell'immagine (può debordare sopra/sotto)
-- Centrata orizzontalmente e verticalmente
+### Stato Zero (Zoom = 1) — DEFINIZIONE UFFICIALE
+
+Questo è lo stato fondamentale da cui tutto parte:
+
+- L'immagine viene renderizzata in **fit-to-width puro**: `larghezza immagine = larghezza container`
+- Le proporzioni originali sono **sempre** mantenute
+- L'immagine è centrata (orizzontalmente e verticalmente)
+- Se l'altezza risultante eccede il container → deborda sopra e sotto (questo è corretto e desiderato)
 - Le parti che debordano restano disponibili per il pan (non "perse")
+- **Questo stato rappresenta lo zoom minimo assoluto consentito**
 
 ### Pan (Riposizionamento)
 - L'admin trascina l'immagine in tutte le direzioni
@@ -26,12 +30,26 @@ L'immagine va trattata come se fosse vista **attraverso un foro (container)**:
 - Tutta la superficie reale dell'immagine deve essere raggiungibile
 - Nessuna zona morta o irraggiungibile
 
-### Zoom
-- Zoom minimo = 1 (mai più stretta del container, mai bande laterali)
-- Solo ingrandimento rispetto allo stato iniziale
-- Centro zoom = centro del container
+### Zoom — PRECISAZIONE UFFICIALE
+
+**Principio guida**: lo zoom minimo è lo stato iniziale reale del container (fit-to-width), NON un valore dinamico calcolato per "coprire tutto a tutti i costi".
+
+Regole precise:
+- **Zoom minimo = stato zero** (fit-to-width puro)
+- **Monodirezionale**: solo ingrandimento rispetto allo stato zero
+- **Centro zoom = centro del container** (non punto mouse, non coordinate arbitrarie)
 - L'immagine cresce in tutte le direzioni → tutta la nuova area è esplorabile tramite pan
-- Il clamp funziona sempre, anche durante lo zoom
+- Il clamp continua a funzionare sempre, anche durante lo zoom
+- Deve essere **continuo e matematicamente coerente**
+
+Cosa lo zoom NON deve fare:
+- ❌ Permettere di rimpicciolire sotto lo stato zero
+- ❌ Creare bande vuote
+- ❌ Far diventare l'immagine più stretta del container
+- ❌ Dipendere da logiche `object-cover` implicite
+
+**Caso limite — immagini molto panoramiche** (larghezza >> altezza):
+Se con fit-to-width l'altezza risultante è *inferiore* al container (caso raro), allora la soglia minima di zoom deve essere alzata per impedire bande vuote verticali. Ma questo è l'unico caso di eccezione. Il principio resta: la base è fit-to-width, non cover.
 
 ### Vincolo Universale
 Il sistema deve funzionare identicamente per:
@@ -86,10 +104,10 @@ Questa doppia logica crea discontinuità nel comportamento. Lo switch avviene a 
 - Nessun clamp ai bordi → l'admin può trascinare l'immagine fuori dal container, creando **bande vuote**
 - Viola il principio fondamentale del documento: "Non si devono mai vedere bande vuote"
 
-**Problema 4: Zoom minimo permette valori sotto il cover**
-- `fitZoom` è calcolato come `containScale / coverScale * 100`, che è il valore dove l'intera immagine è visibile
+**Problema 4: Zoom minimo basato su logica sbagliata**
+- `fitZoom` è calcolato come `containScale / coverScale * 100`, che è il valore dove l'intera immagine è visibile ("contain")
 - Lo slider parte da `fitZoom` (o 10), quindi permette valori dove l'immagine è più piccola del container → bande vuote ai lati
-- Secondo il documento, zoom minimo = 1 (cioè fit-to-width, dove larghezza immagine = larghezza container). Non dovrebbero mai esserci bande laterali.
+- **Logica corretta**: lo zoom minimo deve essere lo **stato zero** = fit-to-width puro (larghezza immagine = larghezza container). La base non è "cover" né "contain", è fit-to-width. L'unica eccezione: se un'immagine panoramica estrema produce un'altezza inferiore al container con fit-to-width, allora il minimo va alzato per evitare bande verticali.
 
 **Problema 5: Mismatch modale ↔ container reale**
 - Il modale cattura l'aspect ratio del container reale al momento del click (`previewAspect`)
@@ -178,11 +196,13 @@ Con `object-cover` sulla img. Questo è coerente tra di loro, ma il problema è 
 
 ### 3.2 Zoom Minimo
 
-| Componente | Zoom Min | Corretto? |
+Il valore corretto è: **fit-to-width** (larghezza immagine = larghezza container). Eccezione: se fit-to-width produce altezza < container, il minimo va alzato.
+
+| Componente | Zoom Min Attuale | Corretto? |
 |---|---|---|
-| EditableImage | `fitZoom` (può essere <100) | NO - permette bande vuote |
-| EventModal poster | 50 | NO - permette rimpicciolimento |
-| ImageZoomModal gallery | 100 | PARZIALMENTE - corretto se l'immagine copre il container a 100% |
+| EditableImage | `fitZoom` (contain-based, può essere <100) | NO - logica sbagliata, base "contain" non "fit-to-width" |
+| EventModal poster | 50 (valore fisso) | NO - permette rimpicciolimento sotto lo stato zero |
+| ImageZoomModal gallery | 100 (valore fisso) | NO - non calcolato su fit-to-width reale, valore arbitrario |
 
 ### 3.3 Clamp Pan
 
@@ -205,8 +225,8 @@ Il pan non è limitato correttamente ai bordi dell'immagine. L'admin può trasci
 ### P3 - Unità di Misura Inconsistenti (GRAVE)
 EditableImage usa pixel per gli offset, gli altri componenti usano percentuali. Due sistemi diversi per la stessa operazione.
 
-### P4 - Zoom Minimo Scorretto (GRAVE)
-Il valore minimo di zoom permette di rendere l'immagine più piccola del container, violando il principio "niente bande vuote".
+### P4 - Zoom Minimo Basato su Logica Sbagliata (GRAVE)
+Il valore minimo di zoom è calcolato con logiche errate ("contain", valori fissi arbitrari). La base corretta è **fit-to-width puro** (larghezza immagine = larghezza container). Lo zoom deve essere monodirezionale (solo ingrandimento) a partire da questo stato zero. Unica eccezione: immagini panoramiche estreme dove fit-to-width produce altezza < container.
 
 ### P5 - Doppia Logica di Rendering (MEDIO)
 EditableImage ha due branch di rendering (zoom ≥100 con object-cover vs zoom <100 con dimensioni calcolate) che possono produrre discontinuità.
@@ -238,8 +258,10 @@ Per il prossimo step (implementazione test su un singolo container), si suggeris
 4. Risolverlo crea il pattern base per tutti gli altri container
 
 La logica corretta da implementare:
-1. **Stato iniziale**: fit-to-width (larghezza img = larghezza container), centrata
-2. **Zoom min**: il valore che garantisce nessuna banda vuota (fit-to-cover o fit-to-width, il maggiore dei due)
-3. **Pan con clamp**: offset limitato ai bordi reali dell'immagine scalata, calcolato in base a zoom e dimensioni immagine/container
-4. **Unità normalizzate**: usare percentuali relative alle dimensioni del container per garantire coerenza tra editing e visualizzazione
-5. **Editing nel container reale**: l'admin interagisce direttamente con l'immagine nel container della pagina, non in un modale separato
+1. **Stato zero**: fit-to-width puro (larghezza img = larghezza container), centrata, proporzioni mantenute
+2. **Zoom min = stato zero**: monodirezionale (solo ingrandimento), centrato sul centro del container, continuo e matematicamente coerente. Eccezione: se fit-to-width produce altezza < container (immagine panoramica estrema), alzare il minimo per evitare bande verticali
+3. **Zoom NON deve**: dipendere da `object-cover`, usare logiche "contain" o "cover", permettere rimpicciolimento sotto lo stato zero
+4. **Pan con clamp**: offset limitato ai bordi reali dell'immagine scalata, calcolato in base a zoom e dimensioni immagine/container. Le bande vuote non devono mai apparire
+5. **Unità normalizzate**: usare percentuali relative alle dimensioni del container per garantire coerenza tra editing e visualizzazione, indipendentemente dal device o dimensione modale
+6. **Editing nel container reale**: l'admin interagisce direttamente con l'immagine nel container della pagina, non in un modale separato
+7. **Coerenza totale**: il sistema deve essere identico tra admin e sito pubblico, indipendente dal device, indipendente dalle dimensioni del modale
