@@ -152,10 +152,11 @@ export function ImageContainer({
     if (!containerRef.current) return;
     const measure = () => {
       if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          setContainerW(rect.width);
-          setContainerH(rect.height);
+        const w = containerRef.current.offsetWidth;
+        const h = containerRef.current.offsetHeight;
+        if (w > 0 && h > 0) {
+          setContainerW(w);
+          setContainerH(h);
         }
       }
     };
