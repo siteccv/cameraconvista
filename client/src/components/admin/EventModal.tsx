@@ -464,7 +464,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     id="startAt"
                     type="datetime-local"
                     value={toLocalDatetimeString(formData.startAt ?? null)}
-                    onChange={(e) => setFormData({ ...formData, startAt: e.target.value ? new Date(e.target.value) : null })}
+                    onChange={(e) => setFormData({ ...formData, startAt: (e.target.value || null) as any })}
                     data-testid="input-start-at"
                   />
                 </div>
