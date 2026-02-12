@@ -89,8 +89,8 @@ export default function Menu() {
   return (
     <PublicLayout>
       <div className="min-h-[calc(100vh-80px)] flex flex-col">
-        <section className="relative h-[60vh] shrink-0 flex items-center justify-center">
-          <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
+        <section className="h-[60vh] shrink-0 px-4 md:px-8">
+          <div className="mx-auto max-w-[1560px] h-full">
             <ImageContainer
               src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
@@ -101,7 +101,7 @@ export default function Menu() {
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
               overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
-              containerClassName="w-full h-full"
+              containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               fixedCropRatio={16/9}
               testIdPrefix="menu-hero"
