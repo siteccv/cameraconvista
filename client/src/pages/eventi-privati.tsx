@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Utensils, Music, Star, ArrowRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
+import { TestImageContainer } from "@/components/admin/TestImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, EVENTI_PRIVATI_DEFAULTS } from "@/lib/page-defaults";
 
@@ -28,6 +29,7 @@ export default function EventiPrivati() {
   const spaces1Block = getBlock("spaces-1");
   const spaces2Block = getBlock("spaces-2");
   const spaces3Block = getBlock("spaces-3");
+  const testImageBlock = getBlock("test-image");
 
   const heroDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "intro")!;
@@ -39,6 +41,7 @@ export default function EventiPrivati() {
   const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-1")!;
   const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-2")!;
   const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-3")!;
+  const testImageDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "test-image")!;
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
@@ -88,6 +91,16 @@ export default function EventiPrivati() {
       titleEn: data.textEn,
       titleFontSize: data.fontSizeDesktop,
       titleFontSizeMobile: data.fontSizeMobile,
+    });
+  };
+
+  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number }) => {
+    if (!testImageBlock) return;
+    updateBlock(testImageBlock.id, {
+      imageUrl: data.src,
+      imageScaleDesktop: data.zoom,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
     });
   };
 
@@ -200,6 +213,35 @@ export default function EventiPrivati() {
           </div>
         </section>
       </div>
+
+      <section className="py-10 md:py-20 bg-card" data-testid="test-image-section">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-4">
+              <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
+                TEST CONTAINER — Nuova logica immagine (fit-to-width, clamp dinamico, offset normalizzato)
+              </span>
+            </div>
+            <TestImageContainer
+              src={testImageBlock?.imageUrl || testImageDef.imageUrl || ""}
+              zoom={testImageBlock?.imageScaleDesktop || testImageDef.imageScaleDesktop || 100}
+              panX={testImageBlock?.imageOffsetX || testImageDef.imageOffsetX || 0}
+              panY={testImageBlock?.imageOffsetY || testImageDef.imageOffsetY || 0}
+              containerClassName="rounded-placeholder"
+              aspectRatio="16/9"
+              onSave={handleTestImageSave}
+            />
+            <div className="text-center mt-2">
+              <span className="text-[10px] font-mono text-muted-foreground">
+                {t(
+                  "Container isolato per test nuova logica • Non influenza altre immagini",
+                  "Isolated container for new logic test • Does not affect other images"
+                )}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">

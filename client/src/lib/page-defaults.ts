@@ -269,6 +269,17 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
     imageOffsetYMobile: 0,
     sortOrder: 9,
   },
+  {
+    blockType: "test-image",
+    imageUrl: "",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 10,
+  },
 ];
 
 export const GALLERIA_DEFAULTS: BlockDefault[] = [

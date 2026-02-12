@@ -293,3 +293,66 @@ La logica corretta da implementare:
 5. **Unità normalizzate**: usare percentuali relative alle dimensioni del container per garantire coerenza tra editing e visualizzazione, indipendentemente dal device o dimensione modale
 6. **Editing nel container reale**: l'admin interagisce direttamente con l'immagine nel container della pagina, non in un modale separato
 7. **Coerenza totale**: il sistema deve essere identico tra admin e sito pubblico, indipendente dal device, indipendente dalle dimensioni del modale
+
+---
+
+## 7. Test Container Implementato — TestImageContainer.tsx
+
+**Data implementazione**: 12 Febbraio 2026  
+**Stato**: Implementato e testato, operativo sulla pagina Eventi Privati
+
+### Posizione
+Pagina Eventi Privati → sezione tra hero/intro e pacchetti  
+Visibile sia in admin preview che in modalità pubblica
+
+### Componente
+`client/src/components/admin/TestImageContainer.tsx`
+
+### Matematica Implementata (hook `useImageMath`)
+
+```
+Inputs: containerW, containerH, naturalW, naturalH, zoom, panX, panY
+
+1. fit-to-width SEMPRE: baseW = containerW, baseH = containerW × (naturalH / naturalW)
+2. Caso panoramiche: se baseH < containerH → minZoom = ceil(containerH / baseH × 100)
+   altrimenti minZoom = 100
+3. effectiveZoom = max(minZoom, zoom), zoomFactor = effectiveZoom / 100
+4. imgW = baseW × zoomFactor, imgH = baseH × zoomFactor
+5. overflowX = max(0, imgW - containerW), overflowY = max(0, imgH - containerH)
+6. clamp panX/panY a [-100, +100], azzerato se overflow = 0
+7. translateX = (panX/100) × (overflowX/2), translateY = (panY/100) × (overflowY/2)
+8. imgLeft = (containerW - imgW)/2 + translateX
+9. imgTop = (containerH - imgH)/2 + translateY
+```
+
+### Drag → Pan (conversione pixel → unità normalizzate)
+```
+dx pixel mouse → dpanX = dx × 200 / overflowX
+dy pixel mouse → dpanY = dy × 200 / overflowY
+```
+Se overflow è 0 su un asse, il pan è bloccato (niente bande vuote).
+
+### Caratteristiche
+- ✅ Stato zero = fit-to-width puro (con eccezione panoramiche)
+- ✅ Zoom monodirezionale (min = 100, max = 300)
+- ✅ Clamp dinamico reale (basato su overflow effettivo)
+- ✅ Nessuna dipendenza da object-cover
+- ✅ Nessuna doppia logica di rendering
+- ✅ Posizionamento esplicito (left/top/width/height)
+- ✅ Offset normalizzato [-100, +100] (device-indipendente)
+- ✅ WYSIWYG: editing diretto nel container reale (no modale separato)
+- ✅ Toolbar overlay con zoom slider + media picker
+- ✅ Debug info panel (dimensioni container, immagine, overflow, zoom, pan)
+- ✅ Media Library integrata (no immagini hardcoded)
+- ✅ Rendering identico admin/pubblico (stessa funzione `useImageMath`)
+
+### Storage (campi DB riutilizzati)
+- `imageUrl` → URL immagine
+- `imageScaleDesktop` → zoom (100 = stato zero)
+- `imageOffsetX` → panX normalizzato (-100 a +100)
+- `imageOffsetY` → panY normalizzato (-100 a +100)
+
+### Prossimi passi
+1. Validare con immagini reali di diversi aspect ratio (verticali, orizzontali, panoramiche, quadrate)
+2. Verificare coerenza admin ↔ pubblico con dati salvati
+3. Se validato, procedere con refactoring completo di tutti i componenti immagine
