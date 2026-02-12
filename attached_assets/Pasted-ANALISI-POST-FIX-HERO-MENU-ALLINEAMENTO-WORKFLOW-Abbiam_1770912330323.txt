@@ -1,0 +1,115 @@
+ANALISI POST-FIX HERO MENU — ALLINEAMENTO WORKFLOW
+
+Abbiamo completato la stabilizzazione della hero della pagina Menu:
+
+Altezza invariata (60vh).
+
+Margini laterali presenti.
+
+Larghezza contenuta coerente con la navbar.
+
+Crop stabile in modalità desktop.
+
+Nessuna modifica globale alle altre pagine.
+
+Nessuna regressione funzionale lato admin.
+
+Ora è necessario fermarsi e fare un’analisi strutturale completa prima di procedere oltre.
+
+OBIETTIVO DI QUESTO STEP
+
+Analizzare tutto ciò che è stato implementato finora (Step 1 → Step 4).
+
+Confrontare lo stato attuale del codice con la scheda:
+report/WORKFLOW_MIGRAZIONE_GESTIONE_IMMAGINI.md
+
+Verificare:
+
+Coerenza architetturale
+
+Assenza di duplicazioni logiche
+
+Eventuali stratificazioni inutili
+
+Rischi tecnici futuri
+
+Capire con precisione:
+
+A che punto siamo realmente nel workflow
+
+Cosa è concluso
+
+Cosa è parziale
+
+Cosa va rifinito
+
+Proporre il piano corretto per chiudere definitivamente la scheda di lavoro.
+
+COSA DEVI FARE ORA
+
+Leggere integralmente:
+
+WORKFLOW_MIGRAZIONE_GESTIONE_IMMAGINI.md
+
+Tutti i report STEP1, STEP2, STEP3, STEP4
+
+Confrontare con il codice reale attuale.
+
+Redigere un report di:
+
+Stato attuale tecnico
+
+Scostamenti rispetto al workflow
+
+Parti completate al 100%
+
+Parti completate parzialmente
+
+Parti non ancora affrontate
+
+Eventuali criticità architetturali
+
+FOCUS PRINCIPALE
+
+Non voglio nuove modifiche ora.
+
+Voglio:
+
+Analisi tecnica fredda
+
+Diagnosi strutturale
+
+Proposte concrete per chiudere il workflow
+
+Indicazione chiara del prossimo step logico
+
+Valutazione del rischio tecnico
+
+Se ci sono incoerenze architetturali o codice non pulito, devono essere evidenziate.
+
+OUTPUT RICHIESTO
+
+Crea un nuovo file:
+
+report/ANALISI_STATO_WORKFLOW_POST_FIX_MENU.md
+
+Struttura obbligatoria:
+
+Stato attuale reale del sistema
+
+Confronto con workflow iniziale
+
+Parti completate
+
+Parti parziali
+
+Parti mancanti
+
+Rischi tecnici
+
+Proposta ordinata per chiudere definitivamente la scheda
+
+Raccomandazione finale (modalità conservative vs aggressive)
+
+Nessuna modifica al codice in questo step.
+Solo analisi, diagnosi e proposta.
