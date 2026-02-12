@@ -103,7 +103,7 @@ export default function Menu() {
               overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
-              fixedCropRatio={16/9}
+              referenceWidth={1560}
               testIdPrefix="menu-hero"
               onSave={handleHeroImageSave}
             >
