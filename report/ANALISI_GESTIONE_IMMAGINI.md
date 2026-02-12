@@ -356,3 +356,100 @@ Se overflow è 0 su un asse, il pan è bloccato (niente bande vuote).
 1. Validare con immagini reali di diversi aspect ratio (verticali, orizzontali, panoramiche, quadrate)
 2. Verificare coerenza admin ↔ pubblico con dati salvati
 3. Se validato, procedere con refactoring completo di tutti i componenti immagine
+
+---
+
+## 8. Controllo Oscurazione (Overlay) — Implementato
+
+**Data implementazione**: 12 Febbraio 2026  
+**Stato**: Implementato nel TestImageContainer
+
+### Funzionalità
+Slider per controllare l'intensità dell'oscurazione (overlay nero) sopra l'immagine.
+
+### Specifiche tecniche
+- **Range**: 0–70 (percentuale opacità del nero)
+- **Etichette dinamiche**: Nessuna (0), Leggera (1-20), Media (21-45), Forte (46-70)
+- **Max 70%**: limite pratico — oltre il 70% l'immagine diventa invisibile
+- **Rendering**: `<div>` con `backgroundColor: rgba(0,0,0, overlay/100)` sopra l'immagine, sotto i children/testo
+- **Z-order**: immagine → overlay → children (testo) → toolbar admin
+- **Persistenza**: salvato in `metadata.overlay` del page_block (campo JSONB)
+- **Reset**: il bottone Reset azzera anche l'overlay a 0
+- **Admin/Pubblico**: identico rendering (stesso valore letto da metadata)
+
+### Icona toolbar
+Sun (lucide-react) — rappresenta la luminosità/oscurità dell'immagine
+
+### Children slot
+Aggiunto `children` prop al componente per permettere overlay di testi/contenuti sopra l'immagine. I children vengono renderizzati sopra l'overlay (z-10), così il testo beneficia dell'oscurazione sottostante.
+
+---
+
+## 9. Valutazione Strategica: Estensione a Tutto il Sito
+
+### Stato attuale dei componenti immagine nel progetto
+
+| Componente | Dove usato | Logica zoom/pan | Overlay |
+|---|---|---|---|
+| **EditableImage** | Hero tutte le pagine, spazi eventi privati | object-cover + scale/translate CSS | No (hardcoded in pagine) |
+| **EventModal** | Poster eventi (admin) | Modale separato con zoom/offset | No |
+| **ImageZoomModal** | Galleria album (admin) | Modale separato con zoom/offset | No |
+| **TestImageContainer** ✅ | Eventi Privati (test) | fit-to-width + overflow clamp | Sì (0-70, slider) |
+
+### Opzione A — Applicazione incrementale "a richiesta"
+
+**Approccio**: Mantenere TestImageContainer come componente separato e applicarlo progressivamente, container per container, dove serve.
+
+**Pro**:
+- Zero rischio di regressioni sulle pagine esistenti
+- Ogni pagina può essere migrata e testata individualmente
+- Se un container ha problemi, gli altri non sono influenzati
+- Controllo totale su tempi e priorità
+
+**Contro**:
+- Due logiche di rendering diverse coesistono nel codice (vecchia object-cover + nuova fit-to-width)
+- Manutenzione doppia: bug fix da applicare in due posti
+- Possibili inconsistenze visive tra pagine migrate e non migrate
+- Il codice legacy rimane nel progetto a tempo indefinito
+- Ogni migrazione richiede lavoro manuale (copia/adatta parametri)
+
+**Rischi**:
+- Rischio basso a breve termine, rischio alto a lungo termine (debito tecnico crescente)
+- Rischio medio di dimenticare quali container usano quale logica
+
+### Opzione B — Consolidamento come componente unico riusabile
+
+**Approccio**: Trasformare la logica di TestImageContainer in un componente `ImageContainer` generico, con API pulita, e sostituire progressivamente tutti gli usi di EditableImage/modali zoom.
+
+**Pro**:
+- Una sola logica di rendering per tutto il sito
+- Bug fix e miglioramenti applicati ovunque automaticamente
+- Coerenza visiva garantita tra tutte le pagine
+- Overlay, zoom, pan tutti gestiti dallo stesso componente
+- Il codice diventa più pulito e manutenibile
+- Eliminazione dei modali separati per zoom/pan
+
+**Contro**:
+- Richiede refactoring di tutte le pagine (8 pagine + eventi + galleria)
+- Rischio di regressioni durante il refactoring
+- Richiede test approfonditi su ogni pagina dopo la migrazione
+- Necessità di gestire la retrocompatibilità dei dati salvati (vecchi offset → nuovi offset normalizzati)
+- Il formato dei dati cambia: i vecchi imageOffsetX/Y (non normalizzati) devono essere convertiti o ignorati
+
+**Rischi**:
+- Rischio medio durante il refactoring (mitigabile con migrazione una pagina alla volta)
+- Rischio basso di incompatibilità dati (i valori precedenti possono essere resettati a 0 se non convertibili)
+
+### Raccomandazione tecnica
+
+**Opzione B è la scelta migliore**, ma va implementata con una strategia di migrazione progressiva (non big-bang):
+
+1. **Fase 1**: Consolidare TestImageContainer → `ImageContainer` (componente finale con API stabile)
+2. **Fase 2**: Migrare gli hero delle pagine uno alla volta (partendo da quella con meno traffico)
+3. **Fase 3**: Migrare EventModal e ImageZoomModal
+4. **Fase 4**: Rimuovere il vecchio EditableImage e le logiche legacy
+
+Ogni fase è testabile e reversibile. La conversione dei dati può essere gestita con un fallback: se `imageScaleDesktop` è inferiore a 100 (vecchio formato scale), trattarlo come 100 (stato zero) nel nuovo sistema.
+
+### ⚠️ Nota importante
+Questa è un'analisi tecnica. La decisione finale su quale opzione seguire spetta all'utente.

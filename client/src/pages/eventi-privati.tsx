@@ -94,13 +94,14 @@ export default function EventiPrivati() {
     });
   };
 
-  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number }) => {
+  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number; overlay: number }) => {
     if (!testImageBlock) return;
     updateBlock(testImageBlock.id, {
       imageUrl: data.src,
       imageScaleDesktop: data.zoom,
       imageOffsetX: data.panX,
       imageOffsetY: data.panY,
+      metadata: { ...(testImageBlock.metadata as Record<string, unknown> || {}), overlay: data.overlay },
     });
   };
 
@@ -227,6 +228,7 @@ export default function EventiPrivati() {
               zoom={testImageBlock?.imageScaleDesktop || testImageDef.imageScaleDesktop || 100}
               panX={testImageBlock?.imageOffsetX || testImageDef.imageOffsetX || 0}
               panY={testImageBlock?.imageOffsetY || testImageDef.imageOffsetY || 0}
+              overlay={(testImageBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
               containerClassName="rounded-placeholder"
               aspectRatio="16/9"
               onSave={handleTestImageSave}

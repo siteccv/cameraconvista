@@ -3,7 +3,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { FolderOpen, ZoomIn, RotateCcw, GripVertical } from "lucide-react";
+import { FolderOpen, ZoomIn, RotateCcw, GripVertical, Sun } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import type { Media } from "@shared/schema";
 
@@ -12,9 +12,11 @@ interface TestImageContainerProps {
   zoom: number;
   panX: number;
   panY: number;
+  overlay: number;
   containerClassName?: string;
   aspectRatio?: string;
-  onSave?: (data: { src: string; zoom: number; panX: number; panY: number }) => void;
+  children?: React.ReactNode;
+  onSave?: (data: { src: string; zoom: number; panX: number; panY: number; overlay: number }) => void;
 }
 
 function useImageMath(
@@ -62,8 +64,10 @@ export function TestImageContainer({
   zoom: propZoom,
   panX: propPanX,
   panY: propPanY,
+  overlay: propOverlay,
   containerClassName = "",
   aspectRatio = "16/9",
+  children,
   onSave,
 }: TestImageContainerProps) {
   const { adminPreview } = useAdmin();
@@ -81,6 +85,7 @@ export function TestImageContainer({
   const [editZoom, setEditZoom] = useState(propZoom);
   const [editPanX, setEditPanX] = useState(propPanX);
   const [editPanY, setEditPanY] = useState(propPanY);
+  const [editOverlay, setEditOverlay] = useState(propOverlay);
   const [isEditing, setIsEditing] = useState(false);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
@@ -94,8 +99,9 @@ export function TestImageContainer({
     setEditZoom(propZoom);
     setEditPanX(propPanX);
     setEditPanY(propPanY);
+    setEditOverlay(propOverlay);
     setHasChanges(false);
-  }, [src, propZoom, propPanX, propPanY]);
+  }, [src, propZoom, propPanX, propPanY, propOverlay]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -133,6 +139,7 @@ export function TestImageContainer({
   const displayZoom = isEditing ? editZoom : propZoom;
   const displayPanX = isEditing ? editPanX : propPanX;
   const displayPanY = isEditing ? editPanY : propPanY;
+  const displayOverlay = isEditing ? editOverlay : propOverlay;
 
   const { imgW, imgH, imgLeft, imgTop, overflowX, overflowY, minZoom } = useImageMath(
     containerW, containerH, naturalW, naturalH, displayZoom, displayPanX, displayPanY
@@ -236,6 +243,7 @@ export function TestImageContainer({
     setEditZoom(100);
     setEditPanX(0);
     setEditPanY(0);
+    setEditOverlay(0);
     setHasChanges(true);
   }, []);
 
@@ -246,20 +254,22 @@ export function TestImageContainer({
         zoom: editZoom,
         panX: Math.round(editPanX),
         panY: Math.round(editPanY),
+        overlay: editOverlay,
       });
     }
     setIsEditing(false);
     setHasChanges(false);
-  }, [onSave, editSrc, editZoom, editPanX, editPanY]);
+  }, [onSave, editSrc, editZoom, editPanX, editPanY, editOverlay]);
 
   const handleCancel = useCallback(() => {
     setEditSrc(src);
     setEditZoom(propZoom);
     setEditPanX(propPanX);
     setEditPanY(propPanY);
+    setEditOverlay(propOverlay);
     setIsEditing(false);
     setHasChanges(false);
-  }, [src, propZoom, propPanX, propPanY]);
+  }, [src, propZoom, propPanX, propPanY, propOverlay]);
 
   const handleStartEdit = useCallback((e: React.MouseEvent) => {
     if (!adminPreview) return;
@@ -278,6 +288,14 @@ export function TestImageContainer({
     maxHeight: "none",
   } : {};
 
+  const overlayLabel = displayOverlay === 0
+    ? t("Nessuna", "None")
+    : displayOverlay <= 20
+    ? t("Leggera", "Light")
+    : displayOverlay <= 45
+    ? t("Media", "Medium")
+    : t("Forte", "Strong");
+
   const debugInfo = isEditing ? {
     container: `${Math.round(containerW)}×${Math.round(containerH)}`,
     natural: `${naturalW}×${naturalH}`,
@@ -285,6 +303,7 @@ export function TestImageContainer({
     overflow: `X:${Math.round(overflowX)} Y:${Math.round(overflowY)}`,
     zoom: displayZoom,
     pan: `X:${Math.round(displayPanX)} Y:${Math.round(displayPanY)}`,
+    overlay: displayOverlay,
   } : null;
 
   return (
@@ -322,8 +341,22 @@ export function TestImageContainer({
           </div>
         )}
 
+        {displayOverlay > 0 && displaySrc && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{ backgroundColor: `rgba(0, 0, 0, ${displayOverlay / 100})` }}
+            data-testid="test-image-overlay"
+          />
+        )}
+
+        {children && (
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            {children}
+          </div>
+        )}
+
         {adminPreview && !isEditing && (
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none z-10">
             <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-lg p-2 flex items-center gap-2">
               <ZoomIn className="h-4 w-4" />
               <span className="text-sm">{t("Modifica", "Edit")}</span>
@@ -387,6 +420,20 @@ export function TestImageContainer({
                 />
                 <span className="text-white text-xs w-10 text-right shrink-0">{editZoom}%</span>
               </div>
+
+              <div className="flex items-center gap-2 bg-black/70 rounded-lg px-3 py-2 pointer-events-auto max-w-xs">
+                <Sun className="h-4 w-4 text-white shrink-0" />
+                <Slider
+                  value={[editOverlay]}
+                  onValueChange={([val]) => { setEditOverlay(val); setHasChanges(true); }}
+                  min={0}
+                  max={70}
+                  step={1}
+                  className="flex-1"
+                  data-testid="test-image-overlay-slider"
+                />
+                <span className="text-white text-xs w-16 text-right shrink-0">{editOverlay}% {overlayLabel}</span>
+              </div>
             </div>
 
             <div className="absolute bottom-2 left-2 right-2 z-20 pointer-events-none">
@@ -397,7 +444,7 @@ export function TestImageContainer({
                 </div>
                 {debugInfo && (
                   <div className="bg-black/70 text-green-400 text-[9px] px-2 py-1 rounded font-mono leading-tight">
-                    {debugInfo.container} | img:{debugInfo.natural} | disp:{debugInfo.displayed} | ovf:{debugInfo.overflow} | z:{debugInfo.zoom} | pan:{debugInfo.pan}
+                    {debugInfo.container} | img:{debugInfo.natural} | disp:{debugInfo.displayed} | ovf:{debugInfo.overflow} | z:{debugInfo.zoom} | pan:{debugInfo.pan} | ovl:{debugInfo.overlay}%
                   </div>
                 )}
               </div>

@@ -1,0 +1,44 @@
+STEP SUCCESSIVO — Controllo Oscurazione + Strategia di Estensione (senza toccare altre immagini)
+
+La nuova logica di gestione immagine (fit-to-width + zoom monodirezionale + pan clampato) funziona perfettamente nel container test: è approvata.
+
+Ora voglio implementare solo queste 2 cose, con un vincolo fondamentale: non applicare modifiche ad altre foto del sito per ora. Dobbiamo prima capire la strategia migliore.
+
+1) Nuova funzione: controllo oscurazione (overlay) per le immagini
+
+In alcune immagini è presente un’oscurazione per far risaltare i testi (overlay scuro), ma in certi casi è troppo evidente.
+
+Voglio poter gestire l’intensità di questa oscurazione in modo controllabile, con queste regole:
+
+Deve funzionare solo per il container test / il nuovo componente in cui stiamo provando la logica
+
+Deve essere configurabile (es. slider o valore numerico) dall’admin
+
+Deve essere persistente (salvata insieme ai dati dell’immagine come già avviene per zoom/pan)
+
+Deve essere applicata in modo coerente tra admin e pubblico
+
+Non deve cambiare la logica di pan/zoom (è solo un overlay visivo)
+
+Le immagini devono continuare a essere caricate solo tramite Media Library, come già ora
+
+Obiettivo pratico: l’admin deve poter scegliere se overlay = 0, leggero, medio, forte.
+
+2) Dopo questa funzione: valutazione strategica (senza refactor ora)
+
+Una volta implementato il controllo oscurazione sul container test, voglio un’analisi tecnica su due strade possibili:
+
+Opzione A — Manteniamo così
+Applichiamo questa logica (pan/zoom + overlay) “a richiesta” alle altre immagini del sito, una per volta, in modo incrementale.
+
+Opzione B — Consolidiamo come pacchetto replicabile
+Trasformiamo questa logica in un “modello” unico e riusabile, applicabile a qualunque container e qualunque proporzione immagine, eliminando le implementazioni frammentate.
+
+⚠️ In questo step non devi scegliere tu a caso: devi prima fare una valutazione tecnica basata sul progetto e indicare pro/contro e rischi.
+
+Vincolo non negoziabile (importante)
+
+✅ Implementare SOLO sul container test / componente test
+❌ Non modificare nessun’altra immagine o logica esistente nel sito in questo step
+
+Dobbiamo prima capire come muoverci senza creare regressioni.
