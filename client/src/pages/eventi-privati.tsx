@@ -94,14 +94,21 @@ export default function EventiPrivati() {
     });
   };
 
-  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number; overlay: number }) => {
+  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number; overlay: number; zoomMobile: number; panXMobile: number; panYMobile: number; overlayMobile: number }) => {
     if (!testImageBlock) return;
     updateBlock(testImageBlock.id, {
       imageUrl: data.src,
       imageScaleDesktop: data.zoom,
+      imageScaleMobile: data.zoomMobile,
       imageOffsetX: data.panX,
       imageOffsetY: data.panY,
-      metadata: { ...(testImageBlock.metadata as Record<string, unknown> || {}), overlay: data.overlay },
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...(testImageBlock.metadata as Record<string, unknown> || {}),
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -229,6 +236,10 @@ export default function EventiPrivati() {
               panX={testImageBlock?.imageOffsetX || testImageDef.imageOffsetX || 0}
               panY={testImageBlock?.imageOffsetY || testImageDef.imageOffsetY || 0}
               overlay={(testImageBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+              zoomMobile={testImageBlock?.imageScaleMobile || testImageDef.imageScaleMobile || 100}
+              panXMobile={testImageBlock?.imageOffsetXMobile || testImageDef.imageOffsetXMobile || 0}
+              panYMobile={testImageBlock?.imageOffsetYMobile || testImageDef.imageOffsetYMobile || 0}
+              overlayMobile={(testImageBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
               containerClassName="rounded-placeholder"
               aspectRatio="16/9"
               onSave={handleTestImageSave}

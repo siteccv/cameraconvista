@@ -504,6 +504,22 @@ Durante la migrazione, le pagine non ancora migrate continuano a usare EditableI
 **Esito**: Approvato — tutti i test superati
 **Decisioni prese**: TestImageContainer.tsx rimane nel codice come file orfano (nessun import) fino a migrazione completata. Report dettagliato in `report/STEP1_CONSOLIDAMENTO_COMPONENTE.md`
 
+### Step 2 — Gestione Mobile Indipendente
+**Data**: 12 Febbraio 2026
+**Stato**: COMPLETATO ✅
+**Test**: 26/26 superati (Playwright e2e)
+
+**Cosa è stato fatto**:
+- Esteso ImageContainerProps con 4 props opzionali mobile (zoomMobile, panXMobile, panYMobile, overlayMobile)
+- Aggiunto switch Desktop/Mobile nella toolbar admin
+- Logica di isolamento: ogni mode modifica solo i propri valori
+- Save persiste entrambi i set, Cancel ripristina tutto
+- Display pubblico usa forceMobileLayout || viewportIsMobile per selezionare quale set mostrare
+- Aggiornato eventi-privati.tsx per passare props mobile e persistere dati mobile nel DB
+
+**File modificati**: ImageContainer.tsx, eventi-privati.tsx
+**Decisioni prese**: I valori mobile hanno fallback ai valori desktop se non forniti (backward compatibility). Selezionare nuova immagine resetta entrambi i set. Report dettagliato in `report/STEP2_GESTIONE_MOBILE_INDIPENDENTE.md`
+
 ---
 
 *Fine documento — Aggiornare dopo ogni intervento*

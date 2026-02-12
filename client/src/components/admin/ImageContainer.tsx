@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { FolderOpen, ZoomIn, RotateCcw, GripVertical, Sun } from "lucide-react";
+import { FolderOpen, ZoomIn, RotateCcw, GripVertical, Sun, Monitor, Smartphone } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import type { Media } from "@shared/schema";
 
@@ -13,6 +14,10 @@ export interface ImageContainerSaveData {
   panX: number;
   panY: number;
   overlay: number;
+  zoomMobile: number;
+  panXMobile: number;
+  panYMobile: number;
+  overlayMobile: number;
 }
 
 export interface ImageContainerProps {
@@ -21,6 +26,10 @@ export interface ImageContainerProps {
   panX: number;
   panY: number;
   overlay: number;
+  zoomMobile?: number;
+  panXMobile?: number;
+  panYMobile?: number;
+  overlayMobile?: number;
   containerClassName?: string;
   aspectRatio?: string;
   children?: React.ReactNode;
@@ -74,14 +83,24 @@ export function ImageContainer({
   panX: propPanX,
   panY: propPanY,
   overlay: propOverlay,
+  zoomMobile: propZoomMobile,
+  panXMobile: propPanXMobile,
+  panYMobile: propPanYMobile,
+  overlayMobile: propOverlayMobile,
   containerClassName = "",
   aspectRatio = "16/9",
   children,
   testIdPrefix = "image-container",
   onSave,
 }: ImageContainerProps) {
-  const { adminPreview } = useAdmin();
+  const { adminPreview, forceMobileLayout } = useAdmin();
   const { t } = useLanguage();
+  const viewportIsMobile = useIsMobile();
+
+  const effectiveZoomMobile = propZoomMobile ?? propZoom;
+  const effectivePanXMobile = propPanXMobile ?? propPanX;
+  const effectivePanYMobile = propPanYMobile ?? propPanY;
+  const effectiveOverlayMobile = propOverlayMobile ?? propOverlay;
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [containerW, setContainerW] = useState(0);
@@ -96,7 +115,13 @@ export function ImageContainer({
   const [editPanX, setEditPanX] = useState(propPanX);
   const [editPanY, setEditPanY] = useState(propPanY);
   const [editOverlay, setEditOverlay] = useState(propOverlay);
+  const [editZoomMobile, setEditZoomMobile] = useState(effectiveZoomMobile);
+  const [editPanXMobile, setEditPanXMobile] = useState(effectivePanXMobile);
+  const [editPanYMobile, setEditPanYMobile] = useState(effectivePanYMobile);
+  const [editOverlayMobile, setEditOverlayMobile] = useState(effectiveOverlayMobile);
+
   const [isEditing, setIsEditing] = useState(false);
+  const [editingMode, setEditingMode] = useState<"desktop" | "mobile">("desktop");
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -110,8 +135,12 @@ export function ImageContainer({
     setEditPanX(propPanX);
     setEditPanY(propPanY);
     setEditOverlay(propOverlay);
+    setEditZoomMobile(propZoomMobile ?? propZoom);
+    setEditPanXMobile(propPanXMobile ?? propPanX);
+    setEditPanYMobile(propPanYMobile ?? propPanY);
+    setEditOverlayMobile(propOverlayMobile ?? propOverlay);
     setHasChanges(false);
-  }, [src, propZoom, propPanX, propPanY, propOverlay]);
+  }, [src, propZoom, propPanX, propPanY, propOverlay, propZoomMobile, propPanXMobile, propPanYMobile, propOverlayMobile]);
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -145,31 +174,50 @@ export function ImageContainer({
     img.src = editSrc;
   }, [editSrc]);
 
+  const isMobileDisplay = forceMobileLayout || viewportIsMobile;
+
+  const activeZoom = isEditing
+    ? (editingMode === "mobile" ? editZoomMobile : editZoom)
+    : (isMobileDisplay ? effectiveZoomMobile : propZoom);
+  const activePanX = isEditing
+    ? (editingMode === "mobile" ? editPanXMobile : editPanX)
+    : (isMobileDisplay ? effectivePanXMobile : propPanX);
+  const activePanY = isEditing
+    ? (editingMode === "mobile" ? editPanYMobile : editPanY)
+    : (isMobileDisplay ? effectivePanYMobile : propPanY);
+  const activeOverlay = isEditing
+    ? (editingMode === "mobile" ? editOverlayMobile : editOverlay)
+    : (isMobileDisplay ? effectiveOverlayMobile : propOverlay);
+
   const displaySrc = isEditing ? editSrc : src;
-  const displayZoom = isEditing ? editZoom : propZoom;
-  const displayPanX = isEditing ? editPanX : propPanX;
-  const displayPanY = isEditing ? editPanY : propPanY;
-  const displayOverlay = isEditing ? editOverlay : propOverlay;
 
   const { imgW, imgH, imgLeft, imgTop, overflowX, overflowY, minZoom } = useImageMath(
-    containerW, containerH, naturalW, naturalH, displayZoom, displayPanX, displayPanY
+    containerW, containerH, naturalW, naturalH, activeZoom, activePanX, activePanY
   );
 
   const updatePan = useCallback((newPanX: number, newPanY: number) => {
     const clampedX = overflowX > 0 ? Math.max(-100, Math.min(100, newPanX)) : 0;
     const clampedY = overflowY > 0 ? Math.max(-100, Math.min(100, newPanY)) : 0;
-    setEditPanX(clampedX);
-    setEditPanY(clampedY);
+    if (editingMode === "mobile") {
+      setEditPanXMobile(clampedX);
+      setEditPanYMobile(clampedY);
+    } else {
+      setEditPanX(clampedX);
+      setEditPanY(clampedY);
+    }
     setHasChanges(true);
-  }, [overflowX, overflowY]);
+  }, [overflowX, overflowY, editingMode]);
+
+  const currentEditPanX = editingMode === "mobile" ? editPanXMobile : editPanX;
+  const currentEditPanY = editingMode === "mobile" ? editPanYMobile : editPanY;
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     if (!isEditing) return;
     e.preventDefault();
     isDragging.current = true;
     dragStart.current = { x: e.clientX, y: e.clientY };
-    dragStartPan.current = { x: editPanX, y: editPanY };
-  }, [isEditing, editPanX, editPanY]);
+    dragStartPan.current = { x: currentEditPanX, y: currentEditPanY };
+  }, [isEditing, currentEditPanX, currentEditPanY]);
 
   const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging.current) return;
@@ -200,8 +248,8 @@ export function ImageContainer({
     if (!isEditing || e.touches.length !== 1) return;
     isDragging.current = true;
     dragStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    dragStartPan.current = { x: editPanX, y: editPanY };
-  }, [isEditing, editPanX, editPanY]);
+    dragStartPan.current = { x: currentEditPanX, y: currentEditPanY };
+  }, [isEditing, currentEditPanX, currentEditPanY]);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging.current || e.touches.length !== 1) return;
@@ -229,16 +277,40 @@ export function ImageContainer({
     isDragging.current = false;
   }, []);
 
+  const currentEditZoom = editingMode === "mobile" ? editZoomMobile : editZoom;
+
   const handleWheel = useCallback((e: React.WheelEvent) => {
     if (!isEditing) return;
     e.stopPropagation();
     const delta = e.deltaY > 0 ? -5 : 5;
-    const newZoom = Math.min(300, Math.max(minZoom, editZoom + delta));
-    if (newZoom !== editZoom) {
-      setEditZoom(newZoom);
+    const newZoom = Math.min(300, Math.max(minZoom, currentEditZoom + delta));
+    if (newZoom !== currentEditZoom) {
+      if (editingMode === "mobile") {
+        setEditZoomMobile(newZoom);
+      } else {
+        setEditZoom(newZoom);
+      }
       setHasChanges(true);
     }
-  }, [isEditing, editZoom, minZoom]);
+  }, [isEditing, currentEditZoom, minZoom, editingMode]);
+
+  const handleZoomChange = useCallback((val: number) => {
+    if (editingMode === "mobile") {
+      setEditZoomMobile(val);
+    } else {
+      setEditZoom(val);
+    }
+    setHasChanges(true);
+  }, [editingMode]);
+
+  const handleOverlayChange = useCallback((val: number) => {
+    if (editingMode === "mobile") {
+      setEditOverlayMobile(val);
+    } else {
+      setEditOverlay(val);
+    }
+    setHasChanges(true);
+  }, [editingMode]);
 
   const handleMediaSelect = useCallback((media: Media) => {
     setEditSrc(media.url);
@@ -246,16 +318,26 @@ export function ImageContainer({
     setEditZoom(100);
     setEditPanX(0);
     setEditPanY(0);
+    setEditZoomMobile(100);
+    setEditPanXMobile(0);
+    setEditPanYMobile(0);
     setHasChanges(true);
   }, []);
 
   const handleReset = useCallback(() => {
-    setEditZoom(100);
-    setEditPanX(0);
-    setEditPanY(0);
-    setEditOverlay(0);
+    if (editingMode === "mobile") {
+      setEditZoomMobile(100);
+      setEditPanXMobile(0);
+      setEditPanYMobile(0);
+      setEditOverlayMobile(0);
+    } else {
+      setEditZoom(100);
+      setEditPanX(0);
+      setEditPanY(0);
+      setEditOverlay(0);
+    }
     setHasChanges(true);
-  }, []);
+  }, [editingMode]);
 
   const handleSave = useCallback(() => {
     if (onSave) {
@@ -265,11 +347,15 @@ export function ImageContainer({
         panX: Math.round(editPanX),
         panY: Math.round(editPanY),
         overlay: editOverlay,
+        zoomMobile: editZoomMobile,
+        panXMobile: Math.round(editPanXMobile),
+        panYMobile: Math.round(editPanYMobile),
+        overlayMobile: editOverlayMobile,
       });
     }
     setIsEditing(false);
     setHasChanges(false);
-  }, [onSave, editSrc, editZoom, editPanX, editPanY, editOverlay]);
+  }, [onSave, editSrc, editZoom, editPanX, editPanY, editOverlay, editZoomMobile, editPanXMobile, editPanYMobile, editOverlayMobile]);
 
   const handleCancel = useCallback(() => {
     setEditSrc(src);
@@ -277,14 +363,19 @@ export function ImageContainer({
     setEditPanX(propPanX);
     setEditPanY(propPanY);
     setEditOverlay(propOverlay);
+    setEditZoomMobile(propZoomMobile ?? propZoom);
+    setEditPanXMobile(propPanXMobile ?? propPanX);
+    setEditPanYMobile(propPanYMobile ?? propPanY);
+    setEditOverlayMobile(propOverlayMobile ?? propOverlay);
     setIsEditing(false);
     setHasChanges(false);
-  }, [src, propZoom, propPanX, propPanY, propOverlay]);
+  }, [src, propZoom, propPanX, propPanY, propOverlay, propZoomMobile, propPanXMobile, propPanYMobile, propOverlayMobile]);
 
   const handleStartEdit = useCallback((e: React.MouseEvent) => {
     if (!adminPreview) return;
     e.preventDefault();
     e.stopPropagation();
+    setEditingMode("desktop");
     setIsEditing(true);
   }, [adminPreview]);
 
@@ -298,22 +389,25 @@ export function ImageContainer({
     maxHeight: "none",
   } : {};
 
-  const overlayLabel = displayOverlay === 0
+  const overlayLabel = activeOverlay === 0
     ? t("Nessuna", "None")
-    : displayOverlay <= 20
+    : activeOverlay <= 20
     ? t("Leggera", "Light")
-    : displayOverlay <= 45
+    : activeOverlay <= 45
     ? t("Media", "Medium")
     : t("Forte", "Strong");
 
+  const modeLabel = editingMode === "mobile" ? "Mobile" : "Desktop";
+
   const debugInfo = isEditing ? {
+    mode: modeLabel,
     container: `${Math.round(containerW)}×${Math.round(containerH)}`,
     natural: `${naturalW}×${naturalH}`,
     displayed: `${Math.round(imgW)}×${Math.round(imgH)}`,
     overflow: `X:${Math.round(overflowX)} Y:${Math.round(overflowY)}`,
-    zoom: displayZoom,
-    pan: `X:${Math.round(displayPanX)} Y:${Math.round(displayPanY)}`,
-    overlay: displayOverlay,
+    zoom: activeZoom,
+    pan: `X:${Math.round(activePanX)} Y:${Math.round(activePanY)}`,
+    overlay: activeOverlay,
   } : null;
 
   return (
@@ -351,10 +445,10 @@ export function ImageContainer({
           </div>
         )}
 
-        {displayOverlay > 0 && displaySrc && (
+        {activeOverlay > 0 && displaySrc && (
           <div
             className="absolute inset-0 pointer-events-none"
-            style={{ backgroundColor: `rgba(0, 0, 0, ${displayOverlay / 100})` }}
+            style={{ backgroundColor: `rgba(0, 0, 0, ${activeOverlay / 100})` }}
             data-testid={`${testIdPrefix}-overlay`}
           />
         )}
@@ -397,6 +491,26 @@ export function ImageContainer({
                   <RotateCcw className="h-4 w-4 mr-1" />
                   Reset
                 </Button>
+
+                <div className="flex items-center bg-black/60 rounded-lg overflow-hidden" data-testid={`${testIdPrefix}-mode-switch`}>
+                  <button
+                    className={`flex items-center gap-1 px-2 py-1 text-xs transition-colors ${editingMode === "desktop" ? "bg-primary text-primary-foreground" : "text-white/70 hover:text-white"}`}
+                    onClick={(e) => { e.stopPropagation(); setEditingMode("desktop"); }}
+                    data-testid={`${testIdPrefix}-mode-desktop`}
+                  >
+                    <Monitor className="h-3 w-3" />
+                    <span>Desktop</span>
+                  </button>
+                  <button
+                    className={`flex items-center gap-1 px-2 py-1 text-xs transition-colors ${editingMode === "mobile" ? "bg-primary text-primary-foreground" : "text-white/70 hover:text-white"}`}
+                    onClick={(e) => { e.stopPropagation(); setEditingMode("mobile"); }}
+                    data-testid={`${testIdPrefix}-mode-mobile`}
+                  >
+                    <Smartphone className="h-3 w-3" />
+                    <span>Mobile</span>
+                  </button>
+                </div>
+
                 <div className="flex-1" />
                 <Button
                   size="sm"
@@ -421,29 +535,29 @@ export function ImageContainer({
               <div className="flex items-center gap-2 bg-black/70 rounded-lg px-3 py-2 pointer-events-auto max-w-xs">
                 <ZoomIn className="h-4 w-4 text-white shrink-0" />
                 <Slider
-                  value={[editZoom]}
-                  onValueChange={([val]) => { setEditZoom(val); setHasChanges(true); }}
+                  value={[activeZoom]}
+                  onValueChange={([val]) => handleZoomChange(val)}
                   min={minZoom}
                   max={300}
                   step={1}
                   className="flex-1"
                   data-testid={`${testIdPrefix}-zoom-slider`}
                 />
-                <span className="text-white text-xs w-10 text-right shrink-0">{editZoom}%</span>
+                <span className="text-white text-xs w-10 text-right shrink-0">{activeZoom}%</span>
               </div>
 
               <div className="flex items-center gap-2 bg-black/70 rounded-lg px-3 py-2 pointer-events-auto max-w-xs">
                 <Sun className="h-4 w-4 text-white shrink-0" />
                 <Slider
-                  value={[editOverlay]}
-                  onValueChange={([val]) => { setEditOverlay(val); setHasChanges(true); }}
+                  value={[activeOverlay]}
+                  onValueChange={([val]) => handleOverlayChange(val)}
                   min={0}
                   max={70}
                   step={1}
                   className="flex-1"
                   data-testid={`${testIdPrefix}-overlay-slider`}
                 />
-                <span className="text-white text-xs w-16 text-right shrink-0">{editOverlay}% {overlayLabel}</span>
+                <span className="text-white text-xs w-16 text-right shrink-0">{activeOverlay}% {overlayLabel}</span>
               </div>
             </div>
 
@@ -454,8 +568,8 @@ export function ImageContainer({
                   {t("Trascina per spostare · Scroll per zoom", "Drag to pan · Scroll to zoom")}
                 </div>
                 {debugInfo && (
-                  <div className="bg-black/70 text-green-400 text-[9px] px-2 py-1 rounded font-mono leading-tight">
-                    {debugInfo.container} | img:{debugInfo.natural} | disp:{debugInfo.displayed} | ovf:{debugInfo.overflow} | z:{debugInfo.zoom} | pan:{debugInfo.pan} | ovl:{debugInfo.overlay}%
+                  <div className="bg-black/70 text-green-400 text-[9px] px-2 py-1 rounded font-mono leading-tight" data-testid={`${testIdPrefix}-debug`}>
+                    {debugInfo.mode} | {debugInfo.container} | img:{debugInfo.natural} | disp:{debugInfo.displayed} | ovf:{debugInfo.overflow} | z:{debugInfo.zoom} | pan:{debugInfo.pan} | ovl:{debugInfo.overlay}%
                   </div>
                 )}
               </div>
