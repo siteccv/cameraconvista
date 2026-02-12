@@ -220,8 +220,8 @@ export default function AdminPages() {
         </div>
 
         <div 
-          className="border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center p-8"
-          style={{ minHeight: deviceView === "mobile" ? "1000px" : "auto" }}
+          className={`border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center ${deviceView === "mobile" ? "p-4" : "p-8"}`}
+          style={{ height: deviceView === "mobile" ? "calc(100vh - 240px)" : "auto", minHeight: deviceView === "mobile" ? "600px" : "auto" }}
           data-testid="preview-container"
         >
           {deviceView === "mobile" ? (
