@@ -24,9 +24,37 @@ Questo è lo stato fondamentale da cui tutto parte:
 - Le parti che debordano restano disponibili per il pan (non "perse")
 - **Questo stato rappresenta lo zoom minimo assoluto consentito**
 
-### Pan (Riposizionamento)
-- L'admin trascina l'immagine in tutte le direzioni
-- **Vincolo clamp**: non si devono mai vedere bande vuote nel container
+### Pan (Riposizionamento) — PRECISAZIONE UFFICIALE SULLE UNITÀ DI OFFSET
+
+L'admin trascina l'immagine in tutte le direzioni per scegliere quale porzione mostrare.
+
+**Definizione corretta delle unità di offset:**
+
+L'offset NON deve essere espresso in:
+- ❌ Pixel assoluti (il comportamento cambia al variare delle dimensioni del container)
+- ❌ Percentuale rispetto al container (non tiene conto dell'immagine scalata)
+- ❌ Percentuale generica indipendente dalla scala (risultato imprevedibile)
+
+L'offset deve essere **relativo allo spazio eccedente reale**:
+- La porzione di immagine che eccede il container dopo l'applicazione dello zoom
+- Se l'immagine deborda verticalmente di 300px totali → offset Y si muove solo dentro quei 300px
+- Se deborda orizzontalmente di 120px totali → offset X si muove solo dentro quei 120px
+- L'utente non muove l'immagine in un sistema astratto: sta scegliendo quale parte dello spazio eccedente mostrare
+
+**Clamp dinamico obbligatorio** — calcolato in base a:
+- Dimensione reale del container
+- Dimensione reale dell'immagine scalata (dopo zoom)
+- Livello di zoom attuale
+
+Il clamp NON può essere:
+- ❌ Un range fisso (es. ±50)
+- ❌ Una formula simmetrica arbitraria (es. `(zoom-100)/2`)
+- ❌ Un valore hardcoded
+
+**Risultato atteso**: comportamento identico su qualsiasi device, risultato admin = risultato pubblico, zero zone morte, zero bande vuote, esperienza matematicamente coerente.
+
+**Vincoli di integrità**:
+- Non si devono mai vedere bande vuote nel container
 - Tutta la superficie reale dell'immagine deve essere raggiungibile
 - Nessuna zona morta o irraggiungibile
 
@@ -192,7 +220,7 @@ Con `object-cover` sulla img. Questo è coerente tra di loro, ma il problema è 
 | GallerySlideViewer | **percentuale** | `translate(X%, Y%)` |
 | Gallery covers | **percentuale** | `translate(X%, Y%)` |
 
-**Problema**: L'offset in pixel dipende dalle dimensioni del container → cambia effetto su schermi diversi. L'offset in percentuale è relativo alla dimensione dell'elemento scalato → più prevedibile ma comunque non tiene conto del rapporto immagine/container.
+**Problema**: Nessuna di queste unità è corretta. L'offset deve essere **relativo allo spazio eccedente reale** dell'immagine scalata rispetto al container. Il pixel assoluto dipende dalle dimensioni fisiche del container (cambia su device diversi). La percentuale generica non tiene conto del rapporto reale immagine/container dopo lo zoom. L'unica unità corretta è lo spostamento dentro lo spazio di overflow reale, calcolato dinamicamente in base a: dimensioni container, dimensioni immagine scalata, livello di zoom.
 
 ### 3.2 Zoom Minimo
 
@@ -222,8 +250,8 @@ I modali di editing hanno dimensioni e proporzioni diverse dai container reali s
 ### P2 - Assenza di Clamp Corretto (CRITICO)
 Il pan non è limitato correttamente ai bordi dell'immagine. L'admin può trascinare l'immagine fuori dal container, creando aree vuote.
 
-### P3 - Unità di Misura Inconsistenti (GRAVE)
-EditableImage usa pixel per gli offset, gli altri componenti usano percentuali. Due sistemi diversi per la stessa operazione.
+### P3 - Unità di Misura Tutte Sbagliate (GRAVE)
+EditableImage usa pixel, gli altri componenti usano percentuali generiche. Ma **nessuna delle due è corretta**. L'offset deve essere relativo allo spazio eccedente reale dell'immagine scalata rispetto al container, calcolato dinamicamente in base a dimensioni container, dimensioni immagine, e livello di zoom. I pixel dipendono dal device, le percentuali generiche non tengono conto del rapporto reale immagine/container.
 
 ### P4 - Zoom Minimo Basato su Logica Sbagliata (GRAVE)
 Il valore minimo di zoom è calcolato con logiche errate ("contain", valori fissi arbitrari). La base corretta è **fit-to-width puro** (larghezza immagine = larghezza container). Lo zoom deve essere monodirezionale (solo ingrandimento) a partire da questo stato zero. Unica eccezione: immagini panoramiche estreme dove fit-to-width produce altezza < container.
