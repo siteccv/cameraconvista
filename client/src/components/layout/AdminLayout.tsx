@@ -1,4 +1,4 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useCallback, useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
@@ -36,6 +36,8 @@ import {
   RefreshCw,
   ShieldCheck,
   Monitor,
+  Lock,
+  Unlock,
 } from "lucide-react";
 
 const adminNavItems = [
@@ -60,9 +62,29 @@ interface SiteLinks {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { t } = useLanguage();
-  const { logout } = useAdmin();
+  const { logout, zoomLocked, toggleZoomLock } = useAdmin();
   const { toast } = useToast();
   const [location, setLocation] = useLocation();
+
+  useEffect(() => {
+    const applyZoom = () => {
+      if (zoomLocked) {
+        const browserZoom = window.outerWidth / window.innerWidth;
+        if (browserZoom > 0.1 && browserZoom < 3) {
+          const compensation = 1 / browserZoom;
+          (document.documentElement.style as any).zoom = String(compensation);
+        }
+      } else {
+        (document.documentElement.style as any).zoom = '';
+      }
+    };
+    applyZoom();
+    window.addEventListener('resize', applyZoom);
+    return () => {
+      window.removeEventListener('resize', applyZoom);
+      (document.documentElement.style as any).zoom = '';
+    };
+  }, [zoomLocked]);
 
   const { data: dbPages = [], isLoading: pagesLoading } = useQuery<Page[]>({
     queryKey: ["/api/admin/pages"],
@@ -229,8 +251,25 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         </Sidebar>
 
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="h-14 border-b border-border bg-background flex items-center px-4 shrink-0">
+          <header className="h-14 border-b border-border bg-background flex items-center justify-between px-4 shrink-0 gap-2">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
+            <Button
+              size="sm"
+              className="no-default-hover-elevate no-default-active-elevate gap-2"
+              style={{
+                backgroundColor: zoomLocked ? '#16a34a' : '#dc2626',
+                color: '#fff',
+                borderColor: zoomLocked ? '#16a34a' : '#dc2626',
+              }}
+              onClick={toggleZoomLock}
+              data-testid="button-toggle-zoom"
+            >
+              {zoomLocked ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+              {zoomLocked
+                ? t("Sblocca Zoom", "Unlock Zoom")
+                : t("Blocca Zoom", "Lock Zoom")
+              }
+            </Button>
           </header>
           <main className="flex-1 overflow-auto bg-background">
             {children}
