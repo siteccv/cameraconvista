@@ -520,6 +520,25 @@ Durante la migrazione, le pagine non ancora migrate continuano a usare EditableI
 **File modificati**: ImageContainer.tsx, eventi-privati.tsx
 **Decisioni prese**: I valori mobile hanno fallback ai valori desktop se non forniti (backward compatibility). Selezionare nuova immagine resetta entrambi i set. Report dettagliato in `report/STEP2_GESTIONE_MOBILE_INDIPENDENTE.md`
 
+### Step 3 — Migrazione Hero Pagina Menu
+**Data**: 12 Febbraio 2026
+**Stato**: COMPLETATO ✅
+**Test**: 20/20 superati (Playwright e2e + resize check)
+
+**Cosa è stato fatto**:
+- Sostituito EditableImage con ImageContainer nella hero section di menu.tsx
+- Rimosso overlay hardcoded `bg-black/35` — ora gestito da ImageContainer (default: 35%)
+- Aggiornato handleHeroImageSave per usare ImageContainerSaveData (zoom, panX/Y, overlay, varianti mobile)
+- Titolo EditableText reso come children dell'ImageContainer
+- Rimossi import obsoleti (EditableImage, deviceView)
+
+**Problema riscontrato**: `containerClassName="absolute inset-0"` confliggeva con `relative` interno di ImageContainer. Fix: usare `containerClassName="w-full h-full"` e posizionamento dal parent.
+
+**Regola derivata**: NON usare `absolute` in containerClassName. Usare `w-full h-full` e gestire il posizionamento dal wrapper esterno.
+
+**File modificati**: menu.tsx
+**Decisioni prese**: Offset legacy già a 0 per Menu hero (nessun reset necessario). Overlay default=35 per mantenere parità visiva con il precedente bg-black/35. Report dettagliato in `report/STEP3_MIGRAZIONE_HERO_MENU.md`
+
 ---
 
 *Fine documento — Aggiornare dopo ogni intervento*
