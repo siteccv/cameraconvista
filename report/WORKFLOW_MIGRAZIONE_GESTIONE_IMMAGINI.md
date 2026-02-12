@@ -536,8 +536,19 @@ Durante la migrazione, le pagine non ancora migrate continuano a usare EditableI
 
 **Regola derivata**: NON usare `absolute` in containerClassName. Usare `w-full h-full` e gestire il posizionamento dal wrapper esterno.
 
+### Step 3B — Stabilizzazione Aspect Ratio Hero Menu
+**Data**: 12 Febbraio 2026
+**Stato**: COMPLETATO ✅
+**Test**: Verifica resize desktop (inquadratura costante) OK.
+
+**Cosa è stato fatto**:
+- Rimossa altezza `60vh` dalla section hero di menu.tsx.
+- Impostato `aspectRatio="16/9"` fisso su ImageContainer.
+- Semplificato il layout rimuovendo wrapper `absolute` ridondanti.
+- Obiettivo raggiunto: inquadratura e crop stabili al ridimensionamento della finestra.
+
 **File modificati**: menu.tsx
-**Decisioni prese**: Offset legacy già a 0 per Menu hero (nessun reset necessario). Overlay default=35 per mantenere parità visiva con il precedente bg-black/35. Report dettagliato in `report/STEP3_MIGRAZIONE_HERO_MENU.md`
+**Decisioni prese**: Passaggio da layout "viewport-dependent" (vh) a layout "proportional-dependent" (aspect-ratio) per garantire coerenza visiva del brand. Report dettagliato in `report/STEP3B_STABILIZZAZIONE_ASPECT_RATIO_MENU.md`
 
 ---
 
