@@ -4,7 +4,8 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
+import { ImageContainer } from "@/components/admin/ImageContainer";
+import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -22,7 +23,7 @@ import {
 
 export default function Home() {
   const { t } = useLanguage();
-  const { adminPreview, deviceView, forceMobileLayout } = useAdmin();
+  const { adminPreview, forceMobileLayout } = useAdmin();
   const { toast } = useToast();
   const viewportIsMobile = useIsMobile();
 
@@ -101,24 +102,21 @@ export default function Home() {
     updateBlockMutation.mutate({ id, data });
   }, [updateBlockMutation]);
 
-  const handleHeroImageSave = (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
+  const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
     handleUpdateBlock(heroBlock.id, {
       imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
+      imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -144,12 +142,14 @@ export default function Home() {
 
   const heroImage = {
     src: heroBlock?.imageUrl || DEFAULT_BLOCKS.hero.imageUrl,
-    zoomDesktop: heroBlock?.imageScaleDesktop || DEFAULT_BLOCKS.hero.imageScaleDesktop,
+    zoom: heroBlock?.imageScaleDesktop || DEFAULT_BLOCKS.hero.imageScaleDesktop,
     zoomMobile: heroBlock?.imageScaleMobile || DEFAULT_BLOCKS.hero.imageScaleMobile,
-    offsetXDesktop: heroBlock?.imageOffsetX || DEFAULT_BLOCKS.hero.imageOffsetX,
-    offsetYDesktop: heroBlock?.imageOffsetY || DEFAULT_BLOCKS.hero.imageOffsetY,
-    offsetXMobile: heroBlock?.imageOffsetXMobile || DEFAULT_BLOCKS.hero.imageOffsetXMobile,
-    offsetYMobile: heroBlock?.imageOffsetYMobile || DEFAULT_BLOCKS.hero.imageOffsetYMobile,
+    panX: heroBlock?.imageOffsetX ?? DEFAULT_BLOCKS.hero.imageOffsetX ?? 0,
+    panY: heroBlock?.imageOffsetY ?? DEFAULT_BLOCKS.hero.imageOffsetY ?? 0,
+    panXMobile: heroBlock?.imageOffsetXMobile ?? DEFAULT_BLOCKS.hero.imageOffsetXMobile ?? 0,
+    panYMobile: heroBlock?.imageOffsetYMobile ?? DEFAULT_BLOCKS.hero.imageOffsetYMobile ?? 0,
+    overlay: (heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0,
+    overlayMobile: (heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0,
   };
 
   const brandingTitle = {
@@ -182,20 +182,22 @@ export default function Home() {
   return (
     <PublicLayout>
       <div className="min-h-[calc(100vh-80px)] flex flex-col">
-        <section className={`relative ${heroHeight} shrink-0`}>
-          <div className={`absolute inset-y-0 ${isMobile ? "left-4 right-4 rounded-xl" : "left-0 right-0 rounded-none"} overflow-hidden`}>
-            <EditableImage
+        <section className={`${heroHeight} shrink-0 px-4 md:px-8`}>
+          <div className="mx-auto max-w-[1560px] h-full">
+            <ImageContainer
               src={heroImage.src}
-              zoomDesktop={heroImage.zoomDesktop}
+              zoom={heroImage.zoom}
+              panX={heroImage.panX}
+              panY={heroImage.panY}
+              overlay={heroImage.overlay}
               zoomMobile={heroImage.zoomMobile}
-              offsetXDesktop={heroImage.offsetXDesktop}
-              offsetYDesktop={heroImage.offsetYDesktop}
-              offsetXMobile={heroImage.offsetXMobile}
-              offsetYMobile={heroImage.offsetYMobile}
-              deviceView={deviceView}
-              containerClassName="absolute inset-0"
-              className="w-full h-full object-cover"
-              loading="eager"
+              panXMobile={heroImage.panXMobile}
+              panYMobile={heroImage.panYMobile}
+              overlayMobile={heroImage.overlayMobile}
+              containerClassName="w-full h-full rounded-xl"
+              aspectRatio="auto"
+              referenceWidth={1560}
+              testIdPrefix="home-hero"
               onSave={handleHeroImageSave}
             />
           </div>

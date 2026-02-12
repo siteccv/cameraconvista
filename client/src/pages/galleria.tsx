@@ -5,7 +5,8 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
+import { ImageContainer } from "@/components/admin/ImageContainer";
+import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { GallerySlideViewer } from "@/components/GallerySlideViewer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, GALLERIA_DEFAULTS } from "@/lib/page-defaults";
@@ -14,11 +15,12 @@ import type { Gallery, GalleryImage } from "@shared/schema";
 
 export default function Galleria() {
   const { t, language } = useLanguage();
-  const { deviceView, forceMobileLayout } = useAdmin();
+  const { forceMobileLayout } = useAdmin();
   const [selectedGallery, setSelectedGallery] = useState<Gallery | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
 
-  const isMobile = forceMobileLayout || deviceView === "mobile";
+  const viewportIsMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const isMobile = forceMobileLayout || viewportIsMobile;
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS.galleria,
@@ -80,24 +82,21 @@ export default function Galleria() {
     });
   };
 
-  const handleHeroImageSave = (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
+  const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
+      imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -129,35 +128,39 @@ export default function Galleria() {
   return (
     <PublicLayout>
       <div className="min-h-[calc(100vh-80px)] flex flex-col">
-        <section className="relative h-[60vh] shrink-0 flex items-center justify-center">
-          <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
-            <EditableImage
+        <section className="h-[60vh] shrink-0 px-4 md:px-8">
+          <div className="mx-auto max-w-[1560px] h-full">
+            <ImageContainer
               src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
-              zoomDesktop={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
+              zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
+              panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
+              panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
+              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
-              offsetXDesktop={heroBlock?.imageOffsetX || heroDef.imageOffsetX || 0}
-              offsetYDesktop={heroBlock?.imageOffsetY || heroDef.imageOffsetY || 0}
-              offsetXMobile={heroBlock?.imageOffsetXMobile || heroDef.imageOffsetXMobile || 0}
-              offsetYMobile={heroBlock?.imageOffsetYMobile || heroDef.imageOffsetYMobile || 0}
-              deviceView={deviceView}
-              containerClassName="absolute inset-0"
-              className="w-full h-full object-cover"
-              loading="eager"
+              panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
+              panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
+              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              containerClassName="w-full h-full rounded-xl"
+              aspectRatio="auto"
+              referenceWidth={1560}
+              testIdPrefix="galleria-hero"
               onSave={handleHeroImageSave}
-            />
-            <div className="absolute inset-0 bg-black/35 pointer-events-none" />
-          </div>
-          <div className="relative z-10 text-center text-white">
-            <EditableText
-              textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
-              textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
-              fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-              fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
-              as="h1"
-              className="font-display drop-shadow-lg"
-              applyFontSize
-              onSave={handleHeroTitleSave}
-            />
+            >
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center text-white">
+                  <EditableText
+                    textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
+                    textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
+                    fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
+                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    as="h1"
+                    className="font-display drop-shadow-lg"
+                    applyFontSize
+                    onSave={handleHeroTitleSave}
+                  />
+                </div>
+              </div>
+            </ImageContainer>
           </div>
         </section>
 
