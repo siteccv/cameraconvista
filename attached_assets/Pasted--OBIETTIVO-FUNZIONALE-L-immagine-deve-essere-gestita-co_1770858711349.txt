@@ -1,0 +1,230 @@
+🎯 OBIETTIVO FUNZIONALE
+
+L’immagine deve essere gestita come se fosse vista attraverso un foro (container).
+
+Il container è una finestra fissa.
+L’immagine è dietro la finestra.
+L’admin può:
+
+🔎 Zoomare (solo in ingrandimento)
+
+✋ Riposizionare liberamente (pan 360°)
+
+🎯 Scegliere esattamente quale porzione mostrare
+
+Il tutto deve funzionare sempre, indipendentemente dal formato originale dell’immagine.
+
+1️⃣ STATO INIZIALE (ZOOM = 1)
+
+Quando un’immagine viene caricata:
+
+Mantiene proporzioni originali
+
+Viene adattata in modalità fit-to-width
+
+larghezza immagine = larghezza container
+
+Altezza risultante può:
+
+essere maggiore del container (caso normale)
+
+essere minore (caso raro ma possibile con immagini molto larghe)
+
+Posizionamento iniziale
+
+Centrata orizzontalmente
+
+Centrata verticalmente
+
+Comportamento fondamentale
+
+Se l’immagine è più alta del container:
+
+La parte sopra e sotto deve essere fuori dal container
+
+Ma deve rimanere sempre disponibile per il pan
+
+Nessuna parte dell’immagine deve essere “persa” o tagliata logicamente.
+
+2️⃣ PAN (RIPOSIZIONAMENTO)
+
+L’admin deve poter trascinare l’immagine in tutte le direzioni.
+
+Regola chiave
+
+Il pan deve essere clampato ai bordi utili.
+
+Significa:
+
+Non si devono mai vedere bande vuote nel container
+
+Non si può trascinare oltre i limiti reali dell’immagine
+
+Se l’immagine deborda sopra e sotto:
+
+Devo poter arrivare fino al bordo superiore
+
+Devo poter arrivare fino al bordo inferiore
+
+Ma non oltre
+
+Il sistema deve garantire che:
+
+Tutta la superficie reale dell’immagine sia raggiungibile
+
+Nessuna zona sia irraggiungibile
+
+Nessuna zona vuota sia visibile
+
+3️⃣ ZOOM
+
+Lo zoom deve avere queste caratteristiche:
+
+Zoom minimo = 1
+
+Mai più stretta del container
+
+Mai bande laterali vuote
+
+Solo ingrandimento
+
+Centro zoom = centro del container
+
+Quando si zooma:
+
+L’immagine cresce in tutte le direzioni
+
+Deborda a destra, sinistra, sopra e sotto
+
+Tutta la nuova area generata deve essere esplorabile tramite pan
+
+Il clamp continua a funzionare
+
+Zoom e pan devono essere perfettamente coerenti tra loro.
+
+4️⃣ VINCOLO UNIVERSALE
+
+Il sistema deve funzionare per:
+
+immagini verticali
+
+immagini orizzontali
+
+immagini quadrate
+
+immagini panoramiche estreme
+
+immagini molto piccole
+
+immagini molto grandi
+
+Non devono esistere:
+
+zone morte
+
+zone irraggiungibili
+
+differenze di comportamento in base al formato
+
+distorsioni
+
+crop logici nascosti
+
+Solo overflow naturale controllato.
+
+⚠️ PROBLEMA ATTUALE (STRUTTURALE)
+
+Mi dici una cosa molto importante:
+
+Quello che vedo nel modale non rispecchia il container reale sul sito.
+
+Questo è un problema architetturale, non solo di logica.
+
+Se il modale:
+
+ha dimensioni diverse
+
+ha proporzioni diverse
+
+ha padding diversi
+
+ha comportamento diverso
+
+usa un wrapper differente
+
+Allora il risultato salvato non potrà mai combaciare perfettamente con il container reale.
+
+In quel caso stai calcolando trasformazioni su un sistema che non è quello finale.
+
+🧠 CONSIDERAZIONE ARCHITETTURALE FINALE
+Opzione 1 — Modale separato
+
+Pro
+
+Interfaccia più pulita
+
+Più spazio per controlli avanzati
+
+Nessun rischio di sporcare l’UI pubblica
+
+Contro (grave)
+
+Se il modale non è identico al container reale, la preview è falsata
+
+Anche 1px di differenza cambia completamente il risultato
+
+Rischio continuo di mismatch
+
+Opzione 2 — Gestione diretta nel container reale con toolbar overlay
+
+L’admin lavora direttamente:
+
+sul container reale
+
+con le sue proporzioni reali
+
+con il suo aspect ratio reale
+
+con la sua responsività reale
+
+Con una toolbar flottante attiva solo in modalità admin.
+
+Pro
+
+WYSIWYG reale
+
+Nessuna discrepanza
+
+Nessuna simulazione
+
+Nessuna doppia logica
+
+Meno bug strutturali
+
+Contro
+
+Richiede una gestione più pulita dell’overlay
+
+Va progettato bene per non interferire con UX pubblica
+
+🎯 Conclusione tecnica
+
+Se l’obiettivo è:
+
+precisione assoluta
+
+coerenza matematica
+
+zero mismatch
+
+sistema solido a lungo termine
+
+👉 È molto più robusto applicare la gestione direttamente sul container reale con toolbar overlay.
+
+Il modale è accettabile solo se:
+
+replica esattamente il container (dimensioni, ratio, CSS, comportamento)
+
+usa la stessa identica struttura
+
+Altrimenti continuerà a generare incoerenze.
