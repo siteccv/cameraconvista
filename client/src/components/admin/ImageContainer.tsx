@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { FolderOpen, ZoomIn, RotateCcw, GripVertical, Sun } from "lucide-react";
+import { FolderOpen, ZoomIn, RotateCcw, Sun } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import type { Media } from "@shared/schema";
 
@@ -405,18 +405,6 @@ export function ImageContainer({
     ? t("Media", "Medium")
     : t("Forte", "Strong");
 
-  const modeLabel = isMobileMode ? "Mobile" : "Desktop";
-
-  const debugInfo = isEditing ? {
-    mode: modeLabel,
-    container: `${Math.round(containerW)}×${Math.round(containerH)}`,
-    natural: `${naturalW}×${naturalH}`,
-    displayed: `${Math.round(imgW)}×${Math.round(imgH)}`,
-    overflow: `X:${Math.round(overflowX)} Y:${Math.round(overflowY)}`,
-    zoom: activeZoom,
-    pan: `X:${Math.round(activePanX)} Y:${Math.round(activePanY)}`,
-    overlay: activeOverlay,
-  } : null;
 
   return (
     <>
@@ -550,19 +538,6 @@ export function ImageContainer({
               </div>
             </div>
 
-            <div className="absolute bottom-2 left-2 right-2 z-20 pointer-events-none">
-              <div className="flex items-center gap-2">
-                <div className="bg-black/70 text-white text-[10px] px-2 py-1 rounded">
-                  <GripVertical className="h-3 w-3 inline mr-1" />
-                  {t("Trascina per spostare · Scroll per zoom", "Drag to pan · Scroll to zoom")}
-                </div>
-                {debugInfo && (
-                  <div className="bg-black/70 text-green-400 text-[9px] px-2 py-1 rounded font-mono leading-tight" data-testid={`${testIdPrefix}-debug`}>
-                    {debugInfo.mode} | {debugInfo.container} | img:{debugInfo.natural} | disp:{debugInfo.displayed} | ovf:{debugInfo.overflow} | z:{debugInfo.zoom} | pan:{debugInfo.pan} | ovl:{debugInfo.overlay}%
-                  </div>
-                )}
-              </div>
-            </div>
           </>
         )}
       </div>
