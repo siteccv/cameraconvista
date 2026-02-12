@@ -1,18 +1,16 @@
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Utensils, Music, Star, ArrowRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
 import { ImageContainer } from "@/components/admin/ImageContainer";
+import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, EVENTI_PRIVATI_DEFAULTS } from "@/lib/page-defaults";
 
 export default function EventiPrivati() {
   const { t } = useLanguage();
-  const { deviceView } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["eventi-privati"],
@@ -29,7 +27,6 @@ export default function EventiPrivati() {
   const spaces1Block = getBlock("spaces-1");
   const spaces2Block = getBlock("spaces-2");
   const spaces3Block = getBlock("spaces-3");
-  const testImageBlock = getBlock("test-image");
 
   const heroDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "intro")!;
@@ -41,7 +38,6 @@ export default function EventiPrivati() {
   const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-1")!;
   const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-2")!;
   const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-3")!;
-  const testImageDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "test-image")!;
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
@@ -53,24 +49,21 @@ export default function EventiPrivati() {
     });
   };
 
-  const handleHeroImageSave = (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
+  const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
+      imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -94,9 +87,9 @@ export default function EventiPrivati() {
     });
   };
 
-  const handleTestImageSave = (data: { src: string; zoom: number; panX: number; panY: number; overlay: number; zoomMobile: number; panXMobile: number; panYMobile: number; overlayMobile: number }) => {
-    if (!testImageBlock) return;
-    updateBlock(testImageBlock.id, {
+  const makeSpacesImageSave = (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
+    if (!block) return;
+    updateBlock(block.id, {
       imageUrl: data.src,
       imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
@@ -105,31 +98,10 @@ export default function EventiPrivati() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(testImageBlock.metadata as Record<string, unknown> || {}),
+        ...(block.metadata as Record<string, unknown> || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
-    });
-  };
-
-  const makeSpacesImageSave = (block: ReturnType<typeof getBlock>) => (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
-    if (!block) return;
-    updateBlock(block.id, {
-      imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
-      imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
     });
   };
 
@@ -173,35 +145,39 @@ export default function EventiPrivati() {
   return (
     <PublicLayout>
       <div className="min-h-[calc(100vh-80px)] flex flex-col">
-        <section className="relative h-[60vh] shrink-0 flex items-center justify-center">
-          <div className="absolute inset-y-0 left-4 right-4 md:left-0 md:right-0 rounded-xl md:rounded-none overflow-hidden">
-            <EditableImage
+        <section className="h-[60vh] shrink-0 px-4 md:px-8">
+          <div className="mx-auto max-w-[1560px] h-full">
+            <ImageContainer
               src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
-              zoomDesktop={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
+              zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
+              panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
+              panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
+              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
-              offsetXDesktop={heroBlock?.imageOffsetX || heroDef.imageOffsetX || 0}
-              offsetYDesktop={heroBlock?.imageOffsetY || heroDef.imageOffsetY || 0}
-              offsetXMobile={heroBlock?.imageOffsetXMobile || heroDef.imageOffsetXMobile || 0}
-              offsetYMobile={heroBlock?.imageOffsetYMobile || heroDef.imageOffsetYMobile || 0}
-              deviceView={deviceView}
-              containerClassName="absolute inset-0"
-              className="w-full h-full object-cover"
-              loading="eager"
+              panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
+              panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
+              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              containerClassName="w-full h-full rounded-xl"
+              aspectRatio="auto"
+              referenceWidth={1560}
+              testIdPrefix="eventi-privati-hero"
               onSave={handleHeroImageSave}
-            />
-            <div className="absolute inset-0 bg-black/35 pointer-events-none" />
-          </div>
-          <div className="relative z-10 text-center text-white">
-            <EditableText
-              textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
-              textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
-              fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-              fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
-              as="h1"
-              className="font-display drop-shadow-lg"
-              applyFontSize
-              onSave={handleHeroTitleSave}
-            />
+            >
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center text-white">
+                  <EditableText
+                    textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
+                    textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
+                    fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
+                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    as="h1"
+                    className="font-display drop-shadow-lg"
+                    applyFontSize
+                    onSave={handleHeroTitleSave}
+                  />
+                </div>
+              </div>
+            </ImageContainer>
           </div>
         </section>
 
@@ -221,40 +197,6 @@ export default function EventiPrivati() {
           </div>
         </section>
       </div>
-
-      <section className="py-10 md:py-20 bg-card" data-testid="test-image-section">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-4">
-              <span className="text-xs font-mono text-muted-foreground bg-muted px-2 py-1 rounded">
-                TEST CONTAINER — Nuova logica immagine (fit-to-width, clamp dinamico, offset normalizzato)
-              </span>
-            </div>
-            <ImageContainer
-              src={testImageBlock?.imageUrl || testImageDef.imageUrl || ""}
-              zoom={testImageBlock?.imageScaleDesktop || testImageDef.imageScaleDesktop || 100}
-              panX={testImageBlock?.imageOffsetX || testImageDef.imageOffsetX || 0}
-              panY={testImageBlock?.imageOffsetY || testImageDef.imageOffsetY || 0}
-              overlay={(testImageBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
-              zoomMobile={testImageBlock?.imageScaleMobile || testImageDef.imageScaleMobile || 100}
-              panXMobile={testImageBlock?.imageOffsetXMobile || testImageDef.imageOffsetXMobile || 0}
-              panYMobile={testImageBlock?.imageOffsetYMobile || testImageDef.imageOffsetYMobile || 0}
-              overlayMobile={(testImageBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
-              containerClassName="rounded-placeholder"
-              aspectRatio="16/9"
-              onSave={handleTestImageSave}
-            />
-            <div className="text-center mt-2">
-              <span className="text-[10px] font-mono text-muted-foreground">
-                {t(
-                  "Container isolato per test nuova logica • Non influenza altre immagini",
-                  "Isolated container for new logic test • Does not affect other images"
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
@@ -344,18 +286,19 @@ export default function EventiPrivati() {
               { block: spaces3Block, def: spaces3Def, idx: 3 },
             ].map(({ block, def, idx }) => (
               <div key={idx} data-testid={`spaces-image-${idx}`}>
-                <EditableImage
+                <ImageContainer
                   src={block?.imageUrl || def.imageUrl || ""}
-                  zoomDesktop={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  zoom={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  panX={block?.imageOffsetX ?? def.imageOffsetX ?? 0}
+                  panY={block?.imageOffsetY ?? def.imageOffsetY ?? 0}
+                  overlay={(block?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
                   zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
-                  offsetXDesktop={block?.imageOffsetX || def.imageOffsetX || 0}
-                  offsetYDesktop={block?.imageOffsetY || def.imageOffsetY || 0}
-                  offsetXMobile={block?.imageOffsetXMobile || def.imageOffsetXMobile || 0}
-                  offsetYMobile={block?.imageOffsetYMobile || def.imageOffsetYMobile || 0}
-                  deviceView={deviceView}
-                  containerClassName="aspect-[4/3] rounded-placeholder overflow-hidden relative"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+                  panXMobile={block?.imageOffsetXMobile ?? def.imageOffsetXMobile ?? 0}
+                  panYMobile={block?.imageOffsetYMobile ?? def.imageOffsetYMobile ?? 0}
+                  overlayMobile={(block?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  containerClassName="rounded-placeholder"
+                  aspectRatio="4/3"
+                  testIdPrefix={`spaces-${idx}`}
                   onSave={makeSpacesImageSave(block)}
                 />
               </div>
