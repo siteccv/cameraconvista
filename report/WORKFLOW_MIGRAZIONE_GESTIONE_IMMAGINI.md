@@ -494,4 +494,16 @@ Durante la migrazione, le pagine non ancora migrate continuano a usare EditableI
 
 ---
 
+### 2026-02-12 — Step 1: Consolidamento componente unico
+
+**Stato**: Completato
+**Componenti modificati**: `ImageContainer.tsx` (CREATO), `eventi-privati.tsx` (import aggiornato)
+**Problemi incontrati**: Nessuno
+**Diagnosi tecnica**: Rename + generalizzazione API da TestImageContainer. Interfaccia `ImageContainerProps`, tipo `ImageContainerSaveData`, hook `useImageMath` tutti esportati. Prop `testIdPrefix` per data-testid configurabili. Logica e comportamento identici al 100%.
+**Test effettuati**: Playwright e2e completo — 21 step: mount container, aspect ratio 16/9, editing mode on/off, zoom slider, overlay slider, Media Library button + modale, Reset button, Cancel button, Save button (disabled/enabled), re-enter editing mode, MediaPickerModal open/close
+**Esito**: Approvato — tutti i test superati
+**Decisioni prese**: TestImageContainer.tsx rimane nel codice come file orfano (nessun import) fino a migrazione completata. Report dettagliato in `report/STEP1_CONSOLIDAMENTO_COMPONENTE.md`
+
+---
+
 *Fine documento — Aggiornare dopo ogni intervento*

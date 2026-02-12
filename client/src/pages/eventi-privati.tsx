@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Users, Utensils, Music, Star, ArrowRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { EditableImage } from "@/components/admin/EditableImage";
-import { TestImageContainer } from "@/components/admin/TestImageContainer";
+import { ImageContainer } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, EVENTI_PRIVATI_DEFAULTS } from "@/lib/page-defaults";
 
@@ -223,7 +223,7 @@ export default function EventiPrivati() {
                 TEST CONTAINER — Nuova logica immagine (fit-to-width, clamp dinamico, offset normalizzato)
               </span>
             </div>
-            <TestImageContainer
+            <ImageContainer
               src={testImageBlock?.imageUrl || testImageDef.imageUrl || ""}
               zoom={testImageBlock?.imageScaleDesktop || testImageDef.imageScaleDesktop || 100}
               panX={testImageBlock?.imageOffsetX || testImageDef.imageOffsetX || 0}
