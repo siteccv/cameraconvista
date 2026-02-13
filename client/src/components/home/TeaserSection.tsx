@@ -2,7 +2,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
+import { ImageContainer } from "@/components/admin/ImageContainer";
+import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
@@ -19,14 +20,14 @@ interface TeaserSectionProps {
 
 export function TeaserSection({ block, defaults, reverse = false, alternate = false, onUpdateBlock }: TeaserSectionProps) {
   const { t } = useLanguage();
-  const { deviceView, forceMobileLayout } = useAdmin();
+  const { forceMobileLayout } = useAdmin();
   const viewportIsMobile = useIsMobile();
   const isMobile = forceMobileLayout || viewportIsMobile;
 
-  const meta = (block?.metadata as Record<string, string>) || defaults.metadata;
-  const subtitleIt = meta?.subtitleIt || defaults.metadata.subtitleIt;
-  const subtitleEn = meta?.subtitleEn || defaults.metadata.subtitleEn;
-  const testId = meta?.testId || defaults.metadata.testId;
+  const meta = (block?.metadata as Record<string, unknown>) || defaults.metadata;
+  const subtitleIt = (meta?.subtitleIt as string) || defaults.metadata.subtitleIt;
+  const subtitleEn = (meta?.subtitleEn as string) || defaults.metadata.subtitleEn;
+  const testId = (meta?.testId as string) || defaults.metadata.testId;
 
   const titleIt = block?.titleIt || defaults.titleIt;
   const titleEn = block?.titleEn || defaults.titleEn;
@@ -43,12 +44,14 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
   const ctaHref = block?.ctaUrl || defaults.ctaUrl;
 
   const imageSrc = block?.imageUrl || defaults.imageUrl;
-  const imageZoomDesktop = block?.imageScaleDesktop || defaults.imageScaleDesktop;
+  const imageZoom = block?.imageScaleDesktop || defaults.imageScaleDesktop;
   const imageZoomMobile = block?.imageScaleMobile || defaults.imageScaleMobile;
-  const imageOffsetXDesktop = block?.imageOffsetX || defaults.imageOffsetX;
-  const imageOffsetYDesktop = block?.imageOffsetY || defaults.imageOffsetY;
-  const imageOffsetXMobile = block?.imageOffsetXMobile || defaults.imageOffsetXMobile;
-  const imageOffsetYMobile = block?.imageOffsetYMobile || defaults.imageOffsetYMobile;
+  const imagePanX = block?.imageOffsetX ?? defaults.imageOffsetX;
+  const imagePanY = block?.imageOffsetY ?? defaults.imageOffsetY;
+  const imagePanXMobile = block?.imageOffsetXMobile ?? defaults.imageOffsetXMobile;
+  const imagePanYMobile = block?.imageOffsetYMobile ?? defaults.imageOffsetYMobile;
+  const imageOverlay = (meta?.overlay as number) ?? 0;
+  const imageOverlayMobile = (meta?.overlayMobile as number) ?? 0;
 
   const handleSubtitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!block || !onUpdateBlock) return;
@@ -85,24 +88,21 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
     });
   };
 
-  const handleImageSave = (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
+  const handleImageSave = (data: ImageContainerSaveData) => {
     if (!block || !onUpdateBlock) return;
     onUpdateBlock(block.id, {
       imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
+      imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...meta,
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -175,19 +175,19 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
           </div>
 
           <div className={isMobile ? "" : imageOrderClass}>
-            <EditableImage
+            <ImageContainer
               src={imageSrc}
-              alt={t(titleIt, titleEn) || titleIt}
-              zoomDesktop={imageZoomDesktop}
+              zoom={imageZoom}
+              panX={imagePanX}
+              panY={imagePanY}
+              overlay={imageOverlay}
               zoomMobile={imageZoomMobile}
-              offsetXDesktop={imageOffsetXDesktop}
-              offsetYDesktop={imageOffsetYDesktop}
-              offsetXMobile={imageOffsetXMobile}
-              offsetYMobile={imageOffsetYMobile}
-              deviceView={deviceView}
-              containerClassName="aspect-[4/3] rounded-2xl overflow-hidden relative"
-              className="w-full h-full object-cover"
-              loading="lazy"
+              panXMobile={imagePanXMobile}
+              panYMobile={imagePanYMobile}
+              overlayMobile={imageOverlayMobile}
+              containerClassName="rounded-2xl"
+              aspectRatio="4/3"
+              testIdPrefix={`teaser-img-${testId}`}
               onSave={handleImageSave}
             />
           </div>
