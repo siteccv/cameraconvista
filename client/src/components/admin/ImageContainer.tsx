@@ -4,7 +4,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { FolderOpen, ZoomIn, RotateCcw, Sun } from "lucide-react";
+import { FolderOpen, ZoomIn, RotateCcw, Sun, X } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import type { Media } from "@shared/schema";
 
@@ -468,47 +468,47 @@ export function ImageContainer({
         {isEditing && (
           <>
             <div className="absolute top-1.5 left-1.5 right-1.5 z-20 pointer-events-none">
-              <div className="flex items-center gap-1 pointer-events-auto flex-wrap">
+              <div className="flex items-center gap-1 pointer-events-auto">
+                <Button
+                  size="icon"
+                  variant="default"
+                  className="h-7 w-7"
+                  onClick={(e) => { e.stopPropagation(); setMediaPickerOpen(true); }}
+                  title="Media"
+                  data-testid={`${testIdPrefix}-media-picker`}
+                >
+                  <FolderOpen className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="outline"
+                  className="h-7 w-7 bg-black/60 text-white border-white/30"
+                  onClick={(e) => { e.stopPropagation(); handleReset(); }}
+                  title="Reset"
+                  data-testid={`${testIdPrefix}-reset`}
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </Button>
+                <div className="flex-1" />
                 <Button
                   size="sm"
                   variant="default"
                   className="h-7 text-xs px-2"
-                  onClick={(e) => { e.stopPropagation(); setMediaPickerOpen(true); }}
-                  data-testid={`${testIdPrefix}-media-picker`}
+                  onClick={(e) => { e.stopPropagation(); handleSave(); }}
+                  disabled={!hasChanges}
+                  data-testid={`${testIdPrefix}-save`}
                 >
-                  <FolderOpen className="h-3.5 w-3.5 mr-1" />
-                  Media
+                  {t("Salva", "Save")}
                 </Button>
                 <Button
-                  size="sm"
+                  size="icon"
                   variant="outline"
-                  className="h-7 text-xs px-2 bg-black/60 text-white border-white/30"
-                  onClick={(e) => { e.stopPropagation(); handleReset(); }}
-                  data-testid={`${testIdPrefix}-reset`}
-                >
-                  <RotateCcw className="h-3.5 w-3.5 mr-1" />
-                  Reset
-                </Button>
-                <div className="flex-1" />
-                {hasChanges && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    className="h-7 text-xs px-2"
-                    onClick={(e) => { e.stopPropagation(); handleSave(); }}
-                    data-testid={`${testIdPrefix}-save`}
-                  >
-                    {t("Salva", "Save")}
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs px-2 bg-black/60 text-white border-white/30"
+                  className="h-7 w-7 bg-black/60 text-white border-white/30"
                   onClick={(e) => { e.stopPropagation(); handleCancel(); }}
+                  title={t("Annulla", "Cancel")}
                   data-testid={`${testIdPrefix}-cancel`}
                 >
-                  {t("Annulla", "Cancel")}
+                  <X className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
