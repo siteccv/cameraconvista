@@ -1,0 +1,190 @@
+🔐 PROMPT PER REPLIT – ALLINEAMENTO DOCUMENTAZIONE SICUREZZA
+
+Aggiorna tutta la documentazione tecnica del progetto per riflettere lo stato reale attuale del sistema (backend + Supabase + hardening sicurezza).
+
+1️⃣ Aggiornamento documenti esistenti (cartella DNA_Project)
+
+Aggiorna i seguenti file:
+
+01_PANORAMICA_PROGETTO.md
+
+02_ARCHITETTURA_SISTEMA.md
+
+05_LOGICA_APPLICATIVA.md
+
+06_PANNELLO_ADMIN.md
+
+07_DATABASE_SCHEMA.md
+
+Integra le seguenti informazioni aggiornate:
+🔐 STATO SICUREZZA ATTUALE (CONFERMATO)
+Backend Express
+
+Helmet attivo
+
+Header sicurezza attivi su tutte le risposte:
+
+X-Content-Type-Options: nosniff
+
+Referrer-Policy
+
+X-Frame-Options: SAMEORIGIN
+
+Permissions-Policy
+
+X-Powered-By rimosso
+
+Rate limiting login attivo
+
+Upload endpoint protetto con autenticazione
+
+Password hash con bcrypt
+
+Session cookie:
+
+httpOnly
+
+secure (in produzione)
+
+Nessuna chiave sensibile esposta lato client
+
+🗄 SUPABASE – STATO RLS
+RLS ATTIVO SU TUTTE LE TABELLE CRITICHE:
+
+menu_items
+
+menu_items_published
+
+wines
+
+cocktails
+
+events
+
+pages
+
+page_blocks
+
+media
+
+media_categories
+
+galleries
+
+gallery_images
+
+users
+
+admin_sessions
+
+site_settings
+
+Policy applicate:
+
+SELECT pubblico solo per dati realmente pubblici
+
+Scrittura consentita solo a service_role
+
+Nessuna tabella con RLS disattivato
+
+Test anon effettuato → nessun accesso non autorizzato
+
+Aggiorna 07_DATABASE_SCHEMA.md indicando chiaramente che:
+
+Il database è protetto da RLS completo
+
+Le scritture avvengono esclusivamente tramite backend con service_role
+
+Il frontend usa anon key solo per SELECT consentiti
+
+2️⃣ CREA NUOVO FILE
+
+Crea:
+
+DNA_Project/12_SICUREZZA_SITO.md
+
+Contenuto del file:
+12 – Sicurezza Sito (Stato Attuale)
+Livello di protezione
+
+Sistema attualmente in stato di sicurezza avanzato (livello production-ready per progetto hospitality con admin privato).
+
+1. Protezione Backend
+
+Helmet attivo
+
+Security headers completi
+
+Nessuna esposizione tecnologia server
+
+Rate limit login attivo
+
+Upload endpoint autenticato
+
+Hash password sicuro (bcrypt)
+
+Cookie sessione httpOnly + secure
+
+2. Protezione Database (Supabase)
+
+Row Level Security attiva su tutte le tabelle
+
+Accesso anon limitato a SELECT consentiti
+
+Scrittura esclusiva tramite service_role
+
+Nessuna tabella pubblica esposta senza policy
+
+Verifica manuale effettuata via SQL Editor
+
+3. Superficie di attacco ridotta
+
+Nessuna API pubblica scrivibile
+
+Nessun endpoint aperto senza autenticazione
+
+Nessun secret esposto lato client
+
+Nessuna possibilità di bypass diretto via Supabase anon key
+
+4. Stato attuale rischio
+
+Rischio compromissione:
+BASSO
+
+Il sistema è adeguatamente protetto contro:
+
+brute force login
+
+accesso diretto database
+
+upload abusivi
+
+clickjacking
+
+sniffing contenuti
+
+enumerazione API
+
+5. Miglioramenti futuri opzionali (non urgenti)
+
+CSP in modalità report-only
+
+HSTS definitivo
+
+Global API rate limiting
+
+6. Conclusione
+
+Il sito è attualmente in stato stabile e sicuro.
+Non risultano vulnerabilità critiche aperte.
+
+3️⃣ Ultima istruzione
+
+Dopo aggiornamento:
+
+verifica coerenza tra codice e documentazione
+
+assicurati che non esistano riferimenti a configurazioni precedenti
+
+non modificare alcuna logica applicativa
