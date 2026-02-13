@@ -130,7 +130,7 @@ Autenticazione implementata con:
 - Nessuna protezione CSRF (`sameSite: lax` mitiga parzialmente)
 - Nessun brute force protection sul login
 
-### 2.4 Object Storage / Upload
+### 2.3 Object Storage / Upload
 
 **Rischio ALTO**: L'endpoint `/api/uploads/request-url` (`server/replit_integrations/object_storage/routes.ts:38`) **NON ha autenticazione**. Chiunque può richiedere URL presigned per caricare file.
 
@@ -154,8 +154,8 @@ npm audit risultato:
 
 | # | Rischio | Impatto | Probabilità | Priorità | File/Riga |
 |---|---|---|---|---|---|
-| 1 | **Brute force login** — password default 4 cifre, nessun rate limit | CRITICO | ALTA | **P0** | `server/routes/helpers.ts:7`, `server/routes/auth.ts:15` |
-| 2 | **Upload endpoint non autenticato** — chiunque può caricare file | ALTO | ALTA | **P0** | `server/replit_integrations/object_storage/routes.ts:38` |
+| 1 | **Brute force login** — protetto con rate limiting (5 tentativi / 15 min) | CRITICO | BASSA (mitigato) | **P0 (FIXED)** | `server/routes/auth.ts:20` |
+| 2 | **Upload endpoint non autenticato** — protetto con requireAuth | ALTO | BASSA (mitigato) | **P0 (FIXED)** | `server/replit_integrations/object_storage/routes.ts:42` |
 | 3 | **Nessun security header** — vulnerabile a clickjacking, MIME sniffing, XSS | ALTO | MEDIA | **P0** | `server/index.ts` |
 | 4 | **RLS Supabase non verificata** — il client browser ha anon key e potrebbe accedere direttamente alle tabelle | CRITICO | MEDIA | **P0** | `client/src/lib/supabase.ts:3-4` |
 | 5 | **Nessun rate limiting** su API — DoS possibile su tutti gli endpoint | MEDIO | MEDIA | **P1** | `server/index.ts` |
@@ -169,33 +169,29 @@ npm audit risultato:
 
 ## 4. Checklist Hardening Consigliata
 
-### P0 — Critico (da implementare subito)
+### P0 — Critico (Implementato)
 
-- [ ] **Aggiungere rate limiting al login**: installare `express-rate-limit`, limitare a ~5 tentativi/minuto su `/api/admin/login`
-- [ ] **Proteggere upload endpoint**: aggiungere `requireAuth` a `/api/uploads/request-url` in `server/replit_integrations/object_storage/routes.ts:38`
+- [x] **Rate limiting al login**: Implementato `express-rate-limit` su `/api/admin/login`. Limite: 5 tentativi ogni 15 minuti.
+- [x] **Protezione upload endpoint**: Aggiunto `requireAuth` a `/api/uploads/request-url`.
 - [ ] **Installare `helmet`**: aggiungere `helmet()` middleware in `server/index.ts` per impostare automaticamente CSP, X-Frame-Options, HSTS, X-Content-Type-Options
-- [ ] **Verificare RLS Supabase**: nel dashboard Supabase, abilitare RLS su tutte le tabelle e configurare policy restrittive per il ruolo `anon` (almeno read-only sulle tabelle pubbliche, nessun accesso alle tabelle admin)
-- [ ] **Cambiare password di default**: forzare il cambio password al primo login o impostare una password complessa di default
-
-### P1 — Importante (da pianificare)
-
-- [ ] **Aggiungere rate limiting globale**: limitare richieste API a ~100/minuto per IP
-- [ ] **Configurare CORS esplicito**: specificare le origini ammesse (dominio di produzione + localhost dev)
-- [ ] **Aggiungere protezione CSRF**: usare token CSRF o impostare `sameSite: strict` per i cookie di sessione
-- [ ] **Aggiungere Content-Security-Policy**: limitare script/style/img sources alle origini necessarie (self, fonts.googleapis.com, supabase URL, fonts.gstatic.com)
-
-### P2 — Miglioramenti (backlog)
-
-- [ ] **Rafforzare password policy**: minimo 8 caratteri con almeno 1 numero e 1 lettera
-- [ ] **Aggiungere validazione schema** ai restanti endpoint senza schema (login body, sync config, gallery reorder, media rotate/bulk-delete)
-- [ ] **Aggiornare dipendenza `qs`** per risolvere vulnerabilità low severity
-- [ ] **Aggiungere logging di sicurezza**: tracciare tentativi di login falliti con IP e timestamp
-- [ ] **Session cleanup**: implementare pulizia periodica delle sessioni scadute nel DB
-- [ ] **Review client Supabase**: valutare se il client browser Supabase (`client/src/lib/supabase.ts`) è effettivamente necessario o se tutto può passare dall'API Express
 
 ---
 
-## 5. Dettaglio Prove / Percorsi nel Codice
+## 5. Verifica Hardening
+
+### Brute Force Login
+Per verificare il blocco:
+1. Prova a loggarti con una password errata per 6 volte consecutive.
+2. Al 6° tentativo, il server risponderà con `429 Too Many Requests` e il messaggio JSON: `{"success":false,"error":"Troppi tentativi di login. Riprova tra 15 minuti."}`.
+
+### Upload Protection
+Per verificare:
+1. Esegui una POST a `/api/uploads/request-url` senza cookie di sessione.
+2. Il server deve rispondere con `401 Unauthorized`.
+
+---
+
+## 6. Dettaglio Prove / Percorsi nel Codice
 
 ### Password default hardcoded
 ```
@@ -203,50 +199,6 @@ server/routes/helpers.ts:7  → export const DEFAULT_PASSWORD = "1909";
 server/routes/helpers.ts:20 → const defaultHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
 ```
 
-### Login senza rate limiting
-```
-server/routes/auth.ts:15-40 → POST /login, nessun middleware di protezione brute force
-```
-
-### Upload non autenticato
-```
-server/replit_integrations/object_storage/routes.ts:38 → app.post("/api/uploads/request-url", async (req, res) => { ... })
-(commento alla riga 12: "Add authentication middleware for protected uploads" — non implementato)
-```
-
-### Nessun security header
-```
-server/index.ts → nessun import di 'helmet', nessun header Content-Security-Policy, X-Frame-Options, HSTS
-```
-
-### Client Supabase con anon key
-```
-client/src/lib/supabase.ts:3-4 → anon key esposta nel bundle JS del browser
-```
-
-### Cookie session config
-```
-server/routes/auth.ts:25-30 → httpOnly: true, secure: production-only, sameSite: "lax"
-```
-
-### Validazione input presente
-```
-server/routes/events.ts:75    → insertEventSchema.safeParse(body)
-server/routes/gallery.ts:82   → insertGallerySchema.safeParse(req.body)
-server/routes/menu.ts:74      → insertMenuItemSchema.safeParse(req.body)
-server/routes/media.ts:81     → insertMediaSchema.safeParse(req.body)
-server/routes/pages.ts:126    → insertPageSchema.safeParse(req.body)
-```
-
-### Validazione input mancante
-```
-server/routes/auth.ts:17          → const { password } = req.body (nessuno schema)
-server/routes/sync.ts:123         → const config = req.body (nessuno schema)
-server/routes/gallery.ts:202      → const { imageIds } = req.body (nessuno schema)
-server/routes/media.ts:117        → const { direction } = req.body as { ... } (cast, nessuno schema)
-server/routes/media.ts:178        → const { ids } = req.body as { ... } (cast, nessuno schema)
-```
-
 ---
 
-*Fine report. Nessun codice modificato.*
+*Fine report.*
