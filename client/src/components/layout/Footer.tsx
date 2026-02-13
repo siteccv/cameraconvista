@@ -253,11 +253,11 @@ export function Footer() {
             <div className="md:hidden">
               <p>© {new Date().getFullYear()} Camera con Vista bistrot</p>
               <p>CAMERA CON VISTA S.A.S.</p>
-              <p>Via Santo Stefano 14/2A – Bologna | P.IVA 03488971205</p>
+              <p>P.IVA 03488971205</p>
             </div>
             <div className="hidden md:block">
               <p>© {new Date().getFullYear()} Camera con Vista bistrot — CAMERA CON VISTA S.A.S.</p>
-              <p>Via Santo Stefano 14/2A – 40125 Bologna (BO) | P.IVA 03488971205</p>
+              <p>P.IVA 03488971205</p>
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
