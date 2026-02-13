@@ -103,3 +103,27 @@ Dettaglio dei meta tag configurati per l'ottimizzazione sui motori di ricerca:
 - **Title (EN):** Cocktail Bar in Bologna – Camera con Vista
 - **Description (IT):** Cocktail bar elegante a Bologna con drink d'autore, distillati selezionati e atmosfera curata. Disponibili anche tavoli all'aperto in piazza.
 - **Description (EN):** Elegant cocktail bar in Bologna with signature drinks, premium spirits and a refined atmosphere. Outdoor seating available.
+
+### 📅 Events
+- **Title (IT):** Eventi a Bologna – Camera con Vista
+- **Title (EN):** Events in Bologna – Camera con Vista
+- **Description (IT):** Scopri gli eventi di Camera con Vista: serate speciali, musica e appuntamenti nel cuore di Bologna (Piazza Santo Stefano).
+- **Description (EN):** Discover upcoming events at Camera con Vista in Piazza Santo Stefano, Bologna: special nights, music and curated experiences.
+
+### 💼 Private Events
+- **Title (IT):** Eventi Privati a Bologna – Camera con Vista
+- **Title (EN):** Private Events in Bologna – Camera con Vista
+- **Description (IT):** Location per eventi privati e aziendali a Bologna: lauree, compleanni e cene riservate, con cucina e cocktail su misura.
+- **Description (EN):** Private and corporate events venue in Bologna for celebrations, graduations and tailored experiences with bespoke food & cocktails.
+
+### 🖼️ Gallery
+- **Title (IT):** Galleria – Camera con Vista | Bologna
+- **Title (EN):** Gallery – Camera con Vista | Bologna
+- **Description (IT):** Foto della location, dei piatti e dell'atmosfera di Camera con Vista in Piazza Santo Stefano, con tavoli all'aperto in piazza.
+- **Description (EN):** Photos of the venue, dishes and atmosphere in Piazza Santo Stefano, Bologna, with outdoor seating in the square.
+
+### 📍 Where We Are
+- **Title (IT):** Dove Siamo – Camera con Vista | Bologna
+- **Title (EN):** Where We Are – Camera con Vista | Bologna
+- **Description (IT):** Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.
+- **Description (EN):** Find Camera con Vista in Bologna. Address, opening hours, phone and directions.
