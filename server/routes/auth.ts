@@ -1,4 +1,5 @@
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { storage } from "../storage";
 import {
   generateSessionToken,
@@ -12,7 +13,16 @@ import {
 
 const router = Router();
 
-router.post("/login", async (req, res) => {
+// Brute-force protection: 5 attempts per 15 minutes
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { success: false, error: "Troppi tentativi di login. Riprova tra 15 minuti." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { password } = req.body;
     const isValid = await verifyPassword(password);
