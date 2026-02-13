@@ -4,7 +4,6 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
-import { EditableImage } from "@/components/admin/EditableImage";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
@@ -13,7 +12,7 @@ import type { Cocktail } from "@shared/schema";
 
 export default function CocktailBar() {
   const { t } = useLanguage();
-  const { deviceView, adminPreview } = useAdmin();
+  const { adminPreview } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["cocktail-bar"],
@@ -85,24 +84,21 @@ export default function CocktailBar() {
     });
   };
 
-  const makeGalleryImageSave = (block: ReturnType<typeof getBlock>) => (data: {
-    src: string;
-    zoomDesktop: number;
-    zoomMobile: number;
-    offsetXDesktop: number;
-    offsetYDesktop: number;
-    offsetXMobile: number;
-    offsetYMobile: number;
-  }) => {
+  const makeGalleryImageSave = (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
     if (!block) return;
     updateBlock(block.id, {
       imageUrl: data.src,
-      imageScaleDesktop: data.zoomDesktop,
+      imageScaleDesktop: data.zoom,
       imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.offsetXDesktop,
-      imageOffsetY: data.offsetYDesktop,
-      imageOffsetXMobile: data.offsetXMobile,
-      imageOffsetYMobile: data.offsetYMobile,
+      imageOffsetX: data.panX,
+      imageOffsetY: data.panY,
+      imageOffsetXMobile: data.panXMobile,
+      imageOffsetYMobile: data.panYMobile,
+      metadata: {
+        ...(block.metadata as Record<string, unknown> || {}),
+        overlay: data.overlay,
+        overlayMobile: data.overlayMobile,
+      },
     });
   };
 
@@ -191,18 +187,19 @@ export default function CocktailBar() {
               { block: gallery3Block, def: gallery3Def, idx: 3 },
             ].map(({ block, def, idx }) => (
               <div key={idx} data-testid={`cocktail-gallery-image-${idx}`}>
-                <EditableImage
+                <ImageContainer
                   src={block?.imageUrl || def.imageUrl || ""}
-                  zoomDesktop={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  zoom={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
+                  panX={block?.imageOffsetX ?? def.imageOffsetX ?? 0}
+                  panY={block?.imageOffsetY ?? def.imageOffsetY ?? 0}
+                  overlay={(block?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
                   zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
-                  offsetXDesktop={block?.imageOffsetX || def.imageOffsetX || 0}
-                  offsetYDesktop={block?.imageOffsetY || def.imageOffsetY || 0}
-                  offsetXMobile={block?.imageOffsetXMobile || def.imageOffsetXMobile || 0}
-                  offsetYMobile={block?.imageOffsetYMobile || def.imageOffsetYMobile || 0}
-                  deviceView={deviceView}
-                  containerClassName="aspect-[4/5] md:aspect-[4/3] rounded-2xl overflow-hidden relative"
-                  className="w-full h-full object-cover"
-                  loading="lazy"
+                  panXMobile={block?.imageOffsetXMobile ?? def.imageOffsetXMobile ?? 0}
+                  panYMobile={block?.imageOffsetYMobile ?? def.imageOffsetYMobile ?? 0}
+                  overlayMobile={(block?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  containerClassName="rounded-2xl"
+                  aspectRatio="4/5"
+                  testIdPrefix={`cocktail-gallery-${idx}`}
                   onSave={makeGalleryImageSave(block)}
                 />
               </div>
