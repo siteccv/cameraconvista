@@ -30,7 +30,6 @@ interface UseUploadOptions {
  * function FileUploader() {
  *   const { uploadFile, isUploading, error } = useUpload({
  *     onSuccess: (response) => {
- *       console.log("Uploaded to:", response.objectPath);
  *     },
  *   });
  *

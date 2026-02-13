@@ -396,6 +396,7 @@ export function ImageContainer({
     top: imgTop,
     maxWidth: "none",
     maxHeight: "none",
+    transition: isDragging.current ? "none" : "all 0.3s ease-out",
   } : {};
 
   const overlayLabel = activeOverlay === 0
@@ -429,8 +430,9 @@ export function ImageContainer({
             src={displaySrc}
             alt=""
             style={imgStyle}
-            className="pointer-events-none select-none"
+            className="pointer-events-none select-none transition-opacity duration-500"
             draggable={false}
+            onLoad={() => setImageLoaded(true)}
           />
         ) : displaySrc ? (
           <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-sm">
@@ -444,7 +446,7 @@ export function ImageContainer({
 
         {activeOverlay > 0 && displaySrc && (
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none transition-opacity duration-300"
             style={{ backgroundColor: `rgba(0, 0, 0, ${activeOverlay / 100})` }}
             data-testid={`${testIdPrefix}-overlay`}
           />
