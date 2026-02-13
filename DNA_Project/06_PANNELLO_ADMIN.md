@@ -123,10 +123,16 @@ In modalità admin preview:
 - Toggle desktop/mobile view
 
 ### IPhoneFrame
-- Dimensioni: 393x771px (area visibile)
-- 393px larghezza logica iPhone 15 Pro, 771px = 852 - 47 (status bar) - 34 (home indicator)
-- Altezza adattiva al container, minimo 600px
-- `forceMobileLayout` forzato per tutti i componenti figli
+- **Dimensioni**: 393x852px (viewport iPhone 15 Pro reale)
+- **Tecnologia**: CSS `transform: scale()` con `transform-origin: top left` per scaling deterministico senza distorsione dei pixel.
+- **Precisione**: Il contenuto renderizza a risoluzione reale mobile, poi viene scalato visivamente per il desktop.
+- **Zoom Lock**: Controllo globale nell'header admin per forzare la visualizzazione al 100% compensando lo zoom del browser.
+- `forceMobileLayout` forzato per tutti i componenti figli.
+
+### ImageContainer (Nuovo Sistema)
+- **Controlli Ottimizzati**: Slider Zoom e Overlay posizionati sempre in basso per non coprire il contenuto.
+- **Bottoni Compatti**: Media, Reset, Salva e Annulla posizionati in alto, con icone ridotte per massima usabilità mobile.
+- **Misurazione**: Uso di `offsetWidth/offsetHeight` per gestire correttamente il posizionamento sotto transform CSS.
 
 ## SEO & Metadata (`/admina/seo`)
 

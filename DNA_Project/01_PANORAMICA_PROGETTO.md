@@ -45,11 +45,12 @@
 - **Contatti**: Informazioni di contatto
 
 ### Pannello Admin (`/admina`)
-- **Sezioni Pagine**: Editing WYSIWYG di tutte le pagine
+- **Sezioni Pagine**: Editing WYSIWYG di tutte le pagine con anteprima iPhone 15 Pro (393x852px) e scaling CSS deterministico.
+- **Admin Control Center**: Sistema di blocco zoom globale per garantire coerenza visuale 1:1 durante l'editing.
 - **Eventi**: CRUD completo con max 10 eventi
-- **Galleria Album**: Gestione album e immagini
+- **Galleria Album**: Gestione album e immagini con controlli ImageContainer
 - **Libreria Media**: Upload, categorizzazione, gestione media
-- **Anteprima**: Preview mobile (iPhone 15 Pro frame)
+- **Anteprima**: Preview mobile avanzata con precisione pixel-perfect
 - **SEO & Metadata**: Gestione meta tag per pagina (vedi `11_SEO_SISTEMA.md`)
 - **Impostazioni**: Password, footer, configurazioni
 

@@ -23,9 +23,9 @@
 | **Footer Management** | ✅ Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
 | **Media Categories** | ✅ Completo | Sistema cartelle dinamico per media library con CRUD categorie |
 | **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
-| **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (430x932px) con Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
-| **Scroll to Top Navigation** | ✅ Completo | Componente ScrollToTop che resetta lo scroll ad ogni cambio pagina |
-| **Traduzione Automatica IT→EN** | ✅ Completo | Endpoint `/api/admin/translate` con OpenAI (dual-mode: `OPENAI_API_KEY` diretto per Render + AI Integrations proxy per Replit), hook `useTranslation`, componente `TranslateButton` integrato in tutti i form bilingui |
+| **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (393x852px) con CSS `transform: scale()` per precisione pixel-perfect, Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
+| **Admin Zoom Lock** | ✅ Completo | Sistema di blocco zoom per visualizzare l'admin sempre al 100% indipendentemente dallo zoom del browser |
+| **ImageContainer System** | ✅ Completo | Componente unificato per gestione immagini con controlli zoom/overlay ottimizzati per mobile e posizionamento intelligente |
 | **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
 | **Google Sheets Sync** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
 | **SEO System** | ✅ Completo | Middleware server-side, robots.txt, sitemap.xml dinamico, JSON-LD, Open Graph, hreflang, admin `/admina/seo` |
