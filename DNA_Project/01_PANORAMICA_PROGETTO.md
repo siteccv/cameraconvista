@@ -76,6 +76,26 @@ Il progetto supporta due backend database intercambiabili:
 
 La selezione è deterministica e fail-fast in `server/storage.ts`: Supabase ha priorità, poi PostgreSQL locale, altrimenti errore esplicito (nessun fallback silenzioso).
 
+## Sicurezza
+
+Il progetto implementa un livello di sicurezza avanzato (production-ready per progetto hospitality con admin privato):
+
+### Backend Express
+- **Helmet** attivo con security headers su tutte le risposte: `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN`, `Permissions-Policy`
+- **X-Powered-By** rimosso (tecnologia server nascosta)
+- **Rate limiting login** attivo: 5 tentativi ogni 15 minuti per IP
+- **Upload endpoint** protetto con autenticazione (`requireAuth`)
+- **Password hash** con bcrypt, sessioni cookie httpOnly + secure in produzione
+- Nessuna chiave sensibile esposta lato client
+
+### Database (Supabase)
+- **Row Level Security (RLS)** attiva su tutte le tabelle critiche
+- Accesso `anon` limitato a SELECT consentiti per dati pubblici
+- Scrittura consentita esclusivamente tramite backend con `service_role`
+- Nessuna tabella pubblica esposta senza policy
+
+> Dettagli completi: vedi `12_SICUREZZA_SITO.md`
+
 ## Portabilità
 
 Il progetto è **100% portabile** fuori da Replit (Windsurf, macchina locale):

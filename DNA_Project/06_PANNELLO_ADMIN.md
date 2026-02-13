@@ -3,8 +3,9 @@
 ## Accesso
 
 - **URL**: `/admina` (path segreto, non esposto nella navigazione pubblica)
-- **Password default**: `1909`
-- **Sessione**: Cookie httpOnly, durata 24 ore
+- **Password default**: `1909` (modificabile da Impostazioni)
+- **Sessione**: Cookie httpOnly, secure in produzione, durata 24 ore, sameSite: lax
+- **Rate limiting**: 5 tentativi di login ogni 15 minuti per IP (HTTP 429 al superamento)
 - **Logout**: Invalida sessione su server + clear cookie
 
 ## Layout Admin
@@ -104,7 +105,7 @@ In modalità admin preview:
 - Gestione cartelle/categorie
 
 ### Upload Flow
-1. Selezionare file → upload via Object Storage (presigned URL)
+1. Selezionare file → upload via endpoint autenticato (`requireAuth`)
 2. Processamento opzionale con sharp (resize)
 3. Salvataggio metadata in database
 4. Immagine disponibile per selezione in MediaPickerModal

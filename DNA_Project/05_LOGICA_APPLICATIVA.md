@@ -90,9 +90,10 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 1. Utente naviga a `/admina` → `ProtectedAdminRoute` verifica `isAuthenticated`
 2. Se non autenticato → redirect a `/admina/login`
 3. Login form → `POST /api/admin/login` con password
-4. Server: `bcrypt.compare(password, storedHash)` → genera token → crea sessione in DB
-5. Cookie `ccv_admin_session` (httpOnly, 24h, sameSite: lax) → risposta
-6. Frontend: `setIsAuthenticated(true)` → redirect a `/admina`
+4. **Rate limiting**: 5 tentativi ogni 15 minuti per IP. Al superamento: HTTP 429 con messaggio "Troppi tentativi di login. Riprova tra 15 minuti."
+5. Server: `bcrypt.compare(password, storedHash)` → genera token → crea sessione in DB
+6. Cookie `ccv_admin_session` (httpOnly, secure in produzione, 24h, sameSite: lax) → risposta
+7. Frontend: `setIsAuthenticated(true)` → redirect a `/admina`
 
 ### Verifica Sessione
 - Al mount dell'app, `AdminProvider.useEffect` chiama `checkSession()`
@@ -101,6 +102,15 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 
 ### Cambio Password
 - `POST /api/admin/change-password` → verifica password corrente → hash nuova password → salva in `site_settings`
+
+### Protezione Sicurezza
+- Rate limiting login: `express-rate-limit`, 5 tentativi / 15 min per IP
+- Cookie httpOnly + secure (produzione) + sameSite: lax
+- Token sessione: 32 bytes crypto random
+- Password: hash bcrypt
+- Upload endpoint: protetto con `requireAuth`
+
+> Dettagli completi sulla sicurezza: vedi `12_SICUREZZA_SITO.md`
 
 ## Sistema Eventi
 

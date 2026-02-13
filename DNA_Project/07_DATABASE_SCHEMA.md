@@ -231,6 +231,45 @@
 
 Quando si usa Supabase, lo snapshot pubblicato viene salvato dentro il campo `metadata` JSONB come `metadata.__publishedSnapshot` anziché in una colonna separata `published_snapshot`. Il metodo `SupabaseStorage.enrichBlockWithSnapshot()` estrae questo valore in `block.publishedSnapshot` per compatibilità con il layer API.
 
+## Row Level Security (RLS) — Supabase
+
+Il database Supabase è protetto da **RLS attivo su tutte le tabelle critiche**. Questo garantisce che anche se un utente malintenzionato ottenesse la `anon key` (che è pubblica by design nel client browser), non potrebbe accedere a dati protetti o effettuare scritture.
+
+### Tabelle con RLS attivo
+
+| Tabella | SELECT anon | INSERT/UPDATE/DELETE anon | Scrittura |
+|---------|-------------|--------------------------|-----------|
+| `menu_items` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `menu_items_published` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `wines` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `cocktails` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `events` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `pages` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `page_blocks` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `media` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `media_categories` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `galleries` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `gallery_images` | Consentito (dati pubblici) | Bloccato | Solo `service_role` via backend |
+| `users` | Bloccato | Bloccato | Solo `service_role` via backend |
+| `admin_sessions` | Bloccato | Bloccato | Solo `service_role` via backend |
+| `site_settings` | Bloccato | Bloccato | Solo `service_role` via backend |
+
+### Policy applicate
+
+- **SELECT pubblico**: Consentito solo per dati realmente destinati alla visualizzazione pubblica (menu, eventi, pagine, galleria, media)
+- **Scrittura**: Consentita esclusivamente tramite `service_role` (backend Express)
+- **Tabelle sensibili** (`users`, `admin_sessions`, `site_settings`): Nessun accesso `anon` (nemmeno SELECT)
+- **Test effettuato**: Verifica manuale con `anon key` — nessun accesso non autorizzato
+
+### Flusso di accesso
+
+```
+Browser (anon key) → SELECT solo tabelle pubbliche → dati read-only
+Backend (service_role) → CRUD completo su tutte le tabelle → byassa RLS
+```
+
+Il frontend usa la `anon key` di Supabase solo per operazioni SELECT consentite. Tutte le operazioni di scrittura passano attraverso il backend Express che usa la `service_role key`.
+
 ## Naming Convention: camelCase ↔ snake_case
 
 - **Schema Drizzle** (`shared/schema.ts`): colonne definite in camelCase nel codice, mappate a snake_case nel DB via stringa del primo argomento

@@ -75,21 +75,33 @@ QueryClientProvider
 
 ### Middleware Stack (ordine in server/index.ts)
 
-1. `cookieParser()` — parsing dei cookie per sessioni admin
-2. `express.json()` — parsing body JSON con rawBody capture
-3. `express.urlencoded()` — parsing form data
-4. **Dev-only**: Disabilitazione ETag e `Cache-Control: no-store` per `/api/*` — evita risposte 304 che possono bloccare il client
-5. Request logger — log delle API calls con timing
-6. **SEO Middleware** (`server/seo.ts`) — wrappa `res.send/res.end` per iniettare meta tags (title, description, canonical, OG, Twitter Card, hreflang, JSON-LD) nell'HTML prima che venga servito. Usa `req.originalUrl` per identificare la pagina. Esclude `/admina` e asset statici. Dettagli completi in `11_SEO_SISTEMA.md`
-7. **SEO Routes** — `/sitemap.xml` (dinamica), `robots.txt` (statico in `client/public/`)
+1. `helmet()` — Security headers automatici (X-Content-Type-Options, Referrer-Policy, X-Frame-Options, rimozione X-Powered-By). CSP e HSTS disabilitati intenzionalmente per compatibilità con Google Fonts, Supabase CDN e Vite dev mode
+2. **Permissions-Policy** middleware custom — `camera=(), microphone=(), geolocation=()`
+3. `cookieParser()` — parsing dei cookie per sessioni admin
+4. `express.json()` — parsing body JSON con rawBody capture
+5. `express.urlencoded()` — parsing form data
+6. **Dev-only**: Disabilitazione ETag e `Cache-Control: no-store` per `/api/*` — evita risposte 304 che possono bloccare il client
+7. Request logger — log delle API calls con timing
+8. **SEO Middleware** (`server/seo.ts`) — wrappa `res.send/res.end` per iniettare meta tags (title, description, canonical, OG, Twitter Card, hreflang, JSON-LD) nell'HTML prima che venga servito. Usa `req.originalUrl` per identificare la pagina. Esclude `/admina` e asset statici. Dettagli completi in `11_SEO_SISTEMA.md`
+9. **SEO Routes** — `/sitemap.xml` (dinamica), `robots.txt` (statico in `client/public/`)
 
 ### Authentication Flow
 
-1. Login: `POST /api/admin/login` → verifica bcrypt hash → crea sessione con token random 32 bytes
-2. Cookie: `ccv_admin_session`, httpOnly, 24h expiry, sameSite: lax
+1. Login: `POST /api/admin/login` → rate limiting (5 tentativi / 15 min) → verifica bcrypt hash → crea sessione con token random 32 bytes
+2. Cookie: `ccv_admin_session`, httpOnly, secure (in produzione), 24h expiry, sameSite: lax
 3. Auth check: `GET /api/admin/check-session` → verifica token in tabella `admin_sessions`
-4. Middleware: `requireAuth` protegge tutte le route admin
+4. Middleware: `requireAuth` protegge tutte le route admin e upload endpoint
 5. Password: Stored come bcrypt hash in `site_settings` con key `admin_password_hash`
+
+### Security Layer
+
+> Dettagli completi: vedi `12_SICUREZZA_SITO.md`
+
+- **Helmet**: Security headers su tutte le risposte HTTP
+- **Rate limiting**: `express-rate-limit` su `/api/admin/login` (5 tentativi / 15 min)
+- **Upload protection**: Tutti gli endpoint di upload richiedono autenticazione
+- **No secret exposure**: Nessuna chiave sensibile (service_role, DATABASE_URL, OPENAI_API_KEY) esposta nel codice client
+- **Supabase RLS**: Row Level Security attiva su tutte le tabelle, accesso anon limitato a SELECT pubblici
 
 ### Storage Abstraction
 
