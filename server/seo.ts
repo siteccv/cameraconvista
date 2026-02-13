@@ -5,8 +5,8 @@ import type { Page, Event } from "@shared/schema";
 const SITE_NAME = "Camera con Vista";
 const DEFAULT_TITLE_IT = "Camera con Vista - Ristorante & Cocktail Bar Bologna";
 const DEFAULT_TITLE_EN = "Camera con Vista - Restaurant & Cocktail Bar Bologna";
-const DEFAULT_DESC_IT = "Camera con Vista è riconosciuto come uno dei cocktail bar più rinomati di Bologna. La nostra filosofia si basa sulla qualità degli ingredienti.";
-const DEFAULT_DESC_EN = "Camera con Vista is recognized as one of the most renowned cocktail bars in Bologna. Our philosophy is based on the quality of ingredients.";
+const DEFAULT_DESC_IT = "Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.";
+const DEFAULT_DESC_EN = "Restaurant and cocktail bar in Bologna's historic center. Contemporary Italian cuisine, romantic dinners, private events and refined DJ nights.";
 
 const SLUG_TO_PATH: Record<string, string> = {
   home: "/",
@@ -181,9 +181,9 @@ async function buildSeoData(req: Request): Promise<SeoData> {
             name: "Camera con Vista",
             address: {
               "@type": "PostalAddress",
-              streetAddress: "Via San Felice 21/A",
+              streetAddress: "Via Santo Stefano 14/2a",
               addressLocality: "Bologna",
-              postalCode: "40122",
+              postalCode: "40125",
               addressCountry: "IT",
             },
           },
@@ -228,10 +228,10 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       email: footerData.email || "info@cameraconvistabologna.it",
       address: {
         "@type": "PostalAddress",
-        streetAddress: "Via San Felice 21/A",
+        streetAddress: "Via Santo Stefano 14/2a",
         addressLocality: "Bologna",
         addressRegion: "BO",
-        postalCode: "40122",
+        postalCode: "40125",
         addressCountry: "IT",
       },
       geo: {
