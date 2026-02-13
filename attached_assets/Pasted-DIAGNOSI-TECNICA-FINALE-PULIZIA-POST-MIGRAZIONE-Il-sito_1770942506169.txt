@@ -1,0 +1,121 @@
+DIAGNOSI TECNICA FINALE — PULIZIA POST-MIGRAZIONE
+
+Il sito è visivamente corretto e stabile.
+
+Adesso NON dobbiamo sviluppare nuove feature.
+Dobbiamo verificare che il codice sia pulito, coerente e senza residui.
+
+OBIETTIVO
+
+Produrre un report tecnico completo sullo stato reale del codice dopo la migrazione ImageContainer e preview mobile.
+
+Non applicare modifiche automatiche.
+Solo analisi + report.
+
+CHECKLIST DIAGNOSTICA OBBLIGATORIA
+1️⃣ Componenti orfani o duplicati
+
+Verificare:
+
+TestImageContainer.tsx esiste ancora?
+
+EditableImage è ancora importato da qualche parte?
+
+Esistono componenti simili con logica immagini duplicata?
+
+Esistono props legacy non più usate?
+
+Produrre elenco file inutilizzati o potenzialmente eliminabili.
+
+2️⃣ Doppie logiche immagini
+
+Cercare:
+
+crop logics vecchie
+
+fixedCropRatio residui
+
+referenceWidth duplicato
+
+aspectRatio hardcoded
+
+overlay hardcoded (bg-black/35)
+
+Indicare dove esistono ancora logiche legacy.
+
+3️⃣ Stato import/export
+
+Analizzare:
+
+import non utilizzati
+
+funzioni non richiamate
+
+tipi TypeScript non più referenziati
+
+props dichiarate ma mai usate
+
+4️⃣ Performance e rendering
+
+Verificare:
+
+lazy loading corretto
+
+immagini above-the-fold gestite correttamente
+
+decode-gated ancora coerente
+
+possibili re-render inutili
+
+console warnings in dev
+
+eventuali errori silenziosi
+
+5️⃣ Admin / Preview
+
+Verificare:
+
+nessuna doppia modalità desktop/mobile rimasta
+
+preview mobile realmente isolata
+
+nessun codice condizionale superfluo
+
+nessun listener o resize non necessario
+
+6️⃣ Architettura generale
+
+Rispondere chiaramente:
+
+Il sistema immagini è ora canonico e unico?
+
+Esistono ancora fallback o branch temporanei?
+
+Il codice è pulito o stratificato?
+
+OUTPUT RICHIESTO
+
+Generare:
+
+report/DIAGNOSI_TECNICA_FINALE_POST_MIGRAZIONE.md
+
+
+Il report deve contenere:
+
+Stato attuale
+
+Elenco criticità (se presenti)
+
+Livello di rischio (Basso / Medio / Alto)
+
+Raccomandazioni chiare
+
+Azioni consigliate (se necessarie)
+
+Non modificare codice in questa fase.
+
+Solo analisi.
+
+Quando termina il report, scrivere in chat:
+
+Diagnosi completata. Pronto per eventuale fase di pulizia.
