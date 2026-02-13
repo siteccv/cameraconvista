@@ -1,7 +1,7 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 11 Febbraio 2026
+**Ultimo aggiornamento:** 13 Febbraio 2026
 
 ---
 
@@ -356,4 +356,16 @@
 
 ---
 
-*Questo documento è stato aggiornato con lo stato attuale del progetto al 11 Febbraio 2026.*
+## DOCUMENTAZIONE TECNICA
+
+I report tecnici del progetto sono stati consolidati in 3 documenti organizzati:
+
+| Documento | Contenuto |
+|-----------|-----------|
+| `report/MIGRATION_IMAGE_SYSTEM.md` | Architettura ImageContainer, migrazioni pagine, fixedCropRatio, sistema preview mobile, ottimizzazione caricamento immagini |
+| `report/TECHNICAL_AUDIT_DATABASE.md` | Schema database, integrazione Supabase, Google Sheets sync, architettura server modulare, problemi risolti |
+| `report/INFRASTRUCTURE_SEO_COMPLIANCE.md` | Deployment, middleware SEO, robots.txt/sitemap, canonical redirect, privacy/cookie GDPR, Search Console |
+
+---
+
+*Questo documento è stato aggiornato con lo stato attuale del progetto al 13 Febbraio 2026.*
