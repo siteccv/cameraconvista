@@ -1,0 +1,104 @@
+Perfetto.
+Ti preparo PROMPT PRONTO DA INCOLLARE IN REPLIT AGENT, pulito, operativo, senza spiegazioni inutili.
+
+🚀 PROMPT PER REPLIT AGENT
+
+Aggiornare SEO strutturale del sito Camera con Vista.
+
+1️⃣ HOMEPAGE
+
+Meta Title:
+Camera con Vista | Ristorante e Cocktail Bar a Bologna Centro
+
+Meta Description:
+Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.
+
+H1:
+Ristorante e Cocktail Bar a Bologna Centro
+
+2️⃣ /menu
+
+Meta Title:
+Menù | Ristorante Camera con Vista Bologna Centro
+
+Meta Description:
+Scopri il menù di Camera con Vista: cucina emiliana rivisitata nel cuore di Bologna centro, piatti stagionali e atmosfera elegante.
+
+H1:
+Menù Ristorante Bologna Centro
+
+3️⃣ /lista-vini
+
+Meta Title:
+Carta dei Vini | Camera con Vista Bologna
+
+Meta Description:
+Carta dei vini con etichette selezionate italiane e internazionali. Bollicine, rossi, bianchi e cantine del territorio.
+
+H1:
+Carta dei Vini
+
+4️⃣ /cocktail
+
+Meta Title:
+Cocktail Bar | Camera con Vista Bologna Centro
+
+Meta Description:
+Cocktail bar elegante a Bologna centro. Signature drink, classici e analcolici in un ambiente raffinato.
+
+H1:
+Cocktail Bar Bologna Centro
+
+5️⃣ /eventi
+
+Meta Title:
+Eventi | Camera con Vista Bologna Centro
+
+Meta Description:
+Serate jazz, degustazioni, cene speciali ed eventi nel centro di Bologna. Scopri il calendario aggiornato.
+
+H1:
+Eventi a Bologna Centro
+
+6️⃣ /eventi-privati
+
+Meta Title:
+Eventi Privati | Location Bologna Centro
+
+Meta Description:
+Location elegante nel centro di Bologna per eventi privati e aziendali. Cene riservate, feste e serate su misura.
+
+H1:
+Location per Eventi a Bologna Centro
+
+7️⃣ /contatti
+
+Meta Title:
+Contatti | Camera con Vista Bologna Centro
+
+Meta Description:
+Via del Pratello 42, Bologna. Prenota il tuo tavolo o contattaci per eventi privati e aziendali.
+
+H1:
+Contatti e Prenotazioni
+
+REGOLE TECNICHE
+
+Non modificare layout
+
+Non modificare contenuti visivi
+
+Aggiornare solo metadata SEO
+
+Assicurarsi che:
+
+canonical punti sempre a https://www.cameraconvista.it/
+...
+
+og:title e og:description siano coerenti con meta
+
+hreflang IT/EN rimanga attivo
+
+Non toccare logica routing
+
+Non modificare struttura React
