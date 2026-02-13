@@ -74,3 +74,32 @@
 
 ## 🛠️ Note Tecniche
 I testi riportati sono quelli attualmente presenti nel database. Molte descrizioni del menu e dei cocktail includono traduzioni automatiche verificate per la coerenza bilingue.
+
+---
+
+## 🔍 Configurazione SEO & Metadata
+Dettaglio dei meta tag configurati per l'ottimizzazione sui motori di ricerca:
+
+### 🏠 Home
+- **Title (IT):** Camera con Vista – Ristorante e Cocktail Bar a Bologna
+- **Title (EN):** Camera con Vista – Restaurant & Cocktail Bar in Bologna
+- **Description (IT):** Ristorante e cocktail bar in Piazza Santo Stefano a Bologna, con cucina contemporanea, vini selezionati e tavoli all'aperto (dehors) in piazza.
+- **Description (EN):** Restaurant & cocktail bar in Piazza Santo Stefano, Bologna. Contemporary cuisine, curated wines and outdoor seating in the square.
+
+### 🍽️ Menu
+- **Title (IT):** Menu – Camera con Vista | Ristorante a Bologna
+- **Title (EN):** Menu – Camera con Vista | Restaurant in Bologna
+- **Description (IT):** Scopri il menu stagionale: piatti curati, ingredienti di qualità e atmosfera elegante nel centro storico di Bologna.
+- **Description (EN):** Explore our seasonal menu with refined dishes, quality ingredients and a warm, elegant atmosphere in central Bologna.
+
+### 🍷 Wine List
+- **Title (IT):** Carta dei Vini – Camera con Vista | Bologna
+- **Title (EN):** Wine List – Camera con Vista | Bologna
+- **Description (IT):** Carta dei vini con etichette italiane e internazionali selezionate, pensate per accompagnare la nostra cucina.
+- **Description (EN):** Curated wine list featuring Italian and international labels, selected to pair with our cuisine.
+
+### 🍸 Cocktail Bar
+- **Title (IT):** Cocktail Bar a Bologna – Camera con Vista
+- **Title (EN):** Cocktail Bar in Bologna – Camera con Vista
+- **Description (IT):** Cocktail bar elegante a Bologna con drink d'autore, distillati selezionati e atmosfera curata. Disponibili anche tavoli all'aperto in piazza.
+- **Description (EN):** Elegant cocktail bar in Bologna with signature drinks, premium spirits and a refined atmosphere. Outdoor seating available.
