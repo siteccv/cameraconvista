@@ -6,8 +6,8 @@ La migrazione al sistema `ImageContainer` è stata completata con successo su tu
 ## Analisi Tecnica
 
 ### 1. Componenti e File
-- **Orfani**: `client/src/components/admin/TestImageContainer.tsx` è presente ed è un file di test non utilizzato in produzione.
-- **Legacy**: `client/src/components/admin/EditableImage.tsx` è presente ma non è più importato o utilizzato da alcun componente o pagina del progetto.
+- **Orfani**: Rimossi.
+- **Legacy**: `client/src/components/admin/EditableImage.tsx` è stato eliminato.
 - **Duplicati**: Non sono state riscontrate duplicazioni della logica di gestione immagini. `ImageContainer` è l'unico punto di ingresso per l'editing WYSIWYG delle immagini.
 
 ### 2. Logiche Residue
