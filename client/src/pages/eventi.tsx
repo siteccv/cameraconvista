@@ -171,9 +171,9 @@ export default function Eventi() {
                   {sortedEvents.length > 3 ? (
                     <EventsSlider events={sortedEvents} initialIndex={initialIndex} />
                   ) : (
-                    <div className="flex flex-wrap justify-center gap-8">
+                    <div className="flex flex-row justify-center gap-8 w-full">
                       {sortedEvents.map((event) => (
-                        <div key={event.id} className="w-[560px]">
+                        <div key={event.id} className="w-full max-w-[450px]">
                           <EventCard event={event} />
                         </div>
                       ))}
@@ -261,7 +261,7 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
 
   useEffect(() => {
     if (scrollRef.current && initialIndex > 0) {
-      const cardWidth = 560 + 32;
+      const cardWidth = 450 + 32;
       scrollRef.current.scrollTo({
         left: initialIndex * cardWidth,
         behavior: "auto",
@@ -277,7 +277,7 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = 420;
+      const scrollAmount = 482; // cardWidth (450) + gap (32)
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
@@ -298,11 +298,11 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
 
       <div
         ref={scrollRef}
-        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth py-4 max-w-[1800px]"
+        className="flex gap-8 overflow-x-auto scrollbar-hide scroll-smooth py-4 max-w-[1414px]" // (450 * 3) + (32 * 2) = 1414px
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {events.map((event) => (
-          <div key={event.id} className="w-[560px] flex-shrink-0">
+          <div key={event.id} className="w-[450px] flex-shrink-0">
             <EventCard event={event} />
           </div>
         ))}
