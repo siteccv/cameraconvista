@@ -336,20 +336,9 @@ function escapeAttr(s: string): string {
 }
 
 export function injectSeoIntoHtml(html: string, metaTags: string): string {
-  html = html.replace(/^(\s*)<title>Camera con Vista Bistrot<\/title>\s*$/m, "");
-  html = html.replace(/^(\s*)<meta\s+name="description"\s+content="Camera con Vista[^"]*"\s*\/>\s*$/m, "");
-  html = html.replace(/^(\s*)<meta\s+name="description"\s+content="Scopri il menu[^"]*"\s*\/>\s*$/m, "");
-  html = html.replace(/^(\s*)<meta\s+property="og:title"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<meta\s+property="og:description"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<meta\s+property="og:type"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<meta\s+property="og:locale"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<meta\s+property="og:locale:alternate"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<link\s+rel="canonical"[^>]*\/>\s*$/gm, "");
-  html = html.replace(/^(\s*)<link\s+rel="alternate"\s+hreflang="[^"]*"\s+href="[^"]*"\s*\/>\s*$/gm, "");
-
-  html = html.replace("</head>", `    ${metaTags}\n  </head>`);
-
-  return html;
+  // We no longer need to replace specific tags because we removed them from the template.
+  // We only replace the closing </head> tag with our dynamic meta tags.
+  return html.replace("</head>", `    ${metaTags}\n  </head>`);
 }
 
 export async function generateSeoHtml(req: Request): Promise<string> {

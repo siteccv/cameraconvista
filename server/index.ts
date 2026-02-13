@@ -128,9 +128,15 @@ app.use((req, res, next) => {
 
     res.send = function (body: any) {
       if (typeof body === "string" && body.includes("</head>") && body.includes('<div id="root">')) {
+        // Prevent double injection if send is called multiple times or interacts with end
+        if (body.includes('name="seo-injected"')) {
+          return originalSend.call(res, body);
+        }
+        
         generateSeoHtml(req)
           .then((metaTags) => {
-            const injected = injectSeoIntoHtml(body, metaTags);
+            const injectedTags = `${metaTags}\n    <meta name="seo-injected" content="true" />`;
+            const injected = injectSeoIntoHtml(body, injectedTags);
             res.set("Content-Length", Buffer.byteLength(injected).toString());
             originalEnd.call(res, injected, "utf-8" as any);
           })
@@ -144,9 +150,14 @@ app.use((req, res, next) => {
 
     res.end = function (chunk: any, encoding?: any, callback?: any) {
       if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
+        if (chunk.includes('name="seo-injected"')) {
+          return originalEnd.call(res, chunk, encoding, callback);
+        }
+
         generateSeoHtml(req)
           .then((metaTags) => {
-            const injected = injectSeoIntoHtml(chunk, metaTags);
+            const injectedTags = `${metaTags}\n    <meta name="seo-injected" content="true" />`;
+            const injected = injectSeoIntoHtml(chunk, injectedTags);
             originalEnd.call(res, injected, "utf-8" as any);
           })
           .catch(() => {
