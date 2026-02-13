@@ -1,0 +1,102 @@
+ANALISI SEO TEXTS — PROMPT COMPLETO PER REPLIT AGENT (AGGIORNATO INDIRIZZO)
+
+Obiettivo:
+
+Aggiornare i testi SEO definitivi (metaTitle/metaDescription IT/EN) per tutte le pagine principali.
+
+Verificare che l’iniezione server-side sia effettiva nell’HTML iniziale (“Visualizza sorgente pagina”) su dominio pubblico.
+
+Nessuna modifica a layout, routing o componenti React.
+
+A) SEO TEXTS DEFINITIVI (IT/EN)
+
+HOME (slug: home / path: /)
+metaTitleIt: Camera con Vista | Ristorante e Cocktail Bar a Bologna Centro
+metaDescriptionIt: Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.
+metaTitleEn: Camera con Vista | Restaurant & Cocktail Bar in Bologna City Center
+metaDescriptionEn: Restaurant and cocktail bar in Bologna’s historic center. Contemporary Italian cuisine, romantic dinners, private events and refined DJ nights.
+
+MENU (slug: menu / path: /menu)
+metaTitleIt: Menù | Ristorante Camera con Vista Bologna Centro
+metaDescriptionIt: Scopri il menù di Camera con Vista: cucina emiliana rivisitata nel cuore di Bologna centro, piatti stagionali e atmosfera elegante.
+metaTitleEn: Menu | Camera con Vista Restaurant Bologna City Center
+metaDescriptionEn: Explore our menu: contemporary Italian cuisine inspired by Emilia, seasonal dishes and an elegant atmosphere in central Bologna.
+
+CARTA VINI (slug: lista-vini / path: /lista-vini)
+metaTitleIt: Carta dei Vini | Camera con Vista Bologna
+metaDescriptionIt: Carta dei vini con etichette selezionate italiane e internazionali. Bollicine, rossi, bianchi e cantine del territorio.
+metaTitleEn: Wine List | Camera con Vista Bologna
+metaDescriptionEn: A curated wine list with Italian and international labels. Sparkling wines, reds, whites and regional selections.
+
+COCKTAIL (slug: cocktail / path: /cocktail)
+metaTitleIt: Cocktail Bar | Camera con Vista Bologna Centro
+metaDescriptionIt: Cocktail bar elegante a Bologna centro. Signature drink, classici e analcolici in un ambiente raffinato.
+metaTitleEn: Cocktail Bar | Camera con Vista Bologna City Center
+metaDescriptionEn: An elegant cocktail bar in central Bologna. Signature drinks, classics and alcohol-free options in a refined setting.
+
+EVENTI (slug: eventi / path: /eventi)
+metaTitleIt: Eventi | Camera con Vista Bologna Centro
+metaDescriptionIt: Serate jazz, degustazioni, cene speciali ed eventi nel centro di Bologna. Scopri il calendario aggiornato.
+metaTitleEn: Events | Camera con Vista Bologna City Center
+metaDescriptionEn: Jazz nights, tastings, special dinners and events in central Bologna. Discover the latest schedule.
+
+EVENTI PRIVATI (slug: eventi-privati / path: /eventi-privati)
+metaTitleIt: Eventi Privati | Location Bologna Centro
+metaDescriptionIt: Location elegante nel centro di Bologna per eventi privati e aziendali. Cene riservate, feste e serate su misura.
+metaTitleEn: Private Events | Venue in Bologna City Center
+metaDescriptionEn: An elegant venue in central Bologna for private and corporate events. Private dinners, celebrations and tailored experiences.
+
+CONTATTI (slug: contatti / path: /contatti)
+metaTitleIt: Contatti | Camera con Vista Bologna Centro
+metaDescriptionIt: Via Santo Stefano 14/2a, 40125 Bologna. Prenota il tuo tavolo o richiedi informazioni per eventi privati e aziendali.
+metaTitleEn: Contacts | Camera con Vista Bologna City Center
+metaDescriptionEn: Via Santo Stefano 14/2a, 40125 Bologna. Book your table or contact us for private and corporate events.
+
+B) REGOLE SEO TECNICHE (NO CAMBI VISIVI)
+
+canonical: deve puntare a https://www.cameraconvista.it
+ + path corrente
+
+OpenGraph: og:title e og:description devono riflettere metaTitle/metaDescription (IT/EN coerenti con lingua)
+
+hreflang: mantenere alternanza IT/EN (non cambiare sistema ?lang=en)
+
+C) VERIFICA OBBLIGATORIA (PROVA REALE, NON TEORICA)
+Dopo aver salvato i testi nel DB e deployato:
+
+Aprire dal browser pubblico:
+
+https://www.cameraconvista.it/
+
+https://www.cameraconvista.it/menu
+
+Usare “Visualizza sorgente pagina”
+
+Confermare che nel sorgente HTML iniziale compaiono:
+
+<title> ... (testo nuovo)
+
+<meta name="description" content="..."> (testo nuovo)
+
+<link rel="canonical" href="https://www.cameraconvista.it/...">
+
+<meta property="og:title" ...> e og:description aggiornati
+
+hreflang presenti
+
+D) OUTPUT RICHIESTO (SOLO TESTO IN CHAT)
+Produrre un mini-report finale (solo testo) con:
+
+per ogni URL (Home + /menu): incollare le righe del sorgente trovate per title/description/canonical/og/hreflang
+
+conferma che i testi coincidono esattamente con quelli definiti sopra
+
+Vincoli:
+
+NON cambiare layout/UI
+
+NON cambiare routing
+
+NON introdurre SSR
+
+SOLO aggiornamento testi SEO + verifica injection reale

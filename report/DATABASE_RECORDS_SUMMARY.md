@@ -54,7 +54,7 @@
 
 ### 📍 Contatti (Dove Siamo)
 - **Meta Title:** Contatti | Camera con Vista Bologna Centro
-- **Meta Description:** Via del Pratello 42, Bologna. Prenota il tuo tavolo o contattaci per eventi privati e aziendali.
+- **Meta Description:** Via Santo Stefano 14/2a, 40125 Bologna. Prenota il tuo tavolo o richiedi informazioni per eventi privati e aziendali.
 - **H1:** Contatti e Prenotazioni
 
 ---
