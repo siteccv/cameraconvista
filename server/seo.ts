@@ -336,9 +336,16 @@ function escapeAttr(s: string): string {
 }
 
 export function injectSeoIntoHtml(html: string, metaTags: string): string {
-  // We no longer need to replace specific tags because we removed them from the template.
-  // We only replace the closing </head> tag with our dynamic meta tags.
-  return html.replace("</head>", `    ${metaTags}\n  </head>`);
+  let cleaned = html;
+  cleaned = cleaned.replace(/<title>[^<]*<\/title>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+name="description"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<link\s+rel="canonical"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<link\s+rel="alternate"\s+hreflang=[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+property="og:[^"]*"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+name="twitter:[^"]*"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<script\s+type="application\/ld\+json">[^<]*<\/script>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+name="seo-injected"[^>]*\/?\s*>\s*/g, "");
+  return cleaned.replace("</head>", `    ${metaTags}\n  </head>`);
 }
 
 export async function generateSeoHtml(req: Request): Promise<string> {

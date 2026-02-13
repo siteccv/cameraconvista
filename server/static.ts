@@ -3,6 +3,19 @@ import fs from "fs";
 import path from "path";
 import { generateSeoHtml, injectSeoIntoHtml } from "./seo";
 
+async function serveHtmlWithSeo(distPath: string, req: express.Request, res: express.Response) {
+  try {
+    const htmlPath = path.resolve(distPath, "index.html");
+    let html = await fs.promises.readFile(htmlPath, "utf-8");
+    const metaTags = await generateSeoHtml(req);
+    html = injectSeoIntoHtml(html, metaTags);
+    res.status(200).set({ "Content-Type": "text/html" }).send(html);
+  } catch (err) {
+    console.error("Error serving HTML with SEO:", err);
+    res.sendFile(path.resolve(distPath, "index.html"));
+  }
+}
+
 export function serveStatic(app: Express) {
   const distPath = path.resolve(__dirname, "public");
   if (!fs.existsSync(distPath)) {
@@ -11,18 +24,9 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  app.get("/", (req, res) => serveHtmlWithSeo(distPath, req, res));
 
-  app.use("/{*path}", async (req, res) => {
-    try {
-      const htmlPath = path.resolve(distPath, "index.html");
-      let html = await fs.promises.readFile(htmlPath, "utf-8");
-      const metaTags = await generateSeoHtml(req);
-      html = injectSeoIntoHtml(html, metaTags);
-      res.status(200).set({ "Content-Type": "text/html" }).send(html);
-    } catch (err) {
-      console.error("Error serving HTML with SEO:", err);
-      res.sendFile(path.resolve(distPath, "index.html"));
-    }
-  });
+  app.use(express.static(distPath, { index: false }));
+
+  app.use("/{*path}", (req, res) => serveHtmlWithSeo(distPath, req, res));
 }

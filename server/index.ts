@@ -113,70 +113,38 @@ app.use((req, res, next) => {
 
   mountSeoRoutes(app);
 
-  app.use((req, res, next) => {
-    if (req.path.startsWith("/api") || req.path.startsWith("/admina") || req.path.startsWith("/vite-hmr")) {
-      return next();
-    }
-
-    const ext = req.path.split(".").pop();
-    if (ext && ["js", "css", "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf", "map", "json", "txt", "xml", "webp", "mp4"].includes(ext)) {
-      return next();
-    }
-
-    const originalEnd = res.end;
-    const originalSend = res.send;
-
-    res.send = function (body: any) {
-      if (typeof body === "string" && body.includes("</head>") && body.includes('<div id="root">')) {
-        // Prevent double injection if send is called multiple times or interacts with end
-        if (body.includes('name="seo-injected"')) {
-          return originalSend.call(res, body);
-        }
-        
-        generateSeoHtml(req)
-          .then((metaTags) => {
-            const injectedTags = `${metaTags}\n    <meta name="seo-injected" content="true" />`;
-            const injected = injectSeoIntoHtml(body, injectedTags);
-            res.set("Content-Length", Buffer.byteLength(injected).toString());
-            originalEnd.call(res, injected, "utf-8" as any);
-          })
-          .catch(() => {
-            originalSend.call(res, body);
-          });
-        return res;
-      }
-      return originalSend.call(res, body);
-    } as any;
-
-    res.end = function (chunk: any, encoding?: any, callback?: any) {
-      if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
-        if (chunk.includes('name="seo-injected"')) {
-          return originalEnd.call(res, chunk, encoding, callback);
-        }
-
-        generateSeoHtml(req)
-          .then((metaTags) => {
-            const injectedTags = `${metaTags}\n    <meta name="seo-injected" content="true" />`;
-            const injected = injectSeoIntoHtml(chunk, injectedTags);
-            originalEnd.call(res, injected, "utf-8" as any);
-          })
-          .catch(() => {
-            originalEnd.call(res, chunk, encoding, callback);
-          });
-        return res;
-      }
-      return originalEnd.call(res, chunk, encoding, callback);
-    } as any;
-
-    next();
-  });
-
   // importantly only setup vite in development and after
   // setting up all the other routes so the catch-all route
   // doesn't interfere with the other routes
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
+    app.use((req, res, next) => {
+      if (req.path.startsWith("/api") || req.path.startsWith("/admina") || req.path.startsWith("/vite-hmr")) {
+        return next();
+      }
+      const ext = req.path.split(".").pop();
+      if (ext && ["js", "css", "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf", "map", "json", "txt", "xml", "webp", "mp4"].includes(ext)) {
+        return next();
+      }
+      const originalEnd = res.end;
+      res.end = function (chunk: any, encoding?: any, callback?: any) {
+        if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
+          generateSeoHtml(req)
+            .then((metaTags) => {
+              const injected = injectSeoIntoHtml(chunk, metaTags);
+              originalEnd.call(res, injected, "utf-8" as any);
+            })
+            .catch(() => {
+              originalEnd.call(res, chunk, encoding, callback);
+            });
+          return res;
+        }
+        return originalEnd.call(res, chunk, encoding, callback);
+      } as any;
+      next();
+    });
+
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   }

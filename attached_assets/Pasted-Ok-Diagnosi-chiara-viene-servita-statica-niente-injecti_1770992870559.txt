@@ -1,0 +1,85 @@
+Ok. Diagnosi chiara: / viene servita statica → niente injection. E /lista-vini duplica → injection “appende” senza rimuovere.
+
+STEP (uno solo): prompt FIX per Replit Agent
+
+Copia e incolla:
+
+FIX SEO INJECTION (PRODUZIONE) — ROOT + DEDUPLICA (NO UI CHANGE)
+
+Obiettivo:
+
+Fare in modo che la route / (Home) passi SEMPRE dal flusso di iniezione SEO in produzione (come /lista-vini).
+
+Eliminare TUTTI i duplicati di SEO tag (title/description/canonical/OG/Twitter/JSON-LD) su qualsiasi pagina.
+Vincoli: nessun cambio layout/UI, nessun cambio routing, nessun SSR.
+
+A) Fix root / (produzione)
+
+In server/static.ts, impedire che express.static(distPath) serva direttamente dist/public/index.html per la richiesta /.
+
+La richiesta / deve andare nella rotta catch-all che esegue generateSeoHtml + injectSeoIntoHtml e poi invia l’HTML risultante.
+Implementazione accettata (scegline una, la più pulita):
+
+Definire una rotta esplicita app.get("/", ...) PRIMA di express.static che:
+
+legge dist/public/index.html
+
+genera SEO con generateSeoHtml(req)
+
+inietta
+
+res.send(htmlFinale)
+
+Oppure configurare express.static per ignorare index.html sulla root e lasciare che la catch-all gestisca /.
+
+B) Deduplica SEO (problema attuale su /lista-vini)
+Nel sorgente HTML oggi ci sono 2 copie di:
+
+<title>
+
+<meta name="description">
+
+<link rel="canonical">
+
+og:title/og:description
+
+twitter:title/twitter:description
+
+JSON-LD BreadcrumbList
+
+Fix richiesto:
+
+Garantire che in output finale ci sia UNA sola occorrenza per ciascun tag.
+Approccio consigliato:
+
+Nel template base dist/public/index.html (o sorgente Vite equivalente) rimuovere i tag SEO hardcoded (title/description/OG/Twitter/JSON-LD/canonical/hreflang) lasciando solo meta tecnici (charset, viewport, icons, manifest, theme-color, preload fonts).
+
+Oppure (se preferisci non toccare template) aggiornare injectSeoIntoHtml per:
+
+rimuovere/replace i tag esistenti prima di inserire i nuovi (no append).
+
+C) Verifica obbligatoria (PROVA REALE)
+Dopo deploy, controllare “Visualizza sorgente pagina” su:
+
+https://www.cameraconvista.it/
+
+https://www.cameraconvista.it/menu
+
+https://www.cameraconvista.it/lista-vini
+
+Per ognuna: contare occorrenze e confermare:
+
+title=1
+
+description=1
+
+canonical=1
+
+og:title=1
+
+jsonld=1
+Incollare in chat solo:
+
+le righe finali dei tag (title/description/canonical/og:title/og:description/hreflang/jsonld)
+
+e i conteggi (solo numeri).
