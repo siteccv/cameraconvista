@@ -20,35 +20,57 @@
 
 ---
 
-## 📄 Dettaglio Pagine (`pages`)
-- **Home**: `/` (Priorità 1.0)
-- **Menu**: `/menu`
-- **Carta dei Vini**: `/lista-vini`
-- **Cocktail Bar**: `/cocktail-bar`
-- **Eventi**: `/eventi`
-- **Eventi Privati**: `/eventi-privati`
-- **Galleria**: `/galleria`
-- **Dove Siamo**: `/dove-siamo`
+## 🍽️ Menu Ristorante (Esempio Record)
+| Categoria | Nome (IT) | Nome (EN) | Prezzo |
+|-----------|-----------|-----------|--------|
+| Antipasti | Uovo poché, purè di patate al tartufo, salsa Perigueux. buona | Poached egg, truffle potato purée, Perigueux sauce. good | 14 |
+| Antipasti | Lingua di manzo, sedano rapa, puntarelle e salsa verde. | Beef tongue, celeriac, puntarelle, and green sauce. | 14 |
+| Antipasti | Vellutata di porri e broccoli, pancetta glassata. | Cream of leeks and broccoli, glazed pancetta. | 16 |
 
 ---
 
-## 🍷 Sincronizzazione Google Sheets
-- **Vini**: 66 record suddivisi in 6 categorie (Bollicine Italiane/Francesi, Bianchi, Rossi, Rosati, Vini Dolci).
-- **Menu**: 23 record (Antipasti, Primi, Secondi, Dolci).
-- **Cocktail**: 31 record (Signature, Classici, Analcolici).
+## 🍷 Carta dei Vini (Esempio Record)
+| Categoria | Nome | Regione/Dettagli | Prezzo |
+|-----------|-----------|------------------|--------|
+| Bollicine Italiane | PIGNOLETTO BRUT BIO | Emilia-Romagna | 30 |
+| Bollicine Italiane | METODO CLASSICO BDB | - | 40 |
+| Bollicine Italiane | FRANCIACORTA BRUT BDB | Lombardia | 40 |
 
 ---
 
-## 📅 Eventi in Programma
-Attualmente sono presenti **4 eventi attivi** configurati con poster in formato 9:16 e sistema di prenotazione integrato.
+## 🍸 Cocktail Bar (Esempio Record)
+| Categoria | Nome | Prezzo |
+|-----------|-----------|--------|
+| SIGNATURE | Negroni Hotel | 13 |
+| SIGNATURE | Riyad | 13 |
+| ANALCOLICI | Zero 2 | 10 |
 
 ---
 
-## 🖼️ Galleria Fotografica
-- **Album totali**: 4
-- **Immagini totali**: 20 (Media di 5 immagini per album)
+## 📅 Eventi Integrati
+| Titolo (IT) | Titolo (EN) | Data e Ora |
+|-------------|-------------|------------|
+| Serata Jazz Live | Live Jazz Night | 2026-02-05 20:30 |
+| Degustazione Vini Emiliani | Emilian Wine Tasting | 2026-02-08 19:00 |
+| Cena con Delitto | Murder Mystery Dinner | 2026-02-14 20:00 |
+| Aperitivo Letterario | Literary Aperitif | 2026-02-20 18:30 |
+
+---
+
+## 🖼️ Gallerie Fotografiche
+- **Il Locale (The Venue)**: Immagini dell'atmosfera interna.
+- **La Cucina (The Kitchen)**: Piatti e backstage.
+- **Eventi (Events)**: Foto delle serate speciali.
+- **Cocktails**: Creazioni del bar.
+
+---
+
+## ⚙️ Impostazioni Sito (Site Settings)
+- **Footer (About IT)**: "Testo test automatizzato - Test Footer ckBkpn"
+- **Contatti**: Via del Pratello 42, Bologna | +39 051 234 5678
+- **Orari**: Lun-Sab (17:30 - 01:00), Dom (16:00 - 00:00)
 
 ---
 
 ## 🛠️ Note Tecniche
-I record `page_blocks` risultano 0 nel conteggio SQL diretto poiché molti blocchi vengono generati "just-in-time" dal frontend tramite il hook `usePageBlocks` basandosi sui default se non modificati. I file media fisici sono ospitati su Object Storage, mentre i metadati nel database verranno popolati al primo caricamento tramite la UI Admin.
+I testi riportati sono quelli attualmente presenti nel database. Molte descrizioni del menu e dei cocktail includono traduzioni automatiche verificate per la coerenza bilingue.
