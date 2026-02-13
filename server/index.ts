@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
+import helmet from "helmet";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -14,6 +15,23 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+app.use(helmet({
+  contentSecurityPolicy: false,
+  strictTransportSecurity: false,
+  crossOriginEmbedderPolicy: false,
+  crossOriginOpenerPolicy: false,
+  crossOriginResourcePolicy: false,
+  xContentTypeOptions: true,
+  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+  frameguard: { action: "sameorigin" },
+  permittedCrossDomainPolicies: false,
+}));
+
+app.use((_req, res, next) => {
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  next();
+});
 
 app.use(cookieParser());
 
