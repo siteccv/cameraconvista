@@ -467,51 +467,55 @@ export function ImageContainer({
 
         {isEditing && (
           <>
-            <div className="absolute top-2 left-2 right-2 z-20 flex flex-col gap-2 pointer-events-none">
-              <div className="flex items-center gap-2 pointer-events-auto flex-wrap">
+            <div className="absolute top-1.5 left-1.5 right-1.5 z-20 pointer-events-none">
+              <div className="flex items-center gap-1 pointer-events-auto flex-wrap">
                 <Button
                   size="sm"
                   variant="default"
+                  className="h-7 text-xs px-2"
                   onClick={(e) => { e.stopPropagation(); setMediaPickerOpen(true); }}
                   data-testid={`${testIdPrefix}-media-picker`}
                 >
-                  <FolderOpen className="h-4 w-4 mr-1" />
-                  {t("Media", "Media")}
+                  <FolderOpen className="h-3.5 w-3.5 mr-1" />
+                  Media
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="bg-black/60 text-white border-white/30"
+                  className="h-7 text-xs px-2 bg-black/60 text-white border-white/30"
                   onClick={(e) => { e.stopPropagation(); handleReset(); }}
                   data-testid={`${testIdPrefix}-reset`}
                 >
-                  <RotateCcw className="h-4 w-4 mr-1" />
+                  <RotateCcw className="h-3.5 w-3.5 mr-1" />
                   Reset
                 </Button>
-
                 <div className="flex-1" />
+                {hasChanges && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    className="h-7 text-xs px-2"
+                    onClick={(e) => { e.stopPropagation(); handleSave(); }}
+                    data-testid={`${testIdPrefix}-save`}
+                  >
+                    {t("Salva", "Save")}
+                  </Button>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
-                  className="bg-black/60 text-white border-white/30"
+                  className="h-7 text-xs px-2 bg-black/60 text-white border-white/30"
                   onClick={(e) => { e.stopPropagation(); handleCancel(); }}
                   data-testid={`${testIdPrefix}-cancel`}
                 >
                   {t("Annulla", "Cancel")}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={(e) => { e.stopPropagation(); handleSave(); }}
-                  disabled={!hasChanges}
-                  data-testid={`${testIdPrefix}-save`}
-                >
-                  {t("Salva", "Save")}
-                </Button>
               </div>
+            </div>
 
-              <div className="flex items-center gap-2 bg-black/70 rounded-lg px-3 py-2 pointer-events-auto max-w-xs">
-                <ZoomIn className="h-4 w-4 text-white shrink-0" />
+            <div className="absolute bottom-1.5 left-1.5 right-1.5 z-20 flex flex-col gap-1 pointer-events-none">
+              <div className="flex items-center gap-1.5 bg-black/70 rounded-lg px-2 py-1.5 pointer-events-auto">
+                <ZoomIn className="h-3.5 w-3.5 text-white shrink-0" />
                 <Slider
                   value={[activeZoom]}
                   onValueChange={([val]) => handleZoomChange(val)}
@@ -521,11 +525,11 @@ export function ImageContainer({
                   className="flex-1"
                   data-testid={`${testIdPrefix}-zoom-slider`}
                 />
-                <span className="text-white text-xs w-10 text-right shrink-0">{activeZoom}%</span>
+                <span className="text-white text-[10px] w-8 text-right shrink-0">{activeZoom}%</span>
               </div>
 
-              <div className="flex items-center gap-2 bg-black/70 rounded-lg px-3 py-2 pointer-events-auto max-w-xs">
-                <Sun className="h-4 w-4 text-white shrink-0" />
+              <div className="flex items-center gap-1.5 bg-black/70 rounded-lg px-2 py-1.5 pointer-events-auto">
+                <Sun className="h-3.5 w-3.5 text-white shrink-0" />
                 <Slider
                   value={[activeOverlay]}
                   onValueChange={([val]) => handleOverlayChange(val)}
@@ -535,10 +539,9 @@ export function ImageContainer({
                   className="flex-1"
                   data-testid={`${testIdPrefix}-overlay-slider`}
                 />
-                <span className="text-white text-xs w-16 text-right shrink-0">{activeOverlay}% {overlayLabel}</span>
+                <span className="text-white text-[10px] w-14 text-right shrink-0">{activeOverlay}% {overlayLabel}</span>
               </div>
             </div>
-
           </>
         )}
       </div>
