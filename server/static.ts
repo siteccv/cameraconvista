@@ -7,8 +7,8 @@ async function serveHtmlWithSeo(distPath: string, req: express.Request, res: exp
   try {
     const htmlPath = path.resolve(distPath, "index.html");
     let html = await fs.promises.readFile(htmlPath, "utf-8");
-    const metaTags = await generateSeoHtml(req);
-    html = injectSeoIntoHtml(html, metaTags);
+    const { metaTags, lang } = await generateSeoHtml(req);
+    html = injectSeoIntoHtml(html, metaTags, lang);
     res.status(200).set({ "Content-Type": "text/html" }).send(html);
   } catch (err) {
     console.error("Error serving HTML with SEO:", err);

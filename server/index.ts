@@ -149,8 +149,8 @@ app.use((req, res, next) => {
       res.end = function (chunk: any, encoding?: any, callback?: any) {
         if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
           generateSeoHtml(req)
-            .then((metaTags) => {
-              const injected = injectSeoIntoHtml(chunk, metaTags);
+            .then(({ metaTags, lang }) => {
+              const injected = injectSeoIntoHtml(chunk, metaTags, lang);
               originalEnd.call(res, injected, "utf-8" as any);
             })
             .catch(() => {

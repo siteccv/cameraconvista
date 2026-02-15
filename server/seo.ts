@@ -79,6 +79,7 @@ const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
 };
 
 interface SeoData {
+  lang: "it" | "en";
   title: string;
   description: string;
   canonicalUrl: string;
@@ -208,6 +209,10 @@ async function buildSeoData(req: Request): Promise<SeoData> {
   const hreflangIt = baseUrl + pathname;
   const hreflangEn = baseUrl + pathname + "?lang=en";
 
+  // Base URL for links in JSON-LD should be consistent with the current canonical version
+  const currentBaseUrl = lang === "en" ? hreflangEn : hreflangIt;
+  const linkBase = baseUrl + (lang === "en" ? "?lang=en" : "");
+
   if (pathname === "/" || slug === "home") {
     let footerData: any = {};
     try {
@@ -223,7 +228,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       name: "Camera con Vista",
       alternateName: "Camera con Vista Bistrot",
       description: DEFAULT_DESC_IT,
-      url: baseUrl,
+      url: lang === "en" ? hreflangEn : hreflangIt,
       telephone: footerData.phone || "+39 051 267889",
       email: footerData.email || "info@cameraconvistabologna.it",
       address: {
@@ -248,7 +253,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       ].filter(Boolean),
       hasMenu: {
         "@type": "Menu",
-        url: baseUrl + "/menu",
+        url: baseUrl + "/menu" + (lang === "en" ? "?lang=en" : ""),
       },
     });
   }
@@ -259,7 +264,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       "@type": "Menu",
       name: "Menu Camera con Vista",
       description: lang === "it" ? DEFAULT_PAGE_DESCS_IT.menu : DEFAULT_PAGE_DESCS_EN.menu,
-      url: baseUrl + "/menu",
+      url: baseUrl + "/menu" + (lang === "en" ? "?lang=en" : ""),
       hasMenuSection: [],
     });
   }
@@ -268,16 +273,27 @@ async function buildSeoData(req: Request): Promise<SeoData> {
     jsonLd.push({
       "@context": "https://schema.org",
       "@type": "BreadcrumbList",
-      itemListElement: breadcrumbs.map((b, i) => ({
-        "@type": "ListItem",
-        position: i + 1,
-        name: b.name,
-        item: b.url,
-      })),
+      itemListElement: breadcrumbs.map((b, i) => {
+        // Ensure breadcrumb URLs include ?lang=en if we are in EN mode
+        let breadcrumbUrl = b.url;
+        if (lang === "en" && !breadcrumbUrl.includes("?lang=en")) {
+          breadcrumbUrl = breadcrumbUrl.includes("?") 
+            ? `${breadcrumbUrl}&lang=en` 
+            : `${breadcrumbUrl}?lang=en`;
+        }
+        
+        return {
+          "@type": "ListItem",
+          position: i + 1,
+          name: b.name,
+          item: breadcrumbUrl,
+        };
+      }),
     });
   }
 
   return {
+    lang,
     title,
     description,
     canonicalUrl,
@@ -307,8 +323,15 @@ function buildMetaTags(seo: SeoData, baseUrl: string): string {
   lines.push(`<meta property="og:type" content="${seo.ogType}" />`);
   lines.push(`<meta property="og:url" content="${escapeAttr(seo.canonicalUrl)}" />`);
   lines.push(`<meta property="og:site_name" content="${SITE_NAME}" />`);
-  lines.push(`<meta property="og:locale" content="it_IT" />`);
-  lines.push(`<meta property="og:locale:alternate" content="en_US" />`);
+  
+  if (seo.lang === "en") {
+    lines.push(`<meta property="og:locale" content="en_US" />`);
+    lines.push(`<meta property="og:locale:alternate" content="it_IT" />`);
+  } else {
+    lines.push(`<meta property="og:locale" content="it_IT" />`);
+    lines.push(`<meta property="og:locale:alternate" content="en_US" />`);
+  }
+
   if (seo.ogImage) {
     lines.push(`<meta property="og:image" content="${escapeAttr(seo.ogImage)}" />`);
   }
@@ -335,8 +358,11 @@ function escapeAttr(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-export function injectSeoIntoHtml(html: string, metaTags: string): string {
+export function injectSeoIntoHtml(html: string, metaTags: string, lang: string = "it"): string {
   let cleaned = html;
+  // Update html lang attribute
+  cleaned = cleaned.replace(/<html[^>]*>/, `<html lang="${lang}">`);
+  
   cleaned = cleaned.replace(/<title>[^<]*<\/title>\s*/g, "");
   cleaned = cleaned.replace(/<meta\s+name="description"[^>]*\/?\s*>\s*/g, "");
   cleaned = cleaned.replace(/<link\s+rel="canonical"[^>]*\/?\s*>\s*/g, "");
@@ -348,10 +374,13 @@ export function injectSeoIntoHtml(html: string, metaTags: string): string {
   return cleaned.replace("</head>", `    ${metaTags}\n  </head>`);
 }
 
-export async function generateSeoHtml(req: Request): Promise<string> {
+export async function generateSeoHtml(req: Request): Promise<{ metaTags: string; lang: string }> {
   const seo = await buildSeoData(req);
   const baseUrl = getBaseUrl(req);
-  return buildMetaTags(seo, baseUrl);
+  return {
+    metaTags: buildMetaTags(seo, baseUrl),
+    lang: seo.lang
+  };
 }
 
 export function mountSeoRoutes(app: Express): void {
