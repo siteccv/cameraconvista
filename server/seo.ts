@@ -21,9 +21,13 @@ const SLUG_TO_PATH: Record<string, string> = {
   cookie: "/cookie",
 };
 
-const PATH_TO_SLUG: Record<string, string> = {};
+const PATH_TO_SLUG: Record<string, string> = {
+  "/": "home",
+};
 for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
-  PATH_TO_SLUG[path] = slug;
+  if (slug !== "home") {
+    PATH_TO_SLUG[path] = slug;
+  }
 }
 
 const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {

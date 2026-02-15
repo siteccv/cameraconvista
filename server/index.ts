@@ -62,6 +62,13 @@ app.use((req, res, next) => {
       : `${targetPath}${query}`;
     return res.redirect(301, targetUrl);
   }
+
+  // Redirect /home to /
+  if (req.path === "/home" || req.path === "/home/") {
+    const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    return res.redirect(301, "/" + query);
+  }
+
   next();
 });
 

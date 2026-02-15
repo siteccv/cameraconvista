@@ -111,6 +111,7 @@ function Router() {
       <ScrollToTop />
       <Switch>
       <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
+      <Route path="/home">{() => <Redirect to="/" />}</Route>
       <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
       <Route path="/lista-vini">{() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}</Route>
       <Route path="/carta-vini">{() => { window.location.replace("/lista-vini"); return null; }}</Route>
