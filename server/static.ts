@@ -28,5 +28,20 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath, { index: false }));
 
-  app.use("/{*path}", (req, res) => serveHtmlWithSeo(distPath, req, res));
+  // Fallback SPA - Only for HTML requests and exclude sitemap/robots
+  app.use((req, res, next) => {
+    // Exclude service files from SPA fallback
+    const excludedPaths = ["/sitemap.xml", "/robots.txt", "/sitemap-index.xml"];
+    if (excludedPaths.includes(req.path)) {
+      return next();
+    }
+
+    // Only serve HTML fallback if the client accepts text/html
+    const accept = req.headers.accept || "";
+    if (accept.includes("text/html")) {
+      return serveHtmlWithSeo(distPath, req, res);
+    }
+
+    next();
+  });
 }
