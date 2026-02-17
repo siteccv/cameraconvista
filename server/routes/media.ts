@@ -233,14 +233,14 @@ adminUploadsRouter.post("/direct", requireAuth, (req, res, next) => {
     let finalMimeType = file.mimetype;
     const isImage = file.mimetype.startsWith("image/");
 
-    // Optimize images (JPEG/PNG/WebP) while preserving quality
+    // Optimize images (JPEG/PNG/WebP)
     if (isImage && ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
       try {
         const sharpInstance = sharp(buffer);
         const metadata = await sharpInstance.metadata();
         
-        // Only resize if larger than 2000px on any side
-        const maxDimension = 2000;
+        // Max resolution 1920px for better performance/storage
+        const maxDimension = 1920;
         if (metadata.width && metadata.height) {
           if (metadata.width > maxDimension || metadata.height > maxDimension) {
             sharpInstance.resize(maxDimension, maxDimension, {
@@ -250,14 +250,9 @@ adminUploadsRouter.post("/direct", requireAuth, (req, res, next) => {
           }
         }
 
-        // High quality compression preserving original format
-        if (file.mimetype === "image/jpeg") {
-          buffer = await sharpInstance.jpeg({ quality: 85, mozjpeg: true }).toBuffer();
-        } else if (file.mimetype === "image/png") {
-          buffer = await sharpInstance.png({ compressionLevel: 6 }).toBuffer();
-        } else if (file.mimetype === "image/webp") {
-          buffer = await sharpInstance.webp({ quality: 85 }).toBuffer();
-        }
+        // Convert all to WebP for maximum efficiency
+        buffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
+        finalMimeType = "image/webp";
       } catch (sharpError) {
         console.warn("Sharp processing failed, using original:", sharpError);
       }
