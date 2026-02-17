@@ -128,7 +128,7 @@ Routes organizzate in moduli separati sotto `server/routes/`:
 | `menu.ts` | GET menu-items, wines, cocktails | CRUD menu-items, wines, cocktails |
 | `events.ts` | GET events (filtered by visibility) | CRUD events (max 10) |
 | `gallery.ts` | GET galleries, GET gallery images | CRUD galleries, CRUD gallery images |
-| `media.ts` | GET media | CRUD media, upload, media categories |
+| `media.ts` | GET media | CRUD media, upload (WebP auto-conversion, max 1920px, quality 80%), rotate (WebP re-compression), media categories |
 | `settings.ts` | GET site-settings, footer | PUT settings, footer |
 | `sync.ts` | — | Google Sheets sync (placeholder) |
 | `seo.ts`* | GET /sitemap.xml | — (middleware auto-injection) |

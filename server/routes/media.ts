@@ -130,22 +130,23 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
     }
     const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
-    const sharpResult = sharp(imageBuffer).rotate(angle);
-    const rotatedBuffer = await sharpResult.toBuffer();
+    const rotatedBuffer = await sharp(imageBuffer)
+      .rotate(angle)
+      .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
     const rotatedMeta = await sharp(rotatedBuffer).metadata();
 
     const { supabaseAdmin } = await import("../supabase");
 
     const timestamp = Date.now();
-    const sanitizedName = (mediaItem.filename || "image.jpg").replace(/[^a-zA-Z0-9._-]/g, '_');
-    const storagePath = `public/${timestamp}-rot-${sanitizedName}`;
-
-    const mimeType = mediaItem.mimeType || "image/jpeg";
+    const baseName = (mediaItem.filename || "image").replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const storagePath = `public/${timestamp}-rot-${baseName}.webp`;
 
     const { error: uploadError } = await supabaseAdmin.storage
       .from('media-public')
       .upload(storagePath, rotatedBuffer, {
-        contentType: mimeType,
+        contentType: "image/webp",
         upsert: false,
       });
 
@@ -159,11 +160,14 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
       .from('media-public')
       .getPublicUrl(storagePath);
 
+    const newFilename = mediaItem.filename.replace(/\.[^.]+$/, '.webp');
     const updated = await storage.updateMedia(id, {
       url: urlData.publicUrl,
       size: rotatedBuffer.length,
       width: rotatedMeta.width || null,
       height: rotatedMeta.height || null,
+      mimeType: "image/webp",
+      filename: newFilename,
     });
 
     res.json(updated);
@@ -258,10 +262,13 @@ adminUploadsRouter.post("/direct", requireAuth, (req, res, next) => {
       }
     }
 
-    // Generate unique filename
+    // Generate unique filename (use .webp extension if converted)
     const timestamp = Date.now();
     const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const storagePath = `public/${timestamp}-${sanitizedName}`;
+    const finalName = finalMimeType === "image/webp"
+      ? sanitizedName.replace(/\.(png|jpg|jpeg|PNG|JPG|JPEG)$/i, '.webp')
+      : sanitizedName;
+    const storagePath = `public/${timestamp}-${finalName}`;
 
     // Upload to Supabase Storage
     const { data, error } = await supabaseAdmin.storage

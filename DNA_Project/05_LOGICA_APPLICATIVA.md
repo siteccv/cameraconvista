@@ -163,10 +163,28 @@ Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono anda
 ## Sistema Media
 
 ### Upload Flow
-1. Frontend: `ObjectUploader` o `use-upload` hook → upload a Object Storage via presigned URL
-2. File salvato su GCS → URL pubblico generato
-3. `POST /api/admin/media` → salva metadata in DB (filename, url, mimeType, size, width, height)
-4. Opzionale: `sharp` per resize/ottimizzazione server-side
+1. Frontend: `ObjectUploader` o `use-upload` hook → upload via `POST /api/admin/uploads/direct`
+2. Backend riceve il file con `multer` (memory storage, max 25MB)
+3. **Compressione obbligatoria**: `sharp` processa tutte le immagini JPEG/PNG/WebP
+4. File compresso caricato su Supabase Storage → URL pubblico generato
+5. `POST /api/admin/media` → salva metadata in DB (filename, url, mimeType, size, width, height)
+
+### Policy di Compressione Immagini
+Tutte le immagini caricate o ruotate vengono automaticamente ottimizzate:
+
+| Parametro | Valore |
+|-----------|--------|
+| Formato output | **WebP** (conversione forzata da JPEG/PNG) |
+| Qualità | **80%** |
+| Dimensione massima (lato lungo) | **1920px** |
+| Ridimensionamento | `fit: inside`, `withoutEnlargement: true` |
+| Target peso file | **70KB – 250KB** |
+
+La compressione è applicata in due punti:
+- **Upload** (`POST /api/admin/uploads/direct`): Converte in WebP, ridimensiona a max 1920px
+- **Rotazione** (`POST /api/admin/media/:id/rotate`): Ri-comprime in WebP dopo rotazione
+
+Il filename salvato su Supabase Storage usa l'estensione `.webp` coerente con il formato effettivo.
 
 ### Categorie
 - Tabella `media_categories` con slug, labelIt, labelEn, sortOrder
