@@ -142,9 +142,11 @@ export default function EventDetail() {
                   <h2 className="font-display text-xl mb-2">
                     {t("Descrizione", "Description")}
                   </h2>
-                  <p className="text-muted-foreground whitespace-pre-line" data-testid="text-event-description">
-                    {description}
-                  </p>
+                  <div className="text-muted-foreground" data-testid="text-event-description">
+                    {description.split(/\r?\n/).map((line, i, arr) => (
+                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -154,10 +156,12 @@ export default function EventDetail() {
                     {t("Dettagli", "Details")}
                   </h2>
                   <div 
-                    className="text-muted-foreground whitespace-pre-line" 
+                    className="text-muted-foreground" 
                     data-testid="text-event-details"
                   >
-                    {details}
+                    {details.split(/\r?\n/).map((line, i, arr) => (
+                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                    ))}
                   </div>
                 </div>
               )}

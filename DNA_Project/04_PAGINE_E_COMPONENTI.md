@@ -63,6 +63,7 @@ Tutte le pagine pubbliche seguono questo pattern:
 ### Dettaglio Evento (`/eventi/:id`)
 - Poster grande con zoom/offset
 - Titolo, data, descrizione, dettagli
+- **Preservazione a-capo**: descrizione e dettagli usano `split(/\r?\n/)` con `<br/>` espliciti per garantire che gli a-capo inseriti dall'admin vengano rispettati nella visualizzazione pubblica (non si usa `whitespace-pre-line` CSS che può essere inaffidabile)
 - Pulsante prenotazione (se abilitato)
 - Data in formato "SABATO 14 FEBBRAIO" (uppercase)
 
