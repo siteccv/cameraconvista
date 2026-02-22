@@ -39,9 +39,15 @@ function checkRateLimit(key: string): boolean {
   return true;
 }
 
+const LOCATION_LABELS: Record<string, string> = {
+  interno: "Interno",
+  dehors: "All'aperto — Dehors",
+};
+
 const eventRequestSchema = z.object({
   eventType: z.enum(["aperitivo", "cena", "esclusivo"]),
   subOption: z.enum(["convivialis", "riserva-ccv", "riserva-jazz"]).optional(),
+  location: z.enum(["interno", "dehors"]).optional(),
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format"),
   time: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format"),
   timeApproximate: z.boolean(),
@@ -80,6 +86,7 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
   const rows = [
     ["Tipo Evento", EVENT_TYPE_LABELS[data.eventType] || data.eventType],
     ...(data.subOption ? [["Formula", SUB_OPTION_LABELS[data.subOption] || data.subOption]] : []),
+    ...(data.location ? [["Location", LOCATION_LABELS[data.location] || data.location]] : []),
     ["Data", formatDateItalian(data.date)],
     ["Orario", `${escapeHtml(data.time)}${data.timeApproximate ? " (indicativo)" : ""}`],
     ["Ospiti", `${data.guests}${data.guestsApproximate ? " (circa)" : ""}`],
@@ -127,6 +134,7 @@ function buildTextEmail(data: z.infer<typeof eventRequestSchema>): string {
     "",
     `Tipo Evento: ${EVENT_TYPE_LABELS[data.eventType] || data.eventType}`,
     ...(data.subOption ? [`Formula: ${SUB_OPTION_LABELS[data.subOption] || data.subOption}`] : []),
+    ...(data.location ? [`Location: ${LOCATION_LABELS[data.location] || data.location}`] : []),
     `Data: ${formatDateItalian(data.date)}`,
     `Orario: ${data.time}${data.timeApproximate ? " (indicativo)" : ""}`,
     `Ospiti: ${data.guests}${data.guestsApproximate ? " (circa)" : ""}`,

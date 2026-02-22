@@ -2,9 +2,12 @@ export type EventType = "aperitivo" | "cena" | "esclusivo";
 
 export type ExclusiveSubOption = "convivialis" | "riserva-ccv" | "riserva-jazz";
 
+export type EventLocation = "interno" | "dehors";
+
 export interface EventRequestData {
   eventType: EventType;
   subOption?: ExclusiveSubOption;
+  location?: EventLocation;
   date: string;
   time: string;
   timeApproximate: boolean;

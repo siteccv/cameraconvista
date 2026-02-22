@@ -16,8 +16,13 @@ import { cn } from "@/lib/utils";
 import { getCountryCallingCode, getCountries, type CountryCode } from "libphonenumber-js";
 import flags from "react-phone-number-input/flags";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { EventType, ExclusiveSubOption, EventRequestData } from "./types";
+import type { EventType, ExclusiveSubOption, EventLocation, EventRequestData } from "./types";
 import { EVENT_TYPE_LABELS, EXCLUSIVE_SUB_LABELS } from "./types";
+
+const LOCATION_LABELS: Record<EventLocation, { it: string; en: string }> = {
+  interno: { it: "Interno", en: "Indoor" },
+  dehors: { it: "All'aperto — Dehors", en: "Outdoor — Dehors" },
+};
 
 interface EventWizardProps {
   eventType: EventType;
@@ -36,7 +41,7 @@ const TIME_SLOTS = [
 
 function getStepLabel(step: number, t: (it: string, en: string) => string): string {
   const labels: Record<number, [string, string]> = {
-    1: ["Tipo evento", "Event Type"],
+    1: ["Preferenze", "Preferences"],
     2: ["Data", "Date"],
     3: ["Orario", "Time"],
     4: ["Ospiti", "Guests"],
@@ -52,11 +57,13 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
   const { t, language } = useLanguage();
   const locale = language === "en" ? enUS : itLocale;
 
-  const [step, setStep] = useState(eventType === "esclusivo" ? 1 : 2);
+  const hasLocationStep = eventType === "aperitivo" || eventType === "cena";
+  const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const [subOption, setSubOption] = useState<ExclusiveSubOption | undefined>(undefined);
+  const [location, setLocation] = useState<EventLocation | undefined>(undefined);
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [time, setTime] = useState("20:00");
   const [timeApproximate, setTimeApproximate] = useState(false);
@@ -74,8 +81,9 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   const resetForm = useCallback(() => {
-    setStep(eventType === "esclusivo" ? 1 : 2);
+    setStep(1);
     setSubOption(undefined);
+    setLocation(undefined);
     setDate(undefined);
     setTime("20:00");
     setTimeApproximate(false);
@@ -104,6 +112,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
     switch (step) {
       case 1:
         if (eventType === "esclusivo") return !!subOption;
+        if (hasLocationStep) return !!location;
         return true;
       case 2:
         return !!date;
@@ -122,7 +131,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
       default:
         return false;
     }
-  }, [step, eventType, subOption, date, time, guests, firstName, lastName, email, phoneLocal, termsAccepted]);
+  }, [step, eventType, hasLocationStep, subOption, location, date, time, guests, firstName, lastName, email, phoneLocal, termsAccepted]);
 
   const handleNext = () => {
     if (step < TOTAL_STEPS) {
@@ -131,8 +140,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
   };
 
   const handlePrev = () => {
-    const minStep = eventType === "esclusivo" ? 1 : 2;
-    if (step > minStep) setStep(step - 1);
+    if (step > 1) setStep(step - 1);
   };
 
   const handleSubmit = async () => {
@@ -142,6 +150,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
       const payload: EventRequestData & { honeypot?: string } = {
         eventType,
         subOption,
+        location,
         date: date ? format(date, "yyyy-MM-dd") : "",
         time,
         timeApproximate,
@@ -169,7 +178,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
 
   const eventLabel = t(EVENT_TYPE_LABELS[eventType].it, EVENT_TYPE_LABELS[eventType].en);
 
-  const progress = Math.round(((eventType === "esclusivo" ? step : (step === 1 ? 1 : step)) / TOTAL_STEPS) * 100);
+  const progress = Math.round((step / TOTAL_STEPS) * 100);
 
   if (isSubmitted) {
     return (
@@ -235,16 +244,26 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                     ))}
                   </RadioGroup>
                 </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full py-8 text-center">
-                  <p className="text-muted-foreground">
-                    {t(
-                      `Stai richiedendo un preventivo per: ${eventLabel}`,
-                      `You are requesting a quote for: ${eventLabel}`
-                    )}
+              ) : hasLocationStep ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground mb-4">
+                    {t("Dove preferisci organizzare il tuo evento?", "Where would you prefer to host your event?")}
                   </p>
+                  <RadioGroup
+                    value={location || ""}
+                    onValueChange={(v) => setLocation(v as EventLocation)}
+                  >
+                    {(Object.keys(LOCATION_LABELS) as EventLocation[]).map((key) => (
+                      <div key={key} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
+                        <RadioGroupItem value={key} id={`loc-${key}`} data-testid={`radio-location-${key}`} />
+                        <Label htmlFor={`loc-${key}`} className="cursor-pointer flex-1">
+                          {t(LOCATION_LABELS[key].it, LOCATION_LABELS[key].en)}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
                 </div>
-              )}
+              ) : null}
             </div>
           )}
 
@@ -476,6 +495,12 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                     value={t(EXCLUSIVE_SUB_LABELS[subOption].it, EXCLUSIVE_SUB_LABELS[subOption].en)}
                   />
                 )}
+                {location && (
+                  <SummaryRow
+                    label={t("Location", "Location")}
+                    value={t(LOCATION_LABELS[location].it, LOCATION_LABELS[location].en)}
+                  />
+                )}
                 <SummaryRow
                   label={t("Data", "Date")}
                   value={date ? format(date, "PPP", { locale }) : "—"}
@@ -500,12 +525,12 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
         <div className="flex justify-between pt-2 border-t">
           <Button
             variant="ghost"
-            onClick={step <= (eventType === "esclusivo" ? 1 : 2) ? () => handleOpenChange(false) : handlePrev}
+            onClick={step <= 1 ? () => handleOpenChange(false) : handlePrev}
             disabled={isSubmitting}
             data-testid="button-wizard-prev"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {step <= (eventType === "esclusivo" ? 1 : 2) ? t("Annulla", "Cancel") : t("Indietro", "Back")}
+            {step <= 1 ? t("Annulla", "Cancel") : t("Indietro", "Back")}
           </Button>
 
           {step < TOTAL_STEPS ? (
