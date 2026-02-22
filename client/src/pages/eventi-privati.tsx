@@ -328,6 +328,17 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                   testIdPrefix={`spaces-${idx}`}
                   onSave={makeSpacesImageSave(block)}
                 />
+                <div className="mt-3 text-center">
+                  <EditableText
+                    textIt={block?.bodyIt || ""}
+                    textEn={block?.bodyEn || ""}
+                    fontSizeDesktop={14}
+                    fontSizeMobile={12}
+                    as="p"
+                    className="text-muted-foreground uppercase tracking-widest font-medium"
+                    onSave={makeTextSave(block, "body")}
+                  />
+                </div>
               </div>
             ))}
           </div>
