@@ -95,7 +95,7 @@ export function EditableText({
   return (
     <>
       <Component
-        className={`${className} relative cursor-pointer group`}
+        className={`${className} relative cursor-pointer group editable-text-zone`}
         style={textStyle}
         onClick={handleClick}
       >

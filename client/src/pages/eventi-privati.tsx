@@ -273,7 +273,11 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                   <div
                     key={index}
                     className="block"
-                    onClick={() => onNavigateSubPage(pkg.href)}
+                    onClick={(e) => {
+                      const target = e.target as HTMLElement;
+                      if (target.closest('[data-radix-dialog-content]') || target.closest('.editable-text-zone')) return;
+                      onNavigateSubPage(pkg.href);
+                    }}
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e) => { if (e.key === "Enter") onNavigateSubPage(pkg.href); }}
