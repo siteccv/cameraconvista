@@ -156,17 +156,31 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
+  const isTestKey = apiKey.startsWith("re_test_");
+  console.log(`[event-request] API key type: ${isTestKey ? "TEST (emails won't be delivered!)" : "LIVE"}, sending to: ${recipientEmail}, from: onboarding@resend.dev, replyTo: ${data.email}`);
+
   try {
     const resend = new Resend(apiKey);
 
-    await resend.emails.send({
-      from: "Camera con Vista <noreply@cameraconvista.it>",
+    const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
+    const senderEmail = senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
+
+    const result = await resend.emails.send({
+      from: `Camera con Vista <${senderEmail}>`,
       to: [recipientEmail],
       replyTo: data.email,
       subject: `Richiesta evento: ${EVENT_TYPE_LABELS[data.eventType]} — ${data.firstName} ${data.lastName}`,
       html: buildHtmlEmail(data),
       text: buildTextEmail(data),
     });
+
+    console.log("[event-request] Resend response:", JSON.stringify(result));
+
+    if (result.error) {
+      console.error("[event-request] Resend error:", JSON.stringify(result.error));
+      res.status(500).json({ error: "Failed to send email" });
+      return;
+    }
 
     res.status(200).json({ success: true });
   } catch (err) {
