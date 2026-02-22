@@ -156,9 +156,6 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
-  const isTestKey = apiKey.startsWith("re_test_");
-  console.log(`[event-request] API key type: ${isTestKey ? "TEST (emails won't be delivered!)" : "LIVE"}, sending to: ${recipientEmail}, from: onboarding@resend.dev, replyTo: ${data.email}`);
-
   try {
     const resend = new Resend(apiKey);
 
@@ -173,8 +170,6 @@ router.post("/", async (req: Request, res: Response) => {
       html: buildHtmlEmail(data),
       text: buildTextEmail(data),
     });
-
-    console.log("[event-request] Resend response:", JSON.stringify(result));
 
     if (result.error) {
       console.error("[event-request] Resend error:", JSON.stringify(result.error));
