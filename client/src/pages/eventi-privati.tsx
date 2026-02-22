@@ -2,7 +2,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Utensils, Music, Star, ArrowRight } from "lucide-react";
+import { Users, Utensils, Star, ArrowRight } from "lucide-react";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
@@ -128,7 +128,6 @@ export default function EventiPrivati() {
   const packageItems = [
     { icon: Users, block: pkg1Block, def: pkg1Def },
     { icon: Utensils, block: pkg2Block, def: pkg2Def },
-    { icon: Music, block: pkg3Block, def: pkg3Def },
     { icon: Star, block: pkg4Block, def: pkg4Def },
   ];
 
@@ -213,38 +212,34 @@ export default function EventiPrivati() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {packageItems.map((pkg, index) => (
               <Card key={index} className="hover-elevate" data-testid={`card-package-${index}`}>
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                      <pkg.icon className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <EditableText
-                        textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
-                        textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
-                        fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
-                        fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
-                        as="h3"
-                        className="font-display mb-2"
-                        applyFontSize
-                        onSave={makePackageTitleSave(pkg.block)}
-                      />
-                      <EditableText
-                        textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
-                        textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
-                        fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
-                        fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
-                        as="p"
-                        className="text-muted-foreground"
-                        multiline
-                        applyFontSize
-                        onSave={makePackageBodySave(pkg.block)}
-                      />
-                    </div>
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                    <pkg.icon className="h-7 w-7 text-primary" />
                   </div>
+                  <EditableText
+                    textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
+                    textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
+                    fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
+                    fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
+                    as="h3"
+                    className="font-display mb-2"
+                    applyFontSize
+                    onSave={makePackageTitleSave(pkg.block)}
+                  />
+                  <EditableText
+                    textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
+                    textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
+                    fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
+                    fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
+                    as="p"
+                    className="text-muted-foreground"
+                    multiline
+                    applyFontSize
+                    onSave={makePackageBodySave(pkg.block)}
+                  />
                 </CardContent>
               </Card>
             ))}
