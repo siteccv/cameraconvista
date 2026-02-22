@@ -294,39 +294,6 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
         </div>
       </section>
 
-      <section className="py-10 md:py-20 bg-card">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <EditableText
-              textIt={ctaBlock?.titleIt || ctaDef.titleIt || ""}
-              textEn={ctaBlock?.titleEn || ctaDef.titleEn || ""}
-              fontSizeDesktop={ctaBlock?.titleFontSize || ctaDef.titleFontSize || 32}
-              fontSizeMobile={ctaBlock?.titleFontSizeMobile || ctaDef.titleFontSizeMobile || 24}
-              as="h2"
-              className="font-display mb-4"
-              applyFontSize
-              onSave={makeTextSave(ctaBlock, "title")}
-            />
-            <EditableText
-              textIt={ctaBlock?.bodyIt || ctaDef.bodyIt || ""}
-              textEn={ctaBlock?.bodyEn || ctaDef.bodyEn || ""}
-              fontSizeDesktop={ctaBlock?.bodyFontSize || ctaDef.bodyFontSize || 18}
-              fontSizeMobile={ctaBlock?.bodyFontSizeMobile || ctaDef.bodyFontSizeMobile || 14}
-              as="p"
-              className="text-muted-foreground mb-8"
-              applyFontSize
-              onSave={makeTextSave(ctaBlock, "body")}
-            />
-            <a href="mailto:info@cameraconvista.it">
-              <Button size="lg" data-testid="button-request-quote">
-                {t("Contattaci", "Contact Us")}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </a>
-          </div>
-        </div>
-      </section>
-
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
           <EditableText

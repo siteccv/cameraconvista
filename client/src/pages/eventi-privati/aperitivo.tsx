@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { EventWizard } from "@/components/eventi/EventWizard";
 import { EditableText } from "@/components/admin/EditableText";
@@ -158,42 +157,16 @@ export default function AperitivoPage() {
         </section>
       ))}
 
-      <section className="py-10 md:py-16 bg-card">
-        <div className="container mx-auto px-4 text-center max-w-2xl">
-          <EditableText
-            textIt={ctaBlock?.titleIt || ctaDef.titleIt || ""}
-            textEn={ctaBlock?.titleEn || ctaDef.titleEn || ""}
-            fontSizeDesktop={ctaBlock?.titleFontSize || ctaDef.titleFontSize || 28}
-            fontSizeMobile={ctaBlock?.titleFontSizeMobile || ctaDef.titleFontSizeMobile || 24}
-            as="h2"
-            className="font-display mb-4"
-            applyFontSize
-            onSave={makeTextSave(ctaBlock, "title")}
-          />
-          <EditableText
-            textIt={ctaBlock?.bodyIt || ctaDef.bodyIt || ""}
-            textEn={ctaBlock?.bodyEn || ctaDef.bodyEn || ""}
-            fontSizeDesktop={ctaBlock?.bodyFontSize || ctaDef.bodyFontSize || 18}
-            fontSizeMobile={ctaBlock?.bodyFontSizeMobile || ctaDef.bodyFontSizeMobile || 14}
-            as="p"
-            className="text-muted-foreground mb-8"
-            applyFontSize
-            onSave={makeTextSave(ctaBlock, "body")}
-          />
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/eventi-privati">
-              <Button variant="outline" data-testid="button-back">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {t("Torna indietro", "Go Back")}
-              </Button>
-            </Link>
-            <Button size="lg" data-testid="button-request-quote" onClick={() => setWizardOpen(true)}>
-              {t("Richiedi preventivo", "Request Quote")}
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </section>
+      <div className="py-8 flex flex-col items-center gap-3">
+        <Button size="lg" data-testid="button-request-quote" onClick={() => setWizardOpen(true)}>
+          {t("RICHIEDI INFORMAZIONI", "REQUEST INFORMATION")}
+        </Button>
+        <Link href="/eventi-privati">
+          <Button variant="ghost" data-testid="button-back">
+            {t("Torna Indietro", "Go Back")}
+          </Button>
+        </Link>
+      </div>
 
       <EventWizard eventType="aperitivo" open={wizardOpen} onOpenChange={setWizardOpen} />
     </PublicLayout>
