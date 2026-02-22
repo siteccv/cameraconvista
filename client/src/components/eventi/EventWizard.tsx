@@ -13,8 +13,9 @@ import { ArrowLeft, ArrowRight, CalendarIcon, Check, Loader2, Send } from "lucid
 import { format } from "date-fns";
 import { it as itLocale, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
-import PhoneInput from "react-phone-number-input";
-import "react-phone-number-input/style.css";
+import { getCountryCallingCode, getCountries, type CountryCode } from "libphonenumber-js";
+import flags from "react-phone-number-input/flags";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { EventType, ExclusiveSubOption, EventRequestData } from "./types";
 import { EVENT_TYPE_LABELS, EXCLUSIVE_SUB_LABELS } from "./types";
 
@@ -64,7 +65,8 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
   const [notes, setNotes] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneCountry, setPhoneCountry] = useState<CountryCode>("IT");
+  const [phoneLocal, setPhoneLocal] = useState("");
   const [email, setEmail] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [honeypot, setHoneypot] = useState("");
@@ -82,7 +84,8 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
     setNotes("");
     setFirstName("");
     setLastName("");
-    setPhone("");
+    setPhoneCountry("IT");
+    setPhoneLocal("");
     setEmail("");
     setTermsAccepted(false);
     setHoneypot("");
@@ -113,13 +116,13 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
       case 6:
         return firstName.trim().length > 0 && lastName.trim().length > 0 &&
                email.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-               phone.trim().length > 0 && termsAccepted;
+               phoneLocal.trim().length > 0 && termsAccepted;
       case 7:
         return true;
       default:
         return false;
     }
-  }, [step, eventType, subOption, date, time, guests, firstName, lastName, email, phone, termsAccepted]);
+  }, [step, eventType, subOption, date, time, guests, firstName, lastName, email, phoneLocal, termsAccepted]);
 
   const handleNext = () => {
     if (step < TOTAL_STEPS) {
@@ -147,7 +150,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
         notes,
         firstName: firstName.trim(),
         lastName: lastName.trim(),
-        phone: phone.trim(),
+        phone: `+${getCountryCallingCode(phoneCountry)} ${phoneLocal.trim()}`,
         email: email.trim(),
         termsAccepted,
         ...(honeypot ? { honeypot } : {}),
@@ -397,17 +400,50 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
               </div>
               <div>
                 <Label htmlFor="phone">{t("Telefono", "Phone")} *</Label>
-                <PhoneInput
-                  international
-                  defaultCountry="IT"
-                  value={phone}
-                  onChange={(val) => setPhone(val || "")}
-                  numberInputProps={{
-                    id: "phone",
-                    "data-testid": "input-phone",
-                  }}
-                  className="phone-input-wizard"
-                />
+                <div className="flex items-stretch">
+                  <Select value={phoneCountry} onValueChange={(v) => setPhoneCountry(v as CountryCode)}>
+                    <SelectTrigger
+                      className="w-auto rounded-r-none border-r-0 px-2 gap-1 shrink-0"
+                      data-testid="select-phone-country"
+                    >
+                      <span className="inline-flex items-center gap-1.5">
+                        {(() => {
+                          const FlagComp = flags[phoneCountry];
+                          return FlagComp ? <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full"><FlagComp title={phoneCountry} /></span> : <span>{phoneCountry}</span>;
+                        })()}
+                        <span className="text-sm font-medium text-muted-foreground">+{getCountryCallingCode(phoneCountry)}</span>
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[240px]">
+                      {getCountries().sort((a, b) => {
+                        if (a === "IT") return -1;
+                        if (b === "IT") return 1;
+                        return a.localeCompare(b);
+                      }).map((c) => {
+                        const FlagComp = flags[c];
+                        return (
+                          <SelectItem key={c} value={c}>
+                            <span className="inline-flex items-center gap-2">
+                              {FlagComp && <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full"><FlagComp title={c} /></span>}
+                              <span>{c}</span>
+                              <span className="text-muted-foreground">+{getCountryCallingCode(c)}</span>
+                            </span>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={phoneLocal}
+                    onChange={(e) => setPhoneLocal(e.target.value.replace(/[^\d\s]/g, ""))}
+                    placeholder={t("Numero di telefono", "Phone number")}
+                    className="rounded-l-none flex-1"
+                    data-testid="input-phone"
+                  />
+                </div>
               </div>
               <div className="flex items-start space-x-2 mt-2">
                 <Checkbox
@@ -461,7 +497,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                 {notes && <SummaryRow label={t("Note", "Notes")} value={notes} />}
                 <SummaryRow label={t("Nome", "Name")} value={`${firstName} ${lastName}`} />
                 <SummaryRow label="Email" value={email} />
-                <SummaryRow label={t("Telefono", "Phone")} value={phone} />
+                <SummaryRow label={t("Telefono", "Phone")} value={`+${getCountryCallingCode(phoneCountry)} ${phoneLocal}`} />
               </div>
             </div>
           )}
