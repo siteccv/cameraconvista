@@ -88,6 +88,7 @@ export function EditableText({
   const textStyle = multiline ? { ...combinedStyle, whiteSpace: 'pre-line' as const } : combinedStyle;
 
   if (!adminPreview) {
+    if (!displayText) return null;
     return <Component className={className} style={textStyle}>{displayText}</Component>;
   }
 
@@ -98,7 +99,7 @@ export function EditableText({
         style={textStyle}
         onClick={handleClick}
       >
-        {displayText}
+        {displayText || <span className="text-muted-foreground/50 italic text-sm">Clicca per inserire testo</span>}
         <span className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full p-1">
           <Pencil className="h-3 w-3" />
         </span>
