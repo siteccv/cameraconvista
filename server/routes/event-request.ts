@@ -1,18 +1,8 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { Resend } from "resend";
-import fs from "fs";
-import path from "path";
 
 const router = Router();
-
-let logoBase64 = "";
-try {
-  const logoPath = path.resolve("LOGOS", "logo_ccv.png");
-  if (fs.existsSync(logoPath)) {
-    logoBase64 = fs.readFileSync(logoPath).toString("base64");
-  }
-} catch {}
 
 const HEADER_COLOR = "#6F2A36";
 
@@ -96,9 +86,9 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
     )
     .join("");
 
-  const logoHtml = logoBase64
-    ? `<img src="data:image/png;base64,${logoBase64}" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`
-    : `<span style="color:#ffffff;font-size:20px;font-weight:600;letter-spacing:0.3px">Camera con Vista</span>`;
+  const siteBase = process.env.SITE_URL || "https://cameraconvista.it";
+  const logoUrl = `${siteBase}/logo_ccv.png`;
+  const logoHtml = `<img src="${logoUrl}" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title></head>
