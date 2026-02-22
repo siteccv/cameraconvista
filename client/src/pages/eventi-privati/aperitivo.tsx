@@ -75,37 +75,18 @@ export default function AperitivoPage() {
 
   return (
     <PublicLayout>
-      <section className="h-[50vh] shrink-0 px-4 md:px-8">
-        <div className="mx-auto max-w-[1560px] h-full">
-          <ImageContainer
-            src={heroBlock?.imageUrl || heroDef.imageUrl || ""}
-            zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
-            panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
-            panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-            overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
-            zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
-            panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
-            panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-            overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
-            containerClassName="w-full h-full rounded-xl"
-            aspectRatio="auto"
-            referenceWidth={1560}
-            testIdPrefix="aperitivo-hero"
-            onSave={makeImageSave(heroBlock)}
-          >
-            <div className="flex items-center justify-center h-full">
-              <EditableText
-                textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
-                textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
-                fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
-                as="h1"
-                className="font-display text-white drop-shadow-lg text-center"
-                applyFontSize
-                onSave={makeTextSave(heroBlock, "title")}
-              />
-            </div>
-          </ImageContainer>
+      <section className="pt-10 pb-6 md:pt-16 md:pb-8 px-4 md:px-8">
+        <div className="mx-auto max-w-[1560px] text-center">
+          <EditableText
+            textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
+            textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
+            fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
+            fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+            as="h1"
+            className="font-display text-foreground"
+            applyFontSize
+            onSave={makeTextSave(heroBlock, "title")}
+          />
         </div>
       </section>
 
