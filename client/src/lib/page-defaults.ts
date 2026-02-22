@@ -544,6 +544,17 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     sortOrder: 6,
   },
   {
+    blockType: "gallery-3",
+    imageUrl: "",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 7,
+  },
+  {
     blockType: "cta",
     titleIt: "Richiedi un preventivo",
     titleEn: "Request a Quote",
@@ -553,7 +564,7 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     bodyEn: "Contact us to organize your exclusive event.",
     bodyFontSize: 18,
     bodyFontSizeMobile: 14,
-    sortOrder: 7,
+    sortOrder: 8,
   },
 ];
 

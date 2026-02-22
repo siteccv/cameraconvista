@@ -112,7 +112,7 @@ export default function AperitivoPage() {
       ].map(({ block, def, imgBlock, imgDef, idx }) => (
         <section key={idx} className="py-6 md:py-10">
           <div className="container mx-auto px-4 max-w-5xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
               <div className="bg-card rounded-xl p-6 md:p-8" data-testid={`section-${idx}`}>
                 <EditableText
                   textIt={block?.titleIt || def.titleIt || ""}

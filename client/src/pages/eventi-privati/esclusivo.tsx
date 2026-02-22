@@ -28,6 +28,7 @@ export default function EsclusivoPage() {
   const jazzBlock = getBlock("option-riserva-jazz");
   const gallery1Block = getBlock("gallery-1");
   const gallery2Block = getBlock("gallery-2");
+  const gallery3Block = getBlock("gallery-3");
   const ctaBlock = getBlock("cta");
 
   const heroDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
@@ -37,6 +38,7 @@ export default function EsclusivoPage() {
   const jazzDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "option-riserva-jazz")!;
   const gallery1Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
   const gallery2Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
+  const gallery3Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-3")!;
   const ctaDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
 
   const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
@@ -118,13 +120,13 @@ export default function EsclusivoPage() {
       {[
         { opt: options[0], imgBlock: gallery1Block, imgDef: gallery1Def, idx: 0 },
         { opt: options[1], imgBlock: gallery2Block, imgDef: gallery2Def, idx: 1 },
-        { opt: options[2], imgBlock: null, imgDef: null, idx: 2 },
+        { opt: options[2], imgBlock: gallery3Block, imgDef: gallery3Def, idx: 2 },
       ].map(({ opt, imgBlock, imgDef, idx }) => (
         <section key={idx} className="py-6 md:py-10">
           <div className="container mx-auto px-4 max-w-5xl">
-            <div className={`grid grid-cols-1 ${imgDef ? "md:grid-cols-2" : ""} gap-6 md:gap-8 items-center`}>
-              <Card className="hover-elevate" data-testid={`card-${opt.testId}`}>
-                <CardContent className="p-6 flex flex-col items-center text-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
+              <Card className="hover-elevate flex" data-testid={`card-${opt.testId}`}>
+                <CardContent className="p-6 flex flex-col items-center text-center flex-1">
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <opt.icon className="h-7 w-7 text-primary" />
                   </div>
@@ -151,25 +153,23 @@ export default function EsclusivoPage() {
                   />
                 </CardContent>
               </Card>
-              {imgBlock && imgDef && (
-                <div data-testid={`esclusivo-gallery-${idx + 1}`}>
-                  <ImageContainer
-                    src={imgBlock?.imageUrl || imgDef.imageUrl || ""}
-                    zoom={imgBlock?.imageScaleDesktop || imgDef.imageScaleDesktop || 100}
-                    panX={imgBlock?.imageOffsetX ?? imgDef.imageOffsetX ?? 0}
-                    panY={imgBlock?.imageOffsetY ?? imgDef.imageOffsetY ?? 0}
-                    overlay={(imgBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
-                    zoomMobile={imgBlock?.imageScaleMobile || imgDef.imageScaleMobile || 100}
-                    panXMobile={imgBlock?.imageOffsetXMobile ?? imgDef.imageOffsetXMobile ?? 0}
-                    panYMobile={imgBlock?.imageOffsetYMobile ?? imgDef.imageOffsetYMobile ?? 0}
-                    overlayMobile={(imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
-                    containerClassName="rounded-placeholder"
-                    aspectRatio="4/3"
-                    testIdPrefix={`esclusivo-gallery-${idx + 1}`}
-                    onSave={makeImageSave(imgBlock)}
-                  />
-                </div>
-              )}
+              <div data-testid={`esclusivo-gallery-${idx + 1}`}>
+                <ImageContainer
+                  src={imgBlock?.imageUrl || imgDef.imageUrl || ""}
+                  zoom={imgBlock?.imageScaleDesktop || imgDef.imageScaleDesktop || 100}
+                  panX={imgBlock?.imageOffsetX ?? imgDef.imageOffsetX ?? 0}
+                  panY={imgBlock?.imageOffsetY ?? imgDef.imageOffsetY ?? 0}
+                  overlay={(imgBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+                  zoomMobile={imgBlock?.imageScaleMobile || imgDef.imageScaleMobile || 100}
+                  panXMobile={imgBlock?.imageOffsetXMobile ?? imgDef.imageOffsetXMobile ?? 0}
+                  panYMobile={imgBlock?.imageOffsetYMobile ?? imgDef.imageOffsetYMobile ?? 0}
+                  overlayMobile={(imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  containerClassName="rounded-placeholder"
+                  aspectRatio="4/3"
+                  testIdPrefix={`esclusivo-gallery-${idx + 1}`}
+                  onSave={makeImageSave(imgBlock)}
+                />
+              </div>
             </div>
           </div>
         </section>
