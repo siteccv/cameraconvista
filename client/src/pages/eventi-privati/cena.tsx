@@ -23,14 +23,12 @@ export default function CenaPage() {
   const introBlock = getBlock("intro");
   const sectionABlock = getBlock("section-a");
   const gallery1Block = getBlock("gallery-1");
-  const gallery2Block = getBlock("gallery-2");
   const ctaBlock = getBlock("cta");
 
   const heroDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
   const sectionADef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "section-a")!;
   const gallery1Def = CENA_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
-  const gallery2Def = CENA_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
   const ctaDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
 
   const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
@@ -164,42 +162,6 @@ export default function CenaPage() {
           </div>
         </section>
       ))}
-
-      <section className="py-6 md:py-10">
-        <div className="container mx-auto px-4 max-w-5xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-center">
-            <div />
-            <div data-testid="cena-gallery-2">
-              <ImageContainer
-                src={gallery2Block?.imageUrl || gallery2Def.imageUrl || ""}
-                zoom={gallery2Block?.imageScaleDesktop || gallery2Def.imageScaleDesktop || 100}
-                panX={gallery2Block?.imageOffsetX ?? gallery2Def.imageOffsetX ?? 0}
-                panY={gallery2Block?.imageOffsetY ?? gallery2Def.imageOffsetY ?? 0}
-                overlay={(gallery2Block?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
-                zoomMobile={gallery2Block?.imageScaleMobile || gallery2Def.imageScaleMobile || 100}
-                panXMobile={gallery2Block?.imageOffsetXMobile ?? gallery2Def.imageOffsetXMobile ?? 0}
-                panYMobile={gallery2Block?.imageOffsetYMobile ?? gallery2Def.imageOffsetYMobile ?? 0}
-                overlayMobile={(gallery2Block?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
-                containerClassName="rounded-placeholder"
-                aspectRatio="4/3"
-                testIdPrefix="cena-gallery-2"
-                onSave={makeImageSave(gallery2Block)}
-              />
-              <div className="mt-3 text-center">
-                <EditableText
-                  textIt={gallery2Block?.bodyIt || ""}
-                  textEn={gallery2Block?.bodyEn || ""}
-                  fontSizeDesktop={14}
-                  fontSizeMobile={12}
-                  as="p"
-                  className="text-muted-foreground uppercase tracking-widest font-medium"
-                  onSave={makeTextSave(gallery2Block, "body")}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <div className="py-8 flex flex-col items-center gap-3">
         <Button size="lg" data-testid="button-request-quote" onClick={() => setWizardOpen(true)}>
