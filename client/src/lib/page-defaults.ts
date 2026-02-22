@@ -283,6 +283,26 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
     imageOffsetYMobile: 0,
     sortOrder: 10,
   },
+  {
+    blockType: "cta",
+    titleIt: "Richiedi un preventivo",
+    titleEn: "Request a Quote",
+    titleFontSize: 32,
+    titleFontSizeMobile: 24,
+    bodyIt: "Contattaci per discutere le tue esigenze e creare insieme l'evento perfetto.",
+    bodyEn: "Contact us to discuss your needs and create the perfect event together.",
+    bodyFontSize: 18,
+    bodyFontSizeMobile: 14,
+    sortOrder: 11,
+  },
+  {
+    blockType: "spaces-title",
+    titleIt: "I nostri spazi",
+    titleEn: "Our Spaces",
+    titleFontSize: 32,
+    titleFontSizeMobile: 24,
+    sortOrder: 12,
+  },
 ];
 
 export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
@@ -355,6 +375,18 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     imageOffsetYMobile: 0,
     sortOrder: 5,
   },
+  {
+    blockType: "cta",
+    titleIt: "Richiedi un preventivo",
+    titleEn: "Request a Quote",
+    titleFontSize: 28,
+    titleFontSizeMobile: 24,
+    bodyIt: "Contattaci per organizzare il tuo aperitivo privato.",
+    bodyEn: "Contact us to organize your private aperitivo.",
+    bodyFontSize: 18,
+    bodyFontSizeMobile: 14,
+    sortOrder: 6,
+  },
 ];
 
 export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
@@ -414,6 +446,18 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     imageOffsetXMobile: 0,
     imageOffsetYMobile: 0,
     sortOrder: 4,
+  },
+  {
+    blockType: "cta",
+    titleIt: "Richiedi un preventivo",
+    titleEn: "Request a Quote",
+    titleFontSize: 28,
+    titleFontSizeMobile: 24,
+    bodyIt: "Contattaci per organizzare la tua cena privata.",
+    bodyEn: "Contact us to organize your private dinner.",
+    bodyFontSize: 18,
+    bodyFontSizeMobile: 14,
+    sortOrder: 5,
   },
 ];
 
@@ -498,6 +542,18 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     imageOffsetXMobile: 0,
     imageOffsetYMobile: 0,
     sortOrder: 6,
+  },
+  {
+    blockType: "cta",
+    titleIt: "Richiedi un preventivo",
+    titleEn: "Request a Quote",
+    titleFontSize: 28,
+    titleFontSizeMobile: 24,
+    bodyIt: "Contattaci per organizzare il tuo evento esclusivo.",
+    bodyEn: "Contact us to organize your exclusive event.",
+    bodyFontSize: 18,
+    bodyFontSizeMobile: 14,
+    sortOrder: 7,
   },
 ];
 

@@ -28,6 +28,7 @@ export default function EsclusivoPage() {
   const jazzBlock = getBlock("option-riserva-jazz");
   const gallery1Block = getBlock("gallery-1");
   const gallery2Block = getBlock("gallery-2");
+  const ctaBlock = getBlock("cta");
 
   const heroDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
@@ -36,6 +37,7 @@ export default function EsclusivoPage() {
   const jazzDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "option-riserva-jazz")!;
   const gallery1Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
   const gallery2Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
+  const ctaDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
 
   const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
     (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
@@ -200,15 +202,26 @@ export default function EsclusivoPage() {
 
       <section className="py-10 md:py-16 bg-card">
         <div className="container mx-auto px-4 text-center max-w-2xl">
-          <h2 className="font-display text-2xl md:text-3xl mb-4" data-testid="text-cta-title">
-            {t("Richiedi un preventivo", "Request a Quote")}
-          </h2>
-          <p className="text-muted-foreground mb-8">
-            {t(
-              "Contattaci per organizzare il tuo evento esclusivo.",
-              "Contact us to organize your exclusive event."
-            )}
-          </p>
+          <EditableText
+            textIt={ctaBlock?.titleIt || ctaDef.titleIt || ""}
+            textEn={ctaBlock?.titleEn || ctaDef.titleEn || ""}
+            fontSizeDesktop={ctaBlock?.titleFontSize || ctaDef.titleFontSize || 28}
+            fontSizeMobile={ctaBlock?.titleFontSizeMobile || ctaDef.titleFontSizeMobile || 24}
+            as="h2"
+            className="font-display mb-4"
+            applyFontSize
+            onSave={makeTextSave(ctaBlock, "title")}
+          />
+          <EditableText
+            textIt={ctaBlock?.bodyIt || ctaDef.bodyIt || ""}
+            textEn={ctaBlock?.bodyEn || ctaDef.bodyEn || ""}
+            fontSizeDesktop={ctaBlock?.bodyFontSize || ctaDef.bodyFontSize || 18}
+            fontSizeMobile={ctaBlock?.bodyFontSizeMobile || ctaDef.bodyFontSizeMobile || 14}
+            as="p"
+            className="text-muted-foreground mb-8"
+            applyFontSize
+            onSave={makeTextSave(ctaBlock, "body")}
+          />
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/eventi-privati">
               <Button variant="outline" data-testid="button-back">

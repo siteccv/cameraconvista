@@ -28,6 +28,8 @@ export default function EventiPrivati() {
   const spaces1Block = getBlock("spaces-1");
   const spaces2Block = getBlock("spaces-2");
   const spaces3Block = getBlock("spaces-3");
+  const ctaBlock = getBlock("cta");
+  const spacesTitleBlock = getBlock("spaces-title");
 
   const heroDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "intro")!;
@@ -39,6 +41,8 @@ export default function EventiPrivati() {
   const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-1")!;
   const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-2")!;
   const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-3")!;
+  const ctaDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "cta")!;
+  const spacesTitleDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-title")!;
 
   const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
     if (!heroBlock) return;
@@ -125,6 +129,15 @@ export default function EventiPrivati() {
       bodyFontSizeMobile: data.fontSizeMobile,
     });
   };
+
+  const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
+    (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+      if (!block) return;
+      updateBlock(block.id, field === "title"
+        ? { titleIt: data.textIt, titleEn: data.textEn, titleFontSize: data.fontSizeDesktop, titleFontSizeMobile: data.fontSizeMobile }
+        : { bodyIt: data.textIt, bodyEn: data.textEn, bodyFontSize: data.fontSizeDesktop, bodyFontSizeMobile: data.fontSizeMobile }
+      );
+    };
 
   const packageItems = [
     { icon: Users, block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo" },
@@ -257,15 +270,26 @@ export default function EventiPrivati() {
       <section className="py-10 md:py-20 bg-card">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="font-display text-2xl md:text-4xl mb-4" data-testid="text-request-quote">
-              {t("Richiedi un preventivo", "Request a Quote")}
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              {t(
-                "Contattaci per discutere le tue esigenze e creare insieme l'evento perfetto.",
-                "Contact us to discuss your needs and create the perfect event together."
-              )}
-            </p>
+            <EditableText
+              textIt={ctaBlock?.titleIt || ctaDef.titleIt || ""}
+              textEn={ctaBlock?.titleEn || ctaDef.titleEn || ""}
+              fontSizeDesktop={ctaBlock?.titleFontSize || ctaDef.titleFontSize || 32}
+              fontSizeMobile={ctaBlock?.titleFontSizeMobile || ctaDef.titleFontSizeMobile || 24}
+              as="h2"
+              className="font-display mb-4"
+              applyFontSize
+              onSave={makeTextSave(ctaBlock, "title")}
+            />
+            <EditableText
+              textIt={ctaBlock?.bodyIt || ctaDef.bodyIt || ""}
+              textEn={ctaBlock?.bodyEn || ctaDef.bodyEn || ""}
+              fontSizeDesktop={ctaBlock?.bodyFontSize || ctaDef.bodyFontSize || 18}
+              fontSizeMobile={ctaBlock?.bodyFontSizeMobile || ctaDef.bodyFontSizeMobile || 14}
+              as="p"
+              className="text-muted-foreground mb-8"
+              applyFontSize
+              onSave={makeTextSave(ctaBlock, "body")}
+            />
             <a href="mailto:info@cameraconvista.it">
               <Button size="lg" data-testid="button-request-quote">
                 {t("Contattaci", "Contact Us")}
@@ -278,9 +302,16 @@ export default function EventiPrivati() {
 
       <section className="py-10 md:py-20">
         <div className="container mx-auto px-4">
-          <h2 className="font-display text-2xl md:text-4xl text-center mb-8" data-testid="text-gallery-title">
-            {t("I nostri spazi", "Our Spaces")}
-          </h2>
+          <EditableText
+            textIt={spacesTitleBlock?.titleIt || spacesTitleDef.titleIt || ""}
+            textEn={spacesTitleBlock?.titleEn || spacesTitleDef.titleEn || ""}
+            fontSizeDesktop={spacesTitleBlock?.titleFontSize || spacesTitleDef.titleFontSize || 32}
+            fontSizeMobile={spacesTitleBlock?.titleFontSizeMobile || spacesTitleDef.titleFontSizeMobile || 24}
+            as="h2"
+            className="font-display text-center mb-8"
+            applyFontSize
+            onSave={makeTextSave(spacesTitleBlock, "title")}
+          />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {[
               { block: spaces1Block, def: spaces1Def, idx: 1 },
