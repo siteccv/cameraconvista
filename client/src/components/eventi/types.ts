@@ -8,6 +8,7 @@ export interface EventRequestData {
   eventType: EventType;
   subOption?: ExclusiveSubOption;
   location?: EventLocation;
+  language?: "it" | "en";
   date: string;
   time: string;
   timeApproximate: boolean;

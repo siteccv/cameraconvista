@@ -151,6 +151,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
         eventType,
         subOption,
         location,
+        language: language === "en" ? "en" : "it",
         date: date ? format(date, "yyyy-MM-dd") : "",
         time,
         timeApproximate,
