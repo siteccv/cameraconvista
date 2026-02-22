@@ -1,10 +1,30 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
 
 const HEADER_COLOR = "#6F2A36";
+
+let logoBase64 = "";
+try {
+  const logoPath = path.resolve("LOGOS", "logo_ccv.png");
+  if (fs.existsSync(logoPath)) {
+    logoBase64 = fs.readFileSync(logoPath).toString("base64");
+  }
+} catch {}
+
+const ITALIAN_MONTHS = [
+  "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+  "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
+];
+
+function formatDateItalian(dateStr: string): string {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return `${day} ${ITALIAN_MONTHS[month - 1]} ${year}`;
+}
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -70,7 +90,7 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
   const rows = [
     ["Tipo Evento", EVENT_TYPE_LABELS[data.eventType] || data.eventType],
     ...(data.subOption ? [["Formula", SUB_OPTION_LABELS[data.subOption] || data.subOption]] : []),
-    ["Data", escapeHtml(data.date)],
+    ["Data", formatDateItalian(data.date)],
     ["Orario", `${escapeHtml(data.time)}${data.timeApproximate ? " (indicativo)" : ""}`],
     ["Ospiti", `${data.guests}${data.guestsApproximate ? " (circa)" : ""}`],
     ...(data.notes ? [["Note", escapeHtml(data.notes), "pre"]] : []),
@@ -86,9 +106,9 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
     )
     .join("");
 
-  const siteBase = process.env.SITE_URL || "https://cameraconvista.it";
-  const logoUrl = `${siteBase}/logo_ccv.png`;
-  const logoHtml = `<img src="${logoUrl}" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`;
+  const logoHtml = logoBase64
+    ? `<img src="cid:ccv-logo" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`
+    : `<span style="color:#ffffff;font-size:20px;font-weight:600;letter-spacing:0.3px">Camera con Vista</span>`;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title></head>
@@ -119,7 +139,7 @@ function buildTextEmail(data: z.infer<typeof eventRequestSchema>): string {
     "",
     `Tipo Evento: ${EVENT_TYPE_LABELS[data.eventType] || data.eventType}`,
     ...(data.subOption ? [`Formula: ${SUB_OPTION_LABELS[data.subOption] || data.subOption}`] : []),
-    `Data: ${data.date}`,
+    `Data: ${formatDateItalian(data.date)}`,
     `Orario: ${data.time}${data.timeApproximate ? " (indicativo)" : ""}`,
     `Ospiti: ${data.guests}${data.guestsApproximate ? " (circa)" : ""}`,
     ...(data.notes ? [`Note: ${data.notes}`] : []),
@@ -174,14 +194,26 @@ router.post("/", async (req: Request, res: Response) => {
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
     const senderEmail = senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
 
-    const result = await resend.emails.send({
+    const emailPayload: any = {
       from: `Camera con Vista <${senderEmail}>`,
       to: [recipientEmail],
       replyTo: data.email,
       subject: `Richiesta evento: ${EVENT_TYPE_LABELS[data.eventType]} — ${data.firstName} ${data.lastName}`,
       html: buildHtmlEmail(data),
       text: buildTextEmail(data),
-    });
+    };
+
+    if (logoBase64) {
+      emailPayload.attachments = [
+        {
+          content: logoBase64,
+          filename: "logo_ccv.png",
+          content_id: "ccv-logo",
+        },
+      ];
+    }
+
+    const result = await resend.emails.send(emailPayload);
 
     if (result.error) {
       console.error("[event-request] Resend error:", JSON.stringify(result.error));
