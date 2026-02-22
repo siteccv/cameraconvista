@@ -232,11 +232,11 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {packageItems.map((pkg, index) => {
               const cardContent = (
                 <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>
-                  <CardContent className="p-6 flex flex-col items-center text-center">
+                  <CardContent className="p-6 md:p-10 flex flex-col items-center text-center">
                     <EditableText
                       textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
                       textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
