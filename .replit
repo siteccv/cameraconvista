@@ -49,3 +49,4 @@ integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_database:
 
 [userenv.shared]
 VITE_SUPABASE_URL = "https://pjrdnfbfpogvztfjuxya.supabase.co"
+EVENT_REQUEST_EMAIL = "info@cameraconvista.it"
