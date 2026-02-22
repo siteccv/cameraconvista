@@ -1,8 +1,20 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { Resend } from "resend";
+import fs from "fs";
+import path from "path";
 
 const router = Router();
+
+let logoBase64 = "";
+try {
+  const logoPath = path.resolve("LOGOS", "logo_ccv.png");
+  if (fs.existsSync(logoPath)) {
+    logoBase64 = fs.readFileSync(logoPath).toString("base64");
+  }
+} catch {}
+
+const HEADER_COLOR = "#6F2A36";
 
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
@@ -71,7 +83,7 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
     ["Data", escapeHtml(data.date)],
     ["Orario", `${escapeHtml(data.time)}${data.timeApproximate ? " (indicativo)" : ""}`],
     ["Ospiti", `${data.guests}${data.guestsApproximate ? " (circa)" : ""}`],
-    ...(data.notes ? [["Note", escapeHtml(data.notes)]] : []),
+    ...(data.notes ? [["Note", escapeHtml(data.notes), "pre"]] : []),
     ["Nome", escapeHtml(`${data.firstName} ${data.lastName}`)],
     ["Email", escapeHtml(data.email)],
     ["Telefono", escapeHtml(data.phone)],
@@ -79,26 +91,30 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
 
   const tableRows = rows
     .map(
-      ([label, value]) =>
-        `<tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151;white-space:nowrap;vertical-align:top;width:140px">${label}</td><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;color:#111827;word-break:break-word">${value}</td></tr>`
+      ([label, value, isPreformatted]) =>
+        `<tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151;white-space:nowrap;vertical-align:top;width:140px">${label}</td><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;color:#111827;word-break:break-word${isPreformatted ? ";white-space:pre-wrap" : ""}">${value}</td></tr>`
     )
     .join("");
+
+  const logoHtml = logoBase64
+    ? `<img src="data:image/png;base64,${logoBase64}" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`
+    : `<span style="color:#ffffff;font-size:20px;font-weight:600;letter-spacing:0.3px">Camera con Vista</span>`;
 
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title></head>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6">
 <tr><td style="padding:16px 8px">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:800px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
-<tr><td style="background:#1a1a2e;padding:20px 24px">
-<h1 style="color:#ffffff;margin:0;font-size:20px;font-weight:600;letter-spacing:0.3px">Camera con Vista</h1>
-<p style="color:#9ca3af;margin:4px 0 0;font-size:13px">Nuova richiesta evento privato</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:1120px;margin:0 auto;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,0.08)">
+<tr><td style="background:${HEADER_COLOR};padding:20px 24px">
+${logoHtml}
+<p style="color:rgba(255,255,255,0.7);margin:8px 0 0;font-size:13px">Nuova richiesta evento privato</p>
 </td></tr>
 <tr><td style="padding:8px 0">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.5">${tableRows}</table>
 </td></tr>
 <tr><td style="padding:12px 16px 16px;border-top:1px solid #e5e7eb">
-<p style="margin:0;font-size:11px;color:#9ca3af">Email generata automaticamente dal sito web cameraconvista.it</p>
+<p style="margin:0;font-size:11px;color:#9ca3af">Email generata automaticamente dal sito web <a href="https://cameraconvista.it" style="color:#9ca3af">cameraconvista.it</a></p>
 </td></tr>
 </table>
 </td></tr>
