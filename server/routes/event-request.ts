@@ -1,20 +1,10 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { Resend } from "resend";
-import fs from "fs";
-import path from "path";
 
 const router = Router();
 
 const HEADER_COLOR = "#6F2A36";
-
-let logoBase64 = "";
-try {
-  const logoPath = path.resolve("LOGOS", "logo_ccv.png");
-  if (fs.existsSync(logoPath)) {
-    logoBase64 = fs.readFileSync(logoPath).toString("base64");
-  }
-} catch {}
 
 const ITALIAN_MONTHS = [
   "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
@@ -106,12 +96,10 @@ function buildHtmlEmail(data: z.infer<typeof eventRequestSchema>): string {
     )
     .join("");
 
-  const logoHtml = logoBase64
-    ? `<img src="cid:ccv-logo" alt="Camera con Vista" style="height:36px;width:auto;display:block" />`
-    : `<span style="color:#ffffff;font-size:20px;font-weight:600;letter-spacing:0.3px">Camera con Vista</span>`;
+  const logoHtml = `<h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:400;letter-spacing:1px;font-family:'Playfair Display',Georgia,'Times New Roman',serif">Camera con Vista</h1>`;
 
   return `<!DOCTYPE html>
-<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title></head>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f3f4f6">
 <tr><td style="padding:16px 8px">
@@ -194,26 +182,14 @@ router.post("/", async (req: Request, res: Response) => {
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
     const senderEmail = senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
 
-    const emailPayload: any = {
+    const result = await resend.emails.send({
       from: `Camera con Vista <${senderEmail}>`,
       to: [recipientEmail],
       replyTo: data.email,
       subject: `Richiesta evento: ${EVENT_TYPE_LABELS[data.eventType]} — ${data.firstName} ${data.lastName}`,
       html: buildHtmlEmail(data),
       text: buildTextEmail(data),
-    };
-
-    if (logoBase64) {
-      emailPayload.attachments = [
-        {
-          content: logoBase64,
-          filename: "logo_ccv.png",
-          content_id: "ccv-logo",
-        },
-      ];
-    }
-
-    const result = await resend.emails.send(emailPayload);
+    });
 
     if (result.error) {
       console.error("[event-request] Resend error:", JSON.stringify(result.error));
