@@ -1,10 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle, Loader2 } from "lucide-react";
+import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
 import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -18,23 +18,51 @@ import Eventi from "@/pages/eventi";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
 import DoveSiamo from "@/pages/dove-siamo";
+import AperitivoPage from "@/pages/eventi-privati/aperitivo";
+import CenaPage from "@/pages/eventi-privati/cena";
+import EsclusivoPage from "@/pages/eventi-privati/esclusivo";
 
-const pageComponents = [
+interface PageEntry {
+  slug: string;
+  labelIt: string;
+  labelEn: string;
+  component: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
+  children?: PageEntry[];
+}
+
+const pageComponents: PageEntry[] = [
   { slug: "home", labelIt: "Home", labelEn: "Home", component: Home },
   { slug: "menu", labelIt: "Menu", labelEn: "Menu", component: Menu },
   { slug: "carta-vini", labelIt: "Carta dei Vini", labelEn: "Wine List", component: CartaVini },
   { slug: "cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar", component: CocktailBar },
   { slug: "eventi", labelIt: "Eventi", labelEn: "Events", component: Eventi },
-  { slug: "eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events", component: EventiPrivati },
+  {
+    slug: "eventi-privati",
+    labelIt: "Eventi Privati",
+    labelEn: "Private Events",
+    component: EventiPrivati,
+    children: [
+      { slug: "eventi-privati-aperitivo", labelIt: "Aperitivo", labelEn: "Aperitivo", component: AperitivoPage },
+      { slug: "eventi-privati-cena", labelIt: "Cena", labelEn: "Dinner", component: CenaPage },
+      { slug: "eventi-privati-esclusivo", labelIt: "Esclusivo", labelEn: "Exclusive", component: EsclusivoPage },
+    ],
+  },
   { slug: "galleria", labelIt: "Galleria", labelEn: "Gallery", component: Galleria },
   { slug: "dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are", component: DoveSiamo },
 ];
+
+const subPageSlugMap: Record<string, string> = {
+  "/eventi-privati/aperitivo": "eventi-privati-aperitivo",
+  "/eventi-privati/cena": "eventi-privati-cena",
+  "/eventi-privati/esclusivo": "eventi-privati-esclusivo",
+};
 
 export default function AdminPages() {
   const { t, language, setLanguage } = useLanguage();
   const { toast } = useToast();
   const { setAdminPreview, deviceView, setDeviceView, setForceMobileLayout } = useAdmin();
   const [activePage, setActivePage] = useState("home");
+  const [activeSubPage, setActiveSubPage] = useState<string | null>(null);
 
   const { data: dbPages = [] } = useQuery<Page[]>({
     queryKey: ["/api/admin/pages"],
@@ -73,14 +101,35 @@ export default function AdminPages() {
     return () => setAdminPreview(false);
   }, [setAdminPreview]);
 
-  // Sincronizza forceMobileLayout con deviceView per forzare il layout mobile
   useEffect(() => {
     setForceMobileLayout(deviceView === "mobile");
     return () => setForceMobileLayout(false);
   }, [deviceView, setForceMobileLayout]);
 
-  const activePageData = dbPages.find(p => p.slug === activePage);
-  const ActivePageComponent = pageComponents.find(p => p.slug === activePage)?.component || Home;
+  useEffect(() => {
+    setActiveSubPage(null);
+  }, [activePage]);
+
+  const handleNavigateSubPage = useCallback((href: string) => {
+    const subSlug = subPageSlugMap[href];
+    if (subSlug) {
+      setActiveSubPage(subSlug);
+    }
+  }, []);
+
+  const activeParent = pageComponents.find(p => p.slug === activePage);
+  const hasChildren = activeParent?.children && activeParent.children.length > 0;
+
+  const effectiveSlug = activeSubPage || activePage;
+  const activePageData = dbPages.find(p => p.slug === effectiveSlug);
+
+  let ActivePageComponent: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
+  if (activeSubPage && activeParent?.children) {
+    const child = activeParent.children.find(c => c.slug === activeSubPage);
+    ActivePageComponent = child?.component || Home;
+  } else {
+    ActivePageComponent = activeParent?.component || Home;
+  }
 
   return (
     <AdminLayout>
@@ -95,31 +144,83 @@ export default function AdminPages() {
         </div>
 
         <div className="flex items-center justify-between mb-4 flex-wrap gap-4">
-          <Tabs value={activePage} onValueChange={setActivePage}>
-            <TabsList className="flex-wrap h-auto gap-1">
-              {pageComponents.map((page) => {
-                const dbPage = dbPages.find(p => p.slug === page.slug);
-                return (
-                  <TabsTrigger 
-                    key={page.slug} 
-                    value={page.slug}
-                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex items-center gap-1"
-                    data-testid={`tab-page-${page.slug}`}
+          <div className="flex flex-col gap-2">
+            <Tabs value={activePage} onValueChange={setActivePage}>
+              <TabsList className="flex-wrap h-auto gap-1">
+                {pageComponents.map((page) => {
+                  const dbPage = dbPages.find(p => p.slug === page.slug);
+                  return (
+                    <TabsTrigger 
+                      key={page.slug} 
+                      value={page.slug}
+                      className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex items-center gap-1"
+                      data-testid={`tab-page-${page.slug}`}
+                    >
+                      {t(page.labelIt, page.labelEn)}
+                      {dbPage && !dbPage.isVisible && (
+                        <span title={t("Nascosto", "Hidden")}>
+                          <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+                        </span>
+                      )}
+                      {dbPage && dbPage.isDraft && (
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title={t("Bozza", "Draft")} />
+                      )}
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </Tabs>
+
+            {hasChildren && (
+              <div className="flex items-center gap-2" data-testid="sub-page-tabs">
+                {activeSubPage && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={() => setActiveSubPage(null)}
+                    data-testid="button-back-parent"
                   >
-                    {t(page.labelIt, page.labelEn)}
-                    {dbPage && !dbPage.isVisible && (
-                      <span title={t("Nascosto", "Hidden")}>
-                        <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                      </span>
-                    )}
-                    {dbPage && dbPage.isDraft && (
-                      <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title={t("Bozza", "Draft")} />
-                    )}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
-          </Tabs>
+                    <ArrowLeft className="h-3 w-3 mr-1" />
+                    {t(activeParent!.labelIt, activeParent!.labelEn)}
+                  </Button>
+                )}
+                <div className="flex items-center gap-1 border border-border rounded-lg px-1 py-0.5 bg-muted/50">
+                  <button
+                    onClick={() => setActiveSubPage(null)}
+                    className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors ${
+                      !activeSubPage
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    }`}
+                    data-testid="sub-tab-main"
+                  >
+                    {t("Pagina principale", "Main Page")}
+                  </button>
+                  {activeParent!.children!.map((child) => {
+                    const dbPage = dbPages.find(p => p.slug === child.slug);
+                    return (
+                      <button
+                        key={child.slug}
+                        onClick={() => setActiveSubPage(child.slug)}
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-colors relative ${
+                          activeSubPage === child.slug
+                            ? "bg-primary text-primary-foreground"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                        data-testid={`sub-tab-${child.slug}`}
+                      >
+                        {t(child.labelIt, child.labelEn)}
+                        {dbPage && dbPage.isDraft && (
+                          <span className="absolute -top-1 -right-1 w-1.5 h-1.5 bg-yellow-500 rounded-full" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1 text-sm">
@@ -226,11 +327,11 @@ export default function AdminPages() {
         >
           {deviceView === "mobile" ? (
             <IPhoneFrame>
-              <ActivePageComponent />
+              <ActivePageComponent onNavigateSubPage={handleNavigateSubPage} />
             </IPhoneFrame>
           ) : (
             <div className="w-full h-[calc(100vh-280px)] min-h-[500px] overflow-auto bg-background rounded-lg border border-border">
-              <ActivePageComponent />
+              <ActivePageComponent onNavigateSubPage={handleNavigateSubPage} />
             </div>
           )}
         </div>

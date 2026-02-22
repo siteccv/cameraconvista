@@ -1,4 +1,5 @@
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,8 +11,13 @@ import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, EVENTI_PRIVATI_DEFAULTS } from "@/lib/page-defaults";
 
-export default function EventiPrivati() {
+interface EventiPrivatiProps {
+  onNavigateSubPage?: (href: string) => void;
+}
+
+export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps) {
   const { t } = useLanguage();
+  const { adminPreview } = useAdmin();
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS["eventi-privati"],
@@ -227,8 +233,8 @@ export default function EventiPrivati() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {packageItems.map((pkg, index) => (
-              <Link key={index} href={pkg.href} className="block">
+            {packageItems.map((pkg, index) => {
+              const cardContent = (
                 <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>
                   <CardContent className="p-6 flex flex-col items-center text-center">
                     <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
@@ -256,13 +262,37 @@ export default function EventiPrivati() {
                       onSave={makePackageBodySave(pkg.block)}
                     />
                     <div className="mt-4 text-primary flex items-center text-sm font-medium">
-                      {t("Scopri di più", "Learn More")}
+                      {adminPreview && onNavigateSubPage
+                        ? t("Modifica pagina dedicata", "Edit dedicated page")
+                        : t("Scopri di più", "Learn More")}
                       <ArrowRight className="ml-1 h-4 w-4" />
                     </div>
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
+              );
+
+              if (adminPreview && onNavigateSubPage) {
+                return (
+                  <div
+                    key={index}
+                    className="block"
+                    onClick={() => onNavigateSubPage(pkg.href)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => { if (e.key === "Enter") onNavigateSubPage(pkg.href); }}
+                    data-testid={`admin-card-package-${index}`}
+                  >
+                    {cardContent}
+                  </div>
+                );
+              }
+
+              return (
+                <Link key={index} href={pkg.href} className="block">
+                  {cardContent}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
