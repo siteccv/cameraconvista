@@ -3,7 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowLeft, ArrowRight, Crown, Building2, Music } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { EventWizard } from "@/components/eventi/EventWizard";
 import { EditableText } from "@/components/admin/EditableText";
@@ -69,9 +69,9 @@ export default function EsclusivoPage() {
   };
 
   const options = [
-    { icon: Crown, block: convBlock, def: convDef, testId: "option-convivialis" },
-    { icon: Building2, block: ccvBlock, def: ccvDef, testId: "option-riserva-ccv" },
-    { icon: Music, block: jazzBlock, def: jazzDef, testId: "option-riserva-jazz" },
+    { block: convBlock, def: convDef, testId: "option-convivialis" },
+    { block: ccvBlock, def: ccvDef, testId: "option-riserva-ccv" },
+    { block: jazzBlock, def: jazzDef, testId: "option-riserva-jazz" },
   ];
 
   if (isLoading) {
@@ -127,9 +127,6 @@ export default function EsclusivoPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
               <Card className="hover-elevate flex" data-testid={`card-${opt.testId}`}>
                 <CardContent className="p-6 flex flex-col items-center text-center flex-1">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <opt.icon className="h-7 w-7 text-primary" />
-                  </div>
                   <EditableText
                     textIt={opt.block?.titleIt || opt.def.titleIt || ""}
                     textEn={opt.block?.titleEn || opt.def.titleEn || ""}
