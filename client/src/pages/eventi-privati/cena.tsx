@@ -22,13 +22,17 @@ export default function CenaPage() {
   const heroBlock = getBlock("hero");
   const introBlock = getBlock("intro");
   const sectionABlock = getBlock("section-a");
+  const sectionBBlock = getBlock("section-b");
   const gallery1Block = getBlock("gallery-1");
+  const gallery2Block = getBlock("gallery-2");
   const ctaBlock = getBlock("cta");
 
   const heroDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
   const sectionADef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "section-a")!;
+  const sectionBDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "section-b")!;
   const gallery1Def = CENA_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
+  const gallery2Def = CENA_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
   const ctaDef = CENA_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
 
   const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
@@ -103,11 +107,12 @@ export default function CenaPage() {
 
       {[
         { block: sectionABlock, def: sectionADef, imgBlock: gallery1Block, imgDef: gallery1Def, idx: 0 },
+        { block: sectionBBlock, def: sectionBDef, imgBlock: gallery2Block, imgDef: gallery2Def, idx: 1 },
       ].map(({ block, def, imgBlock, imgDef, idx }) => (
         <section key={idx} className="py-6 md:py-10">
           <div className="container mx-auto px-4 max-w-5xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-stretch">
-              <div className="bg-card rounded-xl p-6 md:p-8" data-testid="section-cena">
+              <div className="bg-card rounded-xl p-6 md:p-8" data-testid={`section-cena-${idx}`}>
                 <EditableText
                   textIt={block?.titleIt || def.titleIt || ""}
                   textEn={block?.titleEn || def.titleEn || ""}

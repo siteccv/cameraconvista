@@ -23,16 +23,20 @@ export default function AperitivoPage() {
   const introBlock = getBlock("intro");
   const sectionABlock = getBlock("section-a");
   const sectionBBlock = getBlock("section-b");
+  const sectionCBlock = getBlock("section-c");
   const gallery1Block = getBlock("gallery-1");
   const gallery2Block = getBlock("gallery-2");
+  const gallery3Block = getBlock("gallery-3");
   const ctaBlock = getBlock("cta");
 
   const heroDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
   const introDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
   const sectionADef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-a")!;
   const sectionBDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-b")!;
+  const sectionCDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-c")!;
   const gallery1Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
   const gallery2Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
+  const gallery3Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-3")!;
   const ctaDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
 
   const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
@@ -108,6 +112,7 @@ export default function AperitivoPage() {
       {[
         { block: sectionABlock, def: sectionADef, imgBlock: gallery1Block, imgDef: gallery1Def, idx: 0 },
         { block: sectionBBlock, def: sectionBDef, imgBlock: gallery2Block, imgDef: gallery2Def, idx: 1 },
+        { block: sectionCBlock, def: sectionCDef, imgBlock: gallery3Block, imgDef: gallery3Def, idx: 2 },
       ].map(({ block, def, imgBlock, imgDef, idx }) => (
         <section key={idx} className="py-6 md:py-10">
           <div className="container mx-auto px-4 max-w-5xl">

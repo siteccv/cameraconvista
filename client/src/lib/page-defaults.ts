@@ -376,6 +376,29 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     sortOrder: 5,
   },
   {
+    blockType: "section-c",
+    titleIt: "Aperitivo all'aperto — Dehors",
+    titleEn: "Outdoor Aperitivo — Dehors",
+    titleFontSize: 24,
+    titleFontSizeMobile: 20,
+    bodyIt: "Nella bella stagione, il nostro dehors diventa il palcoscenico ideale per il vostro aperitivo privato.\nCocktail e finger food serviti all'aperto, in un'atmosfera rilassata e conviviale.\n\nDisponibilità stagionale, su richiesta.",
+    bodyEn: "In the warm season, our dehors becomes the ideal setting for your private aperitivo.\nCocktails and finger food served outdoors, in a relaxed and convivial atmosphere.\n\nSeasonal availability, upon request.",
+    bodyFontSize: 16,
+    bodyFontSizeMobile: 14,
+    sortOrder: 6,
+  },
+  {
+    blockType: "gallery-3",
+    imageUrl: "",
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 7,
+  },
+  {
     blockType: "cta",
     titleIt: "Richiedi un preventivo",
     titleEn: "Request a Quote",
@@ -385,7 +408,7 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     bodyEn: "Contact us to organize your private aperitivo.",
     bodyFontSize: 18,
     bodyFontSizeMobile: 14,
-    sortOrder: 6,
+    sortOrder: 8,
   },
 ];
 
@@ -437,6 +460,18 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     sortOrder: 3,
   },
   {
+    blockType: "section-b",
+    titleIt: "Cena all'aperto — Dehors",
+    titleEn: "Outdoor Dinner — Dehors",
+    titleFontSize: 24,
+    titleFontSizeMobile: 20,
+    bodyIt: "Nella bella stagione, il nostro dehors accoglie cene private sotto le stelle.\nUn'esperienza intima e raffinata, con menu dedicato e servizio esclusivo.\n\nDisponibilità stagionale, su richiesta.",
+    bodyEn: "In the warm season, our dehors hosts private dinners under the stars.\nAn intimate and refined experience, with a dedicated menu and exclusive service.\n\nSeasonal availability, upon request.",
+    bodyFontSize: 16,
+    bodyFontSizeMobile: 14,
+    sortOrder: 4,
+  },
+  {
     blockType: "gallery-2",
     imageUrl: "",
     imageScaleDesktop: 100,
@@ -445,7 +480,7 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     imageOffsetY: 0,
     imageOffsetXMobile: 0,
     imageOffsetYMobile: 0,
-    sortOrder: 4,
+    sortOrder: 5,
   },
   {
     blockType: "cta",
@@ -457,7 +492,7 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     bodyEn: "Contact us to organize your private dinner.",
     bodyFontSize: 18,
     bodyFontSizeMobile: 14,
-    sortOrder: 5,
+    sortOrder: 6,
   },
 ];
 
