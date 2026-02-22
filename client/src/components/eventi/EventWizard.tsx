@@ -13,6 +13,8 @@ import { ArrowLeft, ArrowRight, CalendarIcon, Check, Loader2, Send } from "lucid
 import { format } from "date-fns";
 import { it as itLocale, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import PhoneInput from "react-phone-number-input";
+import "react-phone-number-input/style.css";
 import type { EventType, ExclusiveSubOption, EventRequestData } from "./types";
 import { EVENT_TYPE_LABELS, EXCLUSIVE_SUB_LABELS } from "./types";
 
@@ -377,12 +379,16 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
               </div>
               <div>
                 <Label htmlFor="phone">{t("Telefono", "Phone")} *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
+                <PhoneInput
+                  international
+                  defaultCountry="IT"
                   value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  data-testid="input-phone"
+                  onChange={(val) => setPhone(val || "")}
+                  numberInputProps={{
+                    id: "phone",
+                    "data-testid": "input-phone",
+                  }}
+                  className="phone-input-wizard"
                 />
               </div>
               <div className="flex items-start space-x-2 mt-2">

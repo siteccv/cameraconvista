@@ -326,3 +326,57 @@
     inset: -1px;
   }
 }
+
+.phone-input-wizard {
+  display: flex;
+  align-items: stretch;
+}
+
+.phone-input-wizard .PhoneInputCountry {
+  display: flex;
+  align-items: center;
+  padding-inline: 0.75rem;
+  border: 1px solid hsl(var(--input));
+  border-right: none;
+  border-radius: var(--radius) 0 0 var(--radius);
+  background: hsl(var(--muted));
+  flex-shrink: 0;
+}
+
+.phone-input-wizard .PhoneInputCountryIcon {
+  width: 22px;
+  height: 16px;
+}
+
+.phone-input-wizard .PhoneInputCountryIcon--border {
+  box-shadow: none;
+}
+
+.phone-input-wizard .PhoneInputCountrySelectArrow {
+  margin-left: 4px;
+  opacity: 0.5;
+}
+
+.phone-input-wizard .PhoneInputInput {
+  flex: 1;
+  min-width: 0;
+  border: 1px solid hsl(var(--input));
+  border-radius: 0 var(--radius) var(--radius) 0;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 1rem;
+  outline: none;
+  padding: 0.5rem 0.75rem;
+}
+
+@media (min-width: 768px) {
+  .phone-input-wizard .PhoneInputInput {
+    font-size: 0.875rem;
+  }
+}
+
+.phone-input-wizard .PhoneInputInput:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-color: hsl(var(--ring));
+}
