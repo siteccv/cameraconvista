@@ -165,6 +165,17 @@ export default function EsclusivoPage() {
                   testIdPrefix={`esclusivo-gallery-${idx + 1}`}
                   onSave={makeImageSave(imgBlock)}
                 />
+                <div className="mt-3 text-center">
+                  <EditableText
+                    textIt={imgBlock?.bodyIt || ""}
+                    textEn={imgBlock?.bodyEn || ""}
+                    fontSizeDesktop={14}
+                    fontSizeMobile={12}
+                    as="p"
+                    className="text-muted-foreground uppercase tracking-widest font-medium"
+                    onSave={makeTextSave(imgBlock, "body")}
+                  />
+                </div>
               </div>
             </div>
           </div>

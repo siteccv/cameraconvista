@@ -148,6 +148,17 @@ export default function CenaPage() {
                   testIdPrefix={`cena-gallery-${idx + 1}`}
                   onSave={makeImageSave(imgBlock)}
                 />
+                <div className="mt-3 text-center">
+                  <EditableText
+                    textIt={imgBlock?.bodyIt || ""}
+                    textEn={imgBlock?.bodyEn || ""}
+                    fontSizeDesktop={14}
+                    fontSizeMobile={12}
+                    as="p"
+                    className="text-muted-foreground uppercase tracking-widest font-medium"
+                    onSave={makeTextSave(imgBlock, "body")}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -174,6 +185,17 @@ export default function CenaPage() {
                 testIdPrefix="cena-gallery-2"
                 onSave={makeImageSave(gallery2Block)}
               />
+              <div className="mt-3 text-center">
+                <EditableText
+                  textIt={gallery2Block?.bodyIt || ""}
+                  textEn={gallery2Block?.bodyEn || ""}
+                  fontSizeDesktop={14}
+                  fontSizeMobile={12}
+                  as="p"
+                  className="text-muted-foreground uppercase tracking-widest font-medium"
+                  onSave={makeTextSave(gallery2Block, "body")}
+                />
+              </div>
             </div>
           </div>
         </div>
