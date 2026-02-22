@@ -179,15 +179,9 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
             <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center mb-4">
               <Check className="h-8 w-8 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="font-display text-2xl mb-2">
+            <h2 className="font-display text-2xl mb-6">
               {t("Richiesta inviata!", "Request sent!")}
             </h2>
-            <p className="text-muted-foreground mb-6">
-              {t(
-                "Ti risponderemo entro 48 ore all'indirizzo email fornito.",
-                "We'll get back to you within 48 hours at the email address provided."
-              )}
-            </p>
             <Button onClick={() => handleOpenChange(false)} data-testid="button-close-success">
               {t("Chiudi", "Close")}
             </Button>
