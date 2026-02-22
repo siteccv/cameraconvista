@@ -3,7 +3,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Utensils, Star, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
@@ -146,9 +146,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
     };
 
   const packageItems = [
-    { icon: Users, block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo" },
-    { icon: Utensils, block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena" },
-    { icon: Star, block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo" },
+    { block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo" },
+    { block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena" },
+    { block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo" },
   ];
 
   if (blocksLoading) {
@@ -237,9 +237,6 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
               const cardContent = (
                 <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>
                   <CardContent className="p-6 flex flex-col items-center text-center">
-                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                      <pkg.icon className="h-7 w-7 text-primary" />
-                    </div>
                     <EditableText
                       textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
                       textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
