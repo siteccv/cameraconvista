@@ -26,6 +26,13 @@ interface EventWizardProps {
 
 const TOTAL_STEPS = 7;
 
+const TIME_SLOTS = [
+  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
+  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
+  "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
+  "21:00", "21:30",
+];
+
 function getStepLabel(step: number, t: (it: string, en: string) => string): string {
   const labels: Record<number, [string, string]> = {
     1: ["Tipo evento", "Event Type"],
@@ -274,15 +281,26 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
 
           {step === 3 && (
             <div className="space-y-4" data-testid="wizard-step-3">
-              <Label htmlFor="event-time">{t("Orario desiderato", "Preferred time")}</Label>
-              <Input
-                id="event-time"
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="w-full"
-                data-testid="input-time"
-              />
+              <Label>{t("Orario desiderato", "Preferred time")}</Label>
+              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[240px] overflow-y-auto pr-1 py-1" data-testid="time-slot-grid">
+                {TIME_SLOTS.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setTime(slot)}
+                    data-testid={`time-slot-${slot.replace(":", "")}`}
+                    className={cn(
+                      "py-3 px-2 rounded-lg border text-center text-sm font-medium transition-colors touch-manipulation",
+                      "active:scale-95",
+                      time === slot
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background border-input hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
               <div className="flex items-center space-x-2 mt-2">
                 <Checkbox
                   id="time-approx"
