@@ -10,6 +10,7 @@ import { publicGalleryRouter, adminGalleryRouter } from "./gallery";
 import { publicMediaRouter, adminMediaRouter, adminUploadsRouter, adminMediaCategoriesRouter } from "./media";
 import { publicSettingsRouter, adminSettingsRouter } from "./settings";
 import syncRouter from "./sync";
+import eventRequestRouter from "./event-request";
 
 function publicCache(maxAge: number = 60) {
   return (_req: Request, res: Response, next: NextFunction) => {
@@ -85,6 +86,9 @@ export function mountRoutes(app: Express): void {
   
   // Google Sheets Sync
   app.use("/api/admin/sync", syncRouter);
+
+  // Public Event Request (no auth required)
+  app.use("/api/event-request", eventRequestRouter);
 }
 
 export async function registerRoutes(

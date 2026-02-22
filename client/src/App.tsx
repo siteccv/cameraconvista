@@ -14,6 +14,9 @@ import CocktailBar from "@/pages/cocktail-bar";
 import Eventi from "@/pages/eventi";
 import EventDetail from "@/pages/event-detail";
 import EventiPrivati from "@/pages/eventi-privati";
+import AperitivoPage from "@/pages/eventi-privati/aperitivo";
+import CenaPage from "@/pages/eventi-privati/cena";
+import EsclusivoPage from "@/pages/eventi-privati/esclusivo";
 import Galleria from "@/pages/galleria";
 import DoveSiamo from "@/pages/dove-siamo";
 import PrivacyPolicy from "@/pages/privacy-policy";
@@ -48,6 +51,9 @@ const PAGE_TITLES: Record<string, { it: string; en: string }> = {
   "cocktail-bar": { it: "Cocktail Bar - Camera con Vista | Bologna", en: "Cocktail Bar - Camera con Vista | Bologna" },
   eventi: { it: "Eventi - Camera con Vista | Events Bologna", en: "Events - Camera con Vista | Bologna" },
   "eventi-privati": { it: "Eventi Privati - Camera con Vista | Bologna", en: "Private Events - Camera con Vista | Bologna" },
+  "eventi-privati-aperitivo": { it: "Aperitivo Privato - Camera con Vista | Bologna", en: "Private Aperitivo - Camera con Vista | Bologna" },
+  "eventi-privati-cena": { it: "Cena Privata - Camera con Vista | Bologna", en: "Private Dinner - Camera con Vista | Bologna" },
+  "eventi-privati-esclusivo": { it: "Evento Privato Esclusivo - Camera con Vista | Bologna", en: "Exclusive Private Event - Camera con Vista | Bologna" },
   galleria: { it: "Galleria - Camera con Vista | Gallery Bologna", en: "Gallery - Camera con Vista | Bologna" },
   "dove-siamo": { it: "Dove Siamo - Camera con Vista | Bologna", en: "Where We Are - Camera con Vista | Bologna" },
   privacy: { it: "Privacy Policy - Camera con Vista", en: "Privacy Policy - Camera con Vista" },
@@ -119,6 +125,9 @@ function Router() {
       <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
       <Route path="/eventi/:id" component={EventDetail} />
       <Route path="/eventi-privati">{() => <PublicPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
+      <Route path="/eventi-privati/aperitivo">{() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}</Route>
+      <Route path="/eventi-privati/cena">{() => <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />}</Route>
+      <Route path="/eventi-privati/esclusivo">{() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}</Route>
       <Route path="/galleria">{() => <PublicPageRoute component={Galleria} slug="galleria" />}</Route>
       <Route path="/dove-siamo">{() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}</Route>
       <Route path="/privacy">{() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}</Route>

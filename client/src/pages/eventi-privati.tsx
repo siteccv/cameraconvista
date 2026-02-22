@@ -3,6 +3,7 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Users, Utensils, Star, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
@@ -126,9 +127,9 @@ export default function EventiPrivati() {
   };
 
   const packageItems = [
-    { icon: Users, block: pkg1Block, def: pkg1Def },
-    { icon: Utensils, block: pkg2Block, def: pkg2Def },
-    { icon: Star, block: pkg4Block, def: pkg4Def },
+    { icon: Users, block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo" },
+    { icon: Utensils, block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena" },
+    { icon: Star, block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo" },
   ];
 
   if (blocksLoading) {
@@ -214,34 +215,40 @@ export default function EventiPrivati() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {packageItems.map((pkg, index) => (
-              <Card key={index} className="hover-elevate" data-testid={`card-package-${index}`}>
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <pkg.icon className="h-7 w-7 text-primary" />
-                  </div>
-                  <EditableText
-                    textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
-                    textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
-                    fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
-                    fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
-                    as="h3"
-                    className="font-display mb-2"
-                    applyFontSize
-                    onSave={makePackageTitleSave(pkg.block)}
-                  />
-                  <EditableText
-                    textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
-                    textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
-                    fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
-                    fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
-                    as="p"
-                    className="text-muted-foreground"
-                    multiline
-                    applyFontSize
-                    onSave={makePackageBodySave(pkg.block)}
-                  />
-                </CardContent>
-              </Card>
+              <Link key={index} href={pkg.href} className="block">
+                <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>
+                  <CardContent className="p-6 flex flex-col items-center text-center">
+                    <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                      <pkg.icon className="h-7 w-7 text-primary" />
+                    </div>
+                    <EditableText
+                      textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
+                      textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
+                      fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
+                      fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
+                      as="h3"
+                      className="font-display mb-2"
+                      applyFontSize
+                      onSave={makePackageTitleSave(pkg.block)}
+                    />
+                    <EditableText
+                      textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
+                      textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
+                      fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
+                      fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
+                      as="p"
+                      className="text-muted-foreground"
+                      multiline
+                      applyFontSize
+                      onSave={makePackageBodySave(pkg.block)}
+                    />
+                    <div className="mt-4 text-primary flex items-center text-sm font-medium">
+                      {t("Scopri di più", "Learn More")}
+                      <ArrowRight className="ml-1 h-4 w-4" />
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

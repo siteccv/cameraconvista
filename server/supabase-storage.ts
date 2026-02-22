@@ -71,7 +71,15 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createPage(page: InsertPage): Promise<Page> {
-    const { data, error } = await supabaseAdmin.from('pages').insert(toSnakeCase(page)).select().single();
+    const snakePage = toSnakeCase(page);
+    const { data, error } = await supabaseAdmin.from('pages').insert(snakePage).select().single();
+    if (error && error.message.includes('duplicate key')) {
+      const { data: allPages } = await supabaseAdmin.from('pages').select('id').order('id', { ascending: false }).limit(1);
+      const nextId = (allPages && allPages.length > 0 ? allPages[0].id : 0) + 1;
+      const { data: retryData, error: retryError } = await supabaseAdmin.from('pages').insert({ ...snakePage, id: nextId }).select().single();
+      if (retryError) throw new Error(retryError.message);
+      return toCamelCase(retryData) as Page;
+    }
     if (error) throw new Error(error.message);
     return toCamelCase(data) as Page;
   }
