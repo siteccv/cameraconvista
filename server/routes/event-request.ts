@@ -205,7 +205,7 @@ router.post("/", async (req: Request, res: Response) => {
   const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
 
   if (!apiKey) {
-    console.error("[event-request] RESEND_API_KEY not configured");
+    console.error("[event-request] RESEND_API_KEY not configured — NODE_ENV:", process.env.NODE_ENV);
     res.status(500).json({ error: "Email service not configured" });
     return;
   }
@@ -215,6 +215,8 @@ router.post("/", async (req: Request, res: Response) => {
 
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
     const senderEmail = senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
+
+    console.log(`[event-request] Sending from=${senderEmail} to=${recipientEmail} type=${data.eventType}`);
 
     const result = await resend.emails.send({
       from: `Camera con Vista <${senderEmail}>`,
@@ -226,14 +228,15 @@ router.post("/", async (req: Request, res: Response) => {
     });
 
     if (result.error) {
-      console.error("[event-request] Resend error:", JSON.stringify(result.error));
+      console.error("[event-request] Resend API error:", JSON.stringify(result.error));
       res.status(500).json({ error: "Failed to send email" });
       return;
     }
 
+    console.log("[event-request] Email sent successfully, id:", result.data?.id);
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("[event-request] Email send failed:", err);
+    console.error("[event-request] Email send exception:", err instanceof Error ? err.message : String(err));
     res.status(500).json({ error: "Failed to send email" });
   }
 });

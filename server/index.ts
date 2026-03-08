@@ -8,6 +8,7 @@ import { storage } from "./storage";
 import { mountSeoRoutes, generateSeoHtml, injectSeoIntoHtml } from "./seo";
 
 const app = express();
+app.set("trust proxy", 1);
 const httpServer = createServer(app);
 
 declare module "http" {

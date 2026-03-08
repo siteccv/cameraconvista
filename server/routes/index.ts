@@ -89,6 +89,19 @@ export function mountRoutes(app: Express): void {
 
   // Public Event Request (no auth required)
   app.use("/api/event-request", eventRequestRouter);
+
+  // Health check for email configuration (diagnostics)
+  app.get("/api/health/email", (_req, res) => {
+    const hasResendKey = !!process.env.RESEND_API_KEY;
+    const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
+    const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
+    res.json({
+      resendConfigured: hasResendKey,
+      senderDomain,
+      recipientEmail,
+      nodeEnv: process.env.NODE_ENV || "unknown",
+    });
+  });
 }
 
 export async function registerRoutes(
