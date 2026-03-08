@@ -124,7 +124,7 @@ function Router() {
       <Route path="/cocktail-bar">{() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}</Route>
       <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
       <Route path="/eventi/:id" component={EventDetail} />
-      <Route path="/eventi-privati">{() => <PublicPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
+      <Route path="/eventi-privati">{() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
       <Route path="/eventi-privati/aperitivo">{() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}</Route>
       <Route path="/eventi-privati/cena">{() => <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />}</Route>
       <Route path="/eventi-privati/esclusivo">{() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}</Route>
