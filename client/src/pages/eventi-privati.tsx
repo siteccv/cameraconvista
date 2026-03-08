@@ -3,7 +3,6 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
@@ -258,11 +257,8 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                       applyFontSize
                       onSave={makePackageBodySave(pkg.block)}
                     />
-                    <div className="mt-4 text-primary flex items-center text-sm font-medium">
-                      {adminPreview && onNavigateSubPage
-                        ? t("Modifica pagina dedicata", "Edit dedicated page")
-                        : t("Scopri di più", "Learn More")}
-                      <ArrowRight className="ml-1 h-4 w-4" />
+                    <div className="mt-4 text-primary text-sm font-medium">
+                      {t("Crea il tuo evento", "Create your event")}
                     </div>
                   </CardContent>
                 </Card>

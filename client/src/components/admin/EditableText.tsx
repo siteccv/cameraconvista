@@ -63,6 +63,7 @@ export function EditableText({
     if (adminPreview) {
       e.preventDefault();
       e.stopPropagation();
+      e.nativeEvent.stopImmediatePropagation();
       setEditTextIt(textIt);
       setEditTextEn(textEn);
       setEditFontDesktop(fontSizeDesktop);
