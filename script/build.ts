@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { rm, readFile, writeFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -59,6 +59,13 @@ async function buildAll() {
     external: externals,
     logLevel: "info",
   });
+
+  // Export environment variables to .env file for deployment
+  if (process.env.RESEND_KEY) {
+    const envContent = `RESEND_KEY=${process.env.RESEND_KEY}\n`;
+    await writeFile("dist/.env", envContent, { mode: 0o600 });
+    console.log("✓ Environment variables exported to dist/.env");
+  }
 }
 
 buildAll().catch((err) => {
