@@ -15,7 +15,7 @@ if git status --porcelain | grep -q .; then
   echo "✅ Commit created"
 fi
 
-# Push to GitHub (will show "Everything up-to-date" if nothing to push)
+# Push to GitHub using 'github' remote (will show "Everything up-to-date" if nothing to push)
 echo "📤 Pushing to GitHub..."
-git push origin main
+git push github main
 echo "✅ Deployment complete!"
