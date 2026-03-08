@@ -1,9 +1,15 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 22 Febbraio 2026
+**Ultimo aggiornamento:** 8 Marzo 2026
 
 ---
+
+### Ultimi Aggiornamenti (8 Marzo 2026)
+- **Rimossa funzione "Blocca Zoom" admin**: Eliminata completamente la funzione di lock/compensazione zoom dal pannello admin. File modificati: `AdminContext.tsx` (rimossi state `zoomLocked`, callback `toggleZoomLock`, dichiarazioni interfaccia) e `AdminLayout.tsx` (rimosso useEffect zoom, bottone UI, import `Lock`/`Unlock`). Rimozione chirurgica senza impatti su altri componenti.
+- **Email eventi privati — risposta precompilata rimossa**: Eliminate le funzioni `buildReplyTemplateHtml` e `buildReplyTemplateText` da `server/routes/event-request.ts`. L'email di notifica admin ora contiene solo i dati della richiesta, senza template risposta.
+- **Fix click-to-edit nelle card eventi privati**: Aggiunta classe `editable-text-zone` al componente `EditableText` in modalità admin, con guardia nel click handler del card wrapper per evitare navigazione involontaria alla pagina dedicata quando si clicca sul testo editabile.
+- **Aggiornamento wizard eventi**: Aggiunta scelta location "Interno / All'aperto — Dehors" per Aperitivo e Cena; inclusa nel riepilogo step e nell'email.
 
 ### Ultimi Aggiornamenti (22 Febbraio 2026)
 - **Pagina Eventi Privati**: Rimosso box "Party & Celebrazioni". Layout aggiornato a 3 colonne su desktop con card verticali. Layout mobile mantenuto a colonna singola.
@@ -32,7 +38,6 @@
 | **Media Categories** | ✅ Completo | Sistema cartelle dinamico per media library con CRUD categorie |
 | **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
 | **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (393x852px) con CSS `transform: scale()` per precisione pixel-perfect, Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
-| **Admin Zoom Lock** | ✅ Completo | Sistema di blocco zoom per visualizzare l'admin sempre al 100% indipendentemente dallo zoom del browser |
 | **ImageContainer System** | ✅ Completo | Componente unificato per gestione immagini con controlli zoom/overlay ottimizzati per mobile e posizionamento intelligente |
 | **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
 | **Google Sheets Sync** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
@@ -192,7 +197,7 @@
 
 ### Context
 - `client/src/contexts/LanguageContext.tsx` - Gestione lingua IT/EN
-- `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin, preview mode, deviceView, forceMobileLayout
+- `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin, preview mode, deviceView, forceMobileLayout (Zoom Lock rimosso 8 Mar 2026)
 
 ### Assets
 - `LOGOS/` - Cartella per loghi e icone del ristorante
