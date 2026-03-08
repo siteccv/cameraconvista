@@ -4,7 +4,7 @@ set -e
 
 echo "🚀 Deploying to GitHub..."
 
-# Check if there are changes
+# Check if there are uncommitted changes
 if git status --porcelain | grep -q .; then
   echo "📝 Committing changes..."
   git add -A
@@ -12,11 +12,13 @@ if git status --porcelain | grep -q .; then
   # Generate timestamp for commit message
   TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
   git commit -m "Auto-sync: $TIMESTAMP"
-  
+fi
+
+# Check if there are commits to push
+if git rev-list @{u}..HEAD 2>/dev/null | grep -q .; then
   echo "📤 Pushing to main..."
   git push origin main
-  
   echo "✅ Deployment complete!"
 else
-  echo "⏭️  No changes to deploy"
+  echo "✅ Already synced with GitHub"
 fi
