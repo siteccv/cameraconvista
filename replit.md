@@ -53,10 +53,14 @@ The application is built using a modern full-stack approach:
 ### Database
 -   **PostgreSQL**: Core database.
 -   **Drizzle ORM**: For database interactions and schema management.
+-   **Supabase**: Production database backend for remote deployments.
 
 ### Cloud Services
 -   **Google Cloud Storage**: For media file uploads.
--   **Supabase**: Optional backend for storage abstraction if configured.
+-   **Supabase**: Backend for storage abstraction in production.
+
+### Email Service
+-   **Resend API**: Email service for private event quote requests. **Key Configuration**: For production deployments (Replit Autoscale), the API key must be stored in the Supabase database `site_settings` table with key `resend_api_key`. The application reads it in this order: 1) `process.env.RESEND_KEY` (injected during build), 2) `process.env.RESEND_API_KEY` (from env), 3) Database fallback via `storage.getSiteSetting("resend_api_key")`.
 
 ### AI Integrations (Optional)
 -   **OpenAI API**: Used for AI-powered features such as text translation, image generation, and audio processing.

@@ -1,11 +1,21 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 8 Marzo 2026
+**Ultimo aggiornamento:** 8 Marzo 2026 (sera)
 
 ---
 
-### Ultimi Aggiornamenti (8 Marzo 2026)
+### Ultimi Aggiornamenti (8 Marzo 2026 - Sera)
+- **Sistema email eventi privati — RISOLTO DEFINITIVAMENTE**: Il wizard per i "Richiedi preventivo" nei tre tipi di eventi (Aperitivo, Cena, Esclusivo) era bloccato in produzione. Causa: Replit Autoscale non passa i Secrets al deployment. Soluzione finale: Salvataggio della chiave Resend nel database Supabase via SQL Editor. Implementato anche fallback nel codice per leggere da `process.env.RESEND_KEY` (iniezione durante build tramite esbuild `define`), database, e infine `process.env.RESEND_API_KEY`. Il wizard invia correttamente le quote email a `info@cameraconvista.it` via Resend.
+- **Rate limiter configurato per produzione**: Aggiunto `app.set("trust proxy", 1)` in `server/index.ts` per leggere il vero IP del client dietro il load balancer di Replit, evitando false positioni 429 Too Many Requests.
+- **Logging migliorato**: Endpoint health check `/api/health/email` diagnostica completo della configurazione email con source (env/config/db/none). Logging dettagliato degli errori Resend nei server logs.
+
+### Aggiornamenti (8 Marzo 2026 - Giorno)
+- **Fix click-to-edit nelle card eventi privati**: Risolto il bug dove cliccare su EditableText nelle card admin apriva il dialog di edit ma lo chiudeva immediatamente. Soluzioni applicate: `stopImmediatePropagation` su pointerDown, check `document.querySelector('[role="dialog"]')` prima della navigazione.
+- **Rotta `/eventi-privati` da PublicPageRoute a StaticPageRoute**: La pagina aveva `isVisible: false` nel DB, causando 404. Ora usa StaticPageRoute che non filtra sulla visibilità. Il database entry rimane ma non viene usato per il controllo accesso.
+- **Testo card eventi-privati aggiornato**: Rimosso icona `ArrowRight`, sostituito "Modifica pagina dedicata"/"Scopri di più" con "Crea il tuo evento"/"Create your event" per chiarezza UX.
+
+### Ultimi Aggiornamenti (8 Marzo 2026 - Mattina)
 - **Rimossa funzione "Blocca Zoom" admin**: Eliminata completamente la funzione di lock/compensazione zoom dal pannello admin. File modificati: `AdminContext.tsx` (rimossi state `zoomLocked`, callback `toggleZoomLock`, dichiarazioni interfaccia) e `AdminLayout.tsx` (rimosso useEffect zoom, bottone UI, import `Lock`/`Unlock`). Rimozione chirurgica senza impatti su altri componenti.
 - **Email eventi privati — risposta precompilata rimossa**: Eliminate le funzioni `buildReplyTemplateHtml` e `buildReplyTemplateText` da `server/routes/event-request.ts`. L'email di notifica admin ora contiene solo i dati della richiesta, senza template risposta.
 - **Fix click-to-edit nelle card eventi privati**: Aggiunta classe `editable-text-zone` al componente `EditableText` in modalità admin, con guardia nel click handler del card wrapper per evitare navigazione involontaria alla pagina dedicata quando si clicca sul testo editabile.
