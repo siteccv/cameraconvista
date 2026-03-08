@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { z } from "zod";
 import { Resend } from "resend";
+import { storage } from "../storage";
 
 const router = Router();
 
@@ -201,7 +202,11 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
-  const apiKey = process.env.RESEND_API_KEY;
+  let apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    const setting = await storage.getSiteSetting("resend_api_key");
+    apiKey = setting?.valueIt ?? undefined;
+  }
   const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
 
   if (!apiKey) {

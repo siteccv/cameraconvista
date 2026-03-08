@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import type { Server } from "http";
+import { storage } from "../storage";
 
 // Import routers
 import authRouter from "./auth";
@@ -91,12 +92,18 @@ export function mountRoutes(app: Express): void {
   app.use("/api/event-request", eventRequestRouter);
 
   // Health check for email configuration (diagnostics)
-  app.get("/api/health/email", (_req, res) => {
-    const hasResendKey = !!process.env.RESEND_API_KEY;
+  app.get("/api/health/email", async (_req, res) => {
+    const hasEnvKey = !!process.env.RESEND_API_KEY;
+    let hasDbKey = false;
+    if (!hasEnvKey) {
+      const setting = await storage.getSiteSetting("resend_api_key");
+      hasDbKey = !!(setting?.valueIt);
+    }
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
     const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
     res.json({
-      resendConfigured: hasResendKey,
+      resendConfigured: hasEnvKey || hasDbKey,
+      source: hasEnvKey ? "env" : hasDbKey ? "db" : "none",
       senderDomain,
       recipientEmail,
       nodeEnv: process.env.NODE_ENV || "unknown",
