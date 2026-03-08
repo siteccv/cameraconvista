@@ -107,85 +107,6 @@ function escapeHtml(text: string): string {
 
 type ParsedData = z.infer<typeof eventRequestSchema>;
 
-function buildReplyTemplateHtml(data: ParsedData): string {
-  const isEn = data.language === "en";
-  const firstName = escapeHtml(data.firstName);
-  const eventLabel = isEn
-    ? (EVENT_TYPE_LABELS_EN[data.eventType] || data.eventType)
-    : (EVENT_TYPE_LABELS[data.eventType] || data.eventType);
-  const dateFormatted = isEn ? formatDateEnglish(data.date) : formatDateItalian(data.date);
-  const guestsText = `${data.guests}${data.guestsApproximate ? (isEn ? " (approximately)" : " (circa)") : ""}`;
-  const timeText = `${escapeHtml(data.time)}${data.timeApproximate ? (isEn ? " (approximate)" : " (indicativo)") : ""}`;
-
-  const locationLine = data.location
-    ? (isEn
-        ? (data.location === "interno" ? "Indoor" : "Outdoor — Dehors")
-        : LOCATION_LABELS[data.location])
-    : null;
-
-  const subOptionLine = data.subOption
-    ? (isEn
-        ? (SUB_OPTION_LABELS_EN[data.subOption] || data.subOption)
-        : (SUB_OPTION_LABELS[data.subOption] || data.subOption))
-    : null;
-
-  if (isEn) {
-    const detailLines = [
-      `<strong>Event:</strong> ${eventLabel}`,
-      ...(subOptionLine ? [`<strong>Formula:</strong> ${subOptionLine}`] : []),
-      ...(locationLine ? [`<strong>Location:</strong> ${locationLine}`] : []),
-      `<strong>Date:</strong> ${dateFormatted}`,
-      `<strong>Time:</strong> ${timeText}`,
-      `<strong>Guests:</strong> ${guestsText}`,
-    ];
-
-    return `
-<div style="margin-top:8px;padding:20px 24px;background:#fefce8;border:1px solid #fde68a;border-radius:8px">
-<p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:0.5px">Pre-composed reply — Copy and paste into your response</p>
-<div style="padding:16px 20px;background:#ffffff;border-radius:6px;border:1px solid #e5e7eb;font-size:14px;line-height:1.7;color:#1f2937">
-<p style="margin:0 0 12px">Dear ${firstName},</p>
-<p style="margin:0 0 12px">Thank you for contacting Camera con Vista. We have received your request and we are happy to assist you in organizing your event.</p>
-<p style="margin:0 0 8px">Here is a summary of your request:</p>
-<div style="margin:0 0 12px;padding:12px 16px;background:#f9fafb;border-radius:6px;font-size:13px;line-height:1.8">
-${detailLines.join("<br>")}
-</div>
-<p style="margin:0 0 12px">[... <em>your personalized message here</em> ...]</p>
-<p style="margin:0 0 4px">We look forward to welcoming you.</p>
-<p style="margin:0 0 4px">Kind regards,</p>
-<p style="margin:0;font-weight:600">Camera con Vista</p>
-<p style="margin:2px 0 0;font-size:12px;color:#6b7280">Restaurant &amp; Cocktail Bar — Bologna</p>
-</div>
-</div>`;
-  }
-
-  const detailLines = [
-    `<strong>Evento:</strong> ${eventLabel}`,
-    ...(subOptionLine ? [`<strong>Formula:</strong> ${subOptionLine}`] : []),
-    ...(locationLine ? [`<strong>Location:</strong> ${locationLine}`] : []),
-    `<strong>Data:</strong> ${dateFormatted}`,
-    `<strong>Orario:</strong> ${timeText}`,
-    `<strong>Ospiti:</strong> ${guestsText}`,
-  ];
-
-  return `
-<div style="margin-top:8px;padding:20px 24px;background:#fefce8;border:1px solid #fde68a;border-radius:8px">
-<p style="margin:0 0 6px;font-size:12px;font-weight:600;color:#92400e;text-transform:uppercase;letter-spacing:0.5px">Risposta precompilata — Copia e incolla nella tua risposta</p>
-<div style="padding:16px 20px;background:#ffffff;border-radius:6px;border:1px solid #e5e7eb;font-size:14px;line-height:1.7;color:#1f2937">
-<p style="margin:0 0 12px">Gentile ${firstName},</p>
-<p style="margin:0 0 12px">La ringraziamo per aver contattato Camera con Vista. Abbiamo ricevuto la Sua richiesta e siamo lieti di assisterLa nell'organizzazione del Suo evento.</p>
-<p style="margin:0 0 8px">Di seguito un riepilogo della Sua richiesta:</p>
-<div style="margin:0 0 12px;padding:12px 16px;background:#f9fafb;border-radius:6px;font-size:13px;line-height:1.8">
-${detailLines.join("<br>")}
-</div>
-<p style="margin:0 0 12px">[... <em>il tuo messaggio personalizzato qui</em> ...]</p>
-<p style="margin:0 0 4px">Restiamo a disposizione e saremo lieti di accoglierLa.</p>
-<p style="margin:0 0 4px">Cordiali saluti,</p>
-<p style="margin:0;font-weight:600">Camera con Vista</p>
-<p style="margin:2px 0 0;font-size:12px;color:#6b7280">Ristorante &amp; Cocktail Bar — Bologna</p>
-</div>
-</div>`;
-}
-
 function buildHtmlEmail(data: ParsedData): string {
   const rows = [
     ["Tipo Evento", EVENT_TYPE_LABELS[data.eventType] || data.eventType],
@@ -210,8 +131,6 @@ function buildHtmlEmail(data: ParsedData): string {
 
   const logoHtml = `<h1 style="color:#ffffff;margin:0;font-size:24px;font-weight:400;letter-spacing:1px;font-family:'Playfair Display',Georgia,'Times New Roman',serif">Camera con Vista</h1>`;
 
-  const replyTemplate = buildReplyTemplateHtml(data);
-
   return `<!DOCTYPE html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Nuova richiesta evento privato</title><link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet"></head>
 <body style="margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;background:#f3f4f6;-webkit-text-size-adjust:100%">
@@ -224,9 +143,6 @@ ${logoHtml}
 </td></tr>
 <tr><td style="padding:8px 0">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.5">${tableRows}</table>
-</td></tr>
-<tr><td style="padding:0 0 8px">
-${replyTemplate}
 </td></tr>
 <tr><td style="padding:12px 16px 16px;border-top:1px solid #e5e7eb">
 <p style="margin:0;font-size:11px;color:#9ca3af">Email generata automaticamente dal sito web <a href="https://cameraconvista.it" style="color:#9ca3af">cameraconvista.it</a></p>
@@ -255,88 +171,9 @@ function buildTextEmail(data: ParsedData): string {
     `Telefono: ${data.phone}`,
     `Lingua: ${data.language === "en" ? "English" : "Italiano"}`,
     "",
-    "---",
-    "",
-    buildReplyTemplateText(data),
-    "",
-    "---",
     "Email generata automaticamente dal sito web.",
   ];
   return lines.join("\n");
-}
-
-function buildReplyTemplateText(data: ParsedData): string {
-  const isEn = data.language === "en";
-  const eventLabel = isEn
-    ? (EVENT_TYPE_LABELS_EN[data.eventType] || data.eventType)
-    : (EVENT_TYPE_LABELS[data.eventType] || data.eventType);
-  const dateFormatted = isEn ? formatDateEnglish(data.date) : formatDateItalian(data.date);
-  const guestsText = `${data.guests}${data.guestsApproximate ? (isEn ? " (approximately)" : " (circa)") : ""}`;
-  const timeText = `${data.time}${data.timeApproximate ? (isEn ? " (approximate)" : " (indicativo)") : ""}`;
-
-  const locationLine = data.location
-    ? (isEn
-        ? (data.location === "interno" ? "Indoor" : "Outdoor — Dehors")
-        : (LOCATION_LABELS[data.location] || data.location))
-    : null;
-
-  const subOptionLine = data.subOption
-    ? (isEn
-        ? (SUB_OPTION_LABELS_EN[data.subOption] || data.subOption)
-        : (SUB_OPTION_LABELS[data.subOption] || data.subOption))
-    : null;
-
-  if (isEn) {
-    return [
-      "PRE-COMPOSED REPLY — Copy and paste into your response",
-      "-".repeat(50),
-      "",
-      `Dear ${data.firstName},`,
-      "",
-      "Thank you for contacting Camera con Vista. We have received your request and we are happy to assist you in organizing your event.",
-      "",
-      "Here is a summary of your request:",
-      "",
-      `  Event: ${eventLabel}`,
-      ...(subOptionLine ? [`  Formula: ${subOptionLine}`] : []),
-      ...(locationLine ? [`  Location: ${locationLine}`] : []),
-      `  Date: ${dateFormatted}`,
-      `  Time: ${timeText}`,
-      `  Guests: ${guestsText}`,
-      "",
-      "[... your personalized message here ...]",
-      "",
-      "We look forward to welcoming you.",
-      "Kind regards,",
-      "Camera con Vista",
-      "Restaurant & Cocktail Bar — Bologna",
-    ].join("\n");
-  }
-
-  return [
-    "RISPOSTA PRECOMPILATA — Copia e incolla nella tua risposta",
-    "-".repeat(50),
-    "",
-    `Gentile ${data.firstName},`,
-    "",
-    "La ringraziamo per aver contattato Camera con Vista. Abbiamo ricevuto la Sua richiesta e siamo lieti di assisterLa nell'organizzazione del Suo evento.",
-    "",
-    "Di seguito un riepilogo della Sua richiesta:",
-    "",
-    `  Evento: ${eventLabel}`,
-    ...(subOptionLine ? [`  Formula: ${subOptionLine}`] : []),
-    ...(locationLine ? [`  Location: ${locationLine}`] : []),
-    `  Data: ${dateFormatted}`,
-    `  Orario: ${timeText}`,
-    `  Ospiti: ${guestsText}`,
-    "",
-    "[... il tuo messaggio personalizzato qui ...]",
-    "",
-    "Restiamo a disposizione e saremo lieti di accoglierLa.",
-    "Cordiali saluti,",
-    "Camera con Vista",
-    "Ristorante & Cocktail Bar — Bologna",
-  ].join("\n");
 }
 
 router.post("/", async (req: Request, res: Response) => {
