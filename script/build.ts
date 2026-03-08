@@ -46,26 +46,28 @@ async function buildAll() {
   ];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
+  // Prepare environment variables for injection
+  const defineVars: Record<string, string> = {
+    "process.env.NODE_ENV": '"production"',
+  };
+  
+  // Inject RESEND_KEY if available (for production deployment)
+  if (process.env.RESEND_KEY) {
+    defineVars["process.env.RESEND_KEY"] = JSON.stringify(process.env.RESEND_KEY);
+    console.log("✓ RESEND_KEY injected into build");
+  }
+
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
     bundle: true,
     format: "cjs",
     outfile: "dist/index.cjs",
-    define: {
-      "process.env.NODE_ENV": '"production"',
-    },
+    define: defineVars,
     minify: true,
     external: externals,
     logLevel: "info",
   });
-
-  // Export environment variables to .env file for deployment
-  if (process.env.RESEND_KEY) {
-    const envContent = `RESEND_KEY=${process.env.RESEND_KEY}\n`;
-    await writeFile("dist/.env", envContent, { mode: 0o600 });
-    console.log("✓ Environment variables exported to dist/.env");
-  }
 }
 
 buildAll().catch((err) => {
