@@ -227,7 +227,7 @@ export function Footer() {
             <h4 className="font-medium uppercase tracking-wider text-sm mb-4">
               {t("Seguici", "Follow Us")}
             </h4>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-8">
               {footer.social.map((link, index) => {
                 const IconComponent = socialIcons[link.type];
                 return IconComponent ? (
@@ -245,6 +245,18 @@ export function Footer() {
               })}
             </div>
 
+            <a
+              href="mailto:staff.ccv@gmail.com"
+              className="block group"
+              data-testid="link-work-with-us"
+            >
+              <h4 className="font-medium uppercase tracking-wider text-sm mb-1 text-yellow-400 group-hover:text-yellow-300 transition-colors">
+                {t("Lavora con noi", "Work With Us")}
+              </h4>
+              <p className="text-xs text-background/70 group-hover:text-background/90 transition-colors">
+                {t("Inviaci il tuo curriculum", "Send us your resume")}
+              </p>
+            </a>
           </div>
         </div>
 
