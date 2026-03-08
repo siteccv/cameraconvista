@@ -94,16 +94,17 @@ export function mountRoutes(app: Express): void {
   // Health check for email configuration (diagnostics)
   app.get("/api/health/email", async (_req, res) => {
     const hasEnvKey = !!process.env.RESEND_API_KEY;
+    const hasConfigKey = !!process.env.RESEND_KEY;
     let hasDbKey = false;
-    if (!hasEnvKey) {
+    if (!hasEnvKey && !hasConfigKey) {
       const setting = await storage.getSiteSetting("resend_api_key");
       hasDbKey = !!(setting?.valueIt);
     }
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
     const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
     res.json({
-      resendConfigured: hasEnvKey || hasDbKey,
-      source: hasEnvKey ? "env" : hasDbKey ? "db" : "none",
+      resendConfigured: hasEnvKey || hasConfigKey || hasDbKey,
+      source: hasEnvKey ? "env" : hasConfigKey ? "config" : hasDbKey ? "db" : "none",
       senderDomain,
       recipientEmail,
       nodeEnv: process.env.NODE_ENV || "unknown",
