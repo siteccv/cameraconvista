@@ -98,6 +98,10 @@ export function EditableText({
       <Component
         className={`${className} relative cursor-pointer group editable-text-zone`}
         style={textStyle}
+        onPointerDown={(e: React.PointerEvent) => {
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+        }}
         onClick={handleClick}
       >
         {displayText || <span className="text-muted-foreground/50 italic text-sm">Clicca per inserire testo</span>}
