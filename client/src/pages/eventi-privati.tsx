@@ -270,8 +270,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                     key={index}
                     className="block"
                     onClick={(e) => {
+                      if (document.querySelector('[role="dialog"]')) return;
                       const target = e.target as HTMLElement;
-                      if (target.closest('[data-radix-dialog-content]') || target.closest('.editable-text-zone')) return;
+                      if (target.closest('.editable-text-zone')) return;
                       onNavigateSubPage(pkg.href);
                     }}
                     role="button"

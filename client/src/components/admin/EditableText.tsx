@@ -112,7 +112,7 @@ export function EditableText({
       </Component>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>{t("Modifica testo", "Edit Text")}</DialogTitle>
             <DialogDescription>
