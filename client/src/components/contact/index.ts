@@ -1,1 +1,0 @@
-export { ContactInfoItem } from "./ContactInfoItem";

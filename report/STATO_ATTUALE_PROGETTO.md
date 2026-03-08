@@ -1,9 +1,33 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 8 Marzo 2026 (sera)
+**Ultimo aggiornamento:** 8 Marzo 2026 (notte) — Audit Enterprise Completato
 
 ---
+
+### Audit Enterprise (8 Marzo 2026 - Notte)
+Verifica completa del progetto: errori, conflitti, file morti, residui, duplicati e obsoleti.
+
+**Risultati:**
+- **TypeScript**: 0 errori dopo audit. Rimossi 13 errori pre-esistenti in `server/replit_integrations/` escludendo quei file dal `tsconfig.json` (file residui del template Replit, mai integrati nel progetto).
+- **File eliminati (residui/morti)**:
+  - `sync-resend-key.js` — script debug temporaneo nella root
+  - `client/src/components/contact/ContactInfoItem.tsx` — componente mai importato
+  - `client/src/components/contact/index.ts` — barrel export vuoto
+  - `client/src/hooks/use-upload.ts` — hook per Object Storage mai usato
+  - `client/src/components/ObjectUploader.tsx` — componente per Object Storage mai usato
+- **console.log frontend**: 0 (zero)
+- **TODO/FIXME/ts-ignore**: 0 (zero) nel codice custom
+- **Import React espliciti non necessari**: 0 nei componenti custom
+- **@assets import**: tutti validi (logo_ccv.png, Logo_ccv_nobistrot.png)
+- **Routes vs Pagine**: tutte le 24 pagine frontend corrispondono a routes registrate
+- **Build server**: funzionante, porta 5000, Supabase connessa
+- **`tsconfig.json`**: aggiornato con esclusione `server/replit_integrations/**/*` e `scripts/**/*`
+
+**Rimasti intenzionalmente:**
+- `server/replit_integrations/` — template Replit per AI integrations, non connesso all'app ma mantenuto per compatibilità futura
+- `scripts/` — script di migrazione immagini a Supabase (usati per disaster recovery)
+- `console.log` nel server (tutti logging operativo legittimo: sync, email, DB)
 
 ### Ultimi Aggiornamenti (8 Marzo 2026 - Sera)
 - **Sistema email eventi privati — RISOLTO DEFINITIVAMENTE**: Il wizard per i "Richiedi preventivo" nei tre tipi di eventi (Aperitivo, Cena, Esclusivo) era bloccato in produzione. Causa: Replit Autoscale non passa i Secrets al deployment. Soluzione finale: Salvataggio della chiave Resend nel database Supabase via SQL Editor. Implementato anche fallback nel codice per leggere da `process.env.RESEND_KEY` (iniezione durante build tramite esbuild `define`), database, e infine `process.env.RESEND_API_KEY`. Il wizard invia correttamente le quote email a `info@cameraconvista.it` via Resend.
