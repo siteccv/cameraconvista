@@ -165,8 +165,8 @@ export const TEASER_BLOCK_DEFAULTS: TeaserBlockDefault[] = [
   {
     blockType: "teaser-privati",
     sortOrder: 14,
-    titleIt: "Crea il tuo Evento",
-    titleEn: "Create your Event",
+    titleIt: "Scopri i nostri spazi",
+    titleEn: "Discover our spaces",
     bodyIt: "Camera con Vista offre spazi esclusivi e servizi personalizzati per rendere ogni occasione indimenticabile. Dal party aziendale alla celebrazione privata, ogni dettaglio è curato con la massima attenzione.",
     bodyEn: "Camera con Vista offers exclusive spaces and personalized services to make every occasion unforgettable. From corporate parties to private celebrations, every detail is curated with the utmost attention.",
     ctaTextIt: "Scopri i nostri spazi",
