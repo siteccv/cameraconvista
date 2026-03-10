@@ -171,7 +171,7 @@ export const TEASER_BLOCK_DEFAULTS: TeaserBlockDefault[] = [
     bodyEn: "Camera con Vista offers exclusive spaces and personalized services to make every occasion unforgettable. From corporate parties to private celebrations, every detail is curated with the utmost attention.",
     ctaTextIt: "Scopri i nostri spazi",
     ctaTextEn: "Discover our spaces",
-    ctaUrl: "/galleria?album=il-locale",
+    ctaUrl: "/eventi-privati",
     imageUrl: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
