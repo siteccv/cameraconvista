@@ -257,9 +257,13 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                       applyFontSize
                       onSave={makePackageBodySave(pkg.block)}
                     />
-                    <div className="mt-4 text-primary text-sm font-medium">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="mt-6 w-full md:w-auto rounded-full px-6 py-2 bg-primary text-primary-foreground border border-primary-foreground/20 hover:bg-primary/90 font-medium shadow-sm"
+                    >
                       {t("Crea il tuo evento", "Create your event")}
-                    </div>
+                    </Button>
                   </CardContent>
                 </Card>
               );
