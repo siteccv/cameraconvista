@@ -12,6 +12,9 @@ Preferred communication style: Simple, everyday language.
 
 **Automatic documentation update**: Always update `report/STATO_ATTUALE_PROGETTO.md` with the current project state after implementing new features or fixes.
 
+**UI Design Patterns**:
+- **Event Package Buttons** (Eventi Privati page): 3 buttons "Crea il tuo evento" with dark red/bordeaux background (`bg-primary`), cream text (`text-primary-foreground`), subtle border (`border border-primary-foreground/20`), pill shape (`rounded-full`), and adaptive width (`w-auto` to fit content). Mobile-optimized with proper padding (`px-6 py-2`).
+
 **Backup command**: When user says "esegui nuovo backup", create a new tar.gz archive of the entire project (excluding node_modules, .git, BACKUP folder) and save it to `BACKUP/backup_replit_DD_Mon_HH-MM.tar.gz` with current date and time.
 
 **Logo files management**: All logo files (logo_ccv.png, icona_ccv.png, Logo_ccv_2_optimized, etc.) MUST be stored exclusively in the `LOGOS/` folder in the project root. Never duplicate logos to other folders. When optimizing or managing logo files, always use LOGOS/ as the single source of truth. Exceptions:

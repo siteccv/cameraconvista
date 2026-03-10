@@ -1,9 +1,24 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 8 Marzo 2026 (notte) — Audit Enterprise Completato
+**Ultimo aggiornamento:** 10 Marzo 2026 — Restyling Pulsanti Eventi Privati
 
 ---
+
+### Restyling Pulsanti Eventi Privati (10 Marzo 2026)
+**Modifica pagina `/eventi-privati`**: 3 pulsanti "Crea il tuo evento" completamente restyled
+- **Da**: semplice testo div con color secondary
+- **A**: veri pulsanti Button component con styling button-like
+- **Styling applicato**:
+  - Sfondo bordeaux/dark red (`bg-primary`)
+  - Testo cream/chiaro (`text-primary-foreground`)
+  - Bordo sottile per rilievo (`border border-primary-foreground/20`)
+  - Forma pill (`rounded-full`)
+  - Larghezza adattata al testo (`w-auto` — importante per mobile, non fullwidth)
+  - Padding coerente (`px-6 py-2`)
+  - Margine superiore aumentato (`mt-6`)
+- **File modificato**: `client/src/pages/eventi-privati.tsx` (riga 263-269)
+- **Ottimizzazione mobile**: Pulsanti non si allungano su schermi stretti, mantengono dimensioni compatte
 
 ### Audit Enterprise (8 Marzo 2026 - Notte)
 Verifica completa del progetto: errori, conflitti, file morti, residui, duplicati e obsoleti.
