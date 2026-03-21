@@ -106,9 +106,9 @@ export function GallerySlideViewer({
           <DialogTitle>{language === "it" ? gallery.titleIt : gallery.titleEn}</DialogTitle>
         </VisuallyHidden>
         
-        <div className="relative w-full h-full flex flex-col items-center justify-between py-8 md:py-12 bg-black">
+        <div className="relative w-full h-full flex flex-col items-center justify-between py-3 md:py-8 bg-black">
           {/* Header */}
-          <div className="text-center text-white z-50 px-4 pt-4">
+          <div className="text-center text-white z-50 px-4 pt-2 md:pt-4">
             <h2 className="font-display text-2xl md:text-3xl">
               {language === "it" ? gallery.titleIt : gallery.titleEn}
             </h2>
@@ -118,7 +118,7 @@ export function GallerySlideViewer({
           </div>
 
           {/* Main Image Container */}
-          <div className="relative flex items-center justify-center w-full flex-1 overflow-hidden px-4 my-4">
+          <div className="relative flex items-center justify-center w-full flex-1 overflow-hidden px-4 my-2 md:my-4">
             {currentIndex > 0 && (
               <Button
                 size="icon"
@@ -148,11 +148,11 @@ export function GallerySlideViewer({
                   className="absolute w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
                 >
                   <div 
-                    className="relative aspect-[9/16] overflow-hidden rounded-xl shadow-2xl bg-zinc-900"
+                    className="relative overflow-hidden rounded-xl shadow-2xl bg-zinc-900"
                     style={{ 
-                      maxHeight: "min(70vh, calc(100vh - 280px))", 
-                      width: "auto",
-                      aspectRatio: "9/16",
+                      height: "min(84vh, calc(100vh - 200px))", 
+                      width: "calc(min(84vh, calc(100vh - 200px)) * 9 / 16)",
+                      maxWidth: "calc(100vw - 32px)",
                     }}
                   >
                     <img
@@ -184,7 +184,7 @@ export function GallerySlideViewer({
           </div>
 
           {/* Footer Controls */}
-          <div className="w-full flex flex-col items-center gap-6 pb-6 px-4 z-50">
+          <div className="w-full flex flex-col items-center gap-3 pb-3 md:pb-6 px-4 z-50">
             {/* Dot indicators */}
             <div className="flex justify-center gap-2">
               {sortedImages.map((_, index) => (

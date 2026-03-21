@@ -182,9 +182,9 @@ export default function Galleria() {
       </div>
 
       <section className="py-10 md:py-20">
-        <div className="container mx-auto px-4">
+        <div className="w-full px-4 md:px-12 lg:px-20">
           {galleriesLoading ? (
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
+            <div className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}>
               {[...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[3/4] rounded-lg" />
               ))}
@@ -195,7 +195,7 @@ export default function Galleria() {
               <p>{t("La galleria sarà presto disponibile.", "Gallery coming soon.")}</p>
             </div>
           ) : (
-            <div className={`grid gap-6 ${isMobile ? "grid-cols-1" : "grid-cols-2 lg:grid-cols-4"}`}>
+            <div className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}>
               {visibleGalleries.map((gallery) => (
                 <div key={gallery.id} className="flex flex-col items-center">
                   <h3 className="font-display text-xl md:text-2xl text-[#2f2b2a] text-center mb-3">
