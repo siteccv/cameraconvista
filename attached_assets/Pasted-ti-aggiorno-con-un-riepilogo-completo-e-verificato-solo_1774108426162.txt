@@ -1,0 +1,97 @@
+ti aggiorno con un riepilogo completo e verificato (solo lettura finora) sul problema Supabase “egress” del sito Camera con Vista. Voglio una diagnosi/analisi, ZERO modifiche per ora.
+
+OBIETTIVO
+Capire cosa sta generando traffico alto su Supabase (cached egress) e definire un piano minimo per tornare al piano Free (5 GB/mese) senza saturare.
+
+SITO
+https://www.cameraconvista.it
+
+SUPABASE / USAGE (DATI CERTI)
+
+Ciclo attuale: 17 Mar 2026 → 17 Apr 2026
+Cached Egress “Used in period”: ~7.21 GB (in 4–5 giorni)
+Cached Egress per giorno: circa 1.4–1.7 GB/die (17–20 Mar), 21 Mar parziale
+
+STORAGE (DATI CERTI)
+
+Buckets: media-public (PUBLIC) e media-private
+Percorso pubblico usato dalle immagini: media-public/public/ (molti file)
+Esistono immagini pesantissime ancora in PNG multi-MB.
+
+TEST REALI (DEVTOOLS) — RISULTATI CERTI
+Abbiamo fatto test Network su homepage:
+
+Test iniziale “pesante”:
+61 requests
+28.6 MB transferred
+30.4 MB resources
+Questo era probabilmente gonfiato da condizioni di test (no-cache/disable cache).
+Test corretto con cache ATTIVA:
+25/55 requests
+7,437 kB / 7,445 kB transferred (≈ 7.4 MB)
+20,845 kB / 23,450 kB resources
+In questo scenario, quasi tutto risultava da disk/memory cache, ma una PNG da 7.4 MB veniva comunque scaricata.
+
+FILE “KILLER” (DATI CERTI)
+Durante il caricamento della homepage viene richiesta questa immagine enorme da Supabase Storage pubblico:
+
+1770731933994-Screenshot_2026-02-10_alle_14.58.36.png
+Request URL:
+https://pjrdnfbfpogvztfjuxya.supabase.co/storage/v1/object/public/media-public/public/1770731933994-Screenshot_2026-02-10_alle_14.58.36.png
+Content-Length: 7,434,281 bytes (~7.1 MB)
+Questa da sola rende impossibile stare su Free con traffico anche basso.
+
+In una lista Img ordinata per size, risultavano anche altre PNG multi-MB (esempi visti):
+
+tavolo_imperiale.PNG (~3.7 MB)
+file “ChatGPT_image…” (~3.8 MB)
+altri PNG ~1.9 MB (alcuni duplicati)
+Quindi non è solo “tante immagini”: ci sono ancora file molto pesanti.
+
+IPOTESI TECNICA (DAL PRECEDENTE REPORT / DA CONFERMARE)
+C’è un sospetto forte (da verificare con te) che la homepage faccia anche prefetch/preload di immagini e contenuti di più pagine (“blocks”, “pages”, “events”, “galleries” ecc.) e che questo aumenti il traffico.
+Serve confermare se esistono:
+
+un preloader globale immagini (tipo useImagePreloader) che scarica molte immagini anche non visibili
+hover-prefetch sulla navigazione (prefetch quando passo il mouse)
+logiche che fanno scaricare immagini di pagine non visitate
+Indizio: nel Network, oltre alle immagini, compaiono chiamate fetch a “events/galleries/pages/blocks”.
+
+COSA TI CHIEDO ORA (SOLO DIAGNOSI, ZERO MODIFICHE)
+
+Individua nel codice (repo) TUTTE le logiche di:
+preloading immagini
+prefetch dati pagine
+hover-prefetch della navbar
+eventuali retry/polling che possano aumentare traffico
+Mappa “cosa scarica la homepage”:
+elenco risorse principali (immagini + numero)
+peso stimato reale per visita (mobile e desktop)
+quali risorse vengono scaricate anche senza scroll/click
+Identifica la lista dei “top offender” (file più pesanti effettivamente richiesti dalla home):
+almeno i 10 più pesanti con size
+per ciascuno: dove è referenziato nel sito (quale pagina/blocco/hero/placeholder)
+Dammi una stima numerica semplice:
+con peso per visita reale, quante visite/giorno servono per arrivare a 1.5 GB/die
+quante visite/mese bastano per superare 5 GB/mese (Free)
+
+OUTPUT (REPORT IN CHAT, CHIARO)
+
+Sintesi causa principale (1–2 righe)
+Tabella/Elenco: “cosa scarica la home” (numero risorse + MB)
+Top 10 file più pesanti richiesti dalla home (nome + size + path + punto del codice/contenuto che li richiama)
+Lista logiche di prefetch/preload trovate (file e funzione)
+Conclusione netta: oggi tornare a Free è possibile? (SÌ/NO) e cosa manca.
+Proposta di piano MINIMO (solo proposte, non implementare):
+a) sostituzione/convert delle PNG multi-MB (webp/jpg compressi)
+b) limitare preloader a sole immagini visibili / pagina corrente
+c) ridurre hover-prefetch o renderlo “soft”
+
+VINCOLI IMPORTANTI
+
+NON fare commit
+NON cambiare codice
+NON cambiare Supabase
+Solo diagnosi + report.
+
+Grazie.
