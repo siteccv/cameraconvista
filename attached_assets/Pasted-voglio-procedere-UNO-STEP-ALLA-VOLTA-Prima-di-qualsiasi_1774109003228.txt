@@ -1,0 +1,50 @@
+voglio procedere UNO STEP ALLA VOLTA. Prima di qualsiasi modifica: se hai dubbi fai UNA domanda e aspetta risposta. Non fare mai più di un intervento per volta.
+
+VINCOLI
+
+Non fare commit automatici.
+Non fare refactor o cambi UX.
+Dopo ogni singolo step: fai test e report, poi ti fermi.
+
+CONTESTO (dato certo)
+
+Sito: https://www.cameraconvista.it
+Supabase cached egress alto: ~7.21 GB nel periodo (17–21 Mar) con ~1.4–1.7 GB/die.
+DevTools Home: abbiamo visto che vengono scaricate immagini pesanti, incluso un PNG enorme:
+1770731933994-Screenshot_2026-02-10_alle_14.58.36.png (~7.1 MB)
+È stato rilevato un blocco duplicato “test-image” su pagina eventi-privati che referenzia quel file (oltre alla gallery “Il Locale”).
+
+OBIETTIVO
+Ridurre traffico/egress per poter tornare al piano Free (5 GB/mese). Ma oggi facciamo SOLO lo step 1.
+
+STEP 1 (UNICO INTERVENTO DA ESEGUIRE ORA) — RIMOZIONE MINIMA BLOCCO DUPLICATO “test-image”
+Azione:
+
+Rimuovi SOLO il blocco in tabella page_blocks con blockType = 'test-image' per la pagina con slug eventi-privati.
+Non toccare altri blocchi/pagine.
+Non eliminare alcun file da Storage.
+Non modificare codice.
+
+Query (da eseguire in Supabase SQL Editor, una sola volta):
+DELETE FROM page_blocks
+WHERE blockType = 'test-image'
+AND pageId = (SELECT id FROM pages WHERE slug = 'eventi-privati');
+
+TEST OBBLIGATORI DOPO LO STEP 1 (solo lettura)
+
+DevTools (Chrome Incognito) su https://www.cameraconvista.it
+:
+Network → valori in basso: Requests / Transferred / Resources
+conferma se la PNG “Screenshot_2026-02-10…” viene richiesta ancora e quante volte.
+Supabase:
+screenshot Cached Egress per day (non serve aspettare ore: basta confermare non ci sono nuovi errori e annotare i valori attuali)
+
+OUTPUT (report in chat, secco)
+
+Conferma esecuzione Step 1 (ok/errore)
+Conteggio blocchi eliminati (quante righe)
+DevTools prima/dopo (Requests/Transferred/Resources)
+Nota: la PNG da ~7.1 MB è ancora richiesta? SÌ/NO. Se sì, da quale pagina/blocco risulta ora.
+
+STOP
+Finito lo step 1, fermati e chiedimi se procedere allo step successivo (conversione PNG).
