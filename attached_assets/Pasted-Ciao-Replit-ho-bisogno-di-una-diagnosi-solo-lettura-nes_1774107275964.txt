@@ -1,0 +1,56 @@
+Ciao Replit,
+
+ho bisogno di una diagnosi “solo lettura” (nessuna modifica al codice e nessuna modifica a Supabase) per capire perché Supabase sta consumando molto traffico e se possiamo tornare dal piano Pro (25$/mese) al Free senza rischiare di saturare di nuovo.
+
+CONTESTO
+
+Sito: https://www.cameraconvista.it
+Backend/DB: Supabase (progetto “siteccv”)
+Problema storico: in passato abbiamo saturato le quote soprattutto per traffico/egress legato a immagini.
+Oggi (ciclo attuale 17 Mar–17 Apr): Cached Egress totale ~7.21 GB in 4–5 giorni, con circa 1.4–1.7 GB/giorno.
+Storage bucket usato per media: “media-public” (PUBLIC) con cartella “public/” piena di immagini (molte in webp, es: 222 KB per file in alcuni casi). C’è anche “media-private”.
+
+OBIETTIVO
+Capire con certezza:
+
+Da cosa nasce questo Cached Egress giornaliero (immagini? asset? API? altro)
+Se è “normale” per l’uso reale del sito o se c’è una causa anomala (richieste ripetute, cache non efficace, reload, ecc.)
+Se esiste una strada per ridurre il traffico abbastanza da poter tornare al Free (senza intervenire adesso, solo valutazione)
+
+COSA TI CHIEDO (REPORT DIAGNOSTICO, SENZA MODIFICHE)
+A) Analisi pagine e peso
+
+Per le pagine principali (Home e almeno: /lista-vini se esiste, e le pagine più visitate che trovi):
+quante risorse vengono caricate (immagini/JS/CSS)
+peso totale stimato per pagina (in MB)
+quante richieste puntano a Supabase Storage e quali percorsi (es: /storage/v1/object/public/...)
+se le immagini vengono scaricate sempre “da zero” o se la cache funziona
+
+B) Analisi comportamento “anomalo”
+
+Verifica se il sito fa:
+refresh/polling o richieste ripetute in loop
+prefetch aggressivo di molte immagini
+cache-busting (URL che cambiano spesso) che impedisce il caching
+download di immagini non necessarie (es. immagini in background ad alta risoluzione su mobile)
+
+C) Supabase/Storage (solo lettura)
+
+Identifica se il traffico è principalmente da “media-public/public/” e quali file/cartelle sembrano più “pesanti” o più spesso richiesti (anche solo come pattern).
+Se possibile, indica come verificare in Supabase (in modo semplice) quali path generano più traffico.
+
+OUTPUT RICHIESTO
+Un report in chat, strutturato così:
+
+Sintesi (2–3 righe): causa più probabile del traffico
+Numeri chiave: MB medi per pagina + quante richieste a Supabase Storage + stima traffico/giorno basata su 10–20 visite
+Elenco “possibili cause” ordinate per probabilità (max 5)
+Check pratici da fare (solo lettura) per confermare
+Conclusione netta: “oggi è sicuro disdire Pro?” (SÌ/NO) e perché, basato sui numeri
+
+VINCOLI
+
+Non cambiare nulla: niente refactor, niente upload/resize, niente spostamenti su CDN, niente modifiche alle policy.
+Solo diagnosi e report.
+
+Grazie.
