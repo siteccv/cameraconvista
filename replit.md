@@ -32,7 +32,7 @@ The application is built using a modern full-stack approach:
 
 ### Key Features and Design Patterns
 
-1.  **Bilingual Content Management**: Supports Italian and English with `t(it, en)` translation helper and `valueIt`/`valueEn` fields for content.
+1.  **Bilingual Content Management**: Supports Italian and English with `t(it, en)` translation helper and `valueIt`/`valueEn` fields for content. Menu category titles are pulled from Google Sheets "Categoria EN" column and mapped dynamically, no hardcoded translations needed.
 2.  **Admin Panel with WYSIWYG Editing**: Public pages feature `EditableText` and `EditableImage` components for direct content editing in admin preview mode.
 3.  **Draft/Publish Workflow**: Content blocks and Google Sheets-synced data (menus, wines, cocktails) support separate draft and published states, allowing administrators to prepare content before making it live.
 4.  **Responsive Design**: Mobile-first design with a specialized admin preview mode that simulates an iPhone 15 Pro, including independent font size adjustments for mobile and desktop views.

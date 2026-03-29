@@ -1,7 +1,21 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 10 Marzo 2026 — Restyling Pulsanti Eventi Privati
+**Ultimo aggiornamento:** 29 Marzo 2026 — Menu Categoria EN da Google Sheets
+
+---
+
+### Menu Categoria EN da Google Sheets (29 Marzo 2026)
+**Implementazione traduzione titoli categoria menu in inglese direttamente da Google Sheets**
+- **Problema risolto**: I titoli di categoria (es. "Antipasti", "Primi") non avevano traduzione inglese nel menu
+- **Soluzione implementata**: Lettura colonna "Categoria EN" dal foglio Google Sheets → salvataggio mappa IT→EN in database → esposizione via API `/api/menu-category-map` → utilizzo in frontend
+- **Modifche effettuate**:
+  1. `server/sheets-sync.ts`: Aggiunto parsing di colonna "Categoria EN"; costruisce mappa `{Antipasti: "Starters", Primi: "First Courses", ...}` e salva in `site_settings`
+  2. `server/routes/menu.ts`: Nuovo endpoint pubblico `GET /api/menu-category-map` che espone la mappa
+  3. `client/src/pages/menu.tsx`: Quando lingua è EN, mostra traduzione dalla mappa (`categoryMap[category] || category`)
+- **Database**: Zero migrazione DB. Mappa salvata come JSON in `site_settings.menu_category_map`
+- **Trigger**: Sync manuale dal pannello admin (Menu → Sincronizza da Google Sheets → Pubblica)
+- **Backup**: Console log di debug rimossi; codice pulito da logiche vecchie
 
 ---
 
