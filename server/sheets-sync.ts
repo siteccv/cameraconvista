@@ -190,8 +190,6 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
     const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
     const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
 
-    console.log(`[sheets-sync] categoryIdx=${categoryIdx} categoryEnIdx=${categoryEnIdx}`);
-
     const items: InsertMenuItem[] = [];
     const categoryMap: Record<string, string> = {};
 
@@ -233,7 +231,6 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
         valueIt: mapJson,
         valueEn: mapJson,
       });
-      console.log(`[sheets-sync] Category map saved:`, categoryMap);
     }
 
     console.log(`[sheets-sync] Menu synced: ${items.length} items`);
