@@ -1,0 +1,27 @@
+Categoria,Categoria EN,Titolo IT,Titolo EN,PREZZO,ALLERGENI,,NUMERO,ALLERGENE
+Antipasti,Starters,"Uovo poché, purè di patate al tartufo, salsa Perigueux.","Poached egg, truffle potato purée, Perigueux sauce. ",14,"2,6",,1,Glutine
+Antipasti,Starters,"Insalata di agretti, piselli, caprino e basilico.","Monk's beard salad, peas, goat cheese, basil.",14,2,,2,Lattosio
+Antipasti,Starters,"Variazioni di asparagi, mayo alla maggiorana e dragoncello.","Asparagus Variations, mayoram and tarragon mayo.",16,"2,6",,3,Pesce
+Antipasti,Starters,"Hummus di ceci, carote arrosto e senape in grani.","Chickpea hummus, roasted carrots and whole grain mustard.",14,"9,11",,4,Frutta secca
+Antipasti,Starters,"Tartare di rape rosse, cavolo cappuccio, yogurt e mandorle.","Red beet tartare, red cabbage, yogurt, almonds.  ",13,"2,4,11",,5,Sedano
+,,,,,,,6,Uova
+Primi,Home Fresh Pasta,Tagliatelle al ragù.,Tagliatelle al ragù (Tagliatelle with meat sauce).  ,18,"1,5,6,10",,7,Soia
+Primi,Home Fresh Pasta,"Tortellini in crema di parmigiano, tartufo.","Tortellini in Parmesan cream, truffle.  ",20,"1,2,6",,8,Funghi
+Primi,Home Fresh Pasta,"Cappellacci di ricotta, scarola, acciughe e olive leccino.","Cappellacci with ricotta, escarole, anchovies, and leccine olives.  ",18,"1,2,3,5",,9,Sesamo
+Primi,Home Fresh Pasta,"Ravioli di patate e porri, asparagi, e zabaglione cacio e pepe.","Potatoes and leeks ravioli, asparagus, and ""cacio e pepe"" zabaglione.",18,"1,2,6,10",,10,Solfiti
+,,,,,,,,
+Secondi,Main Courses,Cotoletta alla bolognese.,Cotoletta alla bolognese (Bolognese-style veal cutlet). ,24,"1,2,6",,,
+Secondi,Main Courses,"Rosticciata di maiale rosmarino e miele, cole slaw. ","Grilled pork with mustard and honey, cole slaw.",25,"7,9,11",,,
+Secondi,Main Courses,"Roastbeef, guacamole, pico de gallo e cipollotto.","Roastbeef, guacamole, spring onions and pico de gallo. ",29,"2,10",,,
+Secondi,Main Courses,"Pollo alla romana, purè di patate.    ","Pollo alla romana (peppers and tomatoes), mashed potatoes. ",25,"2,5,6",,,
+Secondi,Main Courses,"Cavolfiori arrosto, lamponi e nocciole","Roasted couliflowers, Raspberries, and hazelnuts.",19,4,,,
+Secondi,Main Courses,"Zucchine ripiene di ricotta affumicata, pomodoro bruciato, basilico","Zucchini stuffed with smoked ricotta, burnt tomato, basil.",19,2,,, 
+,,,,,,,,
+Contorni,Side Dishes,"Patate croccanti al mais, senape al miele.","Crispy corn potatoes, honey mustard.",8,"6,11",,,
+Contorni,Side Dishes,"Indivia belga arrosto, pesto di noci.    ","Roasted endive, nuts pesto.",10,"2,4",,,
+Contorni,Side Dishes,"Scarola grigliata, gremolada, olive leccino.    ","Grilled escarole, gremolada, leccino olives. ",9,,,,
+Contorni,Side Dishes,"Verdure verdi, aglio, olio e peperoncino.     ","Green vegetables, garlic, oil, and chili pepper.     ",8,,,,
+,,     ,,,,,,
+,,,,,,,,
+Dessert,Dessert,"Torta fredda al cioccolato, coulis di frutti di bosco, mousse allo yogurt.","Cold chocolate cake, wild berry coulis, and yogurt mousse.",8,"1,2,6",,,
+Dessert,Dessert,"Cheesecake basca, dulce de leche, pistacchio.","Basque cheesecake, dulce de leche, pistachio.",8,"1,2,4,6",,,
