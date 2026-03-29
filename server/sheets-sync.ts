@@ -182,14 +182,19 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
     }
 
     const headers = rows[0].map(h => h.toLowerCase().trim());
-    const categoryIdx = headers.findIndex(h => h.includes("categoria") || h.includes("category"));
+    const categoryIdx = headers.findIndex(h => h === "categoria" || (h.includes("categoria") && !h.includes("en")));
+    const categoryEnIdx = headers.findIndex(h => h === "categoria en" || h === "category en" || h === "categoria_en" || h === "category_en");
     const nameItIdx = headers.findIndex(h => h.includes("titolo it") || h === "nome_it" || h === "nome" || h.includes("name_it"));
     const nameEnIdx = headers.findIndex(h => h.includes("titolo en") || h === "nome_en" || h.includes("name_en"));
     const descItIdx = headers.findIndex(h => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"));
     const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
     const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
 
+    console.log(`[sheets-sync] categoryIdx=${categoryIdx} categoryEnIdx=${categoryEnIdx}`);
+
     const items: InsertMenuItem[] = [];
+    const categoryMap: Record<string, string> = {};
+
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       const category = row[categoryIdx] || "";
@@ -197,6 +202,11 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
       const nameEn = nameEnIdx >= 0 ? (row[nameEnIdx] || nameIt) : nameIt;
       
       if (!category || !nameIt) continue;
+
+      // Build IT→EN category map from sheet column
+      if (categoryEnIdx >= 0 && row[categoryEnIdx]?.trim()) {
+        categoryMap[category.trim()] = row[categoryEnIdx].trim();
+      }
 
       items.push({
         category,
@@ -213,6 +223,18 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
 
     await client.deleteAll('menu_items');
     await client.insertMany('menu_items', items);
+
+    // Save category IT→EN map to site_settings so frontend can use it
+    if (Object.keys(categoryMap).length > 0) {
+      const { storage } = await import("./storage");
+      const mapJson = JSON.stringify(categoryMap);
+      await storage.upsertSiteSetting({
+        key: "menu_category_map",
+        valueIt: mapJson,
+        valueEn: mapJson,
+      });
+      console.log(`[sheets-sync] Category map saved:`, categoryMap);
+    }
 
     console.log(`[sheets-sync] Menu synced: ${items.length} items`);
     return { count: items.length };

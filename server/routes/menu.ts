@@ -33,6 +33,17 @@ publicMenuRouter.get("/menu-items", async (req, res) => {
   }
 });
 
+publicMenuRouter.get("/menu-category-map", async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting("menu_category_map");
+    const map = setting?.valueIt ? JSON.parse(setting.valueIt) : {};
+    res.json(map);
+  } catch (error) {
+    console.error("Error fetching menu category map:", error);
+    res.json({});
+  }
+});
+
 publicMenuRouter.get("/wines", async (req, res) => {
   try {
     const wines = await getPublishedSnapshot("published_wines");

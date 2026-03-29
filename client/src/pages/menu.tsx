@@ -11,8 +11,12 @@ import { PAGE_IDS, MENU_DEFAULTS } from "@/lib/page-defaults";
 import type { MenuItem } from "@shared/schema";
 
 export default function Menu() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { adminPreview } = useAdmin();
+
+  const { data: categoryMap = {} } = useQuery<Record<string, string>>({
+    queryKey: ["/api/menu-category-map"],
+  });
 
   const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
     pageId: PAGE_IDS.menu,
@@ -172,7 +176,7 @@ export default function Menu() {
                     style={{ color: '#722F37' }}
                     data-testid={`text-category-${category}`}
                   >
-                    {category}
+                    {language === "en" ? (categoryMap[category] || category) : category}
                   </h2>
                   <div className="space-y-6">
                     {items.map((item) => (
