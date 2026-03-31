@@ -46,6 +46,23 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+// Redirect /en/* to ?lang=en (chirurgical fix for Google Search Console soft 404s)
+// Example: /en/lista-vini → /lista-vini?lang=en
+app.use((req, res, next) => {
+  if (req.path.startsWith("/en/")) {
+    const pathWithoutEn = req.path.replace(/^\/en/, "") || "/";
+    const hasQuery = req.originalUrl.includes("?");
+    const existingQuery = hasQuery ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    const separator = existingQuery ? "&" : "?";
+    const newUrl = `${pathWithoutEn}${separator}lang=en${existingQuery}`;
+    return res.redirect(301, newUrl);
+  }
+  if (req.path === "/en" || req.path === "/en/") {
+    return res.redirect(301, "/?lang=en");
+  }
+  next();
+});
+
 app.use((req, res, next) => {
   if (req.path.startsWith("/api")) return next();
 

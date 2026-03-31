@@ -146,7 +146,7 @@ ${logoHtml}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;line-height:1.5">${tableRows}</table>
 </td></tr>
 <tr><td style="padding:12px 16px 16px;border-top:1px solid #e5e7eb">
-<p style="margin:0;font-size:11px;color:#9ca3af">Email generata automaticamente dal sito web <a href="https://cameraconvista.it" style="color:#9ca3af">cameraconvista.it</a></p>
+<p style="margin:0;font-size:11px;color:#9ca3af">Email generata automaticamente dal sito web <a href="https://www.cameraconvista.it" style="color:#9ca3af">www.cameraconvista.it</a></p>
 </td></tr>
 </table>
 </td></tr>
@@ -207,7 +207,7 @@ router.post("/", async (req: Request, res: Response) => {
     const setting = await storage.getSiteSetting("resend_api_key");
     apiKey = setting?.valueIt ?? undefined;
   }
-  const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it";
+  const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it"; // Note: Also update server/seo.ts if this changes
 
   if (!apiKey) {
     console.error("[event-request] RESEND_API_KEY not configured — NODE_ENV:", process.env.NODE_ENV);
