@@ -1,7 +1,28 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 31 Marzo 2026 — Fix Dati Strutturati Eventi
+**Ultimo aggiornamento:** 31 Marzo 2026 — Fix endAt Supabase + Redirect /en/* + Fix Email www
+
+---
+
+### Fix Colonna `end_at` Mancante in Supabase (31 Marzo 2026)
+**Errore 404 al salvataggio evento con Data e Ora Fine**
+- **Causa root**: La colonna `end_at` era stata aggiunta al schema Drizzle e al DB locale ma non era stata sincronizzata al database Supabase di produzione. La query Drizzle UPDATE falliva silenziosamente → `updateEvent()` ritornava `undefined` → route rispondeva 404.
+- **Soluzione**:
+  1. Colonna aggiunta manualmente in Supabase SQL Editor: `ALTER TABLE events ADD COLUMN IF NOT EXISTS end_at TIMESTAMP;`
+  2. Fix nel backend (`server/routes/events.ts`): aggiunta conversione `endAt` stringa → Date sia nel POST che nel PATCH (analogamente a `startAt`)
+- **Impatto**: Il campo "Data e Ora Fine" nel pannello admin ora si salva correttamente
+- **Lezione**: Dopo ogni `db:push` locale, verificare la sincronizzazione con Supabase di produzione per i campi aggiunti
+
+---
+
+### Fix Soft 404 + Email www + Redirect /en/* (31 Marzo 2026)
+**Risoluzione problemi Google Search Console**
+- **Soft 404 `/en/*`**: Aggiunto middleware in `server/index.ts` che intercetta URL con prefisso `/en/` e li redirige (301) verso `/?lang=en` o `/path?lang=en`. Risolve i 33 Soft 404 rilevati in GSC per la property `https://www.cameraconvista.it/`
+- **Email template**: URL aggiornata da `https://cameraconvista.it` → `https://www.cameraconvista.it` nel footer dell'email generata da `server/routes/event-request.ts`
+- **QR code**: I QR cartacei che puntano a `cameraconvista.it/lista-vini` continuano a funzionare tramite redirect 301 www già esistente — nessuna azione necessaria
+- **GSC property senza www**: Non è stato possibile eseguire "Cambio di indirizzo" in GSC (bottone disabilitato — Google non ha ancora rilevato i redirect 301). Il consolidamento avverrà automaticamente entro 2-3 settimane
+- **Deploy**: Commit `8e61de0` pushato a GitHub
 
 ---
 
