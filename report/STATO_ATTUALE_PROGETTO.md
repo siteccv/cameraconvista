@@ -1,7 +1,22 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 29 Marzo 2026 — Menu Categoria EN da Google Sheets
+**Ultimo aggiornamento:** 31 Marzo 2026 — Fix Dati Strutturati Eventi
+
+---
+
+### Fix Dati Strutturati Eventi (31 Marzo 2026)
+**Risoluzione problemi Google Search Console sull'assenza di `endDate` nello schema JSON-LD**
+- **Problema**: Google segnalava 3 campi mancanti nel JSON-LD Event: `endDate`, `offers`, `performer`
+- **Soluzione implementata**: Aggiunto campo opzionale `endAt` al DB; JSON-LD ora include endDate con fallback intelligente
+- **Modifiche effettuate**:
+  1. `shared/schema.ts`: Aggiunto `endAt: timestamp` opzionale alla tabella `events`
+  2. `server/seo.ts`: JSON-LD Event ora include `endDate` (se disponibile) o default a startAt + 2 ore per backward compatibility
+  3. `client/src/components/admin/EventModal.tsx`: Aggiunto campo input "Data e Ora Fine" nel tab Impostazioni
+  4. `npm run db:push` eseguito — schema sincronizzato
+- **Database**: Zero dati persi. Campo aggiunto come opzionale (nullable)
+- **Impatto SEO**: Google Search Console avrà tutti gli elementi dell'Event schema completamente popolati
+- **Backward compatibility**: Eventi esistenti senza `endAt` mostrano durata calcolata (inizio + 2 ore)
 
 ---
 

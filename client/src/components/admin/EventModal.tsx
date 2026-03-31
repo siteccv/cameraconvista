@@ -64,6 +64,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
     posterOffsetX: 0,
     posterOffsetY: 0,
     startAt: null,
+    endAt: null,
     active: false,
     bookingEnabled: false,
     bookingUrl: "https://cameraconvista.resos.com/booking",
@@ -134,6 +135,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
         posterOffsetX: event.posterOffsetX || 0,
         posterOffsetY: event.posterOffsetY || 0,
         startAt: event.startAt,
+        endAt: event.endAt,
         active: event.active,
         bookingEnabled: event.bookingEnabled,
         bookingUrl: event.bookingUrl || "https://cameraconvista.resos.com/booking",
@@ -154,6 +156,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
         posterOffsetX: 0,
         posterOffsetY: 0,
         startAt: null,
+        endAt: null,
         active: false,
         bookingEnabled: false,
         bookingUrl: "https://cameraconvista.resos.com/booking",
@@ -468,6 +471,19 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     data-testid="input-start-at"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endAt">{t("Data e Ora Fine", "End Date & Time")}</Label>
+                  <Input
+                    id="endAt"
+                    type="datetime-local"
+                    value={toLocalDatetimeString(formData.endAt ?? null)}
+                    onChange={(e) => setFormData({ ...formData, endAt: (e.target.value || null) as any })}
+                    data-testid="input-end-at"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="sortOrder">{t("Ordine", "Sort Order")}</Label>
                   <Input

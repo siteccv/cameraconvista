@@ -173,7 +173,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       );
 
       if (event.startAt) {
-        jsonLd.push({
+        const eventSchema: any = {
           "@context": "https://schema.org",
           "@type": "Event",
           name: event.titleIt,
@@ -198,7 +198,18 @@ async function buildSeoData(req: Request): Promise<SeoData> {
             name: "Camera con Vista",
             url: baseUrl,
           },
-        });
+        };
+        
+        // Add endDate if available, otherwise default to 2 hours after start
+        if (event.endAt) {
+          eventSchema.endDate = new Date(event.endAt).toISOString();
+        } else if (event.startAt) {
+          const defaultEnd = new Date(event.startAt);
+          defaultEnd.setHours(defaultEnd.getHours() + 2);
+          eventSchema.endDate = defaultEnd.toISOString();
+        }
+        
+        jsonLd.push(eventSchema);
       }
     } else {
       title = lang === "it" ? DEFAULT_TITLE_IT : DEFAULT_TITLE_EN;

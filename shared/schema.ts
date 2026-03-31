@@ -228,6 +228,7 @@ export const events = pgTable("events", {
   posterOffsetX: integer("poster_offset_x").default(0),
   posterOffsetY: integer("poster_offset_y").default(0),
   startAt: timestamp("start_at"),
+  endAt: timestamp("end_at"),
   active: boolean("active").notNull().default(false),
   bookingEnabled: boolean("booking_enabled").notNull().default(false),
   bookingUrl: text("booking_url").default("https://cameraconvista.resos.com/booking"),
