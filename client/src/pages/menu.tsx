@@ -111,20 +111,22 @@ export default function Menu() {
               testIdPrefix="menu-hero"
               onSave={handleHeroImageSave}
             >
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center text-white">
-                  <EditableText
-                    textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
-                    textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
-                    fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
-                    as="h1"
-                    className="font-display drop-shadow-lg"
-                    applyFontSize
-                    onSave={handleHeroTitleSave}
-                  />
+              {adminPreview && (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center text-white">
+                    <EditableText
+                      textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
+                      textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
+                      fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
+                      fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                      as="h1"
+                      className="font-display drop-shadow-lg"
+                      applyFontSize
+                      onSave={handleHeroTitleSave}
+                    />
+                  </div>
                 </div>
-              </div>
+              )}
             </ImageContainer>
           </div>
         </section>
