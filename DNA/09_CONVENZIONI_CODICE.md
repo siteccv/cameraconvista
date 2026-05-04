@@ -7,6 +7,7 @@
 Prettier e ora baseline obbligatoria del progetto. ESLint resta configurato in modo non invasivo per proteggere il codice senza imporre refactor rischiosi sul sito live.
 
 - Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Ultimo refresh backup: 5 Maggio 2026 00:43 Europe/Rome, archivio locale non tracciato da Git
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 

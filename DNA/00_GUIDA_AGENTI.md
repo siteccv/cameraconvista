@@ -28,6 +28,7 @@ Prima di modificare codice o configurazioni:
 - Branch operativo: `main`.
 - Repository GitHub: `https://github.com/siteccv/cameraconvista.git`.
 - Ultimi commit rilevanti:
+  - `2a3f90f` - riallineamento SEO a tapas bar, aperitivo, cocktail bar ed eventi privati.
   - `b053312` - hardening enterprise, aggiornamento DNA e backup docs.
   - `8d4f784` - workflow keepalive Supabase.
   - `d68aa4f` - aggiornamento checkout action keepalive.
@@ -36,6 +37,7 @@ Prima di modificare codice o configurazioni:
   - `Supabase Keepalive` schedulato ogni giorno e manuale.
 - Ultimo gate locale completo richiesto: `npm run check:all`.
 - Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`.
+- Ultimo refresh backup: 5 Maggio 2026 00:43 Europe/Rome, dopo il deploy SEO tapas/cocktail/eventi.
 - `BACKUP/` e `*.tar` sono esclusi da Git.
 
 ## Mappa Documentazione DNA
