@@ -1,7 +1,20 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 31 Marzo 2026 — Fix endAt Supabase + Redirect /en/* + Fix Email www
+**Ultimo aggiornamento:** 4 Maggio 2026 — Rimozione vincoli e residui della piattaforma precedente
+
+---
+
+### Pulizia Residui Piattaforma Precedente (4 Maggio 2026)
+**Obiettivo: rendere il progetto indipendente dalla piattaforma precedente senza alterare contenuti pubblici o menu live**
+- **Configurazione rimossa**: Eliminati file di configurazione e documentazione agente della piattaforma precedente
+- **Integrazioni legacy rimosse**: Eliminate cartelle di integrazione generate e non importate dall'app attiva
+- **Dipendenze rimosse**: Eliminati plugin Vite specifici della piattaforma precedente da `package.json` e `package-lock.json`
+- **Vite standardizzato**: `vite.config.ts` usa solo `@vitejs/plugin-react` e alias progetto
+- **Traduzioni admin**: Rimosso fallback proxy legacy; ora serve `OPENAI_API_KEY` diretto
+- **Email eventi privati**: Rimosso fallback build-time legacy; ora usa `RESEND_API_KEY` o fallback database `site_settings.resend_api_key`
+- **Documentazione aggiornata**: File `DNA_Project/` e `report/` ripuliti da workflow, plugin e vincoli della piattaforma precedente
+- **Impatto runtime**: Nessuna modifica a pagine pubbliche, logiche menu/vini/cocktail, database o contenuti pubblicati
 
 ---
 
@@ -74,30 +87,29 @@
 Verifica completa del progetto: errori, conflitti, file morti, residui, duplicati e obsoleti.
 
 **Risultati:**
-- **TypeScript**: 0 errori dopo audit. Rimossi 13 errori pre-esistenti in `server/replit_integrations/` escludendo quei file dal `tsconfig.json` (file residui del template Replit, mai integrati nel progetto).
+- **TypeScript**: 0 errori dopo audit. Rimossi errori pre-esistenti da file generati non collegati all'app attiva.
 - **File eliminati (residui/morti)**:
   - `sync-resend-key.js` — script debug temporaneo nella root
   - `client/src/components/contact/ContactInfoItem.tsx` — componente mai importato
   - `client/src/components/contact/index.ts` — barrel export vuoto
-  - `client/src/hooks/use-upload.ts` — hook per Object Storage mai usato
-  - `client/src/components/ObjectUploader.tsx` — componente per Object Storage mai usato
+  - Hook upload legacy mai usato
+  - Componente upload legacy mai usato
 - **console.log frontend**: 0 (zero)
 - **TODO/FIXME/ts-ignore**: 0 (zero) nel codice custom
 - **Import React espliciti non necessari**: 0 nei componenti custom
 - **@assets import**: tutti validi (logo_ccv.png, Logo_ccv_nobistrot.png)
 - **Routes vs Pagine**: tutte le 24 pagine frontend corrispondono a routes registrate
 - **Build server**: funzionante, porta 5000, Supabase connessa
-- **`tsconfig.json`**: aggiornato con esclusione `server/replit_integrations/**/*` e `scripts/**/*`
+- **`tsconfig.json`**: aggiornato con esclusione `scripts/**/*`
 
 **Rimasti intenzionalmente:**
-- `server/replit_integrations/` — template Replit per AI integrations, non connesso all'app ma mantenuto per compatibilità futura
 - `scripts/` — script di migrazione immagini a Supabase (usati per disaster recovery)
 - `console.log` nel server (tutti logging operativo legittimo: sync, email, DB)
 
 ### Ultimi Aggiornamenti (8 Marzo 2026 - Sera)
-- **Sistema email eventi privati — RISOLTO DEFINITIVAMENTE**: Il wizard per i "Richiedi preventivo" nei tre tipi di eventi (Aperitivo, Cena, Esclusivo) era bloccato in produzione. Causa: Replit Autoscale non passa i Secrets al deployment. Soluzione finale: Salvataggio della chiave Resend nel database Supabase via SQL Editor. Implementato anche fallback nel codice per leggere da `process.env.RESEND_KEY` (iniezione durante build tramite esbuild `define`), database, e infine `process.env.RESEND_API_KEY`. Il wizard invia correttamente le quote email a `info@cameraconvista.it` via Resend.
-- **Rate limiter configurato per produzione**: Aggiunto `app.set("trust proxy", 1)` in `server/index.ts` per leggere il vero IP del client dietro il load balancer di Replit, evitando false positioni 429 Too Many Requests.
-- **Logging migliorato**: Endpoint health check `/api/health/email` diagnostica completo della configurazione email con source (env/config/db/none). Logging dettagliato degli errori Resend nei server logs.
+- **Sistema email eventi privati — RISOLTO DEFINITIVAMENTE**: Il wizard per i "Richiedi preventivo" nei tre tipi di eventi (Aperitivo, Cena, Esclusivo) invia le quote email a `info@cameraconvista.it` via Resend. La chiave viene letta da `RESEND_API_KEY` o dal database Supabase (`site_settings.resend_api_key`).
+- **Rate limiter configurato per produzione**: Aggiunto `app.set("trust proxy", 1)` in `server/index.ts` per leggere il vero IP del client dietro proxy/load balancer, evitando false positioni 429 Too Many Requests.
+- **Logging migliorato**: Endpoint health check `/api/health/email` diagnostica completo della configurazione email con source (env/db/none). Logging dettagliato degli errori Resend nei server logs.
 
 ### Aggiornamenti (8 Marzo 2026 - Giorno)
 - **Fix click-to-edit nelle card eventi privati**: Risolto il bug dove cliccare su EditableText nelle card admin apriva il dialog di edit ma lo chiudeva immediatamente. Soluzioni applicate: `stopImmediatePropagation` su pointerDown, check `document.querySelector('[role="dialog"]')` prima della navigazione.
@@ -113,7 +125,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 ### Ultimi Aggiornamenti (22 Febbraio 2026)
 - **Pagina Eventi Privati**: Rimosso box "Party & Celebrazioni". Layout aggiornato a 3 colonne su desktop con card verticali. Layout mobile mantenuto a colonna singola.
 - **Libreria Media**: Effettuata pulizia di 44 voci fantasma (URL corrotti). Rimaste 58 immagini valide.
-- **Documentazione**: Creato `REPLIT_READINESS_EVENTI_PRIVATI.md` con analisi tecnica e piano d'azione per il Wizard eventi.
+- **Documentazione**: Consolidata documentazione tecnica e piano d'azione per il Wizard eventi.
 - **Backup**: Eseguito nuovo backup del progetto in `BACKUP/`.
 
 ---
@@ -132,7 +144,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 | **Device-specific overrides** | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
 | **Click-to-Edit WYSIWYG** | ✅ Completo | Componenti `EditableText` e `EditableImage` usati su tutte le pagine pubbliche con editing inline in modalità admin preview |
 | **Admin Eventi** | ✅ Completo | CRUD completo con max 10 eventi, poster Instagram Story (9:16), controlli zoom/offset, modalità visibilità (ACTIVE_ONLY/UNTIL_DAYS_AFTER), integrazione prenotazioni |
-| **Admin Media Library** | ✅ Completo | Upload file su Object Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
+| **Admin Media Library** | ✅ Completo | Upload file su Supabase Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
 | **Footer Management** | ✅ Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
 | **Media Categories** | ✅ Completo | Sistema cartelle dinamico per media library con CRUD categorie |
 | **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
@@ -310,12 +322,12 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Backend:** Node.js, Express, TypeScript
 - **Database:** PostgreSQL con Drizzle ORM (locale) / Supabase (produzione)
 - **Autenticazione:** Sessioni httpOnly cookies, bcrypt per hash password
-- **Storage:** Google Cloud Storage via Object Storage per media
-- **AI:** OpenAI per traduzioni IT→EN (dual-mode: `OPENAI_API_KEY` diretto con gpt-4o-mini per Render, AI Integrations proxy con gpt-5-nano per Replit)
+- **Storage:** Supabase Storage per media
+- **AI:** OpenAI per traduzioni IT→EN tramite `OPENAI_API_KEY` diretto con modello `gpt-4o-mini`
 - **Deployment:** Render (hosting), GitHub (repository), Supabase (database produzione)
 
 ### Integrazioni Attive
-- **Object Storage** - Funzionante per upload media
+- **Supabase Storage** - Funzionante per upload media
 - **OpenAI** - Attivo per traduzioni automatiche IT→EN con prompt contestuali hospitality
 - **Supabase** - Database produzione con conversione automatica camelCase↔snake_case
 
@@ -354,7 +366,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Dati Societari Footer**: Ragione sociale, sede legale, P.IVA/C.F. in footer responsive (2 righe desktop, 3 righe mobile)
 - **Footer links**: Privacy Policy, Cookie Policy, Preferenze cookie (riapre banner consenso)
 - **SEO**: Meta tag e entry sitemap per pagine privacy e cookie
-- **Fix traduzione automatica**: Endpoint dual-mode per funzionare sia su Replit (AI Integrations proxy) che su Render (`OPENAI_API_KEY` diretto)
+- **Fix traduzione automatica**: Endpoint basato su `OPENAI_API_KEY` diretto
 - **Variabile ambiente Render**: Aggiungere `OPENAI_API_KEY` nelle env vars del progetto Render per abilitare traduzione in produzione
 
 ### Canonical URL Redirect e Performance (10-11 Feb 2026)
@@ -437,12 +449,11 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - GallerySlideViewer per visualizzazione pubblica con swipe touch e navigazione frecce
 
 ### Traduzione Automatica IT→EN (3 Feb 2026, fix 11 Feb 2026)
-- Endpoint `/api/admin/translate` con OpenAI dual-mode:
-  - **Render (produzione):** `OPENAI_API_KEY` diretto → modello `gpt-4o-mini`, `temperature: 0.3`, `max_tokens: 1000`
-  - **Replit (sviluppo):** AI Integrations proxy → modello `gpt-5-nano`, `max_completion_tokens: 1000`
+- Endpoint `/api/admin/translate` con OpenAI diretto:
+  - `OPENAI_API_KEY` → modello `gpt-4o-mini`, `temperature: 0.3`, `max_tokens: 1000`
 - Hook `useTranslation` e componente `TranslateButton` riutilizzabili
 - Integrazione in tutti i form bilingui admin
-- **Fix 11 Feb:** Risolto errore traduzione su deploy Render (proxy Replit AI non raggiungibile da server esterni)
+- **Fix 11 Feb:** Risolto errore traduzione su deploy esterno richiedendo `OPENAI_API_KEY` diretto
 
 ---
 
@@ -452,7 +463,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 |----------|-----------|------|
 | Orario evento: selezionare 20:00 salva 19:00 | Sostituito `toISOString()` (UTC) con formatter fuso orario locale nel campo datetime-local | 11 Feb 2026 |
 | Modale modifica evento mostra orario vecchio | Fresh copy dell'evento al click + formatter locale per datetime input | 11 Feb 2026 |
-| Traduzione automatica non funziona su deploy Render | Aggiunto dual-mode: `OPENAI_API_KEY` diretto per Render + AI Integrations proxy per Replit | 11 Feb 2026 |
+| Traduzione automatica non funziona su deploy esterno | Configurato uso diretto di `OPENAI_API_KEY` | 11 Feb 2026 |
 | QR code con trailing slash `/lista-vini/` non funziona | Middleware canonical redirect 301 trailing slash → senza slash | 11 Feb 2026 |
 | URL non canoniche (www/non-www) | Middleware www enforcement 301 in produzione | 11 Feb 2026 |
 | React 18 non supporta `fetchPriority` JSX prop | Rimosso fetchPriority, mantenuto solo `loading="eager"` per hero images | 10 Feb 2026 |

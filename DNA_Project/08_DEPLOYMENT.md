@@ -2,19 +2,13 @@
 
 ## Ambienti
 
-### Sviluppo (Replit)
-- **Comando**: `npm run dev` → `NODE_ENV=development tsx server/index.ts`
-- **Porta**: 5000 (unica porta non firewalled su Replit)
-- **Vite**: HMR attivo, serve frontend e backend sulla stessa porta
-- **Database**: PostgreSQL (Neon-backed) via `DATABASE_URL`
-- **ETag API**: Disabilitato in dev per evitare 304 problematici
-
-### Sviluppo (Locale / Windsurf)
+### Sviluppo Locale
 - **Comando**: `NODE_ENV=development npm run dev`
 - **Porta**: 5000 (default) o configurabile via `PORT=XXXX`
 - **Env richieste**: `DATABASE_URL` oppure `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
-- **Plugin Replit**: Ignorati automaticamente (gated da `REPL_ID`)
 - **Server listen**: Nessun flag speciale (`reusePort` rimosso per compatibilità macOS/Windows)
+- **Vite**: HMR attivo, serve frontend e backend sulla stessa porta
+- **ETag API**: Disabilitato in dev per evitare 304 problematici
 
 ### Produzione
 - **Build**: `npm run build` → `tsx script/build.ts`
@@ -33,13 +27,6 @@
 
 Se nessuna variabile database è configurata, il server si arresta con errore esplicito (fail-fast).
 
-### Object Storage
-| Variabile | Descrizione |
-|-----------|-------------|
-| `DEFAULT_OBJECT_STORAGE_BUCKET_ID` | ID bucket GCS |
-| `PRIVATE_OBJECT_DIR` | Directory oggetti privati |
-| `PUBLIC_OBJECT_SEARCH_PATHS` | Path ricerca oggetti pubblici |
-
 ### Opzionali - Supabase
 | Variabile | Descrizione |
 |-----------|-------------|
@@ -52,14 +39,12 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 ### Opzionali - AI
 | Variabile | Descrizione |
 |-----------|-------------|
-| `AI_INTEGRATIONS_OPENAI_API_KEY` | API key OpenAI |
-| `AI_INTEGRATIONS_OPENAI_BASE_URL` | Base URL OpenAI (Replit proxy) |
+| `OPENAI_API_KEY` | API key OpenAI per traduzioni admin |
 
 ## Database
 
 ### PostgreSQL Diretto (Default senza Supabase)
-- Su Replit: provisioned automaticamente
-- In locale: qualsiasi PostgreSQL raggiungibile via `DATABASE_URL`
+- Qualsiasi PostgreSQL raggiungibile via `DATABASE_URL`
 - Drizzle ORM per schema management
 - `drizzle-kit push` per sincronizzazione schema
 
@@ -75,23 +60,21 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 - Drizzle Kit sincronizza lo schema da `shared/schema.ts` al database
 - Config: `drizzle.config.ts` (NON MODIFICARE)
 
-## Object Storage
+## Media Storage
 
-### Google Cloud Storage (via Replit)
-- Bucket: `repl-default-bucket-$REPL_ID`
+### Supabase Storage
+- Bucket pubblico: `media-public`
 - Directory `public/`: asset pubblici
-- Directory `.private/`: file privati
-- Upload via presigned URLs (AWS S3-compatible)
-- Componente frontend: `ObjectUploader`
-- Hook: `use-upload.ts`
+- Upload amministrativo tramite backend Express e `supabaseAdmin.storage`
+- Ottimizzazione immagini server-side con `sharp` e conversione WebP
 
 ### Media Upload Pipeline
 ```
 1. Frontend seleziona file
-2. Richiesta presigned URL → Object Storage
-3. Upload diretto a GCS
-4. URL salvato nel database (tabella media)
-5. Opzionale: resize con sharp server-side
+2. Upload a `/api/admin/uploads/direct`
+3. Il backend ottimizza l'immagine con `sharp`
+4. Upload su Supabase Storage
+5. URL salvato nel database (tabella media)
 ```
 
 ## Build System
@@ -119,23 +102,17 @@ Entrambi sulla porta 5000
 
 | File | Motivo |
 |------|--------|
-| `vite.config.ts` | Configurazione Vite con alias e plugin Replit |
+| `vite.config.ts` | Configurazione Vite con alias progetto |
 | `server/vite.ts` | Setup Vite dev server |
 | `drizzle.config.ts` | Config Drizzle Kit |
 | `package.json` | Modificare solo tramite packager tool |
 
-## Workflow Replit
-
-Il workflow "Start application" esegue `npm run dev`:
-- Auto-restart dopo modifiche ai file
-- Auto-restart dopo installazione pacchetti
-- Log visibili nella console Replit
-
 ## Pubblicazione
 
-La pubblicazione del sito (rendere l'app accessibile pubblicamente) avviene tramite Replit Deployments:
-- Dominio `.replit.app` o custom domain
-- Build automatica, health checks, TLS
-- L'utente deve cliccare manualmente il pulsante "Publish"
+La pubblicazione del sito avviene su hosting Node standard:
+- Build: `npm run build`
+- Start: `npm run start`
+- Dominio produzione: `https://www.cameraconvista.it`
+- Database produzione: Supabase
 
 **NOTA**: La "pubblicazione" del contenuto (draft → public) è un'operazione interna dell'app, non da confondere con il deployment dell'applicazione.

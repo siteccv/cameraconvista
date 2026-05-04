@@ -118,14 +118,13 @@ Supabase free tier suspends databases after 7 days of inactivity.
 - **Admin URL**: `/admina` (intentionally non-standard for security)
 - **Middleware**: `requireAuth` checks session validity on all admin routes
 
-### 4.3 Translation Service (Dual-Mode)
+### 4.3 Translation Service
 
-`POST /api/admin/translate` supports two backends:
+`POST /api/admin/translate` uses the official OpenAI API directly:
 
 | Environment | Backend | Model | Config |
 |-------------|---------|-------|--------|
-| Replit (dev) | AI Integrations proxy | gpt-5-nano | `max_completion_tokens: 1000` |
-| Render (prod) | Direct `OPENAI_API_KEY` | gpt-4o-mini | `temperature: 0.3`, `max_tokens: 1000` |
+| Any Node hosting | Direct `OPENAI_API_KEY` | gpt-4o-mini | `temperature: 0.3`, `max_tokens: 1000` |
 
 Contextual hospitality prompts ensure restaurant-appropriate translations.
 
@@ -164,7 +163,7 @@ Major refactors completed (4 Feb 2026):
 |-------|-----------|----------|------|
 | Event time saves 1 hour early | `toISOString()` uses UTC, not local timezone | Local timezone formatter for datetime-local field | 11 Feb |
 | Event edit modal shows old time | Stale event data in modal state | Fresh copy on click + local datetime formatter | 11 Feb |
-| Translation fails on Render | Replit AI proxy unreachable from external servers | Dual-mode: direct API key for Render | 11 Feb |
+| Translation fails without direct OpenAI env | Legacy proxy dependency | Direct `OPENAI_API_KEY` required | 11 Feb |
 | QR codes with trailing slash fail | No redirect handler | 301 canonical redirect middleware | 11 Feb |
 | Gallery "cannot add image" error | Database sequence misaligned after deletions | Reset `gallery_images_id_seq` | 5 Feb |
 | Drag & drop unreliable | @dnd-kit library issues | Rewrote with HTML5 native Drag & Drop API | 5 Feb |
@@ -177,5 +176,5 @@ Major refactors completed (4 Feb 2026):
 ## 7. Build Status
 
 - **TypeScript**: Zero errors in active application code
-- **Pre-existing**: 13 errors in `server/replit_integrations/` (auto-generated, can be ignored)
+- **Removed legacy integrations**: Obsolete generated integration templates removed from the active tree
 - **Dependencies**: No deprecated or vulnerable packages in active use

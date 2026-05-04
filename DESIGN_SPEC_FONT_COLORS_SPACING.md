@@ -1,7 +1,7 @@
 # Design Specification: Font, Colors & Spacing
 ## Camera con Vista - Wine List & Mobile Menu
 
-**Scopo**: Replicate esatto dell'aspetto visivo della lista vini (carta-vini) e del menu a tendina mobile di Camera con Vista su altri progetti Replit.
+**Scopo**: Replicare esattamente l'aspetto visivo della lista vini (carta-vini) e del menu a tendina mobile di Camera con Vista in altri progetti.
 
 ---
 

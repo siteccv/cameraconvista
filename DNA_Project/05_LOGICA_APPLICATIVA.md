@@ -163,7 +163,7 @@ Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono anda
 ## Sistema Media
 
 ### Upload Flow
-1. Frontend: `ObjectUploader` o `use-upload` hook → upload via `POST /api/admin/uploads/direct`
+1. Frontend: form media admin → upload via `POST /api/admin/uploads/direct`
 2. Backend riceve il file con `multer` (memory storage, max 25MB)
 3. **Compressione obbligatoria**: `sharp` processa tutte le immagini JPEG/PNG/WebP
 4. File compresso caricato su Supabase Storage → URL pubblico generato

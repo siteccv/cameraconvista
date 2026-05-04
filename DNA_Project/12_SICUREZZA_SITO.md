@@ -30,8 +30,8 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 
 ### Upload Endpoint Autenticato
 - Tutti gli endpoint di upload richiedono `requireAuth` middleware
-- L'endpoint Object Storage (`/api/uploads/request-url`) ha `requireAuth` aggiunto come difesa in profondita
 - L'endpoint principale (`/api/admin/uploads/direct`) e correttamente protetto
+- Il backend carica su Supabase Storage usando credenziali server-side
 
 ### Hash Password Sicuro
 - Algoritmo: bcrypt

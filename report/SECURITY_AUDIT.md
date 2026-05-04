@@ -2,7 +2,7 @@
 
 **Data**: 13 Febbraio 2026  
 **Ultimo aggiornamento**: 13 Febbraio 2026  
-**Stack**: Express 4 + React SPA + Supabase (PostgreSQL) + Replit Object Storage  
+**Stack**: Express 5 + React SPA + Supabase (PostgreSQL + Storage)  
 **Tipo**: Analisi statica + verifica runtime (no penetration test)
 
 ---
@@ -14,9 +14,8 @@
 | API pubblica | `/api/pages`, `/api/events`, `/api/galleries`, `/api/media`, `/api/menu-items`, `/api/wines`, `/api/cocktails`, `/api/footer-settings` | Read-only, nessuna autenticazione richiesta |
 | API admin | `/api/admin/*` (pages, events, galleries, media, uploads, settings, sync) | Protetta da `requireAuth` (cookie session) |
 | Auth endpoint | `/api/admin/login`, `/api/admin/logout`, `/api/admin/check-session` | Aperto (login con rate limit), protetto (change-password) |
-| Upload file | `/api/uploads/request-url` (Object Storage presigned URL) | Protetto con `requireAuth` (route non montata in produzione) |
 | Upload file | `/api/admin/uploads/direct` (Multer → Supabase) | Protetto da `requireAuth` |
-| File serving | `/objects/*` (Object Storage) | Aperto, serve file dallo storage |
+| File serving | Supabase Storage public URLs | Aperto, serve file pubblici dallo storage |
 | SPA | Tutte le route non-API | Servite come index.html con SEO injection |
 | Client Supabase | Inizializzato con `anon key` nel browser | Accesso diretto a Supabase da browser |
 
@@ -37,9 +36,7 @@
 | `SUPABASE_ANON_KEY` | `supabase-storage.ts:5` | Basso (chiave pubblica by design) |
 | `DATABASE_URL` | `storage.ts:524`, `db.ts:7,13` | Alto se esposto |
 | `SESSION_SECRET` | Secret configurato | Medio (usato per cookie) |
-| `OPENAI_API_KEY` / `AI_INTEGRATIONS_*` | `openai.ts:6,7,10,11` | Alto se esposto (costi) |
-| `PUBLIC_OBJECT_SEARCH_PATHS` | `objectStorage.ts:47` | Basso |
-| `PRIVATE_OBJECT_DIR` | `objectStorage.ts:67` | Basso |
+| `OPENAI_API_KEY` | `server/routes/settings.ts` | Alto se esposto (costi) |
 
 **Variabili client-side** (file `client/`):
 
@@ -97,9 +94,9 @@ Autenticazione: cookie `httpOnly`, `secure` in produzione, `sameSite: lax`, sess
 #### Input Validation
 **Stato**: **BUONO con eccezioni** — la maggior parte delle rotte usa `zod` con `.safeParse()`.
 
-### 2.4 Object Storage / Upload
+### 2.4 Supabase Storage / Upload
 
-L'endpoint `/api/uploads/request-url` ha `requireAuth` ma la route non è montata (la funzione `registerObjectStorageRoutes()` non è mai chiamata). L'endpoint effettivo è `/api/admin/uploads/direct`, correttamente protetto.
+L'endpoint effettivo è `/api/admin/uploads/direct`, correttamente protetto da `requireAuth`. Il backend ottimizza le immagini con `sharp` e carica i file nel bucket Supabase `media-public`.
 
 ### 2.5 Dependency Audit
 
@@ -114,7 +111,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 | # | Rischio | Impatto | Probabilità | Priorità | File/Riga |
 |---|---|---|---|---|---|
 | 1 | **Brute force login** — protetto con rate limiting (5 tentativi / 15 min) | CRITICO | BASSA (mitigato) | **P0 FIXED** | `server/routes/auth.ts:16` |
-| 2 | **Upload endpoint** — requireAuth aggiunto, route non montata | ALTO | NULLA | **P0 FIXED** | `object_storage/routes.ts:42` |
+| 2 | **Upload endpoint** — protetto da `requireAuth` | ALTO | BASSA (mitigato) | **P0 FIXED** | `server/routes/media.ts` |
 | 3 | **Security headers** — helmet configurato con set conservativo | ALTO | BASSA (mitigato) | **P0 FIXED** | `server/index.ts:18-34` |
 | 4 | **RLS Supabase non verificata** — il client browser ha anon key | CRITICO | MEDIA | **P0** | `client/src/lib/supabase.ts:3-4` |
 | 5 | **Nessun rate limiting globale** su API — DoS possibile | MEDIO | MEDIA | **P1** | `server/index.ts` |
@@ -131,7 +128,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 ### P0 — Critico (Implementato)
 
 - [x] **Rate limiting al login**: `express-rate-limit`, 5 tentativi / 15 min
-- [x] **Upload endpoint protetto**: `requireAuth` su `/api/uploads/request-url`
+- [x] **Upload endpoint protetto**: `requireAuth` su `/api/admin/uploads/direct`
 - [x] **Security headers**: `helmet` + Permissions-Policy custom
 - [ ] **Verificare RLS Supabase**: dashboard Supabase → Policies su tutte le tabelle
 
@@ -156,7 +153,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 ### A. Verificare Security Headers (senza conoscere il codice)
 
 **Da browser (Chrome/Edge/Firefox)**:
-1. Apri il sito (es. `www.cameraconvista.it` o il link di anteprima Replit)
+1. Apri il sito (es. `www.cameraconvista.it`)
 2. Premi **F12** per aprire gli Strumenti Sviluppatore
 3. Vai alla scheda **"Network"** (Rete)
 4. Ricarica la pagina (F5)

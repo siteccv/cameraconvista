@@ -222,12 +222,12 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 ## Git & Backup
 
 ### Commit
-- I commit vengono creati automaticamente da Replit Agent
+- I commit devono essere creati intenzionalmente dopo verifica dello stato del progetto
 - Non modificare la storia git manualmente
 
 ### Backup
 - Comando: "esegui nuovo backup"
-- Formato: `BACKUP/backup_replit_DD_Mon_HH-MM.tar.gz`
+- Formato: `BACKUP/backup_siteccv_DD_Mon_HH-MM.tar.gz`
 - Esclude: node_modules, .git, BACKUP
 
 ### GitHub Sync

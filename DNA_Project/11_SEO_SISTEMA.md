@@ -369,8 +369,8 @@ File: `client/src/pages/admin/seo.tsx`
 
 ### Multi-dominio
 - Il `baseUrl` viene costruito dinamicamente da `req.headers` (`x-forwarded-proto`, `x-forwarded-host`), quindi funziona correttamente con:
-  - Dominio Replit (`.replit.app`)
-  - Dominio custom
+  - Dominio produzione
+  - Dominio di staging
   - Localhost in sviluppo
 
 ## Interazione con Altri Sistemi
@@ -479,7 +479,7 @@ Il middleware SEO originale intercettava `res.send()` verificando `typeof chunk 
 - `og:image` presente solo su eventi (poster) — estendibile in futuro con campo dedicato per pagina
 
 ### Conclusione task
-- **Task SEO su Replit: CONCLUSO**
+- **Task SEO: CONCLUSO**
 - Nessun ulteriore intervento richiesto lato codice
 - Nessuna modifica React/UX/UI effettuata
 - Nessuna dipendenza aggiunta

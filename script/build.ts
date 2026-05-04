@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile, writeFile } from "fs/promises";
+import { rm, readFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -46,16 +46,9 @@ async function buildAll() {
   ];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
-  // Prepare environment variables for injection
   const defineVars: Record<string, string> = {
     "process.env.NODE_ENV": '"production"',
   };
-  
-  // Inject RESEND_KEY if available (for production deployment)
-  if (process.env.RESEND_KEY) {
-    defineVars["process.env.RESEND_KEY"] = JSON.stringify(process.env.RESEND_KEY);
-    console.log("✓ RESEND_KEY injected into build");
-  }
 
   await esbuild({
     entryPoints: ["server/index.ts"],

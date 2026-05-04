@@ -19,7 +19,7 @@ Per garantire che le email non finiscano in spam e vengano consegnate istantanea
 
 | Servizio | Piano Gratuito | Vantaggi |
 |----------|----------------|----------|
-| **Resend** | 3,000 email/mese (100/giorno) | **Scelta consigliata.** Integrazione nativa in Replit, setup rapido, ottima deliverability. |
+| **Resend** | 3,000 email/mese (100/giorno) | **Scelta consigliata.** API semplice, setup rapido, ottima deliverability. |
 | **SendGrid** | 100 email/giorno | Standard di settore, molto affidabile, ottimi report. |
 | **Brevo (Sendinblue)** | 300 email/giorno | Molto semplice da configurare via SMTP o API. |
 

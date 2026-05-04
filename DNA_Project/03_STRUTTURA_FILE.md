@@ -16,7 +16,6 @@
 ├── vite.config.ts             # Configurazione Vite (NON MODIFICARE)
 ├── tsconfig.json              # TypeScript config
 ├── package.json               # Dipendenze (NON MODIFICARE direttamente)
-├── replit.md                  # Documentazione progetto per agente
 └── components.json            # Configurazione shadcn/ui
 ```
 
@@ -31,8 +30,6 @@ client/
 │   ├── apple-touch-icon.png   # iOS icon
 │   ├── manifest.json          # PWA manifest
 │   └── robots.txt             # Direttive per crawler (blocca /admina, /api/admin/)
-├── replit_integrations/
-│   └── audio/                 # Audio utils (voice recorder, playback)
 └── src/
     ├── main.tsx               # Entry point React
     ├── App.tsx                # Router + Context providers
@@ -70,7 +67,6 @@ client/
     │   ├── ui/                # shadcn/ui components (40+ componenti)
     │   ├── CookieConsent.tsx   # Banner cookie consent
     │   ├── GallerySlideViewer.tsx # Viewer slideshow galleria
-    │   ├── ObjectUploader.tsx  # Upload file a Object Storage
     │   └── ScrollToTop.tsx    # Scroll reset su navigazione
     ├── contexts/
     │   ├── AdminContext.tsx    # Auth state, preview mode, device view
@@ -80,7 +76,6 @@ client/
     │   ├── use-page-blocks.ts # Hook per blocchi pagina (draft/publish aware)
     │   ├── use-toast.ts       # Hook per notifiche toast
     │   ├── useTranslation.ts  # Hook traduzione
-    │   └── use-upload.ts      # Hook per upload file
     ├── lib/
     │   ├── formatters.ts      # Formattazione date, prezzi
     │   ├── page-defaults.ts   # Valori default blocchi per pagina
@@ -133,13 +128,7 @@ server/
 │   ├── settings.ts        # Site settings + footer
 │   ├── sync.ts            # Google Sheets sync endpoint
 │   └── helpers.ts         # Auth helpers, ID parsing
-├── routes.ts              # Re-export wrapper (delegates to routes/index.ts)
-└── replit_integrations/   # Replit integration modules
-    ├── audio/             # Audio processing
-    ├── chat/              # Chat completions
-    ├── image/             # Image generation
-    ├── batch/             # Batch operations
-    └── object_storage/    # Object storage management
+└── routes.ts              # Re-export wrapper (delegates to routes/index.ts)
 ```
 
 ## Shared (`shared/`)

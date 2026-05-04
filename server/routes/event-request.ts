@@ -202,7 +202,7 @@ router.post("/", async (req: Request, res: Response) => {
     return;
   }
 
-  let apiKey = process.env.RESEND_API_KEY || process.env.RESEND_KEY;
+  let apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     const setting = await storage.getSiteSetting("resend_api_key");
     apiKey = setting?.valueIt ?? undefined;

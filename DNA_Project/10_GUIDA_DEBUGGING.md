@@ -68,8 +68,9 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
    SELECT url FROM media WHERE id = X;
    ```
 2. Testare l'URL direttamente nel browser
-3. Verificare che Object Storage sia configurato:
-   - `DEFAULT_OBJECT_STORAGE_BUCKET_ID` deve essere impostato
+3. Verificare che Supabase Storage sia configurato:
+   - `SUPABASE_URL` e `SUPABASE_SERVICE_ROLE_KEY` devono essere impostati
+   - Il bucket `media-public` deve esistere
 4. Controllare CORS se l'immagine è su dominio diverso
 5. Per immagini con zoom/offset: verificare i valori nel DB non siano corrotti
 
@@ -92,9 +93,9 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 
 **Debug steps**:
 1. Verificare dimensione file (max 20MB)
-2. Controllare che Object Storage sia configurato (secrets presenti)
-3. Verificare log server per errori presigned URL
-4. Controllare permessi bucket GCS
+2. Controllare che Supabase Storage sia configurato
+3. Verificare log server per errori di upload Supabase
+4. Controllare permessi bucket `media-public`
 5. Verificare che `multer` sia configurato con `memoryStorage`
 
 ### 7. Blocchi Pagina Duplicati
@@ -145,16 +146,15 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 3. Se switch da PostgreSQL diretto a Supabase: verificare che le tabelle Supabase abbiano tutte le colonne
 4. Controllare log server per conferma: "Using Supabase as database backend" vs "Using PostgreSQL (Drizzle) as database backend"
 
-### 11. Problemi di Portabilità (Windsurf / Locale)
+### 11. Problemi di Portabilità Locale
 
-**Sintomo**: App non parte o API rispondono 304 fuori da Replit.
+**Sintomo**: App non parte o API rispondono 304 in ambiente locale.
 
 **Verifiche**:
 1. **reusePort**: Rimosso dal progetto. Se presente per errore → `ENOTSUP` su macOS/Windows
 2. **ETag 304**: In dev, ETag è disabilitato per `/api/*`. Verificare che `NODE_ENV=development`
-3. **Plugin Replit**: Gated da `REPL_ID`. Fuori Replit vengono saltati automaticamente
-4. **Variabili env**: Servono almeno `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
-5. **Porta**: Default 5000, configurabile con `PORT=XXXX`
+3. **Variabili env**: Servono almeno `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
+4. **Porta**: Default 5000, configurabile con `PORT=XXXX`
 
 ### 10. Errore "Vite manifest not found"
 

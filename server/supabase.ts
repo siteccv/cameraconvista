@@ -4,30 +4,25 @@ const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl) {
-  throw new Error('Missing SUPABASE_URL environment variable');
-}
+export const isSupabaseAdminConfigured = !!(supabaseUrl && supabaseServiceRoleKey);
+export const isSupabasePublicConfigured = !!(supabaseUrl && supabaseAnonKey);
 
-if (!supabaseServiceRoleKey) {
-  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
-}
+export const supabaseAdmin = isSupabaseAdminConfigured
+  ? createClient(supabaseUrl!, supabaseServiceRoleKey!, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null as unknown as ReturnType<typeof createClient>;
 
-if (!supabaseAnonKey) {
-  throw new Error('Missing SUPABASE_ANON_KEY environment variable');
-}
-
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceRoleKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
-
-export const supabasePublic = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-});
+export const supabasePublic = isSupabasePublicConfigured
+  ? createClient(supabaseUrl!, supabaseAnonKey!, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    })
+  : null as unknown as ReturnType<typeof createClient>;
 
 export { supabaseUrl, supabaseAnonKey };

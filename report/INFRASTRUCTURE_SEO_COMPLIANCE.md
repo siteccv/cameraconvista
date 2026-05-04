@@ -15,8 +15,7 @@
 | Production Domain | `https://www.cameraconvista.it` | Public-facing domain |
 | Supabase | — | Production database |
 | GitHub | `https://github.com/siteccv/cameraconvista.git` | Source repository |
-| Replit | Development environment | Development + staging |
-| Object Storage (GCS) | — | Media file uploads |
+| Supabase Storage | — | Media file uploads |
 
 ### 1.2 Render Considerations
 

@@ -13,7 +13,7 @@
 2. Pannello amministrativo completo con editing WYSIWYG diretto sulle pagine (click-to-edit)
 3. Supporto bilingue nativo con traduzione automatica via OpenAI
 4. Sistema draft/publish per separare le modifiche admin dal sito pubblico
-5. Gestione media centralizzata con upload su Object Storage (GCS)
+5. Gestione media centralizzata con upload su Supabase Storage
 6. Gestione eventi con poster, prenotazioni e visibilità automatica
 7. Galleria album con viewer Instagram Story (9:16)
 
@@ -27,8 +27,8 @@
 | UI | shadcn/ui + Radix UI + Tailwind CSS |
 | Backend | Node.js + Express 5 |
 | ORM | Drizzle ORM |
-| Database | PostgreSQL (Replit Neon-backed o Supabase) |
-| Storage | Google Cloud Storage via Object Storage |
+| Database | PostgreSQL o Supabase |
+| Storage | Supabase Storage |
 | AI | OpenAI (traduzione, generazione immagini) |
 | Build | Vite (dev) + esbuild (prod) |
 
@@ -98,9 +98,8 @@ Il progetto implementa un livello di sicurezza avanzato (production-ready per pr
 
 ## Portabilità
 
-Il progetto è **100% portabile** fuori da Replit (Windsurf, macchina locale):
+Il progetto è portabile tra ambienti locali e hosting Node standard:
 - `reusePort` rimosso dal server listen (evita crash su macOS/Windows)
 - ETag disabilitato in dev per le API (evita 304 problematici)
-- Plugin Vite `@replit/*` gated da `REPL_ID` (ignorati fuori Replit)
 - Storage selection deterministica senza fallback ambigui
 - Avvio locale: `NODE_ENV=development npm run dev` con `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
