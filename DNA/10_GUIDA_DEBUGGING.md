@@ -282,5 +282,5 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 11. [ ] SEO: Ogni pagina ha title unico (verificare con curl)
 12. [ ] SEO: `/sitemap.xml` contiene tutte le pagine visibili
 13. [ ] SEO: `/robots.txt` blocca `/admina` e `/api/admin/`
-14. [ ] SEO: JSON-LD Restaurant presente su Home
+14. [ ] SEO: JSON-LD BarOrPub + Restaurant presente su Home
 15. [ ] SEO: hreflang IT/EN/x-default su tutte le pagine

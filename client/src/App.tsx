@@ -47,48 +47,48 @@ function ProtectedAdminRoute({ component: Component }: { component: React.Compon
 
 const PAGE_TITLES: Record<string, { it: string; en: string }> = {
   home: {
-    it: "Camera con Vista - Ristorante & Cocktail Bar Bologna",
-    en: "Camera con Vista - Restaurant & Cocktail Bar Bologna",
+    it: "Camera con Vista - Tapas Bar e Cocktail Bar Bologna",
+    en: "Camera con Vista - Tapas & Cocktail Bar Bologna",
   },
   menu: {
-    it: "Menu - Camera con Vista | Ristorante Bologna",
-    en: "Menu - Camera con Vista | Restaurant Bologna",
+    it: "Tapas e Aperitivo - Camera con Vista Bologna",
+    en: "Tapas & Aperitivo - Camera con Vista Bologna",
   },
   "carta-vini": {
-    it: "Lista Vini - Camera con Vista | Wine List Bologna",
-    en: "Wine List - Camera con Vista | Bologna",
+    it: "Carta Vini per Tapas e Aperitivo - Camera con Vista",
+    en: "Wine List for Tapas and Aperitivo - Camera con Vista",
   },
   "cocktail-bar": {
-    it: "Cocktail Bar - Camera con Vista | Bologna",
-    en: "Cocktail Bar - Camera con Vista | Bologna",
+    it: "Cocktail Bar a Bologna - Camera con Vista",
+    en: "Cocktail Bar in Bologna - Camera con Vista",
   },
   eventi: {
     it: "Eventi - Camera con Vista | Events Bologna",
     en: "Events - Camera con Vista | Bologna",
   },
   "eventi-privati": {
-    it: "Eventi Privati - Camera con Vista | Bologna",
-    en: "Private Events - Camera con Vista | Bologna",
+    it: "Eventi Privati e Aperitivi a Bologna - Camera con Vista",
+    en: "Private Events and Aperitivo in Bologna - Camera con Vista",
   },
   "eventi-privati-aperitivo": {
-    it: "Aperitivo Privato - Camera con Vista | Bologna",
-    en: "Private Aperitivo - Camera con Vista | Bologna",
+    it: "Aperitivo Privato a Bologna - Camera con Vista",
+    en: "Private Aperitivo in Bologna - Camera con Vista",
   },
   "eventi-privati-cena": {
     it: "Cena Privata - Camera con Vista | Bologna",
     en: "Private Dinner - Camera con Vista | Bologna",
   },
   "eventi-privati-esclusivo": {
-    it: "Evento Privato Esclusivo - Camera con Vista | Bologna",
-    en: "Exclusive Private Event - Camera con Vista | Bologna",
+    it: "Evento Privato Esclusivo a Bologna - Camera con Vista",
+    en: "Exclusive Private Event in Bologna - Camera con Vista",
   },
   galleria: {
     it: "Galleria - Camera con Vista | Gallery Bologna",
     en: "Gallery - Camera con Vista | Bologna",
   },
   "dove-siamo": {
-    it: "Dove Siamo - Camera con Vista | Bologna",
-    en: "Where We Are - Camera con Vista | Bologna",
+    it: "Tapas e Cocktail Bar in Centro a Bologna - Dove Siamo",
+    en: "Tapas and Cocktail Bar in Central Bologna - Where We Are",
   },
   privacy: { it: "Privacy Policy - Camera con Vista", en: "Privacy Policy - Camera con Vista" },
   cookie: { it: "Cookie Policy - Camera con Vista", en: "Cookie Policy - Camera con Vista" },

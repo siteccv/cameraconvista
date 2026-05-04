@@ -1,7 +1,7 @@
 {
   "name": "Camera con Vista",
   "short_name": "CCV",
-  "description": "Ristorante & Cocktail Bar Bologna",
+  "description": "Tapas Bar e Cocktail Bar Bologna",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a1a1a",

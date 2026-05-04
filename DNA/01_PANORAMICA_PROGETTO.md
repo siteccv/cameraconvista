@@ -12,8 +12,8 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 
 ## Identità
 
-**Nome**: Camera con Vista - Bistrot & Cocktail Bar  
-**Tipo**: Sito web bilingue (IT/EN) per ristorante e cocktail bar a Bologna  
+**Nome**: Camera con Vista - Tapas Bar & Cocktail Bar
+**Tipo**: Sito web bilingue (IT/EN) per tapas bar elegante, aperitivo, cocktail bar ed eventi privati a Bologna
 **URL Admin**: `/admina` (path segreto)  
 **Password Admin predefinita**: `1909` (modificabile da Impostazioni)
 
@@ -73,8 +73,9 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 - **robots.txt**: Blocca admin e API admin
 - **Sitemap XML dinamica**: Pagine visibili + eventi attivi con hreflang IT/EN
 - **Meta injection server-side**: Title, description, canonical, OG, Twitter Card, JSON-LD
-- **JSON-LD**: Restaurant, Menu, Event, BreadcrumbList
+- **JSON-LD**: BarOrPub/Restaurant, Menu, Event, BreadcrumbList
 - **Admin SEO panel**: Personalizzazione meta per pagina
+- **Posizionamento SEO primario**: tapas bar elegante, aperitivo, cocktail bar, eventi privati. Il concetto di ristorante resta secondario e non deve essere usato come identita primaria del progetto.
 
 ## Flusso Draft/Publish
 

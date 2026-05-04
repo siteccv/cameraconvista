@@ -258,7 +258,7 @@ Il sync Google Sheets aggiorna solo `menu_items`, `wines`, `cocktails` — tabel
 
 ### Relazione con Footer
 
-Il JSON-LD `Restaurant` (iniettato nella Home) legge telefono, email e social links dal `footer_settings` per mantenere i dati strutturati sincronizzati con il footer pubblico.
+Il JSON-LD locale della Home usa `BarOrPub` + `Restaurant` per posizionare Camera con Vista come tapas bar elegante, aperitivo e cocktail bar, mantenendo il concetto di ristorazione solo come segnale secondario. Telefono, email e social links vengono letti dal `footer_settings` per mantenere i dati strutturati sincronizzati con il footer pubblico.
 
 ### Relazione con Bilinguismo
 

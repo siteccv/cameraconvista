@@ -19,6 +19,8 @@ const PAGE_LABELS: Record<string, { it: string; en: string }> = {
   "cocktail-bar": { it: "Cocktail Bar", en: "Cocktail Bar" },
   eventi: { it: "Eventi", en: "Events" },
   "eventi-privati": { it: "Eventi Privati", en: "Private Events" },
+  "eventi-privati-aperitivo": { it: "Aperitivo Privato", en: "Private Aperitivo" },
+  "eventi-privati-esclusivo": { it: "Evento Privato Esclusivo", en: "Exclusive Private Event" },
   galleria: { it: "Galleria", en: "Gallery" },
   "dove-siamo": { it: "Dove Siamo", en: "Where We Are" },
 };

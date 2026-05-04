@@ -3,12 +3,12 @@ import { storage } from "./storage";
 import type { Page, Event } from "@shared/schema";
 
 const SITE_NAME = "Camera con Vista";
-const DEFAULT_TITLE_IT = "Camera con Vista - Ristorante & Cocktail Bar Bologna";
-const DEFAULT_TITLE_EN = "Camera con Vista - Restaurant & Cocktail Bar Bologna";
+const DEFAULT_TITLE_IT = "Camera con Vista - Tapas Bar e Cocktail Bar Bologna";
+const DEFAULT_TITLE_EN = "Camera con Vista - Tapas & Cocktail Bar Bologna";
 const DEFAULT_DESC_IT =
-  "Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.";
+  "Tapas bar elegante nel centro storico di Bologna: aperitivi, cocktail d'autore, vini selezionati ed eventi privati in un'atmosfera curata.";
 const DEFAULT_DESC_EN =
-  "Restaurant and cocktail bar in Bologna's historic center. Contemporary Italian cuisine, romantic dinners, private events and refined DJ nights.";
+  "Elegant tapas and cocktail bar in Bologna's historic center for aperitivo, signature drinks, selected wines and private events.";
 
 const SLUG_TO_PATH: Record<string, string> = {
   home: "/",
@@ -17,6 +17,8 @@ const SLUG_TO_PATH: Record<string, string> = {
   "cocktail-bar": "/cocktail-bar",
   eventi: "/eventi",
   "eventi-privati": "/eventi-privati",
+  "eventi-privati-aperitivo": "/eventi-privati/aperitivo",
+  "eventi-privati-esclusivo": "/eventi-privati/esclusivo",
   galleria: "/galleria",
   "dove-siamo": "/dove-siamo",
   privacy: "/privacy",
@@ -33,46 +35,54 @@ for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
 }
 
 const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
-  home: "Camera con Vista - Ristorante & Cocktail Bar Bologna",
-  menu: "Menu - Camera con Vista | Ristorante Bologna",
-  "carta-vini": "Lista Vini - Camera con Vista | Wine List Bologna",
-  "cocktail-bar": "Cocktail Bar - Camera con Vista | Cocktail Bologna",
+  home: "Camera con Vista - Tapas Bar e Cocktail Bar Bologna",
+  menu: "Tapas e Aperitivo - Camera con Vista Bologna",
+  "carta-vini": "Carta Vini per Tapas e Aperitivo - Camera con Vista",
+  "cocktail-bar": "Cocktail Bar a Bologna - Camera con Vista",
   eventi: "Eventi - Camera con Vista | Events Bologna",
-  "eventi-privati": "Eventi Privati - Camera con Vista | Private Events Bologna",
+  "eventi-privati": "Eventi Privati e Aperitivi a Bologna - Camera con Vista",
+  "eventi-privati-aperitivo": "Aperitivo Privato a Bologna - Camera con Vista",
+  "eventi-privati-esclusivo": "Evento Privato Esclusivo a Bologna - Camera con Vista",
   galleria: "Galleria - Camera con Vista | Photo Gallery Bologna",
-  "dove-siamo": "Dove Siamo - Camera con Vista | Bologna",
+  "dove-siamo": "Tapas e Cocktail Bar in Centro a Bologna - Dove Siamo",
   privacy: "Privacy Policy - Camera con Vista",
   cookie: "Cookie Policy - Camera con Vista",
 };
 
 const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
-  home: "Camera con Vista - Restaurant & Cocktail Bar Bologna",
-  menu: "Menu - Camera con Vista | Restaurant Bologna",
-  "carta-vini": "Wine List - Camera con Vista | Wine Selection Bologna",
+  home: "Camera con Vista - Tapas & Cocktail Bar Bologna",
+  menu: "Tapas & Aperitivo - Camera con Vista Bologna",
+  "carta-vini": "Wine List for Tapas and Aperitivo - Camera con Vista",
   "cocktail-bar": "Cocktail Bar - Camera con Vista | Cocktails Bologna",
   eventi: "Events - Camera con Vista | Events Bologna",
-  "eventi-privati": "Private Events - Camera con Vista | Private Events Bologna",
+  "eventi-privati": "Private Events and Aperitivo in Bologna - Camera con Vista",
+  "eventi-privati-aperitivo": "Private Aperitivo in Bologna - Camera con Vista",
+  "eventi-privati-esclusivo": "Exclusive Private Event in Bologna - Camera con Vista",
   galleria: "Gallery - Camera con Vista | Photo Gallery Bologna",
-  "dove-siamo": "Where We Are - Camera con Vista | Bologna",
+  "dove-siamo": "Tapas and Cocktail Bar in Central Bologna - Where We Are",
   privacy: "Privacy Policy - Camera con Vista",
   cookie: "Cookie Policy - Camera con Vista",
 };
 
 const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
   home: DEFAULT_DESC_IT,
-  menu: "Scopri il menu del ristorante Camera con Vista a Bologna. Piatti ricercati preparati con ingredienti di prima qualità.",
+  menu: "Scopri tapas, finger food e proposte da condividere per aperitivo e cena informale, con cocktail d'autore e vini selezionati.",
   "carta-vini":
-    "La lista vini di Camera con Vista, una selezione curata di etichette italiane e internazionali per accompagnare ogni piatto.",
+    "Vini italiani e internazionali selezionati per accompagnare tapas, aperitivi e cocktail experience nel centro storico di Bologna.",
   "cocktail-bar":
-    "Il cocktail bar di Camera con Vista a Bologna. Drink d'autore, classici rivisitati e creazioni originali.",
+    "Cocktail bar elegante a Bologna con drink d'autore, classici rivisitati, spirits selezionati e aperitivi con tapas nel centro storico.",
   eventi:
     "Scopri gli eventi in programma da Camera con Vista a Bologna. Serate speciali, degustazioni e appuntamenti esclusivi.",
   "eventi-privati":
-    "Organizza il tuo evento privato da Camera con Vista a Bologna. Spazi esclusivi per cene private, aperitivi e celebrazioni.",
+    "Organizza aperitivi privati, feste aziendali ed eventi esclusivi a Bologna con cocktail bar dedicato, tapas e formule su misura.",
+  "eventi-privati-aperitivo":
+    "Aperitivo privato a Bologna con cocktail, tapas e finger food selezionati in uno spazio elegante e riservato.",
+  "eventi-privati-esclusivo":
+    "Evento privato esclusivo a Bologna con cocktail bar, tapas e formule personalizzate per gruppi e occasioni speciali.",
   galleria:
-    "La galleria fotografica di Camera con Vista. Scopri l'atmosfera del nostro ristorante e cocktail bar a Bologna.",
+    "La galleria fotografica di Camera con Vista: tapas bar elegante, cocktail d'autore, aperitivi ed eventi privati a Bologna.",
   "dove-siamo":
-    "Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.",
+    "Camera con Vista si trova nel centro storico di Bologna: tapas bar elegante per aperitivi, cocktail ed eventi privati.",
   privacy:
     "Informativa sulla privacy di Camera con Vista. Come trattiamo i tuoi dati personali, basi giuridiche e diritti dell'interessato.",
   cookie:
@@ -81,18 +91,23 @@ const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
 
 const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
   home: DEFAULT_DESC_EN,
-  menu: "Discover the menu at Camera con Vista in Bologna. Refined dishes prepared with top-quality ingredients.",
+  menu: "Discover tapas, sharing plates and aperitivo bites paired with signature cocktails and selected wines in Bologna.",
   "carta-vini":
-    "The wine list at Camera con Vista, a curated selection of Italian and international labels to complement every dish.",
+    "Italian and international wines selected to pair with tapas, aperitivo and cocktail experiences in Bologna's historic center.",
   "cocktail-bar":
-    "The cocktail bar at Camera con Vista in Bologna. Signature drinks, revisited classics and original creations.",
+    "Elegant cocktail bar in Bologna with signature drinks, revisited classics, selected spirits and aperitivo with tapas.",
   eventi:
     "Discover upcoming events at Camera con Vista in Bologna. Special evenings, tastings and exclusive appointments.",
   "eventi-privati":
-    "Organize your private event at Camera con Vista in Bologna. Exclusive spaces for private dinners, aperitifs and celebrations.",
+    "Plan private aperitifs, corporate parties and exclusive events in Bologna with dedicated cocktail bar, tapas and tailored formulas.",
+  "eventi-privati-aperitivo":
+    "Private aperitivo in Bologna with cocktails, tapas and selected finger food in an elegant reserved space.",
+  "eventi-privati-esclusivo":
+    "Exclusive private event in Bologna with cocktail bar, tapas and tailored formulas for groups and special occasions.",
   galleria:
-    "The photo gallery of Camera con Vista. Discover the atmosphere of our restaurant and cocktail bar in Bologna.",
-  "dove-siamo": "Find Camera con Vista in Bologna. Address, opening hours, phone and directions.",
+    "The photo gallery of Camera con Vista: elegant tapas bar, signature cocktails, aperitivo and private events in Bologna.",
+  "dove-siamo":
+    "Find Camera con Vista in Bologna's historic center: an elegant tapas bar for aperitivo, cocktails and private events.",
   privacy:
     "Privacy Policy of Camera con Vista. How we process your personal data, legal bases and your rights.",
   cookie:
@@ -215,7 +230,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
           },
           image: event.posterUrl || undefined,
           organizer: {
-            "@type": "Restaurant",
+            "@type": "BarOrPub",
             name: "Camera con Vista",
             url: baseUrl,
           },
@@ -261,9 +276,9 @@ async function buildSeoData(req: Request): Promise<SeoData> {
 
     jsonLd.push({
       "@context": "https://schema.org",
-      "@type": "Restaurant",
+      "@type": ["BarOrPub", "Restaurant"],
       name: "Camera con Vista",
-      alternateName: "Camera con Vista Bistrot",
+      alternateName: "Camera con Vista Tapas Bar",
       description: DEFAULT_DESC_IT,
       url: lang === "en" ? hreflangEn : hreflangIt,
       telephone: footerData.phone || "+39 051 267889",
@@ -281,7 +296,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
         latitude: 44.4949,
         longitude: 11.3366,
       },
-      servesCuisine: ["Italian", "Cocktails"],
+      servesCuisine: ["Tapas", "Cocktails", "Italian", "Wine"],
       priceRange: "€€-€€€",
       image: baseUrl + "/favicon.png",
       sameAs: [footerData.instagramUrl, footerData.facebookUrl].filter(Boolean),

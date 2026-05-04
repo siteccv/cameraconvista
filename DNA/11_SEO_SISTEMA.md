@@ -10,6 +10,16 @@ SEO server-side e routing canonico non sono stati modificati dall hardening. Gli
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
+## Aggiornamento SEO - 5 Maggio 2026
+
+Il posizionamento SEO primario e stato riallineato all'identita attuale del locale: tapas bar elegante, aperitivo, cocktail bar ed eventi privati a Bologna. Il concetto di ristorante non e piu il segnale primario nei fallback SEO, nel manifest o nei dati strutturati.
+
+- Fallback title/description aggiornati in `server/seo.ts` e `client/src/App.tsx`
+- JSON-LD Home aggiornato a `BarOrPub` + `Restaurant`, con `servesCuisine` orientato a tapas, cocktail, cucina italiana e vini
+- Organizer degli eventi aggiornato a `BarOrPub`
+- Admin SEO esteso alle sottopagine eventi privati `aperitivo` ed `esclusivo`
+- La sottopagina `eventi-privati-cena` resta esclusa dall'ottimizzazione SEO attiva perche disabilitata dal routing pubblico
+
 ## Panoramica
 
 Il sistema SEO è stato progettato per massimizzare la visibilità sui motori di ricerca in un contesto SPA (Single Page Application) dove il rendering avviene lato client. La sfida principale è che i crawler (Googlebot, Bingbot) ricevono l'HTML iniziale dal server — senza i meta tag dinamici che normalmente una SPA genera solo dopo il rendering JavaScript. La soluzione adottata inietta tutti i meta tag necessari **a livello Express**, prima che l'HTML raggiunga il browser.
@@ -199,8 +209,8 @@ Per ogni pagina, il middleware inietta:
 #### Meta Tags Standard
 
 ```html
-<title>Menu - Camera con Vista | Ristorante Bologna</title>
-<meta name="description" content="Scopri il menu del ristorante..." />
+<title>Tapas e Aperitivo - Camera con Vista Bologna</title>
+<meta name="description" content="Scopri tapas, finger food e proposte da condividere..." />
 <link rel="canonical" href="https://dominio.com/menu" />
 ```
 
@@ -217,8 +227,8 @@ Per ogni pagina, il middleware inietta:
 #### Open Graph (Facebook, LinkedIn, WhatsApp)
 
 ```html
-<meta property="og:title" content="Menu - Camera con Vista | Ristorante Bologna" />
-<meta property="og:description" content="Scopri il menu del ristorante..." />
+<meta property="og:title" content="Tapas e Aperitivo - Camera con Vista Bologna" />
+<meta property="og:description" content="Scopri tapas, finger food e proposte da condividere..." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://dominio.com/menu" />
 <meta property="og:site_name" content="Camera con Vista" />
@@ -247,15 +257,15 @@ Per ogni pagina, il middleware inietta:
 
 Dati strutturati iniettati come `<script type="application/ld+json">` per Google Rich Results.
 
-#### Restaurant (solo Home)
+#### LocalBusiness Food & Bar (solo Home)
 
 ```json
 {
   "@context": "https://schema.org",
-  "@type": "Restaurant",
+  "@type": ["BarOrPub", "Restaurant"],
   "name": "Camera con Vista",
-  "alternateName": "Camera con Vista Bistrot",
-  "description": "...",
+  "alternateName": "Camera con Vista Tapas Bar",
+  "description": "Tapas bar elegante nel centro storico di Bologna...",
   "url": "https://dominio.com",
   "telephone": "+39 051 267889",
   "email": "info@cameraconvistabologna.it",
@@ -272,7 +282,7 @@ Dati strutturati iniettati come `<script type="application/ld+json">` per Google
     "latitude": 44.4949,
     "longitude": 11.3366
   },
-  "servesCuisine": ["Italian", "Cocktails"],
+  "servesCuisine": ["Tapas", "Cocktails", "Italian", "Wine"],
   "priceRange": "€€-€€€",
   "hasMenu": { "@type": "Menu", "url": "/menu" },
   "sameAs": ["instagram_url", "facebook_url"]
@@ -308,7 +318,7 @@ I dati di contatto (telefono, email, social) vengono letti dal `footer_settings`
     "address": { "..." }
   },
   "image": "url_poster",
-  "organizer": { "@type": "Restaurant", "name": "Camera con Vista" }
+  "organizer": { "@type": "BarOrPub", "name": "Camera con Vista" }
 }
 ```
 
@@ -331,8 +341,8 @@ File: `client/src/App.tsx` → `PublicPageRoute`
 
 ```typescript
 const PAGE_TITLES: Record<string, { it: string; en: string }> = {
-  home: { it: "Camera con Vista - Ristorante & Cocktail Bar Bologna", en: "..." },
-  menu: { it: "Menu - Camera con Vista | Ristorante Bologna", en: "..." },
+  home: { it: "Camera con Vista - Tapas Bar e Cocktail Bar Bologna", en: "..." },
+  menu: { it: "Tapas e Aperitivo - Camera con Vista Bologna", en: "..." },
   // ... tutte le pagine
 };
 
@@ -397,7 +407,7 @@ File: `client/src/pages/admin/seo.tsx`
 - **Nuove pagine**: Aggiungere entry in `SLUG_TO_PATH`, `DEFAULT_PAGE_TITLES_IT/EN`, `DEFAULT_PAGE_DESCS_IT/EN` in `server/seo.ts`, e in `PAGE_TITLES` in `App.tsx`.
 - **Nuovi tipi JSON-LD**: Aggiungere condizioni in `buildSeoData()` basate su slug/pathname.
 - **OG Image per pagina**: Attualmente solo gli eventi hanno `og:image` (poster). Possibile estendere con campo `ogImageUrl` nella tabella `pages`.
-- **Schema.org aggiuntivi**: Possibile aggiungere `FoodEstablishment`, `AggregateRating`, `OpeningHoursSpecification` al Restaurant schema.
+- **Schema.org aggiuntivi**: Possibile aggiungere `FoodEstablishment`, `AggregateRating`, `OpeningHoursSpecification` al LocalBusiness food/bar schema.
 
 ### Multi-dominio
 
@@ -418,7 +428,7 @@ Il sync Google Sheets **non** interagisce con il sistema SEO. Il sync aggiorna `
 
 ### Footer Settings
 
-Il schema JSON-LD `Restaurant` (iniettato solo nella Home) legge telefono, email e social links dal `footer_settings` nel database. Se il footer viene aggiornato, i dati strutturati si aggiornano automaticamente alla prossima richiesta.
+Il schema JSON-LD locale `BarOrPub` + `Restaurant` (iniettato solo nella Home) legge telefono, email e social links dal `footer_settings` nel database. Se il footer viene aggiornato, i dati strutturati si aggiornano automaticamente alla prossima richiesta.
 
 ### Bilinguismo
 
@@ -469,7 +479,7 @@ curl -s https://dominio.com/robots.txt
 - [x] Canonical URL corretto per ogni pagina
 - [x] Open Graph completo (title, description, type, url, site_name, locale)
 - [x] Twitter Card (summary_large_image)
-- [x] JSON-LD Restaurant con indirizzo, geo, menu
+- [x] JSON-LD BarOrPub + Restaurant con indirizzo, geo, menu
 - [x] JSON-LD BreadcrumbList per ogni pagina
 - [x] JSON-LD Event per pagine evento singolo
 - [x] JSON-LD Menu per pagina menu
