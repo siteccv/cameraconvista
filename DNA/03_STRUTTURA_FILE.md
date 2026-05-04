@@ -8,7 +8,7 @@
 ├── shared/                    # Tipi e schema condivisi
 ├── LOGOS/                     # Logo files (single source of truth)
 ├── BACKUP/                    # Backup archives
-├── DNA_Project/               # Documentazione progetto (questa cartella)
+├── DNA/               # Documentazione progetto (questa cartella)
 ├── attached_assets/           # Asset allegati (logo_ccv.png per @assets alias)
 ├── scripts/                   # Script di migrazione/utility
 ├── drizzle.config.ts          # Configurazione Drizzle Kit

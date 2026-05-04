@@ -1,0 +1,11 @@
+node_modules
+dist
+client/dist
+coverage
+playwright-report
+test-results
+BACKUP
+attached_assets
+package-lock.json
+.env
+.env.*

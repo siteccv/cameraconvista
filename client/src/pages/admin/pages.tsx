@@ -10,6 +10,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import type { Page } from "@shared/schema";
+import { PRIVATE_DINNER_ENABLED } from "@/lib/private-events-config";
 import Home from "@/pages/home";
 import Menu from "@/pages/menu";
 import CartaVini from "@/pages/carta-vini";
@@ -28,6 +29,7 @@ interface PageEntry {
   labelEn: string;
   component: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
   children?: PageEntry[];
+  hidden?: boolean;
 }
 
 const pageComponents: PageEntry[] = [
@@ -43,7 +45,7 @@ const pageComponents: PageEntry[] = [
     component: EventiPrivati,
     children: [
       { slug: "eventi-privati-aperitivo", labelIt: "Aperitivo", labelEn: "Aperitivo", component: AperitivoPage },
-      { slug: "eventi-privati-cena", labelIt: "Cena", labelEn: "Dinner", component: CenaPage },
+      { slug: "eventi-privati-cena", labelIt: "Cena", labelEn: "Dinner", component: CenaPage, hidden: !PRIVATE_DINNER_ENABLED },
       { slug: "eventi-privati-esclusivo", labelIt: "Esclusivo", labelEn: "Exclusive", component: EsclusivoPage },
     ],
   },
@@ -118,7 +120,8 @@ export default function AdminPages() {
   }, []);
 
   const activeParent = pageComponents.find(p => p.slug === activePage);
-  const hasChildren = activeParent?.children && activeParent.children.length > 0;
+  const visibleChildren = activeParent?.children?.filter(child => !child.hidden) ?? [];
+  const hasChildren = visibleChildren.length > 0;
 
   const effectiveSlug = activeSubPage || activePage;
   const activePageData = dbPages.find(p => p.slug === effectiveSlug);
@@ -197,7 +200,7 @@ export default function AdminPages() {
                   >
                     {t("Pagina principale", "Main Page")}
                   </button>
-                  {activeParent!.children!.map((child) => {
+                  {visibleChildren.map((child) => {
                     const dbPage = dbPages.find(p => p.slug === child.slug);
                     return (
                       <button

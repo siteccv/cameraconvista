@@ -9,6 +9,7 @@ import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, EVENTI_PRIVATI_DEFAULTS } from "@/lib/page-defaults";
+import { PRIVATE_DINNER_ENABLED } from "@/lib/private-events-config";
 
 interface EventiPrivatiProps {
   onNavigateSubPage?: (href: string) => void;
@@ -145,10 +146,10 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
     };
 
   const packageItems = [
-    { block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo" },
-    { block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena" },
-    { block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo" },
-  ];
+    { block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo", enabled: true },
+    { block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena", enabled: PRIVATE_DINNER_ENABLED },
+    { block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo", enabled: true },
+  ].filter((item) => item.enabled);
 
   if (blocksLoading) {
     return (
@@ -231,7 +232,7 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-5xl">
             {packageItems.map((pkg, index) => {
               const cardContent = (
                 <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>

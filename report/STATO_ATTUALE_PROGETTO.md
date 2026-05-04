@@ -1,7 +1,33 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 4 Maggio 2026 — Rimozione vincoli e residui della piattaforma precedente
+**Ultimo aggiornamento:** 4 Maggio 2026 — Tooling enterprise minimo e smoke test automatici
+
+---
+
+### Tooling Enterprise Minimo e Smoke Test Automatici (4 Maggio 2026)
+**Obiettivo: aggiungere controlli di qualita' senza modificare logiche, funzioni, layout o contenuti del sito live**
+- **Lint**: Aggiunto ESLint flat config con baseline non invasiva, compatibile con codice storico senza richiedere refactor
+- **Format**: Aggiunto Prettier con script `format` e `format:check`; non e' stato eseguito `format --write` sul codice esistente per evitare riscritture massive
+- **Unit/component test**: Aggiunto Vitest + Testing Library con test base su utility `cn` e componente `Button`
+- **E2E smoke**: Aggiunto Playwright con test read-only su home, menu, carta vini, cocktail bar, eventi, API pubbliche menu/vini/cocktail e pagina login admin
+- **CI**: Aggiunta GitHub Actions `Quality` con install, typecheck, lint, build, unit test, audit non bloccante ed E2E condizionato alla presenza dei secret Supabase
+- **Env**: Aggiunto `.env.example` senza segreti con variabili runtime, Supabase, GitHub, OpenAI, Resend, analytics e Playwright
+- **Audit sicurezza**: Eseguito `npm audit fix` non forzato; vulnerabilita' ridotte da 16 a 4. Residui richiedono update breaking (`drizzle-orm` e catena `resend/svix/uuid`) e non sono stati forzati
+- **Verifiche superate**: `npm run check:all` e `npm run test:e2e`
+- **Non modificato**: Nessuna modifica a codice applicativo runtime, layout pubblico, logiche menu, database o contenuti pubblicati
+
+---
+
+### Pulizia Conservativa Dipendenze e Artefatti Locali (4 Maggio 2026)
+**Obiettivo: eliminare solo elementi dimostrabilmente non usati senza alterare sito pubblico, menu o contenuti live**
+- **Dipendenze rimosse**: Eliminati pacchetti npm non importati dal codice attivo o dalla configurazione, inclusi residui auth/session/upload/cloud non collegati al runtime corrente
+- **Dipendenze dichiarate correttamente**: Aggiunti come dipendenze dirette `libphonenumber-js` e `@radix-ui/react-visually-hidden`, gia' importate dal codice ma prima risolte transitivamente
+- **Build server ripulita**: `script/build.ts` ora contiene solo allowlist backend coerente con import reali e servizi effettivi
+- **Artefatti locali rimossi**: Eliminati `client/dist` duplicato/stale e directory locali vuote `.agents` / `.config`
+- **File mantenuti intenzionalmente**: Tutti i file `.md`, backup, asset storici e libreria UI sono stati mantenuti perche' non eliminabili con certezza assoluta senza rischio operativo
+- **Verifiche**: `npm run check` e `npm run build` completati con successo
+- **Impatto runtime**: Nessuna modifica a rotte pubbliche, logiche menu/vini/cocktail, schema database o contenuti pubblicati
 
 ---
 
@@ -13,7 +39,7 @@
 - **Vite standardizzato**: `vite.config.ts` usa solo `@vitejs/plugin-react` e alias progetto
 - **Traduzioni admin**: Rimosso fallback proxy legacy; ora serve `OPENAI_API_KEY` diretto
 - **Email eventi privati**: Rimosso fallback build-time legacy; ora usa `RESEND_API_KEY` o fallback database `site_settings.resend_api_key`
-- **Documentazione aggiornata**: File `DNA_Project/` e `report/` ripuliti da workflow, plugin e vincoli della piattaforma precedente
+- **Documentazione aggiornata**: File `DNA/` e `report/` ripuliti da workflow, plugin e vincoli della piattaforma precedente
 - **Impatto runtime**: Nessuna modifica a pagine pubbliche, logiche menu/vini/cocktail, database o contenuti pubblicati
 
 ---

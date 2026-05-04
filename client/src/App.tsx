@@ -32,6 +32,7 @@ import AdminSeo from "@/pages/admin/seo";
 import AdminPreview from "@/pages/admin/preview";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { useImagePreloader } from "@/hooks/use-image-preloader";
+import { PRIVATE_DINNER_ENABLED } from "@/lib/private-events-config";
 import type { Page } from "@shared/schema";
 
 function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
@@ -126,7 +127,9 @@ function Router() {
       <Route path="/eventi/:id" component={EventDetail} />
       <Route path="/eventi-privati">{() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
       <Route path="/eventi-privati/aperitivo">{() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}</Route>
-      <Route path="/eventi-privati/cena">{() => <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />}</Route>
+      <Route path="/eventi-privati/cena">
+        {() => PRIVATE_DINNER_ENABLED ? <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" /> : <Redirect to="/eventi-privati" />}
+      </Route>
       <Route path="/eventi-privati/esclusivo">{() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}</Route>
       <Route path="/galleria">{() => <PublicPageRoute component={Galleria} slug="galleria" />}</Route>
       <Route path="/dove-siamo">{() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}</Route>

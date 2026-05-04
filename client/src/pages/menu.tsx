@@ -42,16 +42,6 @@ export default function Menu() {
     return acc;
   }, {} as Record<string, MenuItem[]>) ?? {};
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    if (!heroBlock) return;
-    updateBlock(heroBlock.id, {
-      titleIt: data.textIt,
-      titleEn: data.textEn,
-      titleFontSize: data.fontSizeDesktop,
-      titleFontSizeMobile: data.fontSizeMobile,
-    });
-  };
-
   const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
@@ -110,24 +100,7 @@ export default function Menu() {
               referenceWidth={1560}
               testIdPrefix="menu-hero"
               onSave={handleHeroImageSave}
-            >
-              {adminPreview && (
-                <div className="flex items-center justify-center h-full">
-                  <div className="text-center text-white">
-                    <EditableText
-                      textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
-                      textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
-                      fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                      fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
-                      as="h1"
-                      className="font-display drop-shadow-lg"
-                      applyFontSize
-                      onSave={handleHeroTitleSave}
-                    />
-                  </div>
-                </div>
-              )}
-            </ImageContainer>
+            />
           </div>
         </section>
 
