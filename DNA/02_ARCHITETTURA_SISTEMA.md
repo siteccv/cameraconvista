@@ -69,11 +69,11 @@ QueryClientProvider
 - `ProtectedAdminRoute`: Verifica `isAuthenticated` da AdminContext, redirect a `/admina/login` se non autenticato
 - `AdminLoginRoute`: Redirect a `/admina` se già autenticato
 
-**Path pubblici**: `/`, `/menu`, `/lista-vini`, `/cocktail-bar`, `/eventi`, `/eventi/:id`, `/eventi-privati`, `/galleria`, `/contatti`
+**Path pubblici**: `/`, `/menu`, `/lista-vini`, `/cocktail-bar`, `/eventi`, `/eventi/:id`, `/eventi-privati`, `/eventi-privati/aperitivo`, `/eventi-privati/esclusivo`, `/galleria`, `/dove-siamo`, `/privacy`, `/cookie`
 
-**Path admin**: `/admina/login`, `/admina`, `/admina/events`, `/admina/gallery`, `/admina/media`, `/admina/preview`, `/admina/seo`, `/admina/settings`
+**Path admin**: `/admina/login`, `/admina`, `/admina/events`, `/admina/gallery`, `/admina/media`, `/admina/preview`, `/admina/seo`, `/admina/settings`, `/admina/sync-google`
 
-**Redirect**: `/carta-vini` → `/lista-vini` (301)
+**Redirect**: `/carta-vini` → `/lista-vini`, `/contatti` → `/dove-siamo`, `/home` → `/`, `/en/*` → path canonico con `?lang=en`. La route `/eventi-privati/cena` reindirizza a `/eventi-privati` quando `PRIVATE_DINNER_ENABLED=false`.
 
 ### State Management
 
@@ -142,7 +142,7 @@ Routes organizzate in moduli separati sotto `server/routes/`:
 | `gallery.ts`  | GET galleries, GET gallery images       | CRUD galleries, CRUD gallery images                                                                                |
 | `media.ts`    | GET media                               | CRUD media, upload (WebP auto-conversion, max 1920px, quality 80%), rotate (WebP re-compression), media categories |
 | `settings.ts` | GET site-settings, footer               | PUT settings, footer                                                                                               |
-| `sync.ts`     | —                                       | Google Sheets sync (placeholder)                                                                                   |
+| `sync.ts`     | —                                       | Google Sheets sync menu/vini/cocktail, configurazione CSV, publish snapshot                                        |
 | `seo.ts`\*    | GET /sitemap.xml                        | — (middleware auto-injection)                                                                                      |
 
 \*`seo.ts` non è nella cartella routes/ ma è un modulo separato montato direttamente in `server/index.ts`.

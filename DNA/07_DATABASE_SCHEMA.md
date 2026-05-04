@@ -91,7 +91,15 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 **Keys usate**:
 
 - `admin_password_hash` → hash bcrypt della password admin
+- `admin_password` → chiave legacy sensibile, non leggibile pubblicamente
 - `footer_settings` → JSON con struttura footer completa
+- `google_sheets_config` → configurazione URL CSV Google Sheets
+- `published_menu_items` → snapshot JSON pubblico menu
+- `published_wines` → snapshot JSON pubblico vini
+- `published_cocktails` → snapshot JSON pubblico cocktail
+- `resend_api_key` → fallback legacy DB per Resend se `RESEND_API_KEY` env non e presente
+- `menu_category_map` → mappa categorie IT/EN generata dal sync menu
+- `site_links`, `view_admin_url`, `view_site_url` → link operativi admin/pubblico
 - Altre impostazioni generiche del sito
 
 ### `pages`
@@ -109,7 +117,9 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 | sort_order                                | integer       | Ordine               |
 | created_at / updated_at                   | timestamp     | Auto                 |
 
-**Pagine seed**: home, menu, carta-vini, cocktail-bar, eventi, eventi-privati, galleria, contatti
+**Pagine seed principali**: home, menu, carta-vini, cocktail-bar, eventi, eventi-privati, galleria, dove-siamo
+
+**Pagine eventi privati dedicate**: eventi-privati-aperitivo, eventi-privati-cena, eventi-privati-esclusivo. La pagina Cena resta nel DB/codice per ripristino, ma il routing pubblico la reindirizza quando `PRIVATE_DINNER_ENABLED=false`.
 
 ### `page_blocks`
 
@@ -261,29 +271,30 @@ Il database Supabase è protetto da **RLS attivo su tutte le tabelle critiche**.
 
 ### Tabelle con RLS attivo
 
-| Tabella                | SELECT anon                | INSERT/UPDATE/DELETE anon | Scrittura                       |
-| ---------------------- | -------------------------- | ------------------------- | ------------------------------- |
-| `menu_items`           | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `menu_items_published` | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `wines`                | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `cocktails`            | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `events`               | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `pages`                | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `page_blocks`          | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `media`                | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `media_categories`     | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `galleries`            | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `gallery_images`       | Consentito (dati pubblici) | Bloccato                  | Solo `service_role` via backend |
-| `users`                | Bloccato                   | Bloccato                  | Solo `service_role` via backend |
-| `admin_sessions`       | Bloccato                   | Bloccato                  | Solo `service_role` via backend |
-| `site_settings`        | Bloccato                   | Bloccato                  | Solo `service_role` via backend |
+| Tabella            | SELECT anon                                | INSERT/UPDATE/DELETE anon | Scrittura                       |
+| ------------------ | ------------------------------------------ | ------------------------- | ------------------------------- |
+| `menu_items`       | Consentito se `is_available=true`          | Bloccato                  | Solo `service_role` via backend |
+| `wines`            | Consentito se `is_available=true`          | Bloccato                  | Solo `service_role` via backend |
+| `cocktails`        | Consentito se `is_available=true`          | Bloccato                  | Solo `service_role` via backend |
+| `events`           | Consentito se `active=true`                | Bloccato                  | Solo `service_role` via backend |
+| `pages`            | Consentito se `is_visible` e non draft     | Bloccato                  | Solo `service_role` via backend |
+| `page_blocks`      | Consentito se `is_draft=false`             | Bloccato                  | Solo `service_role` via backend |
+| `media`            | Consentito                                 | Bloccato                  | Solo `service_role` via backend |
+| `media_categories` | Consentito                                 | Bloccato                  | Solo `service_role` via backend |
+| `galleries`        | Consentito se `is_visible=true`            | Bloccato                  | Solo `service_role` via backend |
+| `gallery_images`   | Consentito se album galleria e visibile    | Bloccato                  | Solo `service_role` via backend |
+| `users`            | Bloccato                                   | Bloccato                  | Solo `service_role` via backend |
+| `admin_sessions`   | Bloccato                                   | Bloccato                  | Solo `service_role` via backend |
+| `site_settings`    | Solo whitelist pubblica, no chiavi segrete | Bloccato                  | Solo `service_role` via backend |
 
 ### Policy applicate
 
-- **SELECT pubblico**: Consentito solo per dati realmente destinati alla visualizzazione pubblica (menu, eventi, pagine, galleria, media)
+- **SELECT pubblico**: Consentito solo per dati realmente destinati alla visualizzazione pubblica (menu, eventi, pagine pubblicate, galleria, media, footer/settings pubblici whitelisted)
 - **Scrittura**: Consentita esclusivamente tramite `service_role` (backend Express)
-- **Tabelle sensibili** (`users`, `admin_sessions`, `site_settings`): Nessun accesso `anon` (nemmeno SELECT)
-- **Test effettuato**: Verifica manuale con `anon key` — nessun accesso non autorizzato
+- **Tabelle sensibili** (`users`, `admin_sessions`): Nessun accesso `anon`
+- **`site_settings`**: SELECT pubblico limitato a whitelist esplicita: `footer_settings`, `menu_category_map`, `published_cocktails`, `published_menu_items`, `published_wines`, `site_links`, `view_admin_url`, `view_site_url`
+- **Chiavi bloccate in `site_settings`**: `admin_password`, `admin_password_hash`, `resend_api_key` e qualsiasi altra chiave non inclusa nella whitelist
+- **Test effettuato**: Verifica manuale SQL Editor Supabase, policy corretta dopo audit del 5 Maggio 2026
 
 ### Flusso di accesso
 

@@ -15,7 +15,8 @@ La sequenza raccomandata prima di push/deploy e `npm run check:all`, ora compren
 ### Sviluppo Locale
 
 - **Comando**: `NODE_ENV=development npm run dev`
-- **Porta**: 5000 (default) o configurabile via `PORT=XXXX`
+- **Porta codice default**: 5000 se `PORT` non e impostata
+- **Porta operativa corrente**: 5001 (`PORT=5001 npm run dev`)
 - **Env richieste**: `DATABASE_URL` oppure `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
 - **Server listen**: Nessun flag speciale (`reusePort` rimosso per compatibilità macOS/Windows)
 - **Vite**: HMR attivo, serve frontend e backend sulla stessa porta
@@ -31,14 +32,15 @@ La sequenza raccomandata prima di push/deploy e `npm run check:all`, ora compren
 
 ## Variabili d'Ambiente
 
-### Obbligatorie (almeno uno dei due gruppi database)
+### Obbligatorie runtime (almeno uno dei due gruppi database)
 
-| Variabile        | Descrizione                                           |
-| ---------------- | ----------------------------------------------------- |
-| `DATABASE_URL`   | Connection string PostgreSQL (se non si usa Supabase) |
-| `SESSION_SECRET` | Secret per le sessioni                                |
+| Variabile      | Descrizione                                           |
+| -------------- | ----------------------------------------------------- |
+| `DATABASE_URL` | Connection string PostgreSQL (se non si usa Supabase) |
 
 Se nessuna variabile database è configurata, il server si arresta con errore esplicito (fail-fast).
+
+Nota: `SESSION_SECRET` non e usato dal flusso sessione admin corrente. Le sessioni usano token random salvati in `admin_sessions` e cookie httpOnly `ccv_admin_session`.
 
 ### Opzionali - Supabase
 
@@ -55,6 +57,24 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 | Variabile        | Descrizione                         |
 | ---------------- | ----------------------------------- |
 | `OPENAI_API_KEY` | API key OpenAI per traduzioni admin |
+
+### Opzionali - Email / Resend
+
+| Variabile              | Descrizione                                |
+| ---------------------- | ------------------------------------------ |
+| `RESEND_API_KEY`       | Invio richieste eventi privati             |
+| `RESEND_SENDER_DOMAIN` | Dominio mittente verificato o `resend.dev` |
+| `EVENT_REQUEST_EMAIL`  | Email destinataria richieste eventi        |
+
+### Opzionali - Client / Test / GitHub
+
+| Variabile                | Descrizione                            |
+| ------------------------ | -------------------------------------- |
+| `VITE_SUPABASE_URL`      | URL Supabase per client browser        |
+| `VITE_SUPABASE_ANON_KEY` | Anon key Supabase per client browser   |
+| `PLAYWRIGHT_BASE_URL`    | Base URL per E2E esterni               |
+| `GITHUB_URL`             | URL repository per operativita locale  |
+| `GITHUB_TOKEN`           | Token GitHub locale, mai da committare |
 
 ## Database
 
@@ -114,7 +134,7 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 ```
 Vite Dev Server → HMR per React
 tsx → Runtime TypeScript per Express
-Entrambi sulla porta 5000
+Entrambi sulla porta configurata con `PORT`; standard operativo corrente `5001`
 ```
 
 ### Production Build
@@ -149,3 +169,19 @@ La pubblicazione del sito avviene su hosting Node standard:
 - Database produzione: Supabase
 
 **NOTA**: La "pubblicazione" del contenuto (draft → public) è un'operazione interna dell'app, non da confondere con il deployment dell'applicazione.
+
+## GitHub Actions
+
+### Quality
+
+- File: `.github/workflows/quality.yml`
+- Trigger: `push` su `main` e `pull_request`
+- Step: `npm ci`, check, lint, format check, audit, build, coverage, E2E se le env Supabase sono disponibili
+- Secrets usati: Supabase, Database, OpenAI, Resend e Vite env secondo necessita
+
+### Supabase Keepalive
+
+- File: `.github/workflows/supabase-keepalive.yml`
+- Trigger: schedulato ogni giorno e manuale (`workflow_dispatch`)
+- Secrets richiesti: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+- Metodo: lettura REST read-only su `pages?select=id&limit=1`

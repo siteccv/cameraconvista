@@ -255,15 +255,21 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 
 - I commit devono essere creati intenzionalmente dopo verifica dello stato del progetto
 - Non modificare la storia git manualmente
+- Prima di ogni commit richiesto: `git status -sb --ignored`, `git diff --stat`, gate pertinente
+- Per modifiche codice/dipendenze/config: usare `npm run check:all`
+- Non committare `.env`, `BACKUP/`, `node_modules/`, `dist/`, `coverage/`, `test-results/`
 
 ### Backup
 
 - Comando: "esegui nuovo backup"
 - Formato: `BACKUP/Backup_<giorno>_<Mese>_<HH-MM>.tar`
-- Esclude: node_modules, .git, BACKUP
+- Esclude: `.git`, `node_modules`, `dist`, `BACKUP`, `coverage`, `test-results`, `.env`, `.env.*`
+- I backup restano locali e non vengono pushati su GitHub salvo richiesta esplicita contraria
 
 ### GitHub Sync
 
 - Repo: https://github.com/siteccv/cameraconvista.git
 - Comando: "esegui commit in github"
 - Branch: main
+- Remote operativo locale: `github`
+- Dopo push verificare `git ls-remote github refs/heads/main` e stato GitHub Actions

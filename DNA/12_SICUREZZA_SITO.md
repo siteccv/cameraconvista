@@ -2,9 +2,9 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 5 Maggio 2026
 
-Audit npm verde con 0 vulnerabilita dopo aggiornamenti mirati. Restano attivi Helmet, rate limiting admin, cookie httpOnly e protezioni backend gia documentate.
+Audit npm verde con 0 vulnerabilita dopo aggiornamenti mirati. Verificata e corretta manualmente in Supabase la policy pubblica di `site_settings`: ora usa whitelist esplicita e non espone `admin_password`, `admin_password_hash` o `resend_api_key`.
 
 - Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
 - Gate locale richiesto: `npm run check:all`
@@ -65,8 +65,10 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 - `SUPABASE_SERVICE_ROLE_KEY`: Solo server-side, mai esposta
 - `DATABASE_URL`: Solo server-side
 - `OPENAI_API_KEY`: Solo server-side
-- `SESSION_SECRET`: Solo server-side
+- `RESEND_API_KEY`: Solo server-side
 - `SUPABASE_ANON_KEY` nel client: Pubblica by design (protetta da RLS)
+
+Nota: `SESSION_SECRET` non e usato dal flusso sessione admin corrente. Le sessioni usano token random salvati in `admin_sessions` e cookie httpOnly.
 
 ### Keepalive Supabase
 
@@ -83,7 +85,7 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 
 RLS attiva su **tutte le tabelle critiche**:
 
-- `menu_items`, `menu_items_published`
+- `menu_items`
 - `wines`, `cocktails`
 - `events`
 - `pages`, `page_blocks`
@@ -96,12 +98,14 @@ RLS attiva su **tutte le tabelle critiche**:
 
 - **SELECT pubblico**: Solo per dati realmente destinati alla visualizzazione pubblica
 - **Scrittura**: Consentita esclusivamente tramite `service_role` (backend Express)
-- **Tabelle sensibili** (`users`, `admin_sessions`, `site_settings`): Nessun accesso `anon`
+- **Tabelle sensibili** (`users`, `admin_sessions`): Nessun accesso `anon`
+- **`site_settings`**: SELECT pubblico consentito solo per whitelist operativa (`footer_settings`, `menu_category_map`, snapshot pubblici, link sito/admin). Chiavi sensibili escluse: `admin_password`, `admin_password_hash`, `resend_api_key`.
 
 ### Verifica
 
-- Test manuale effettuato con `anon key` via SQL Editor Supabase
-- Nessun accesso non autorizzato rilevato
+- Test manuale effettuato via SQL Editor Supabase il 5 Maggio 2026
+- Policy `site_settings` corretta da esclusione fragile (`key <> 'admin_password'`) a whitelist esplicita
+- Nessun valore segreto stampato o modificato durante la verifica
 
 ---
 

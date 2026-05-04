@@ -87,6 +87,8 @@ Tutte le pagine pubbliche seguono questo pattern:
 
 - Pagina informativa per eventi privati
 - Contenuto editable via blocchi
+- Mostra solo Aperitivo ed Evento Privato Esclusivo quando `PRIVATE_DINNER_ENABLED=false`
+- La sottopagina Cena resta nel codice per ripristino controllato, ma `/eventi-privati/cena` reindirizza a `/eventi-privati`
 
 ### Galleria (`/galleria`)
 
@@ -95,11 +97,12 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Click → apre GallerySlideViewer
 - Viewer: formato 9:16, swipe su mobile, frecce su desktop
 
-### Contatti (`/contatti`)
+### Dove Siamo (`/dove-siamo`)
 
 - Hero + intro
 - Informazioni contatto (indirizzo, telefono, email)
 - Eventuale mappa integrata
+- `/contatti` e mantenuto come redirect a `/dove-siamo`
 
 ## Componenti Admin
 
@@ -111,11 +114,12 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Salva automaticamente via `updateBlock` callback
 - Bilingue: modifica campo IT o EN in base alla lingua corrente
 
-### EditableImage (`client/src/components/admin/EditableImage.tsx`)
+### ImageContainer (`client/src/components/admin/ImageContainer.tsx`)
 
 - Attivo solo in `adminPreview` mode
-- Click → apre MediaPickerModal per selezionare immagine
+- Click → apre MediaPickerModal per selezionare immagine quando l'utente admin interagisce con l'immagine
 - Supporta zoom e offset (pan) desktop/mobile indipendenti
+- Supporta overlay desktop/mobile per hero e immagini editabili
 - **LOGICA LOCKED**: Rendering ibrido
   - Zoom ≥ 100%: `object-cover` con CSS transform
   - Zoom < 100%: Posizionamento manuale calcolato

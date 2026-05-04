@@ -20,19 +20,20 @@ Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina C
 
 ## Layout Admin
 
-Sidebar a sinistra (256px) con 7 sezioni di navigazione + 3 azioni:
+Sidebar a sinistra (256px) con 8 sezioni di navigazione + azioni operative:
 
 ### Navigazione
 
-| Icona    | Voce IT        | Voce EN        | Path               |
-| -------- | -------------- | -------------- | ------------------ |
-| FileText | Sezioni Pagine | Page Sections  | `/admina`          |
-| Calendar | Eventi         | Events         | `/admina/events`   |
-| Images   | Galleria Album | Album Gallery  | `/admina/gallery`  |
-| Image    | Libreria Media | Media Library  | `/admina/media`    |
-| Eye      | Anteprima      | Preview        | `/admina/preview`  |
-| Search   | SEO & Metadata | SEO & Metadata | `/admina/seo`      |
-| Settings | Impostazioni   | Settings       | `/admina/settings` |
+| Icona     | Voce IT        | Voce EN        | Path                  |
+| --------- | -------------- | -------------- | --------------------- |
+| FileText  | Sezioni Pagine | Page Sections  | `/admina`             |
+| Calendar  | Eventi         | Events         | `/admina/events`      |
+| Images    | Galleria Album | Album Gallery  | `/admina/gallery`     |
+| Image     | Libreria Media | Media Library  | `/admina/media`       |
+| Eye       | Anteprima      | Preview        | `/admina/preview`     |
+| Search    | SEO & Metadata | SEO & Metadata | `/admina/seo`         |
+| RefreshCw | Sync Google    | Sync Google    | `/admina/sync-google` |
+| Settings  | Impostazioni   | Settings       | `/admina/settings`    |
 
 ### Azioni Sidebar
 
@@ -40,8 +41,10 @@ Sidebar a sinistra (256px) con 7 sezioni di navigazione + 3 azioni:
    - Rosso pulsante (`animate-subtle-pulse`): ci sono modifiche non pubblicate
    - Verde: tutto aggiornato
    - Loading: verifica in corso
-2. **Vedi Sito** — Apre il sito pubblico in nuova tab
-3. **Esci** — Logout
+2. **Vedi Sito Local** — Apre il sito locale se configurato
+3. **Vedi Sito Admin** — Apre il pannello admin
+4. **Vedi Sito** — Apre il sito pubblico
+5. **Esci** — Logout
 
 ## Sezioni Pagine (`/admina`)
 
@@ -67,7 +70,7 @@ Ogni pagina è composta da blocchi (`pageBlocks`):
 In modalità admin preview:
 
 - `EditableText`: Click su qualsiasi testo → campo inline editabile
-- `EditableImage`: Click su qualsiasi immagine → MediaPickerModal + controlli zoom/offset
+- `ImageContainer`: Click su qualsiasi immagine → MediaPickerModal + controlli zoom/offset/overlay
 - Le modifiche vengono salvate automaticamente via API
 
 ## Eventi (`/admina/events`)

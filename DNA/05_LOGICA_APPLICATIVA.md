@@ -167,6 +167,18 @@ date
 
 Max 10 eventi concorrenti. Il server rifiuta la creazione se il limite è raggiunto.
 
+### Richieste Eventi Privati
+
+Endpoint pubblico: `POST /api/event-request`.
+
+- Valida il payload con Zod.
+- Accetta tipologie `aperitivo`, `cena`, `esclusivo`; la tipologia `cena` resta supportata a livello schema/email per ripristino futuro, anche se la pagina pubblica e nascosta quando `PRIVATE_DINNER_ENABLED=false`.
+- Applica rate limit in memoria: 5 richieste per IP ogni ora.
+- Usa honeypot (`honeypot` / `website`) per bot.
+- Invia email tramite Resend usando `RESEND_API_KEY`; se assente prova il fallback DB `site_settings.resend_api_key`.
+- Destinatario: `EVENT_REQUEST_EMAIL` oppure fallback `info@cameraconvista.it`.
+- Non salva richieste nel database.
+
 ## Sistema Galleria
 
 ### Struttura

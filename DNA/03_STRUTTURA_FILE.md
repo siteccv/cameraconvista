@@ -18,10 +18,17 @@ La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatu
 ├── shared/                    # Tipi e schema condivisi
 ├── LOGOS/                     # Logo files (single source of truth)
 ├── BACKUP/                    # Backup archives
-├── DNA/               # Documentazione progetto (questa cartella)
+├── DNA/                       # Documentazione progetto (questa cartella)
+├── .github/workflows/         # GitHub Actions Quality + Supabase Keepalive
 ├── attached_assets/           # Asset allegati (logo_ccv.png per @assets alias)
+├── e2e/                       # Smoke test Playwright
+├── tests/                     # Test unit/component Vitest
+├── script/                    # Build script TypeScript
 ├── scripts/                   # Script di migrazione/utility
 ├── drizzle.config.ts          # Configurazione Drizzle Kit
+├── eslint.config.js           # Config ESLint
+├── playwright.config.ts       # Config Playwright
+├── vitest.config.ts           # Config Vitest
 ├── tailwind.config.ts         # Configurazione Tailwind CSS
 ├── vite.config.ts             # Configurazione Vite (NON MODIFICARE)
 ├── tsconfig.json              # TypeScript config
@@ -47,7 +54,7 @@ client/
     ├── components/
     │   ├── admin/             # Componenti admin
     │   │   ├── EditableText.tsx        # Click-to-edit testo (WYSIWYG)
-    │   │   ├── EditableImage.tsx       # Click-to-edit immagine con zoom/offset
+    │   │   ├── ImageContainer.tsx      # Click-to-edit immagini, zoom, pan, overlay
     │   │   ├── EventModal.tsx          # Modal creazione/modifica evento
     │   │   ├── FooterSettingsForm.tsx  # Form impostazioni footer
     │   │   ├── ImageDetailsModal.tsx   # Dettagli immagine media
@@ -59,9 +66,7 @@ client/
     │   │       ├── GalleryModal.tsx    # Modal creazione/modifica album
     │   │       ├── AlbumImagesModal.tsx # Gestione immagini album
     │   │       ├── ImageZoomModal.tsx  # Zoom/offset immagine singola
-    │   │       ├── SortableImage.tsx   # Immagine drag-and-drop
     │   │       └── index.ts           # Barrel export
-    │   ├── contact/           # Componenti pagina contatti
     │   ├── home/              # Componenti home page
     │   │   ├── BookingDialog.tsx       # Dialog prenotazione
     │   │   ├── PhilosophySection.tsx   # Sezione filosofia
@@ -89,6 +94,7 @@ client/
     ├── lib/
     │   ├── formatters.ts      # Formattazione date, prezzi
     │   ├── page-defaults.ts   # Valori default blocchi per pagina
+    │   ├── private-events-config.ts # Flag ripristinabile per Cena eventi privati
     │   ├── queryClient.ts     # TanStack Query config + apiRequest helper
     │   ├── supabase.ts        # Client Supabase (frontend)
     │   └── utils.ts           # cn() e utility generali
@@ -100,8 +106,11 @@ client/
         ├── eventi.tsx         # Pagina eventi
         ├── event-detail.tsx   # Dettaglio singolo evento
         ├── eventi-privati.tsx # Pagina eventi privati
+        ├── eventi-privati/    # Sottopagine aperitivo, cena, esclusivo
         ├── galleria.tsx       # Pagina galleria
-        ├── contatti.tsx       # Pagina contatti
+        ├── dove-siamo.tsx     # Pagina contatti/dove siamo
+        ├── privacy-policy.tsx # Privacy policy
+        ├── cookie-policy.tsx  # Cookie policy
         ├── not-found.tsx      # Pagina 404
         └── admin/
             ├── login.tsx      # Login admin
@@ -111,6 +120,7 @@ client/
             ├── media.tsx      # Libreria media
             ├── preview.tsx    # Anteprima mobile
             ├── seo.tsx        # SEO & metadata
+            ├── sync-google.tsx # Sync Google Sheets
             └── settings.tsx   # Impostazioni
 ```
 
@@ -137,6 +147,7 @@ server/
 │   ├── media.ts           # Media library + upload + categorie
 │   ├── settings.ts        # Site settings + footer
 │   ├── sync.ts            # Google Sheets sync endpoint
+│   ├── event-request.ts   # Invio richieste eventi privati via Resend
 │   └── helpers.ts         # Auth helpers, ID parsing
 └── routes.ts              # Re-export wrapper (delegates to routes/index.ts)
 ```

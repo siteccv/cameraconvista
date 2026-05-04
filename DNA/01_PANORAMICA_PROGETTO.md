@@ -17,6 +17,8 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 **URL Admin**: `/admina` (path segreto)  
 **Password Admin predefinita**: `1909` (modificabile da Impostazioni)
 
+> Entry point per agenti: leggere sempre `00_GUIDA_AGENTI.md` prima di modificare codice, configurazioni o dati.
+
 ## Obiettivi
 
 1. Sito pubblico elegante e responsive per presentare menu, carta vini, cocktail bar, eventi, galleria fotografica e contatti
@@ -29,18 +31,18 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 
 ## Stack Tecnologico
 
-| Layer    | Tecnologia                                |
-| -------- | ----------------------------------------- |
-| Frontend | React 18 + TypeScript + Vite              |
-| Routing  | Wouter (lightweight)                      |
-| State    | TanStack React Query v5                   |
-| UI       | shadcn/ui + Radix UI + Tailwind CSS       |
-| Backend  | Node.js + Express 5                       |
-| ORM      | Drizzle ORM                               |
-| Database | PostgreSQL o Supabase                     |
-| Storage  | Supabase Storage                          |
-| AI       | OpenAI (traduzione, generazione immagini) |
-| Build    | Vite (dev) + esbuild (prod)               |
+| Layer    | Tecnologia                          |
+| -------- | ----------------------------------- |
+| Frontend | React 18 + TypeScript + Vite        |
+| Routing  | Wouter (lightweight)                |
+| State    | TanStack React Query v5             |
+| UI       | shadcn/ui + Radix UI + Tailwind CSS |
+| Backend  | Node.js + Express 5                 |
+| ORM      | Drizzle ORM                         |
+| Database | PostgreSQL o Supabase               |
+| Storage  | Supabase Storage                    |
+| AI       | OpenAI (traduzione testi admin)     |
+| Build    | Vite (dev) + esbuild (prod)         |
 
 ## Funzionalità Principali
 
@@ -53,7 +55,7 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 - **Eventi**: Griglia di poster 9:16 stile Instagram Story
 - **Eventi Privati**: Pagina dedicata per eventi privati
 - **Galleria**: Album con copertine, viewer slideshow
-- **Contatti**: Informazioni di contatto
+- **Dove Siamo**: Informazioni di contatto; `/contatti` reindirizza a `/dove-siamo`
 
 ### Pannello Admin (`/admina`)
 
@@ -119,4 +121,4 @@ Il progetto è portabile tra ambienti locali e hosting Node standard:
 - `reusePort` rimosso dal server listen (evita crash su macOS/Windows)
 - ETag disabilitato in dev per le API (evita 304 problematici)
 - Storage selection deterministica senza fallback ambigui
-- Avvio locale: `NODE_ENV=development npm run dev` con `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
+- Avvio locale: `PORT=5001 npm run dev` con `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`. Il codice usa `5000` come default se `PORT` non e impostata, ma lo standard operativo corrente e `5001`.

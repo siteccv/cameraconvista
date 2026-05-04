@@ -176,7 +176,9 @@ const SLUG_TO_PATH = {
   eventi: "/eventi",
   "eventi-privati": "/eventi-privati",
   galleria: "/galleria",
-  contatti: "/contatti",
+  "dove-siamo": "/dove-siamo",
+  privacy: "/privacy",
+  cookie: "/cookie",
 };
 ```
 
