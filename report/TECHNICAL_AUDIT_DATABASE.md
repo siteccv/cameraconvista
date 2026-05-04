@@ -66,7 +66,14 @@ Supabase uses snake_case columns. `SupabaseStorage` handles automatic conversion
 
 Supabase free tier suspends databases after 7 days of inactivity.
 
-**Solution**: `/api/health` endpoint uses `pg Pool` direct connection to execute a lightweight query, keeping the database active. This should be called periodically (e.g., via external cron/uptime monitor).
+**Solution**: `.github/workflows/supabase-keepalive.yml` runs once per day and calls `scripts/supabase-keepalive.sh`. The script performs a lightweight Supabase REST read on `pages?select=id&limit=1` using only `SUPABASE_URL` and `SUPABASE_ANON_KEY`.
+
+**Safety constraints**:
+
+- No runtime app logic is changed.
+- No database writes are performed.
+- No service role key is used.
+- `curl` uses timeout and automatic retries.
 
 ---
 

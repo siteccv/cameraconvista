@@ -20,7 +20,7 @@
 ### 1.2 Render Considerations
 
 - **Free tier cold start**: First request after inactivity may take 30-60 seconds (impacts Core Web Vitals and crawling)
-- **Supabase keep-alive**: `/api/health` endpoint with `pg Pool` direct connection prevents 7-day standby suspension
+- **Supabase keep-alive**: GitHub Actions workflow `.github/workflows/supabase-keepalive.yml` runs a daily silent Supabase REST read via `scripts/supabase-keepalive.sh`
 
 ---
 

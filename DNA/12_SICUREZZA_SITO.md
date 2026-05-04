@@ -68,6 +68,13 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 - `SESSION_SECRET`: Solo server-side
 - `SUPABASE_ANON_KEY` nel client: Pubblica by design (protetta da RLS)
 
+### Keepalive Supabase
+
+- Il keepalive e isolato in GitHub Actions (`.github/workflows/supabase-keepalive.yml`) e non entra nel runtime dell'app.
+- Usa solo `SUPABASE_URL` e `SUPABASE_ANON_KEY`, mai `SUPABASE_SERVICE_ROLE_KEY`.
+- Esegue una sola lettura REST (`select=id&limit=1`) sulla tabella pubblica `pages`.
+- Non scrive dati, non attiva sync esterne e non invia email.
+
 ---
 
 ## 2. Protezione Database (Supabase)

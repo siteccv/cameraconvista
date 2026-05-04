@@ -17,6 +17,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "supabase:keepalive": "bash scripts/supabase-keepalive.sh",
     "audit": "npm audit --audit-level=moderate",
     "audit:fix:dry": "npm audit fix --dry-run",
     "audit:fix:safe": "npm audit fix",

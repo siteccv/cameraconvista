@@ -71,6 +71,16 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 - REST API per operazioni CRUD
 - Conversione automatica camelCase ↔ snake_case
 
+### Supabase Keepalive Free
+
+- Workflow: `.github/workflows/supabase-keepalive.yml`
+- Script: `scripts/supabase-keepalive.sh`
+- Frequenza: una volta al giorno via GitHub Actions (`cron: "20 3 * * *"`) e avvio manuale con `workflow_dispatch`
+- Metodo: lettura REST anonima e leggera su `pages?select=id&limit=1`
+- Sicurezza: usa solo `SUPABASE_URL` e `SUPABASE_ANON_KEY`; non usa service role, non scrive dati e non modifica la logica runtime dell'app
+- Resilienza: `curl` con timeout, retry automatici e fallimento esplicito in caso di HTTP non valido
+- Secrets GitHub richiesti: `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+
 ### Migrazioni
 
 - **NON** usare migrazioni manuali SQL
