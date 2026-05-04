@@ -15,7 +15,11 @@ import type { Event } from "@shared/schema";
 
 export default function Eventi() {
   const { t } = useLanguage();
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS.eventi,
     defaults: EVENTI_DEFAULTS,
   });
@@ -30,7 +34,12 @@ export default function Eventi() {
     queryKey: ["/api/events"],
   });
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -51,14 +60,19 @@ export default function Eventi() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -88,11 +102,13 @@ export default function Eventi() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -105,7 +121,9 @@ export default function Eventi() {
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -148,44 +166,46 @@ export default function Eventi() {
                 {t("Nessun evento in programma al momento.", "No events scheduled at the moment.")}
               </p>
             </div>
-          ) : (() => {
-            const sortedEvents = [...events].sort((a, b) => {
-              if (!a.startAt) return 1;
-              if (!b.startAt) return -1;
-              return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
-            });
+          ) : (
+            (() => {
+              const sortedEvents = [...events].sort((a, b) => {
+                if (!a.startAt) return 1;
+                if (!b.startAt) return -1;
+                return new Date(a.startAt).getTime() - new Date(b.startAt).getTime();
+              });
 
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            const nextEventIndex = sortedEvents.findIndex(e => {
-              if (!e.startAt) return false;
-              const eventDate = new Date(e.startAt);
-              eventDate.setHours(0, 0, 0, 0);
-              return eventDate >= today;
-            });
-            const initialIndex = nextEventIndex >= 0 ? nextEventIndex : 0;
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const nextEventIndex = sortedEvents.findIndex((e) => {
+                if (!e.startAt) return false;
+                const eventDate = new Date(e.startAt);
+                eventDate.setHours(0, 0, 0, 0);
+                return eventDate >= today;
+              });
+              const initialIndex = nextEventIndex >= 0 ? nextEventIndex : 0;
 
-            return (
-              <>
-                <div className="hidden md:block">
-                  {sortedEvents.length > 3 ? (
-                    <EventsSlider events={sortedEvents} initialIndex={initialIndex} />
-                  ) : (
-                    <div className="flex flex-row justify-center gap-8 w-full">
-                      {sortedEvents.map((event) => (
-                        <div key={event.id} className="w-full max-w-[450px]">
-                          <EventCard event={event} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <div className="md:hidden">
-                  <MobileEventsSlider events={sortedEvents} initialIndex={initialIndex} />
-                </div>
-              </>
-            );
-          })()}
+              return (
+                <>
+                  <div className="hidden md:block">
+                    {sortedEvents.length > 3 ? (
+                      <EventsSlider events={sortedEvents} initialIndex={initialIndex} />
+                    ) : (
+                      <div className="flex flex-row justify-center gap-8 w-full">
+                        {sortedEvents.map((event) => (
+                          <div key={event.id} className="w-full max-w-[450px]">
+                            <EventCard event={event} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                  <div className="md:hidden">
+                    <MobileEventsSlider events={sortedEvents} initialIndex={initialIndex} />
+                  </div>
+                </>
+              );
+            })()
+          )}
         </div>
       </section>
     </PublicLayout>
@@ -198,10 +218,10 @@ function EventCard({ event }: { event: Event }) {
   const formatDateLine = (dateStr: string | Date | null) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
-    const options: Intl.DateTimeFormatOptions = { 
-      weekday: 'long', 
-      day: 'numeric', 
-      month: 'long' 
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
     };
     const formatted = date.toLocaleDateString(language === "it" ? "it-IT" : "en-US", options);
     return formatted.toUpperCase();
@@ -220,7 +240,10 @@ function EventCard({ event }: { event: Event }) {
             </div>
           )}
 
-          <h3 className="font-display text-lg md:text-2xl line-clamp-2 tracking-wide" style={{ color: '#722F37' }}>
+          <h3
+            className="font-display text-lg md:text-2xl line-clamp-2 tracking-wide"
+            style={{ color: "#722F37" }}
+          >
             {language === "it" ? event.titleIt : event.titleEn}
           </h3>
         </div>
@@ -290,7 +313,7 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
       <button
         onClick={() => scroll("left")}
         disabled={!canScrollLeft}
-        className={`hidden md:flex flex-shrink-0 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollLeft ? 'opacity-30 cursor-not-allowed' : 'opacity-100'}`}
+        className={`hidden md:flex flex-shrink-0 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollLeft ? "opacity-30 cursor-not-allowed" : "opacity-100"}`}
         data-testid="button-scroll-left"
       >
         <ChevronLeft className="h-7 w-7" />
@@ -311,7 +334,7 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
       <button
         onClick={() => scroll("right")}
         disabled={!canScrollRight}
-        className={`hidden md:flex flex-shrink-0 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollRight ? 'opacity-30 cursor-not-allowed' : 'opacity-100'}`}
+        className={`hidden md:flex flex-shrink-0 w-14 h-14 items-center justify-center rounded-full bg-background border-2 border-border shadow-xl hover-elevate transition-opacity ${!canScrollRight ? "opacity-30 cursor-not-allowed" : "opacity-100"}`}
         data-testid="button-scroll-right"
       >
         <ChevronRight className="h-7 w-7" />
@@ -320,7 +343,13 @@ function EventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIn
   );
 }
 
-function MobileEventsSlider({ events, initialIndex = 0 }: { events: Event[]; initialIndex?: number }) {
+function MobileEventsSlider({
+  events,
+  initialIndex = 0,
+}: {
+  events: Event[];
+  initialIndex?: number;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
@@ -383,7 +412,7 @@ function MobileEventsSlider({ events, initialIndex = 0 }: { events: Event[]; ini
             <button
               key={i}
               onClick={() => scrollToIndex(i)}
-              className={`w-3 h-3 rounded-full transition-all ${i === currentIndex ? 'bg-primary scale-110' : 'bg-muted-foreground/30'}`}
+              className={`w-3 h-3 rounded-full transition-all ${i === currentIndex ? "bg-primary scale-110" : "bg-muted-foreground/30"}`}
               data-testid={`button-dot-${i}`}
             />
           ))}

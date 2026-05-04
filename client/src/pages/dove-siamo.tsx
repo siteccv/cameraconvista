@@ -23,7 +23,11 @@ export default function DoveSiamo() {
   const viewportIsMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const isMobile = forceMobileLayout || viewportIsMobile;
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS["dove-siamo"],
     defaults: DOVE_SIAMO_DEFAULTS,
   });
@@ -54,7 +58,12 @@ export default function DoveSiamo() {
     setShowMapsModal(false);
   };
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -75,14 +84,19 @@ export default function DoveSiamo() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -112,11 +126,13 @@ export default function DoveSiamo() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -129,7 +145,9 @@ export default function DoveSiamo() {
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -188,8 +206,8 @@ export default function DoveSiamo() {
               onClick={() => setBookingDialogOpen(true)}
               className={`${isMobile ? "px-6 py-4 text-[10px] tracking-[0.08em]" : "px-10 py-5 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
               style={{
-                backgroundColor: '#722f37',
-                fontFamily: 'Montserrat, sans-serif'
+                backgroundColor: "#722f37",
+                fontFamily: "Montserrat, sans-serif",
               }}
               data-testid="button-book-table-dove-siamo"
             >
@@ -207,14 +225,8 @@ export default function DoveSiamo() {
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display text-xl">
-                    {t("Apri con", "Open with")}
-                  </h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setShowMapsModal(false)}
-                  >
+                  <h3 className="font-display text-xl">{t("Apri con", "Open with")}</h3>
+                  <Button variant="ghost" size="icon" onClick={() => setShowMapsModal(false)}>
                     <X className="h-4 w-4" />
                   </Button>
                 </div>

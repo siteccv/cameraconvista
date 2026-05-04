@@ -82,22 +82,22 @@ export function GallerySlideViewer({
       opacity: 1,
       transition: {
         x: { type: "tween", duration: 0.3, ease: [0.25, 0.1, 0.25, 1] },
-        opacity: { duration: 0.2 }
-      }
+        opacity: { duration: 0.2 },
+      },
     },
     exit: (direction: number) => ({
       x: direction < 0 ? "100%" : "-100%",
       opacity: 0,
       transition: {
         x: { type: "tween", duration: 0.3, ease: [0.25, 0.1, 0.25, 1] },
-        opacity: { duration: 0.2 }
-      }
-    })
+        opacity: { duration: 0.2 },
+      },
+    }),
   };
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
-      <DialogContent 
+      <DialogContent
         className="max-w-none w-screen h-screen p-0 bg-black border-none [&>button]:hidden overflow-hidden"
         data-testid="gallery-slide-viewer"
         aria-describedby={undefined}
@@ -105,7 +105,7 @@ export function GallerySlideViewer({
         <VisuallyHidden>
           <DialogTitle>{language === "it" ? gallery.titleIt : gallery.titleEn}</DialogTitle>
         </VisuallyHidden>
-        
+
         <div className="relative w-full h-full flex flex-col items-center justify-between py-3 md:py-8 bg-black">
           {/* Header */}
           <div className="text-center text-white z-50 px-4 pt-2 md:pt-4">
@@ -147,17 +147,21 @@ export function GallerySlideViewer({
                   style={{ willChange: "transform, opacity" }}
                   className="absolute w-full h-full flex items-center justify-center cursor-grab active:cursor-grabbing"
                 >
-                  <div 
+                  <div
                     className="relative overflow-hidden rounded-xl shadow-2xl bg-zinc-900"
-                    style={{ 
-                      height: "min(84vh, calc(100vh - 200px))", 
+                    style={{
+                      height: "min(84vh, calc(100vh - 200px))",
                       width: "calc(min(84vh, calc(100vh - 200px)) * 9 / 16)",
                       maxWidth: "calc(100vw - 32px)",
                     }}
                   >
                     <img
                       src={sortedImages[currentIndex].imageUrl}
-                      alt={language === "it" ? sortedImages[currentIndex].altIt || "" : sortedImages[currentIndex].altEn || ""}
+                      alt={
+                        language === "it"
+                          ? sortedImages[currentIndex].altIt || ""
+                          : sortedImages[currentIndex].altEn || ""
+                      }
                       className="w-full h-full object-cover pointer-events-none"
                       style={{
                         transform: `scale(${(sortedImages[currentIndex].imageZoom || 100) / 100}) translate(${sortedImages[currentIndex].imageOffsetX || 0}%, ${sortedImages[currentIndex].imageOffsetY || 0}%)`,
@@ -195,9 +199,7 @@ export function GallerySlideViewer({
                     setCurrentIndex(index);
                   }}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
-                    index === currentIndex 
-                      ? "bg-white w-6" 
-                      : "bg-white/30 hover:bg-white/50 w-1.5"
+                    index === currentIndex ? "bg-white w-6" : "bg-white/30 hover:bg-white/50 w-1.5"
                   }`}
                   data-testid={`dot-indicator-${index}`}
                 />

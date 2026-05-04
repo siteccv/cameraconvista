@@ -9,7 +9,11 @@ interface PhilosophySectionProps {
   twoColGrid: string;
 }
 
-export function PhilosophySection({ sectionPadding, titleSize, twoColGrid }: PhilosophySectionProps) {
+export function PhilosophySection({
+  sectionPadding,
+  titleSize,
+  twoColGrid,
+}: PhilosophySectionProps) {
   const { t } = useLanguage();
 
   return (
@@ -24,13 +28,13 @@ export function PhilosophySection({ sectionPadding, titleSize, twoColGrid }: Phi
               <p>
                 {t(
                   "Ogni cocktail racconta una storia, ogni piatto è un viaggio sensoriale. In Camera con Vista, crediamo che l'eccellenza nasca dall'attenzione ai dettagli e dalla passione per ciò che facciamo.",
-                  "Every cocktail tells a story, every dish is a sensory journey. At Camera con Vista, we believe that excellence comes from attention to detail and passion for what we do."
+                  "Every cocktail tells a story, every dish is a sensory journey. At Camera con Vista, we believe that excellence comes from attention to detail and passion for what we do.",
                 )}
               </p>
               <p>
                 {t(
                   "I nostri mixologist selezionano personalmente gli ingredienti, creando combinazioni uniche che rispettano la tradizione mentre esplorano nuovi orizzonti del gusto.",
-                  "Our mixologists personally select the ingredients, creating unique combinations that respect tradition while exploring new horizons of taste."
+                  "Our mixologists personally select the ingredients, creating unique combinations that respect tradition while exploring new horizons of taste.",
                 )}
               </p>
             </div>

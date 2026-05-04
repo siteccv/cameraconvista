@@ -9,13 +9,13 @@
 
 ### 1.1 Platform Overview
 
-| Platform | URL | Purpose |
-|----------|-----|---------|
-| Render | `https://cameraconvista.onrender.com` | Application hosting |
-| Production Domain | `https://www.cameraconvista.it` | Public-facing domain |
-| Supabase | — | Production database |
-| GitHub | `https://github.com/siteccv/cameraconvista.git` | Source repository |
-| Supabase Storage | — | Media file uploads |
+| Platform          | URL                                             | Purpose              |
+| ----------------- | ----------------------------------------------- | -------------------- |
+| Render            | `https://cameraconvista.onrender.com`           | Application hosting  |
+| Production Domain | `https://www.cameraconvista.it`                 | Public-facing domain |
+| Supabase          | —                                               | Production database  |
+| GitHub            | `https://github.com/siteccv/cameraconvista.git` | Source repository    |
+| Supabase Storage  | —                                               | Media file uploads   |
 
 ### 1.2 Render Considerations
 
@@ -39,6 +39,7 @@ Request → Express Route → SEO Middleware intercepts res.send()/res.end()
 ```
 
 **Per-page injection includes:**
+
 - `<title>` (page-specific, bilingual)
 - `<meta name="description">` (bilingual)
 - `<link rel="canonical">`
@@ -54,6 +55,7 @@ Request → Express Route → SEO Middleware intercepts res.send()/res.end()
 **Root cause**: `res.sendFile()` uses Node's `send` module for streaming (Buffer), bypassing the string-based middleware interception.
 
 **Solution** (applied to `server/static.ts`):
+
 ```
 Before: res.sendFile(path.resolve(distPath, "index.html"))
 After:  fs.readFile(indexPath) → generateSeoHtml() → injectSeoIntoHtml() → res.send(html)
@@ -99,19 +101,19 @@ Sitemap: https://www.cameraconvista.it/sitemap.xml
 
 Generated dynamically from database. Includes:
 
-| Page | Priority | changefreq | Hreflang |
-|------|----------|------------|----------|
-| `/` (Home) | 1.0 | daily | IT, EN, x-default |
-| `/menu` | 0.8 | weekly | IT, EN, x-default |
-| `/lista-vini` | 0.8 | weekly | IT, EN, x-default |
-| `/cocktail-bar` | 0.8 | weekly | IT, EN, x-default |
-| `/eventi` | 0.8 | weekly | IT, EN, x-default |
-| `/eventi-privati` | 0.8 | weekly | IT, EN, x-default |
-| `/galleria` | 0.8 | weekly | IT, EN, x-default |
-| `/dove-siamo` | 0.8 | weekly | IT, EN, x-default |
-| `/privacy` | 0.5 | monthly | IT, EN, x-default |
-| `/cookie` | 0.5 | monthly | IT, EN, x-default |
-| `/eventi/:id` (dynamic) | 0.6 | weekly | IT, EN, x-default |
+| Page                    | Priority | changefreq | Hreflang          |
+| ----------------------- | -------- | ---------- | ----------------- |
+| `/` (Home)              | 1.0      | daily      | IT, EN, x-default |
+| `/menu`                 | 0.8      | weekly     | IT, EN, x-default |
+| `/lista-vini`           | 0.8      | weekly     | IT, EN, x-default |
+| `/cocktail-bar`         | 0.8      | weekly     | IT, EN, x-default |
+| `/eventi`               | 0.8      | weekly     | IT, EN, x-default |
+| `/eventi-privati`       | 0.8      | weekly     | IT, EN, x-default |
+| `/galleria`             | 0.8      | weekly     | IT, EN, x-default |
+| `/dove-siamo`           | 0.8      | weekly     | IT, EN, x-default |
+| `/privacy`              | 0.5      | monthly    | IT, EN, x-default |
+| `/cookie`               | 0.5      | monthly    | IT, EN, x-default |
+| `/eventi/:id` (dynamic) | 0.6      | weekly     | IT, EN, x-default |
 
 - English URLs use `?lang=en` query parameter
 - `lastmod` uses current date (improvement: use actual DB timestamps)
@@ -125,12 +127,12 @@ Generated dynamically from database. Includes:
 
 **File**: `server/index.ts` (before all routes)
 
-| Redirect Type | Example | Status |
-|---------------|---------|--------|
-| Trailing slash removal | `/lista-vini/` → `/lista-vini` | 301 |
-| www enforcement (prod only) | `cameraconvista.it` → `www.cameraconvista.it` | 301 |
-| Combined | `cameraconvista.it/lista-vini/` → `www.cameraconvista.it/lista-vini` | 301 |
-| Page rename | `/contatti` → `/dove-siamo` | 301 |
+| Redirect Type               | Example                                                              | Status |
+| --------------------------- | -------------------------------------------------------------------- | ------ |
+| Trailing slash removal      | `/lista-vini/` → `/lista-vini`                                       | 301    |
+| www enforcement (prod only) | `cameraconvista.it` → `www.cameraconvista.it`                        | 301    |
+| Combined                    | `cameraconvista.it/lista-vini/` → `www.cameraconvista.it/lista-vini` | 301    |
+| Page rename                 | `/contatti` → `/dove-siamo`                                          | 301    |
 
 - Query strings preserved during redirects
 - `/api/*` routes excluded from redirect processing
@@ -138,12 +140,13 @@ Generated dynamically from database. Includes:
 
 ### 4.2 Bilingual URL Strategy
 
-| Language | URL Pattern | Example |
-|----------|-------------|---------|
-| Italian (default) | Base path | `/menu` |
-| English | Query parameter | `/menu?lang=en` |
+| Language          | URL Pattern     | Example         |
+| ----------------- | --------------- | --------------- |
+| Italian (default) | Base path       | `/menu`         |
+| English           | Query parameter | `/menu?lang=en` |
 
 **Trade-offs:**
+
 - Simple implementation, single URL set
 - Google treats query parameters as separate URLs — mitigated by correct canonical + hreflang tags
 - Subfolder approach (`/en/menu`) would be more robust but requires significant refactor
@@ -155,12 +158,12 @@ Generated dynamically from database. Includes:
 
 ### 5.1 Schemas Implemented
 
-| Schema Type | Pages | Key Data |
-|-------------|-------|----------|
-| **Restaurant** | Home (`/`) | Name, address, geo coordinates, cuisine, social links, opening hours |
-| **BreadcrumbList** | All pages | Navigation hierarchy |
-| **Event** | `/eventi/:id` | Event name, date, location, description |
-| **Menu** | `/menu` | Restaurant menu reference |
+| Schema Type        | Pages         | Key Data                                                             |
+| ------------------ | ------------- | -------------------------------------------------------------------- |
+| **Restaurant**     | Home (`/`)    | Name, address, geo coordinates, cuisine, social links, opening hours |
+| **BreadcrumbList** | All pages     | Navigation hierarchy                                                 |
+| **Event**          | `/eventi/:id` | Event name, date, location, description                              |
+| **Menu**           | `/menu`       | Restaurant menu reference                                            |
 
 ### 5.2 Known Limitations
 
@@ -173,20 +176,20 @@ Generated dynamically from database. Includes:
 
 ### 6.1 Production Cache Headers
 
-| Route Type | Cache-Control | Notes |
-|------------|---------------|-------|
-| Public API | 60-300s + `stale-while-revalidate` | Balances freshness with performance |
-| Admin API | No caching | Ensures real-time data |
-| Static assets | Vite default (hashed filenames) | Long-term caching via content hash |
+| Route Type    | Cache-Control                      | Notes                               |
+| ------------- | ---------------------------------- | ----------------------------------- |
+| Public API    | 60-300s + `stale-while-revalidate` | Balances freshness with performance |
+| Admin API     | No caching                         | Ensures real-time data              |
+| Static assets | Vite default (hashed filenames)    | Long-term caching via content hash  |
 
 ### 6.2 Image Loading Optimization
 
-| Technique | Details |
-|-----------|---------|
-| DNS Preconnect | `<link rel="preconnect">` + `<link rel="dns-prefetch">` for Supabase storage in `index.html` |
-| Eager/Lazy | Hero images: `loading="eager"`, below-fold: `loading="lazy"` |
-| Staggered Preload | `useImagePreloader` hook: background loading with 100ms intervals |
-| Hover Prefetch | Header navigation prefetches page data on link hover |
+| Technique         | Details                                                                                      |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| DNS Preconnect    | `<link rel="preconnect">` + `<link rel="dns-prefetch">` for Supabase storage in `index.html` |
+| Eager/Lazy        | Hero images: `loading="eager"`, below-fold: `loading="lazy"`                                 |
+| Staggered Preload | `useImagePreloader` hook: background loading with 100ms intervals                            |
+| Hover Prefetch    | Header navigation prefetches page data on link hover                                         |
 
 ---
 
@@ -198,6 +201,7 @@ Generated dynamically from database. Includes:
 **File**: `client/src/pages/privacy-policy.tsx`
 
 Bilingual (IT/EN) page containing:
+
 - Data controller details (Camera con Vista S.A.S.)
 - Types of data collected
 - Processing purposes and legal basis
@@ -212,6 +216,7 @@ Bilingual (IT/EN) page containing:
 **File**: `client/src/pages/cookie-policy.tsx`
 
 Bilingual (IT/EN) page covering:
+
 - Cookie categories: Essential, Analytics, Marketing
 - Third-party cookies (Google Analytics, Meta Pixel)
 - Opt-out procedures
@@ -220,6 +225,7 @@ Bilingual (IT/EN) page covering:
 ### 7.3 Cookie Consent System
 
 **Components:**
+
 - `CookieConsent.tsx` — Banner UI with 3 options
 - `ConsentTracking.tsx` — Conditional script loading
 
@@ -235,27 +241,30 @@ User visits site → Banner appears (no tracking active)
 ```
 
 **Storage**: `localStorage["ccv_cookie_consent"]`
+
 - `null`: No consent given → banner visible, all tracking OFF
 - `"essential"`: Essential only (legacy format, backward compatible)
 - `"all"`: All accepted (legacy format, backward compatible)
 - `{"analytics": true, "marketing": false}`: Granular JSON format
 
 **Custom Events:**
+
 - `ccv_consent_reset`: Reopens banner (triggered by footer "Preferenze cookie" link)
 - `ccv_consent_update`: Notifies `ConsentTracking` to reload/unload scripts
 
 ### 7.4 Tracking Configuration
 
-| Tracker | Env Variable | Status |
-|---------|-------------|--------|
+| Tracker          | Env Variable             | Status                |
+| ---------------- | ------------------------ | --------------------- |
 | Google Analytics | `VITE_GA_MEASUREMENT_ID` | Pending configuration |
-| Meta Pixel | `VITE_FB_PIXEL_ID` | Pending configuration |
+| Meta Pixel       | `VITE_FB_PIXEL_ID`       | Pending configuration |
 
 Without these environment variables, tracking scripts are not loaded (safe-by-default).
 
 ### 7.5 Company Information in Footer
 
 Displayed on all pages in the footer:
+
 - **Company**: CAMERA CON VISTA S.A.S. di Matteo Bonetti Camera Roda & C.
 - **Address**: Via Santo Stefano 14/2A – 40125 Bologna (BO)
 - **VAT/Tax**: P.IVA / C.F. 03488971205
@@ -275,9 +284,9 @@ Footer also includes links to Privacy Policy, Cookie Policy, and "Preferenze coo
 
 ### 8.2 Known Improvement Opportunities
 
-| Priority | Item | Impact |
-|----------|------|--------|
-| Medium | Add `og:image` for homepage | Better social media sharing appearance |
-| Medium | Use real `lastmod` dates from DB | More accurate sitemap for crawlers |
-| Low | Populate JSON-LD Menu sections | Richer search results |
-| Low | Consider `/en/` subfolder for English | Stronger multilingual SEO (major refactor) |
+| Priority | Item                                  | Impact                                     |
+| -------- | ------------------------------------- | ------------------------------------------ |
+| Medium   | Add `og:image` for homepage           | Better social media sharing appearance     |
+| Medium   | Use real `lastmod` dates from DB      | More accurate sitemap for crawlers         |
+| Low      | Populate JSON-LD Menu sections        | Richer search results                      |
+| Low      | Consider `/en/` subfolder for English | Stronger multilingual SEO (major refactor) |

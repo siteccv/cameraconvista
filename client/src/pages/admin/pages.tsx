@@ -4,7 +4,17 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Monitor, Smartphone, Upload, EyeOff, Eye, Check, AlertTriangle, Loader2, ArrowLeft } from "lucide-react";
+import {
+  Monitor,
+  Smartphone,
+  Upload,
+  EyeOff,
+  Eye,
+  Check,
+  AlertTriangle,
+  Loader2,
+  ArrowLeft,
+} from "lucide-react";
 import { IPhoneFrame } from "@/components/admin/IPhoneFrame";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -36,7 +46,12 @@ const pageComponents: PageEntry[] = [
   { slug: "home", labelIt: "Home", labelEn: "Home", component: Home },
   { slug: "menu", labelIt: "Menu", labelEn: "Menu", component: Menu },
   { slug: "carta-vini", labelIt: "Carta dei Vini", labelEn: "Wine List", component: CartaVini },
-  { slug: "cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar", component: CocktailBar },
+  {
+    slug: "cocktail-bar",
+    labelIt: "Cocktail Bar",
+    labelEn: "Cocktail Bar",
+    component: CocktailBar,
+  },
   { slug: "eventi", labelIt: "Eventi", labelEn: "Events", component: Eventi },
   {
     slug: "eventi-privati",
@@ -44,9 +59,25 @@ const pageComponents: PageEntry[] = [
     labelEn: "Private Events",
     component: EventiPrivati,
     children: [
-      { slug: "eventi-privati-aperitivo", labelIt: "Aperitivo", labelEn: "Aperitivo", component: AperitivoPage },
-      { slug: "eventi-privati-cena", labelIt: "Cena", labelEn: "Dinner", component: CenaPage, hidden: !PRIVATE_DINNER_ENABLED },
-      { slug: "eventi-privati-esclusivo", labelIt: "Esclusivo", labelEn: "Exclusive", component: EsclusivoPage },
+      {
+        slug: "eventi-privati-aperitivo",
+        labelIt: "Aperitivo",
+        labelEn: "Aperitivo",
+        component: AperitivoPage,
+      },
+      {
+        slug: "eventi-privati-cena",
+        labelIt: "Cena",
+        labelEn: "Dinner",
+        component: CenaPage,
+        hidden: !PRIVATE_DINNER_ENABLED,
+      },
+      {
+        slug: "eventi-privati-esclusivo",
+        labelIt: "Esclusivo",
+        labelEn: "Exclusive",
+        component: EsclusivoPage,
+      },
     ],
   },
   { slug: "galleria", labelIt: "Galleria", labelEn: "Gallery", component: Galleria },
@@ -78,10 +109,17 @@ export default function AdminPages() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/page-blocks"] });
       queryClient.invalidateQueries({ queryKey: ["/api"] });
-      toast({ title: t("Pubblicato", "Published"), description: t("La pagina è stata pubblicata.", "The page has been published.") });
+      toast({
+        title: t("Pubblicato", "Published"),
+        description: t("La pagina è stata pubblicata.", "The page has been published."),
+      });
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile pubblicare la pagina.", "Failed to publish page."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile pubblicare la pagina.", "Failed to publish page."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -91,10 +129,17 @@ export default function AdminPages() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
-      toast({ title: t("Aggiornato", "Updated"), description: t("Visibilità aggiornata.", "Visibility updated.") });
+      toast({
+        title: t("Aggiornato", "Updated"),
+        description: t("Visibilità aggiornata.", "Visibility updated."),
+      });
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiornare la visibilità.", "Failed to update visibility."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile aggiornare la visibilità.", "Failed to update visibility."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -119,16 +164,16 @@ export default function AdminPages() {
     }
   }, []);
 
-  const activeParent = pageComponents.find(p => p.slug === activePage);
-  const visibleChildren = activeParent?.children?.filter(child => !child.hidden) ?? [];
+  const activeParent = pageComponents.find((p) => p.slug === activePage);
+  const visibleChildren = activeParent?.children?.filter((child) => !child.hidden) ?? [];
   const hasChildren = visibleChildren.length > 0;
 
   const effectiveSlug = activeSubPage || activePage;
-  const activePageData = dbPages.find(p => p.slug === effectiveSlug);
+  const activePageData = dbPages.find((p) => p.slug === effectiveSlug);
 
   let ActivePageComponent: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
   if (activeSubPage && activeParent?.children) {
-    const child = activeParent.children.find(c => c.slug === activeSubPage);
+    const child = activeParent.children.find((c) => c.slug === activeSubPage);
     ActivePageComponent = child?.component || Home;
   } else {
     ActivePageComponent = activeParent?.component || Home;
@@ -151,10 +196,10 @@ export default function AdminPages() {
             <Tabs value={activePage} onValueChange={setActivePage}>
               <TabsList className="flex-wrap h-auto gap-1">
                 {pageComponents.map((page) => {
-                  const dbPage = dbPages.find(p => p.slug === page.slug);
+                  const dbPage = dbPages.find((p) => p.slug === page.slug);
                   return (
-                    <TabsTrigger 
-                      key={page.slug} 
+                    <TabsTrigger
+                      key={page.slug}
                       value={page.slug}
                       className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground relative flex items-center gap-1"
                       data-testid={`tab-page-${page.slug}`}
@@ -166,7 +211,10 @@ export default function AdminPages() {
                         </span>
                       )}
                       {dbPage && dbPage.isDraft && (
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full" title={t("Bozza", "Draft")} />
+                        <span
+                          className="absolute -top-1 -right-1 w-2 h-2 bg-yellow-500 rounded-full"
+                          title={t("Bozza", "Draft")}
+                        />
                       )}
                     </TabsTrigger>
                   );
@@ -201,7 +249,7 @@ export default function AdminPages() {
                     {t("Pagina principale", "Main Page")}
                   </button>
                   {visibleChildren.map((child) => {
-                    const dbPage = dbPages.find(p => p.slug === child.slug);
+                    const dbPage = dbPages.find((p) => p.slug === child.slug);
                     return (
                       <button
                         key={child.slug}
@@ -283,9 +331,15 @@ export default function AdminPages() {
                       data-testid="button-toggle-visibility"
                     >
                       {activePageData.isVisible ? (
-                        <><EyeOff className="h-4 w-4 mr-2" />{t("Nascondi", "Hide")}</>
+                        <>
+                          <EyeOff className="h-4 w-4 mr-2" />
+                          {t("Nascondi", "Hide")}
+                        </>
                       ) : (
-                        <><Eye className="h-4 w-4 mr-2" />{t("Mostra", "Show")}</>
+                        <>
+                          <Eye className="h-4 w-4 mr-2" />
+                          {t("Mostra", "Show")}
+                        </>
                       )}
                     </Button>
                   )}
@@ -293,7 +347,7 @@ export default function AdminPages() {
                     <Button
                       size="sm"
                       className="no-default-hover-elevate no-default-active-elevate animate-subtle-pulse"
-                      style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
+                      style={{ backgroundColor: "#dc2626", color: "#fff", borderColor: "#dc2626" }}
                       onClick={() => publishPageMutation.mutate(activePageData.id)}
                       disabled={publishPageMutation.isPending}
                       data-testid="button-publish-page"
@@ -309,7 +363,7 @@ export default function AdminPages() {
                     <Button
                       size="sm"
                       className="no-default-hover-elevate no-default-active-elevate cursor-default publish-done"
-                      style={{ backgroundColor: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                      style={{ backgroundColor: "#16a34a", color: "#fff", borderColor: "#16a34a" }}
                       disabled
                       data-testid="button-publish-page"
                     >
@@ -323,9 +377,12 @@ export default function AdminPages() {
           </div>
         </div>
 
-        <div 
+        <div
           className={`border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center ${deviceView === "mobile" ? "p-4" : "p-8"}`}
-          style={{ height: deviceView === "mobile" ? "calc(100vh - 240px)" : "auto", minHeight: deviceView === "mobile" ? "600px" : "auto" }}
+          style={{
+            height: deviceView === "mobile" ? "calc(100vh - 240px)" : "auto",
+            minHeight: deviceView === "mobile" ? "600px" : "auto",
+          }}
           data-testid="preview-container"
         >
           {deviceView === "mobile" ? (

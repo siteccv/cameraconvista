@@ -48,8 +48,7 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
       media.altIt?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       media.altEn?.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const matchesCategory =
-      selectedCategory === "all" || media.category === selectedCategory;
+    const matchesCategory = selectedCategory === "all" || media.category === selectedCategory;
 
     const isImage = media.mimeType.startsWith("image/");
 
@@ -75,7 +74,7 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
 
   const handleMediaClick = (media: Media) => {
     if (multiple) {
-      setSelectedMultiple(prev => {
+      setSelectedMultiple((prev) => {
         const next = new Map(prev);
         if (next.has(media.id)) {
           next.delete(media.id);
@@ -102,29 +101,38 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
     return selectedMedia?.id === media.id;
   };
 
-  const selectionCount = multiple ? selectedMultiple.size : (selectedMedia ? 1 : 0);
+  const selectionCount = multiple ? selectedMultiple.size : selectedMedia ? 1 : 0;
 
   const getFooterText = () => {
     if (multiple) {
       if (selectedMultiple.size === 0) {
         return t("Clicca per selezionare una o più immagini", "Click to select one or more images");
       }
-      return t(`${selectedMultiple.size} immagini selezionate`, `${selectedMultiple.size} images selected`);
+      return t(
+        `${selectedMultiple.size} immagini selezionate`,
+        `${selectedMultiple.size} images selected`,
+      );
     }
     if (selectedMedia) {
       return t(`Selezionato: ${selectedMedia.filename}`, `Selected: ${selectedMedia.filename}`);
     }
-    return t("Clicca per selezionare, doppio click per confermare", "Click to select, double click to confirm");
+    return t(
+      "Clicca per selezionare, doppio click per confermare",
+      "Click to select, double click to confirm",
+    );
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) {
-        setSelectedMedia(null);
-        setSelectedMultiple(new Map());
-        onClose();
-      }
-    }}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          setSelectedMedia(null);
+          setSelectedMultiple(new Map());
+          onClose();
+        }
+      }}
+    >
       <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -149,7 +157,11 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
             </div>
           </div>
 
-          <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col overflow-hidden">
+          <Tabs
+            value={selectedCategory}
+            onValueChange={setSelectedCategory}
+            className="flex-1 flex flex-col overflow-hidden"
+          >
             <TabsList className="mb-4 flex-wrap h-auto">
               <TabsTrigger value="all" data-testid="tab-all-media">
                 {t("Tutti", "All")}
@@ -189,7 +201,11 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
                     >
                       <img
                         src={media.url}
-                        alt={language === "it" ? media.altIt || media.filename : media.altEn || media.filename}
+                        alt={
+                          language === "it"
+                            ? media.altIt || media.filename
+                            : media.altEn || media.filename
+                        }
                         className="w-full h-full object-cover"
                         loading="lazy"
                       />
@@ -209,18 +225,23 @@ export function MediaPickerModal(props: MediaPickerModalProps | MediaPickerMulti
         </div>
 
         <div className="flex justify-between items-center pt-4 border-t mt-4">
-          <p className="text-sm text-muted-foreground">
-            {getFooterText()}
-          </p>
+          <p className="text-sm text-muted-foreground">{getFooterText()}</p>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => {
-              setSelectedMedia(null);
-              setSelectedMultiple(new Map());
-              onClose();
-            }}>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setSelectedMedia(null);
+                setSelectedMultiple(new Map());
+                onClose();
+              }}
+            >
               {t("Annulla", "Cancel")}
             </Button>
-            <Button onClick={handleConfirm} disabled={selectionCount === 0} data-testid="button-confirm-media">
+            <Button
+              onClick={handleConfirm}
+              disabled={selectionCount === 0}
+              data-testid="button-confirm-media"
+            >
               {multiple && selectionCount > 0
                 ? t(`Aggiungi (${selectionCount})`, `Add (${selectionCount})`)
                 : t("Seleziona", "Select")}

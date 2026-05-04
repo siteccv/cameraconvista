@@ -4,12 +4,26 @@ import { insertPageSchema, insertPageBlockSchema, type PageBlock } from "@shared
 import { requireAuth, parseId } from "./helpers";
 
 const SNAPSHOT_FIELDS = [
-  "titleIt", "titleEn", "bodyIt", "bodyEn",
-  "ctaTextIt", "ctaTextEn", "ctaUrl",
-  "imageUrl", "imageAltIt", "imageAltEn",
-  "imageOffsetX", "imageOffsetY", "imageScaleDesktop",
-  "imageOffsetXMobile", "imageOffsetYMobile", "imageScaleMobile",
-  "titleFontSize", "bodyFontSize", "titleFontSizeMobile", "bodyFontSizeMobile",
+  "titleIt",
+  "titleEn",
+  "bodyIt",
+  "bodyEn",
+  "ctaTextIt",
+  "ctaTextEn",
+  "ctaUrl",
+  "imageUrl",
+  "imageAltIt",
+  "imageAltEn",
+  "imageOffsetX",
+  "imageOffsetY",
+  "imageScaleDesktop",
+  "imageOffsetXMobile",
+  "imageOffsetYMobile",
+  "imageScaleMobile",
+  "titleFontSize",
+  "bodyFontSize",
+  "titleFontSizeMobile",
+  "bodyFontSizeMobile",
 ] as const;
 
 function extractBlockSnapshot(block: PageBlock): Record<string, unknown> {
@@ -41,7 +55,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const pages = await storage.getPages();
-    res.json(pages.filter(page => page.isVisible));
+    res.json(pages.filter((page) => page.isVisible));
   } catch (error) {
     console.error("Error fetching pages:", error);
     res.status(500).json({ error: "Failed to fetch pages" });
@@ -232,7 +246,10 @@ adminPageBlocksRouter.post("/", requireAuth, async (req, res) => {
     }
     const block = await storage.createPageBlock(parsed.data);
     const snapshot = extractBlockSnapshot(block);
-    const updatedBlock = await storage.updatePageBlock(block.id, { publishedSnapshot: snapshot, isDraft: false });
+    const updatedBlock = await storage.updatePageBlock(block.id, {
+      publishedSnapshot: snapshot,
+      isDraft: false,
+    });
     res.status(201).json(updatedBlock || block);
   } catch (error) {
     console.error("Error creating page block:", error);

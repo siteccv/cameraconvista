@@ -17,17 +17,19 @@ declare module "http" {
   }
 }
 
-app.use(helmet({
-  contentSecurityPolicy: false,
-  strictTransportSecurity: false,
-  crossOriginEmbedderPolicy: false,
-  crossOriginOpenerPolicy: false,
-  crossOriginResourcePolicy: false,
-  xContentTypeOptions: true,
-  referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-  frameguard: { action: "sameorigin" },
-  permittedCrossDomainPolicies: false,
-}));
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+    strictTransportSecurity: false,
+    crossOriginEmbedderPolicy: false,
+    crossOriginOpenerPolicy: false,
+    crossOriginResourcePolicy: false,
+    xContentTypeOptions: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    frameguard: { action: "sameorigin" },
+    permittedCrossDomainPolicies: false,
+  }),
+);
 
 app.use((_req, res, next) => {
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
@@ -68,13 +70,18 @@ app.use((req, res, next) => {
 
   const canonicalHost = "www.cameraconvista.it";
   const host = req.hostname;
-  const needsWww = process.env.NODE_ENV === "production" && host !== canonicalHost && (host === "cameraconvista.it" || host.endsWith(".cameraconvista.it"));
+  const needsWww =
+    process.env.NODE_ENV === "production" &&
+    host !== canonicalHost &&
+    (host === "cameraconvista.it" || host.endsWith(".cameraconvista.it"));
   const needsSlashStrip = req.path !== "/" && req.path.endsWith("/");
 
   if (needsWww || needsSlashStrip) {
     const targetHost = needsWww ? canonicalHost : host;
     const targetPath = needsSlashStrip ? req.path.replace(/\/+$/, "") : req.path;
-    const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    const query = req.originalUrl.includes("?")
+      ? req.originalUrl.slice(req.originalUrl.indexOf("?"))
+      : "";
     const targetUrl = needsWww
       ? `https://${targetHost}${targetPath}${query}`
       : `${targetPath}${query}`;
@@ -83,7 +90,9 @@ app.use((req, res, next) => {
 
   // Redirect /home to /
   if (req.path === "/home" || req.path === "/home/") {
-    const query = req.originalUrl.includes("?") ? req.originalUrl.slice(req.originalUrl.indexOf("?")) : "";
+    const query = req.originalUrl.includes("?")
+      ? req.originalUrl.slice(req.originalUrl.indexOf("?"))
+      : "";
     return res.redirect(301, "/" + query);
   }
 
@@ -163,16 +172,45 @@ app.use((req, res, next) => {
     serveStatic(app);
   } else {
     app.use((req, res, next) => {
-      if (req.path.startsWith("/api") || req.path.startsWith("/admina") || req.path.startsWith("/vite-hmr")) {
+      if (
+        req.path.startsWith("/api") ||
+        req.path.startsWith("/admina") ||
+        req.path.startsWith("/vite-hmr")
+      ) {
         return next();
       }
       const ext = req.path.split(".").pop();
-      if (ext && ["js", "css", "png", "jpg", "jpeg", "gif", "svg", "ico", "woff", "woff2", "ttf", "map", "json", "txt", "xml", "webp", "mp4"].includes(ext)) {
+      if (
+        ext &&
+        [
+          "js",
+          "css",
+          "png",
+          "jpg",
+          "jpeg",
+          "gif",
+          "svg",
+          "ico",
+          "woff",
+          "woff2",
+          "ttf",
+          "map",
+          "json",
+          "txt",
+          "xml",
+          "webp",
+          "mp4",
+        ].includes(ext)
+      ) {
         return next();
       }
       const originalEnd = res.end;
       res.end = function (chunk: any, encoding?: any, callback?: any) {
-        if (typeof chunk === "string" && chunk.includes("</head>") && chunk.includes('<div id="root">')) {
+        if (
+          typeof chunk === "string" &&
+          chunk.includes("</head>") &&
+          chunk.includes('<div id="root">')
+        ) {
           generateSeoHtml(req)
             .then(({ metaTags, lang }) => {
               const injected = injectSeoIntoHtml(chunk, metaTags, lang);

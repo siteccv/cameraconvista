@@ -22,7 +22,11 @@ export default function Galleria() {
   const viewportIsMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const isMobile = forceMobileLayout || viewportIsMobile;
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS.galleria,
     defaults: GALLERIA_DEFAULTS,
   });
@@ -48,7 +52,7 @@ export default function Galleria() {
   });
 
   const visibleGalleries = galleries
-    .filter(g => g.isVisible)
+    .filter((g) => g.isVisible)
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
   useEffect(() => {
@@ -56,7 +60,7 @@ export default function Galleria() {
     const params = new URLSearchParams(window.location.search);
     const albumParam = params.get("album");
     if (!albumParam) return;
-    const match = visibleGalleries.find(g => {
+    const match = visibleGalleries.find((g) => {
       const slugIt = (g.titleIt || "").toLowerCase().replace(/\s+/g, "-");
       const slugEn = (g.titleEn || "").toLowerCase().replace(/\s+/g, "-");
       return slugIt === albumParam || slugEn === albumParam || String(g.id) === albumParam;
@@ -72,7 +76,12 @@ export default function Galleria() {
     }
   }, [visibleGalleries, selectedGallery]);
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -93,14 +102,19 @@ export default function Galleria() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -135,11 +149,13 @@ export default function Galleria() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -152,7 +168,9 @@ export default function Galleria() {
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -184,7 +202,9 @@ export default function Galleria() {
       <section className="py-10 md:py-20">
         <div className="w-full px-4 md:px-12 lg:px-20">
           {galleriesLoading ? (
-            <div className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}>
+            <div
+              className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}
+            >
               {[...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="aspect-[3/4] rounded-lg" />
               ))}
@@ -195,7 +215,9 @@ export default function Galleria() {
               <p>{t("La galleria sarà presto disponibile.", "Gallery coming soon.")}</p>
             </div>
           ) : (
-            <div className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}>
+            <div
+              className={`grid gap-4 md:gap-8 ${isMobile ? "grid-cols-2" : "grid-cols-2 lg:grid-cols-4"}`}
+            >
               {visibleGalleries.map((gallery) => (
                 <div key={gallery.id} className="flex flex-col items-center">
                   <h3 className="font-display text-xl md:text-2xl text-[#2f2b2a] text-center mb-3">

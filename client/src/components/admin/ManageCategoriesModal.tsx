@@ -3,12 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +18,7 @@ interface ManageCategoriesModalProps {
 export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesModalProps) {
   const { t } = useLanguage();
   const { toast } = useToast();
-  
+
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editLabelIt, setEditLabelIt] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -118,7 +113,7 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
         <DialogHeader>
           <DialogTitle>{t("Gestisci cartelle", "Manage folders")}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="space-y-4 mt-4">
           {isLoading ? (
             <div className="flex justify-center py-8">
@@ -131,11 +126,11 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                   {t("Nessuna cartella. Crea la prima!", "No folders. Create the first one!")}
                 </p>
               )}
-              
+
               <div className="space-y-2">
                 {categories.map((category) => (
-                  <div 
-                    key={category.id} 
+                  <div
+                    key={category.id}
                     className="flex items-center gap-2 p-3 border rounded-md bg-background"
                   >
                     {editingId === category.id ? (
@@ -149,8 +144,8 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                             data-testid="input-edit-label-it"
                           />
                         </div>
-                        <Button 
-                          size="icon" 
+                        <Button
+                          size="icon"
                           variant="ghost"
                           onClick={handleSaveEdit}
                           disabled={updateMutation.isPending}
@@ -158,8 +153,8 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                         >
                           <Check className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          size="icon" 
+                        <Button
+                          size="icon"
                           variant="ghost"
                           onClick={() => setEditingId(null)}
                           data-testid="button-cancel-edit"
@@ -172,16 +167,16 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                         <div className="flex-1">
                           <p className="font-medium text-sm">{category.labelIt}</p>
                         </div>
-                        <Button 
-                          size="icon" 
+                        <Button
+                          size="icon"
                           variant="ghost"
                           onClick={() => handleStartEdit(category)}
                           data-testid={`button-edit-category-${category.id}`}
                         >
                           <Pencil className="w-4 h-4" />
                         </Button>
-                        <Button 
-                          size="icon" 
+                        <Button
+                          size="icon"
                           variant="outline"
                           className="bg-white text-primary border-primary/20 hover:bg-primary/5"
                           onClick={() => handleDelete(category.id)}
@@ -209,24 +204,31 @@ export function ManageCategoriesModal({ open, onOpenChange }: ManageCategoriesMo
                     />
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      size="sm" 
+                    <Button
+                      size="sm"
                       onClick={handleCreate}
                       disabled={createMutation.isPending || !newLabelIt.trim()}
                       data-testid="button-confirm-create"
                     >
-                      {createMutation.isPending && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                      {createMutation.isPending && (
+                        <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      )}
                       {t("Crea", "Create")}
                     </Button>
-                    <Button size="sm" variant="ghost" onClick={resetCreateForm} data-testid="button-cancel-create">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={resetCreateForm}
+                      data-testid="button-cancel-create"
+                    >
                       {t("Annulla", "Cancel")}
                     </Button>
                   </div>
                 </div>
               ) : (
-                <Button 
-                  variant="outline" 
-                  className="w-full" 
+                <Button
+                  variant="outline"
+                  className="w-full"
                   onClick={() => setIsCreating(true)}
                   data-testid="button-add-category"
                 >

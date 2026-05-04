@@ -29,22 +29,35 @@ export default function AperitivoPage() {
   const gallery3Block = getBlock("gallery-3");
   const ctaBlock = getBlock("cta");
 
-  const heroDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
-  const introDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
-  const sectionADef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-a")!;
-  const sectionBDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-b")!;
-  const sectionCDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "section-c")!;
-  const gallery1Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
-  const gallery2Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
-  const gallery3Def = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-3")!;
-  const ctaDef = APERITIVO_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
+  const heroDef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "hero")!;
+  const introDef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "intro")!;
+  const sectionADef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "section-a")!;
+  const sectionBDef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "section-b")!;
+  const sectionCDef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "section-c")!;
+  const gallery1Def = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-1")!;
+  const gallery2Def = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-2")!;
+  const gallery3Def = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-3")!;
+  const ctaDef = APERITIVO_PAGE_DEFAULTS.find((d) => d.blockType === "cta")!;
 
-  const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
+  const makeTextSave =
+    (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
     (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
       if (!block) return;
-      updateBlock(block.id, field === "title"
-        ? { titleIt: data.textIt, titleEn: data.textEn, titleFontSize: data.fontSizeDesktop, titleFontSizeMobile: data.fontSizeMobile }
-        : { bodyIt: data.textIt, bodyEn: data.textEn, bodyFontSize: data.fontSizeDesktop, bodyFontSizeMobile: data.fontSizeMobile }
+      updateBlock(
+        block.id,
+        field === "title"
+          ? {
+              titleIt: data.textIt,
+              titleEn: data.textEn,
+              titleFontSize: data.fontSizeDesktop,
+              titleFontSizeMobile: data.fontSizeMobile,
+            }
+          : {
+              bodyIt: data.textIt,
+              bodyEn: data.textEn,
+              bodyFontSize: data.fontSizeDesktop,
+              bodyFontSizeMobile: data.fontSizeMobile,
+            },
       );
     };
 
@@ -59,7 +72,7 @@ export default function AperitivoPage() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(block.metadata as Record<string, unknown> || {}),
+        ...((block.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
@@ -110,9 +123,27 @@ export default function AperitivoPage() {
       </section>
 
       {[
-        { block: sectionABlock, def: sectionADef, imgBlock: gallery1Block, imgDef: gallery1Def, idx: 0 },
-        { block: sectionBBlock, def: sectionBDef, imgBlock: gallery2Block, imgDef: gallery2Def, idx: 1 },
-        { block: sectionCBlock, def: sectionCDef, imgBlock: gallery3Block, imgDef: gallery3Def, idx: 2 },
+        {
+          block: sectionABlock,
+          def: sectionADef,
+          imgBlock: gallery1Block,
+          imgDef: gallery1Def,
+          idx: 0,
+        },
+        {
+          block: sectionBBlock,
+          def: sectionBDef,
+          imgBlock: gallery2Block,
+          imgDef: gallery2Def,
+          idx: 1,
+        },
+        {
+          block: sectionCBlock,
+          def: sectionCDef,
+          imgBlock: gallery3Block,
+          imgDef: gallery3Def,
+          idx: 2,
+        },
       ].map(({ block, def, imgBlock, imgDef, idx }) => (
         <section key={idx} className="py-6 md:py-10">
           <div className="container mx-auto px-4 max-w-5xl">
@@ -146,11 +177,15 @@ export default function AperitivoPage() {
                   zoom={imgBlock?.imageScaleDesktop || imgDef.imageScaleDesktop || 100}
                   panX={imgBlock?.imageOffsetX ?? imgDef.imageOffsetX ?? 0}
                   panY={imgBlock?.imageOffsetY ?? imgDef.imageOffsetY ?? 0}
-                  overlay={(imgBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+                  overlay={
+                    ((imgBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 0
+                  }
                   zoomMobile={imgBlock?.imageScaleMobile || imgDef.imageScaleMobile || 100}
                   panXMobile={imgBlock?.imageOffsetXMobile ?? imgDef.imageOffsetXMobile ?? 0}
                   panYMobile={imgBlock?.imageOffsetYMobile ?? imgDef.imageOffsetYMobile ?? 0}
-                  overlayMobile={(imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  overlayMobile={
+                    ((imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 0
+                  }
                   containerClassName="rounded-placeholder"
                   aspectRatio="4/3"
                   testIdPrefix={`aperitivo-gallery-${idx + 1}`}

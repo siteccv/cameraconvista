@@ -1,5 +1,15 @@
 # 06 - Pannello Admin
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina Cena degli Eventi Privati quando il flag `PRIVATE_DINNER_ENABLED` e false. La pagina dedicata rimane nel codice per ripristino controllato.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Accesso
 
 - **URL**: `/admina` (path segreto, non esposto nella navigazione pubblica)
@@ -13,17 +23,19 @@
 Sidebar a sinistra (256px) con 7 sezioni di navigazione + 3 azioni:
 
 ### Navigazione
-| Icona | Voce IT | Voce EN | Path |
-|-------|---------|---------|------|
-| FileText | Sezioni Pagine | Page Sections | `/admina` |
-| Calendar | Eventi | Events | `/admina/events` |
-| Images | Galleria Album | Album Gallery | `/admina/gallery` |
-| Image | Libreria Media | Media Library | `/admina/media` |
-| Eye | Anteprima | Preview | `/admina/preview` |
-| Search | SEO & Metadata | SEO & Metadata | `/admina/seo` |
-| Settings | Impostazioni | Settings | `/admina/settings` |
+
+| Icona    | Voce IT        | Voce EN        | Path               |
+| -------- | -------------- | -------------- | ------------------ |
+| FileText | Sezioni Pagine | Page Sections  | `/admina`          |
+| Calendar | Eventi         | Events         | `/admina/events`   |
+| Images   | Galleria Album | Album Gallery  | `/admina/gallery`  |
+| Image    | Libreria Media | Media Library  | `/admina/media`    |
+| Eye      | Anteprima      | Preview        | `/admina/preview`  |
+| Search   | SEO & Metadata | SEO & Metadata | `/admina/seo`      |
+| Settings | Impostazioni   | Settings       | `/admina/settings` |
 
 ### Azioni Sidebar
+
 1. **Pubblica Sito** — Pulsante con 3 stati:
    - Rosso pulsante (`animate-subtle-pulse`): ci sono modifiche non pubblicate
    - Verde: tutto aggiornato
@@ -34,13 +46,16 @@ Sidebar a sinistra (256px) con 7 sezioni di navigazione + 3 azioni:
 ## Sezioni Pagine (`/admina`)
 
 ### Funzionalità
+
 - Lista di tutte le pagine del sito
 - Per ogni pagina: nome, visibilità, stato draft/published
 - Toggle visibilità (tranne Home che non può essere nascosta)
 - Click → modifica blocchi della pagina
 
 ### Blocchi Pagina
+
 Ogni pagina è composta da blocchi (`pageBlocks`):
+
 - `hero` — Immagine hero con titolo sovrapposto
 - `intro` — Testo introduttivo sotto il hero
 - `section` — Sezione di contenuto generico
@@ -48,7 +63,9 @@ Ogni pagina è composta da blocchi (`pageBlocks`):
 - Custom block types definiti nel metadata
 
 ### Editing WYSIWYG
+
 In modalità admin preview:
+
 - `EditableText`: Click su qualsiasi testo → campo inline editabile
 - `EditableImage`: Click su qualsiasi immagine → MediaPickerModal + controlli zoom/offset
 - Le modifiche vengono salvate automaticamente via API
@@ -56,28 +73,31 @@ In modalità admin preview:
 ## Eventi (`/admina/events`)
 
 ### Funzionalità
+
 - Lista eventi con drag-and-drop per riordino
 - Max 10 eventi contemporanei
 - Creazione/modifica via `EventModal`
 
 ### Campi Evento
-| Campo | Tipo | Descrizione |
-|-------|------|-------------|
-| titleIt/En | text | Titolo bilingue |
-| descriptionIt/En | text | Descrizione breve |
-| detailsIt/En | text | Dettagli completi |
-| posterUrl | text | URL poster immagine |
-| posterZoom/OffsetX/OffsetY | integer | Posizionamento poster |
-| startAt | timestamp | Data/ora inizio |
-| active | boolean | Attivo/inattivo |
-| bookingEnabled | boolean | Prenotazione abilitata |
-| bookingUrl | text | URL prenotazione |
-| visibilityMode | enum | ACTIVE_ONLY o UNTIL_DAYS_AFTER |
-| visibilityDaysAfter | integer | Giorni dopo evento per nascondere |
+
+| Campo                      | Tipo      | Descrizione                       |
+| -------------------------- | --------- | --------------------------------- |
+| titleIt/En                 | text      | Titolo bilingue                   |
+| descriptionIt/En           | text      | Descrizione breve                 |
+| detailsIt/En               | text      | Dettagli completi                 |
+| posterUrl                  | text      | URL poster immagine               |
+| posterZoom/OffsetX/OffsetY | integer   | Posizionamento poster             |
+| startAt                    | timestamp | Data/ora inizio                   |
+| active                     | boolean   | Attivo/inattivo                   |
+| bookingEnabled             | boolean   | Prenotazione abilitata            |
+| bookingUrl                 | text      | URL prenotazione                  |
+| visibilityMode             | enum      | ACTIVE_ONLY o UNTIL_DAYS_AFTER    |
+| visibilityDaysAfter        | integer   | Giorni dopo evento per nascondere |
 
 ## Galleria Album (`/admina/gallery`)
 
 ### Funzionalità
+
 - Lista album con copertine
 - Creazione album via `GalleryModal`
 - Gestione immagini album via `AlbumImagesModal`
@@ -85,6 +105,7 @@ In modalità admin preview:
 - Zoom/offset per ogni immagine individualmente
 
 ### Flow Creazione Album
+
 1. Click "Nuovo Album"
 2. `GalleryModal`: inserire titolo IT/EN
 3. Selezionare copertina da MediaPickerModal
@@ -98,6 +119,7 @@ In modalità admin preview:
 ## Libreria Media (`/admina/media`)
 
 ### Funzionalità
+
 - Griglia immagini uploadate
 - Filtro per categoria/cartella
 - Upload nuove immagini (max 20MB)
@@ -105,12 +127,14 @@ In modalità admin preview:
 - Gestione cartelle/categorie
 
 ### Upload Flow
+
 1. Selezionare file → upload via endpoint autenticato (`requireAuth`)
 2. Processamento opzionale con sharp (resize)
 3. Salvataggio metadata in database
 4. Immagine disponibile per selezione in MediaPickerModal
 
 ### Categorie Media
+
 - CRUD completo via `ManageCategoriesModal`
 - Campi: slug, labelIt, labelEn, sortOrder
 - Immagini uploadate assegnate alla categoria selezionata
@@ -118,12 +142,14 @@ In modalità admin preview:
 ## Anteprima (`/admina/preview`)
 
 ### Funzionalità
+
 - Preview mobile in frame iPhone 15 Pro
 - Navigazione tra le pagine del sito
 - Editing WYSIWYG attivo nel preview
 - Toggle desktop/mobile view
 
 ### IPhoneFrame
+
 - **Dimensioni**: 393x852px (viewport iPhone 15 Pro reale)
 - **Tecnologia**: CSS `transform: scale()` con `transform-origin: top left` per scaling deterministico senza distorsione dei pixel.
 - **Precisione**: Il contenuto renderizza a risoluzione reale mobile, poi viene scalato visivamente per il desktop.
@@ -131,6 +157,7 @@ In modalità admin preview:
 - `forceMobileLayout` forzato per tutti i componenti figli.
 
 ### ImageContainer (Nuovo Sistema)
+
 - **Controlli Ottimizzati**: Slider Zoom e Overlay posizionati sempre in basso per non coprire il contenuto.
 - **Bottoni Compatti**: Media, Reset, Salva e Annulla posizionati in alto, con icone ridotte per massima usabilità mobile.
 - **Misurazione**: Uso di `offsetWidth/offsetHeight` per gestire correttamente il posizionamento sotto transform CSS.
@@ -140,6 +167,7 @@ In modalità admin preview:
 > Documentazione completa del sistema SEO: vedi `11_SEO_SISTEMA.md`
 
 ### Funzionalità
+
 - Card per ogni pagina del sito con 4 campi editabili
 - Per ogni pagina: meta title IT/EN (input, contatore /60 caratteri), meta description IT/EN (textarea, contatore /160 caratteri)
 - Campi DB: `metaTitleIt`, `metaTitleEn`, `metaDescriptionIt`, `metaDescriptionEn` nella tabella `pages`
@@ -152,6 +180,7 @@ In modalità admin preview:
 ## Impostazioni (`/admina/settings`)
 
 ### Funzionalità
+
 1. **Cambio Password**: Password corrente + nuova password (min 4 caratteri)
 2. **Footer Settings**: Form completo per tutti i contenuti del footer
    - About text IT/EN
@@ -163,20 +192,25 @@ In modalità admin preview:
 ## Google Sheets Sync (`/admina/sync-google`)
 
 ### Interfaccia
+
 Pagina dedicata per sincronizzazione menu, vini e cocktail da Google Sheets.
 
 ### Struttura Sezioni
+
 Per ciascuna sezione (Menu, Vini, Cocktail):
+
 - **Pulsante verde "GOOGLE SHEET"**: Apre il foglio di lavoro in nuova tab
 - **Pulsante "Sincronizza"**: Scarica dati dal CSV e aggiorna le tabelle draft
 - **Pulsante "Pubblica"**: Copia i dati correnti nello snapshot pubblico (richiede conferma AlertDialog)
 
 ### Pulsante "Link di sincronizzazione"
+
 - Pulsante a tutta larghezza, sfondo ambra (`bg-amber-400`), con icona ingranaggio animata
 - Apre/chiude il pannello di configurazione URL
 - Quando aperto, l'icona ruota di 90° con transizione fluida
 
 ### Configurazione URL (pannello espandibile)
+
 Struttura semplificata senza campi tecnici (spreadsheetId, GID, publishedKey rimossi):
 
 1. **Menu**: Un singolo campo URL di sincronizzazione CSV
@@ -187,11 +221,13 @@ Struttura semplificata senza campi tecnici (spreadsheetId, GID, publishedKey rim
    - Non è possibile aggiungere o rimuovere categorie via UI
 
 ### Salvataggio Config
+
 - Pulsante "Salva configurazione" attivo solo se ci sono modifiche
 - Validazione client-side: verifica che gli URL non siano vuoti
 - Salvataggio in `site_settings` tabella, chiave `google_sheets_config`
 
 ### Sync Flow
+
 ```
 1. Admin inserisce URL CSV nel pannello config
 2. Admin clicca "Sincronizza" su una sezione
@@ -202,6 +238,7 @@ Struttura semplificata senza campi tecnici (spreadsheetId, GID, publishedKey rim
 ```
 
 ### Draft/Publish per Sheets
+
 - **Sync**: Aggiorna tabelle `menu_items`, `wines`, `cocktails` = dati draft
 - **Pubblica**: Copia dati tabelle come snapshot JSON in `site_settings` (`published_menu_items`, `published_wines`, `published_cocktails`)
 - **API pubblica**: Legge da snapshot in `site_settings`, fallback su tabelle se non esiste snapshot

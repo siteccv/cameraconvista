@@ -1,5 +1,15 @@
 # 02 - Architettura del Sistema
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Architettura confermata: React/Vite client, Express API, storage Supabase/PostgreSQL e layer admin separato. La pipeline Quality ora verifica anche format, audit e coverage prima di ogni pubblicazione.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Diagramma Architetturale
 
 ```
@@ -54,6 +64,7 @@ QueryClientProvider
 ### Routing Strategy
 
 **Componenti wrapper**:
+
 - `PublicPageRoute`: Verifica che la pagina sia visibile (query `/api/pages`) prima di renderizzarla
 - `ProtectedAdminRoute`: Verifica `isAuthenticated` da AdminContext, redirect a `/admina/login` se non autenticato
 - `AdminLoginRoute`: Redirect a `/admina` se già autenticato
@@ -111,6 +122,7 @@ QueryClientProvider
 2. **SupabaseStorage**: Usa Supabase REST API con conversione automatica camelCase↔snake_case
 
 Selezione runtime (fail-fast, deterministica):
+
 ```typescript
 const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 const HAS_DATABASE_URL = !!process.env.DATABASE_URL;
@@ -121,18 +133,18 @@ const HAS_DATABASE_URL = !!process.env.DATABASE_URL;
 
 Routes organizzate in moduli separati sotto `server/routes/`:
 
-| File | Public Routes | Admin Routes |
-|------|--------------|--------------|
-| `auth.ts` | — | login, logout, check-session, change-password |
-| `pages.ts` | GET pages, GET page by slug, GET blocks | CRUD pages, CRUD blocks, publish, publish-all |
-| `menu.ts` | GET menu-items, wines, cocktails | CRUD menu-items, wines, cocktails |
-| `events.ts` | GET events (filtered by visibility) | CRUD events (max 10) |
-| `gallery.ts` | GET galleries, GET gallery images | CRUD galleries, CRUD gallery images |
-| `media.ts` | GET media | CRUD media, upload (WebP auto-conversion, max 1920px, quality 80%), rotate (WebP re-compression), media categories |
-| `settings.ts` | GET site-settings, footer | PUT settings, footer |
-| `sync.ts` | — | Google Sheets sync (placeholder) |
-| `seo.ts`* | GET /sitemap.xml | — (middleware auto-injection) |
+| File          | Public Routes                           | Admin Routes                                                                                                       |
+| ------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `auth.ts`     | —                                       | login, logout, check-session, change-password                                                                      |
+| `pages.ts`    | GET pages, GET page by slug, GET blocks | CRUD pages, CRUD blocks, publish, publish-all                                                                      |
+| `menu.ts`     | GET menu-items, wines, cocktails        | CRUD menu-items, wines, cocktails                                                                                  |
+| `events.ts`   | GET events (filtered by visibility)     | CRUD events (max 10)                                                                                               |
+| `gallery.ts`  | GET galleries, GET gallery images       | CRUD galleries, CRUD gallery images                                                                                |
+| `media.ts`    | GET media                               | CRUD media, upload (WebP auto-conversion, max 1920px, quality 80%), rotate (WebP re-compression), media categories |
+| `settings.ts` | GET site-settings, footer               | PUT settings, footer                                                                                               |
+| `sync.ts`     | —                                       | Google Sheets sync (placeholder)                                                                                   |
+| `seo.ts`\*    | GET /sitemap.xml                        | — (middleware auto-injection)                                                                                      |
 
-*`seo.ts` non è nella cartella routes/ ma è un modulo separato montato direttamente in `server/index.ts`.
+\*`seo.ts` non è nella cartella routes/ ma è un modulo separato montato direttamente in `server/index.ts`.
 
 Helper condivisi in `helpers.ts`: `requireAuth`, `parseId`, `validateId`, `generateSessionToken`, `verifyPassword`.

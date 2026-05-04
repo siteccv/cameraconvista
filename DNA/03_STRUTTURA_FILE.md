@@ -1,5 +1,15 @@
 # 03 - Struttura dei File
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatura `Backup_<giorno>_<Mese>_<HH-MM>.tar` e restare fuori dal runtime applicativo.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Root
 
 ```
@@ -139,6 +149,7 @@ shared/
 ```
 
 Questo file è il "contratto" tra frontend e backend. Definisce:
+
 - Tabelle Drizzle (pgTable)
 - Relazioni (relations)
 - Insert schemas (createInsertSchema + omit)
@@ -147,8 +158,8 @@ Questo file è il "contratto" tra frontend e backend. Definisce:
 
 ## Path Aliases
 
-| Alias | Risolve a |
-|-------|-----------|
-| `@/*` | `client/src/*` |
-| `@shared/*` | `shared/*` |
+| Alias       | Risolve a           |
+| ----------- | ------------------- |
+| `@/*`       | `client/src/*`      |
+| `@shared/*` | `shared/*`          |
 | `@assets/*` | `attached_assets/*` |

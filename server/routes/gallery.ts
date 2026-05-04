@@ -11,7 +11,7 @@ export const publicGalleryRouter = Router();
 publicGalleryRouter.get("/", async (req, res) => {
   try {
     const galleries = await storage.getGalleries();
-    const visibleGalleries = galleries.filter(g => g.isVisible);
+    const visibleGalleries = galleries.filter((g) => g.isVisible);
     res.json(visibleGalleries);
   } catch (error) {
     console.error("Error fetching public galleries:", error);
@@ -204,12 +204,12 @@ adminGalleryRouter.post("/:galleryId/images/reorder", requireAuth, async (req, r
       res.status(400).json({ error: "imageIds array is required" });
       return;
     }
-    
+
     // Update all images with their new sortOrder in sequence
     for (let i = 0; i < imageIds.length; i++) {
       await storage.updateGalleryImage(imageIds[i], { sortOrder: i });
     }
-    
+
     res.json({ success: true });
   } catch (error) {
     console.error("Error reordering gallery images:", error);

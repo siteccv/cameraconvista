@@ -11,7 +11,15 @@ interface TeaserCardProps {
   testId: string;
 }
 
-export function TeaserCard({ imageUrl, titleIt, titleEn, descriptionIt, descriptionEn, href, testId }: TeaserCardProps) {
+export function TeaserCard({
+  imageUrl,
+  titleIt,
+  titleEn,
+  descriptionIt,
+  descriptionEn,
+  href,
+  testId,
+}: TeaserCardProps) {
   const { t } = useLanguage();
 
   return (
@@ -28,9 +36,7 @@ export function TeaserCard({ imageUrl, titleIt, titleEn, descriptionIt, descript
           {t(titleIt, titleEn)}
         </h3>
       </Link>
-      <p className="text-sm text-muted-foreground">
-        {t(descriptionIt, descriptionEn)}
-      </p>
+      <p className="text-sm text-muted-foreground">{t(descriptionIt, descriptionEn)}</p>
     </div>
   );
 }

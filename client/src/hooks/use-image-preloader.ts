@@ -23,13 +23,13 @@ export function useImagePreloader() {
     if (started.current || pages.length === 0) return;
     started.current = true;
 
-    const slugs = pages.map(p => p.slug).filter(s => s !== "eventi-privati");
+    const slugs = pages.map((p) => p.slug).filter((s) => s !== "eventi-privati");
 
     let delay = 0;
     for (const slug of slugs) {
       const t = setTimeout(() => {
         fetch(`/api/pages/slug/${slug}/blocks`)
-          .then(r => r.ok ? r.json() : [])
+          .then((r) => (r.ok ? r.json() : []))
           .then((blocks: PageBlock[]) => {
             for (const block of blocks) {
               if (block.imageUrl) preloadImage(block.imageUrl);
@@ -43,7 +43,7 @@ export function useImagePreloader() {
 
     const tGallery = setTimeout(() => {
       fetch("/api/galleries")
-        .then(r => r.ok ? r.json() : [])
+        .then((r) => (r.ok ? r.json() : []))
         .then((galleries: { coverUrl?: string }[]) => {
           for (const g of galleries) {
             if (g.coverUrl) preloadImage(g.coverUrl);
@@ -56,7 +56,7 @@ export function useImagePreloader() {
 
     const tEvents = setTimeout(() => {
       fetch("/api/events")
-        .then(r => r.ok ? r.json() : [])
+        .then((r) => (r.ok ? r.json() : []))
         .then((events: { posterUrl?: string }[]) => {
           for (const ev of events) {
             if (ev.posterUrl) preloadImage(ev.posterUrl);

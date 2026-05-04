@@ -67,12 +67,7 @@ export function TranslateButton({
           className={cn("shrink-0", className)}
           data-testid="button-translate"
         >
-          <RefreshCw
-            className={cn(
-              "h-4 w-4",
-              isTranslating && "animate-spin"
-            )}
-          />
+          <RefreshCw className={cn("h-4 w-4", isTranslating && "animate-spin")} />
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">

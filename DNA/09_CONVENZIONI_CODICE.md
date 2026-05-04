@@ -1,14 +1,26 @@
 # 09 - Convenzioni del Codice
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Prettier e ora baseline obbligatoria del progetto. ESLint resta configurato in modo non invasivo per proteggere il codice senza imporre refactor rischiosi sul sito live.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## TypeScript
 
 ### Regole Generali
+
 - **ESM modules** (`"type": "module"` in package.json)
 - **Strict mode** via tsconfig.json
 - Import senza estensione file: `import { storage } from "./storage"`
 - Path aliases: `@/*`, `@shared/*`, `@assets/*`
 
 ### Naming
+
 - **Variabili e funzioni**: camelCase (`isAuthenticated`, `getPageBlocks`)
 - **Componenti React**: PascalCase (`EditableText`, `MediaPickerModal`)
 - **Tipi e interfacce**: PascalCase (`InsertPage`, `PageBlock`)
@@ -19,6 +31,7 @@
 - **Colonne DB nel PostgreSQL**: snake_case (`title_it`, `sort_order`)
 
 ### Pattern Import
+
 ```typescript
 // React/librerie
 import { useState, useCallback, type ReactNode } from "react";
@@ -45,12 +58,14 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 ## React
 
 ### Componenti
+
 - Funzionali con hooks (no class components)
 - Export named (no default export tranne pages)
 - Props interface definita inline o nel file
 - `data-testid` su tutti gli elementi interattivi
 
 ### Pattern TanStack Query
+
 ```typescript
 // Query
 const { data: items = [], isLoading } = useQuery<Item[]>({
@@ -75,6 +90,7 @@ const mutation = useMutation({
 ```
 
 **Regole Query**:
+
 - Non definire `queryFn` per GET (usa il default fetcher)
 - Query key come array per invalidazione gerarchica: `["/api/items", id]`
 - Definire `queryFn` custom solo per endpoint admin (autenticati)
@@ -82,6 +98,7 @@ const mutation = useMutation({
 - Invalidare sempre il cache dopo mutation
 
 ### Pattern Bilingue
+
 ```typescript
 const { t } = useLanguage();
 
@@ -96,6 +113,7 @@ const { t } = useLanguage();
 ```
 
 ### Pattern Admin Preview
+
 ```typescript
 const { adminPreview } = useAdmin();
 
@@ -103,8 +121,8 @@ const { adminPreview } = useAdmin();
 {adminPreview ? (
   <EditableText
     value={t(block?.titleIt, block?.titleEn) || ""}
-    onSave={(value) => updateBlock(block.id, { 
-      [language === "it" ? "titleIt" : "titleEn"]: value 
+    onSave={(value) => updateBlock(block.id, {
+      [language === "it" ? "titleIt" : "titleEn"]: value
     })}
   />
 ) : (
@@ -115,6 +133,7 @@ const { adminPreview } = useAdmin();
 ## Express Routes
 
 ### Pattern Route
+
 ```typescript
 const router = Router();
 
@@ -147,6 +166,7 @@ router.post("/", requireAuth, async (req, res) => {
 ```
 
 ### Separazione Public/Admin
+
 - Route pubbliche: nessun middleware auth
 - Route admin: `requireAuth` middleware
 - Router separati esportati (es. `publicEventsRouter`, `adminEventsRouter`)
@@ -155,18 +175,21 @@ router.post("/", requireAuth, async (req, res) => {
 ## Tailwind CSS
 
 ### Design Tokens
+
 - `--radius-placeholder`: 0.75rem (12px) → classe `rounded-placeholder`
 - Colore oro/ocra: `#c7902f` (prezzi, icone vino)
 - Colore divider: `#e5d6b6` (beige caldo)
 - Background: `#2f2b2a` (marrone scuro per titoli)
 
 ### Classi Custom
+
 - `.price-text` — Typography per prezzi
 - `.animate-subtle-pulse` — Animazione pulsante per publish button
 - `.publish-done` — Stato "tutto aggiornato"
 - `font-display` — Playfair Display per titoli
 
 ### Responsive
+
 ```css
 /* Mobile first */
 py-10                /* Mobile */
@@ -178,14 +201,19 @@ md:text-2xl          /* Desktop */
 ## Drizzle Schema
 
 ### Pattern Tabella
+
 ```typescript
 export const items = pgTable("items", {
   id: serial("id").primaryKey(),
   nameIt: text("name_it").notNull(),
   nameEn: text("name_en").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertItemSchema = createInsertSchema(items).omit({
@@ -198,6 +226,7 @@ export type Item = typeof items.$inferSelect;
 ```
 
 ### Regole
+
 - `id` sempre `serial("id").primaryKey()`
 - Campi auto-generati (id, createdAt, updatedAt) sempre omessi da insertSchema
 - Relazioni definite con `relations()` separatamente
@@ -207,6 +236,7 @@ export type Item = typeof items.$inferSelect;
 ## Storage Interface
 
 ### Pattern CRUD
+
 ```typescript
 export interface IStorage {
   getItems(): Promise<Item[]>;
@@ -222,15 +252,18 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 ## Git & Backup
 
 ### Commit
+
 - I commit devono essere creati intenzionalmente dopo verifica dello stato del progetto
 - Non modificare la storia git manualmente
 
 ### Backup
+
 - Comando: "esegui nuovo backup"
-- Formato: `BACKUP/backup_siteccv_DD_Mon_HH-MM.tar.gz`
+- Formato: `BACKUP/Backup_<giorno>_<Mese>_<HH-MM>.tar`
 - Esclude: node_modules, .git, BACKUP
 
 ### GitHub Sync
+
 - Repo: https://github.com/siteccv/cameraconvista.git
 - Comando: "esegui commit in github"
 - Branch: main

@@ -37,8 +37,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       await apiRequest("POST", "/api/admin/logout", {});
-    } catch {
-    }
+    } catch {}
     setIsAuthenticated(false);
   };
 
@@ -48,7 +47,18 @@ export function AdminProvider({ children }: { children: ReactNode }) {
 
   return (
     <AdminContext.Provider
-      value={{ adminPreview, setAdminPreview, deviceView, setDeviceView, forceMobileLayout, setForceMobileLayout, isAuthenticated, setIsAuthenticated, logout, checkSession }}
+      value={{
+        adminPreview,
+        setAdminPreview,
+        deviceView,
+        setDeviceView,
+        forceMobileLayout,
+        setForceMobileLayout,
+        isAuthenticated,
+        setIsAuthenticated,
+        logout,
+        checkSession,
+      }}
     >
       {children}
     </AdminContext.Provider>

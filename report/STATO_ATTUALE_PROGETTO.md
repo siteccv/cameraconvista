@@ -1,12 +1,30 @@
 # STATO ATTUALE PROGETTO - Camera con Vista CMS
 
 **Data analisi iniziale:** 3 Febbraio 2026  
-**Ultimo aggiornamento:** 4 Maggio 2026 — Tooling enterprise minimo e smoke test automatici
+**Ultimo aggiornamento:** 4 Maggio 2026 — Hardening enterprise locale completato
+
+---
+
+### Hardening Enterprise Locale Completato (4 Maggio 2026)
+
+**Obiettivo: portare la pipeline locale a stato verde senza compromettere sito online, dati live, menu, email o sincronizzazioni**
+
+- **Formatting normalizzato**: Eseguito Prettier sull'intero progetto; `npm run format:check` ora e' verde
+- **Audit sicurezza verde**: Aggiornati in modo mirato `drizzle-orm`, `drizzle-zod`, `drizzle-kit`, `zod`, `resend`, Tailwind/PostCSS/Autoprefixer; `npm run audit` ora segnala 0 vulnerabilita'
+- **CI resa bloccante**: GitHub Actions `Quality` ora include `format:check`, `audit` bloccante e `test:coverage`
+- **Check completo rafforzato**: `npm run check:all` ora esegue typecheck, lint, format, audit, build, coverage unit e Playwright E2E
+- **Smoke E2E estesi**: Aggiunti controlli su pagina Eventi Privati senza card Cena, redirect `/eventi-privati/cena`, endpoint health email
+- **Runtime locale validato**: App riavviata su porta 5001 con le nuove dipendenze; health email OK e Eventi Privati mostra solo Aperitivo + Evento Privato Esclusivo
+- **Verifiche verdi**: `npm run check:all`, `npm run audit`, `npm run format:check`, `npm run test:coverage`
+- **Nota residua non bloccante**: La build Vite mostra ancora un warning PostCSS generato da plugin CSS; non blocca build/test e non deriva da vulnerabilita'
+- **Non modificato**: Nessuna scrittura a database live, nessun invio email reale, nessuna sincronizzazione esterna, nessun push automatico
 
 ---
 
 ### Tooling Enterprise Minimo e Smoke Test Automatici (4 Maggio 2026)
+
 **Obiettivo: aggiungere controlli di qualita' senza modificare logiche, funzioni, layout o contenuti del sito live**
+
 - **Lint**: Aggiunto ESLint flat config con baseline non invasiva, compatibile con codice storico senza richiedere refactor
 - **Format**: Aggiunto Prettier con script `format` e `format:check`; non e' stato eseguito `format --write` sul codice esistente per evitare riscritture massive
 - **Unit/component test**: Aggiunto Vitest + Testing Library con test base su utility `cn` e componente `Button`
@@ -20,7 +38,9 @@
 ---
 
 ### Pulizia Conservativa Dipendenze e Artefatti Locali (4 Maggio 2026)
+
 **Obiettivo: eliminare solo elementi dimostrabilmente non usati senza alterare sito pubblico, menu o contenuti live**
+
 - **Dipendenze rimosse**: Eliminati pacchetti npm non importati dal codice attivo o dalla configurazione, inclusi residui auth/session/upload/cloud non collegati al runtime corrente
 - **Dipendenze dichiarate correttamente**: Aggiunti come dipendenze dirette `libphonenumber-js` e `@radix-ui/react-visually-hidden`, gia' importate dal codice ma prima risolte transitivamente
 - **Build server ripulita**: `script/build.ts` ora contiene solo allowlist backend coerente con import reali e servizi effettivi
@@ -32,7 +52,9 @@
 ---
 
 ### Pulizia Residui Piattaforma Precedente (4 Maggio 2026)
+
 **Obiettivo: rendere il progetto indipendente dalla piattaforma precedente senza alterare contenuti pubblici o menu live**
+
 - **Configurazione rimossa**: Eliminati file di configurazione e documentazione agente della piattaforma precedente
 - **Integrazioni legacy rimosse**: Eliminate cartelle di integrazione generate e non importate dall'app attiva
 - **Dipendenze rimosse**: Eliminati plugin Vite specifici della piattaforma precedente da `package.json` e `package-lock.json`
@@ -45,7 +67,9 @@
 ---
 
 ### Fix Colonna `end_at` Mancante in Supabase (31 Marzo 2026)
+
 **Errore 404 al salvataggio evento con Data e Ora Fine**
+
 - **Causa root**: La colonna `end_at` era stata aggiunta al schema Drizzle e al DB locale ma non era stata sincronizzata al database Supabase di produzione. La query Drizzle UPDATE falliva silenziosamente → `updateEvent()` ritornava `undefined` → route rispondeva 404.
 - **Soluzione**:
   1. Colonna aggiunta manualmente in Supabase SQL Editor: `ALTER TABLE events ADD COLUMN IF NOT EXISTS end_at TIMESTAMP;`
@@ -55,8 +79,10 @@
 
 ---
 
-### Fix Soft 404 + Email www + Redirect /en/* (31 Marzo 2026)
+### Fix Soft 404 + Email www + Redirect /en/\* (31 Marzo 2026)
+
 **Risoluzione problemi Google Search Console**
+
 - **Soft 404 `/en/*`**: Aggiunto middleware in `server/index.ts` che intercetta URL con prefisso `/en/` e li redirige (301) verso `/?lang=en` o `/path?lang=en`. Risolve i 33 Soft 404 rilevati in GSC per la property `https://www.cameraconvista.it/`
 - **Email template**: URL aggiornata da `https://cameraconvista.it` → `https://www.cameraconvista.it` nel footer dell'email generata da `server/routes/event-request.ts`
 - **QR code**: I QR cartacei che puntano a `cameraconvista.it/lista-vini` continuano a funzionare tramite redirect 301 www già esistente — nessuna azione necessaria
@@ -66,7 +92,9 @@
 ---
 
 ### Fix Dati Strutturati Eventi (31 Marzo 2026)
+
 **Risoluzione problemi Google Search Console sull'assenza di `endDate` nello schema JSON-LD**
+
 - **Problema**: Google segnalava 3 campi mancanti nel JSON-LD Event: `endDate`, `offers`, `performer`
 - **Soluzione implementata**: Aggiunto campo opzionale `endAt` al DB; JSON-LD ora include endDate con fallback intelligente
 - **Modifiche effettuate**:
@@ -81,7 +109,9 @@
 ---
 
 ### Menu Categoria EN da Google Sheets (29 Marzo 2026)
+
 **Implementazione traduzione titoli categoria menu in inglese direttamente da Google Sheets**
+
 - **Problema risolto**: I titoli di categoria (es. "Antipasti", "Primi") non avevano traduzione inglese nel menu
 - **Soluzione implementata**: Lettura colonna "Categoria EN" dal foglio Google Sheets → salvataggio mappa IT→EN in database → esposizione via API `/api/menu-category-map` → utilizzo in frontend
 - **Modifche effettuate**:
@@ -95,7 +125,9 @@
 ---
 
 ### Restyling Pulsanti Eventi Privati (10 Marzo 2026)
+
 **Modifica pagina `/eventi-privati`**: 3 pulsanti "Crea il tuo evento" completamente restyled
+
 - **Da**: semplice testo div con color secondary
 - **A**: veri pulsanti Button component con styling button-like
 - **Styling applicato**:
@@ -110,9 +142,11 @@
 - **Ottimizzazione mobile**: Pulsanti non si allungano su schermi stretti, mantengono dimensioni compatte
 
 ### Audit Enterprise (8 Marzo 2026 - Notte)
+
 Verifica completa del progetto: errori, conflitti, file morti, residui, duplicati e obsoleti.
 
 **Risultati:**
+
 - **TypeScript**: 0 errori dopo audit. Rimossi errori pre-esistenti da file generati non collegati all'app attiva.
 - **File eliminati (residui/morti)**:
   - `sync-resend-key.js` — script debug temporaneo nella root
@@ -129,26 +163,31 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **`tsconfig.json`**: aggiornato con esclusione `scripts/**/*`
 
 **Rimasti intenzionalmente:**
+
 - `scripts/` — script di migrazione immagini a Supabase (usati per disaster recovery)
 - `console.log` nel server (tutti logging operativo legittimo: sync, email, DB)
 
 ### Ultimi Aggiornamenti (8 Marzo 2026 - Sera)
+
 - **Sistema email eventi privati — RISOLTO DEFINITIVAMENTE**: Il wizard per i "Richiedi preventivo" nei tre tipi di eventi (Aperitivo, Cena, Esclusivo) invia le quote email a `info@cameraconvista.it` via Resend. La chiave viene letta da `RESEND_API_KEY` o dal database Supabase (`site_settings.resend_api_key`).
 - **Rate limiter configurato per produzione**: Aggiunto `app.set("trust proxy", 1)` in `server/index.ts` per leggere il vero IP del client dietro proxy/load balancer, evitando false positioni 429 Too Many Requests.
 - **Logging migliorato**: Endpoint health check `/api/health/email` diagnostica completo della configurazione email con source (env/db/none). Logging dettagliato degli errori Resend nei server logs.
 
 ### Aggiornamenti (8 Marzo 2026 - Giorno)
+
 - **Fix click-to-edit nelle card eventi privati**: Risolto il bug dove cliccare su EditableText nelle card admin apriva il dialog di edit ma lo chiudeva immediatamente. Soluzioni applicate: `stopImmediatePropagation` su pointerDown, check `document.querySelector('[role="dialog"]')` prima della navigazione.
 - **Rotta `/eventi-privati` da PublicPageRoute a StaticPageRoute**: La pagina aveva `isVisible: false` nel DB, causando 404. Ora usa StaticPageRoute che non filtra sulla visibilità. Il database entry rimane ma non viene usato per il controllo accesso.
 - **Testo card eventi-privati aggiornato**: Rimosso icona `ArrowRight`, sostituito "Modifica pagina dedicata"/"Scopri di più" con "Crea il tuo evento"/"Create your event" per chiarezza UX.
 
 ### Ultimi Aggiornamenti (8 Marzo 2026 - Mattina)
+
 - **Rimossa funzione "Blocca Zoom" admin**: Eliminata completamente la funzione di lock/compensazione zoom dal pannello admin. File modificati: `AdminContext.tsx` (rimossi state `zoomLocked`, callback `toggleZoomLock`, dichiarazioni interfaccia) e `AdminLayout.tsx` (rimosso useEffect zoom, bottone UI, import `Lock`/`Unlock`). Rimozione chirurgica senza impatti su altri componenti.
 - **Email eventi privati — risposta precompilata rimossa**: Eliminate le funzioni `buildReplyTemplateHtml` e `buildReplyTemplateText` da `server/routes/event-request.ts`. L'email di notifica admin ora contiene solo i dati della richiesta, senza template risposta.
 - **Fix click-to-edit nelle card eventi privati**: Aggiunta classe `editable-text-zone` al componente `EditableText` in modalità admin, con guardia nel click handler del card wrapper per evitare navigazione involontaria alla pagina dedicata quando si clicca sul testo editabile.
 - **Aggiornamento wizard eventi**: Aggiunta scelta location "Interno / All'aperto — Dehors" per Aperitivo e Cena; inclusa nel riepilogo step e nell'email.
 
 ### Ultimi Aggiornamenti (22 Febbraio 2026)
+
 - **Pagina Eventi Privati**: Rimosso box "Party & Celebrazioni". Layout aggiornato a 3 colonne su desktop con card verticali. Layout mobile mantenuto a colonna singola.
 - **Libreria Media**: Effettuata pulizia di 44 voci fantasma (URL corrotti). Rimaste 58 immagini valide.
 - **Documentazione**: Consolidata documentazione tecnica e piano d'azione per il Wizard eventi.
@@ -158,77 +197,77 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 
 ## FUNZIONALITÀ COMPLETAMENTE IMPLEMENTATE
 
-| Area | Stato | Dettagli |
-|------|-------|----------|
-| **Database PostgreSQL** | ✅ Completo | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions |
-| **Supabase Backend** | ✅ Completo | Produzione su Supabase con `SupabaseStorage`, conversione automatica camelCase↔snake_case, snapshot draft/publish in `metadata.__publishedSnapshot` |
-| **Contenuti bilingui IT/EN** | ✅ Completo | Tutti i campi supportano italiano e inglese con helper `t(it, en)` |
-| **Autenticazione Admin** | ✅ Completo | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password |
-| **Pagine pubbliche con dati reali** | ✅ Completo | Home, Menu, Carta Vini, Cocktail Bar, Eventi, Eventi Privati, Galleria, Dove Siamo - tutte collegano al database via React Query |
-| **Cambio lingua pubblico** | ✅ Completo | Toggle IT/EN funzionante su tutte le pagine |
-| **Schema draft/publish** | ✅ Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema |
-| **Device-specific overrides** | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font |
-| **Click-to-Edit WYSIWYG** | ✅ Completo | Componenti `EditableText` e `EditableImage` usati su tutte le pagine pubbliche con editing inline in modalità admin preview |
-| **Admin Eventi** | ✅ Completo | CRUD completo con max 10 eventi, poster Instagram Story (9:16), controlli zoom/offset, modalità visibilità (ACTIVE_ONLY/UNTIL_DAYS_AFTER), integrazione prenotazioni |
-| **Admin Media Library** | ✅ Completo | Upload file su Supabase Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset |
-| **Footer Management** | ✅ Completo | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali |
-| **Media Categories** | ✅ Completo | Sistema cartelle dinamico per media library con CRUD categorie |
-| **Mobile Responsive System** | ✅ Completo | Design mobile-first con breakpoints Tailwind ottimizzati |
-| **Admin Mobile Preview** | ✅ Completo | Simulazione iPhone 15 Pro (393x852px) con CSS `transform: scale()` per precisione pixel-perfect, Dynamic Island, contenuto correttamente clipped nei bordi arrotondati |
-| **ImageContainer System** | ✅ Completo | Componente unificato per gestione immagini con controlli zoom/overlay ottimizzati per mobile e posizionamento intelligente |
-| **Galleria Album** | ✅ Completo | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
-| **Google Sheets Sync** | ✅ Completo | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail |
-| **SEO System** | ✅ Completo | Middleware server-side, robots.txt, sitemap.xml dinamico, JSON-LD, Open Graph, hreflang, admin `/admina/seo` |
-| **Canonical URL Redirect** | ✅ Completo | Middleware server-side 301 redirect per trailing slash e www enforcement in produzione |
-| **Image Loading Optimization** | ✅ Completo | DNS preconnect Supabase, loading eager/lazy, prefetch hover navigazione, cache headers produzione, preloader staggered |
-| **Eventi Privati** | ✅ Completo | Pagina con 4 service box editabili (package-1 to package-4), 3 immagini editabili "I nostri spazi", pulsante "Contattaci" con mailto:info@cameraconvista.it |
-| **Privacy Policy** | ✅ Completo | Pagina `/privacy` bilingue con dati titolare, dati trattati, finalità, base giuridica, conservazione, destinatari, diritti interessato, link a Cookie Policy |
-| **Cookie Policy** | ✅ Completo | Pagina `/cookie` bilingue con categorie cookie (essenziali, analytics, marketing), gestione consenso, opt-out terze parti, link a Privacy Policy |
-| **Consenso Cookie (GDPR)** | ✅ Completo | Banner con 3 opzioni (Accetta tutti / Solo essenziali / Preferenze granulari), GA e Meta Pixel caricati SOLO dopo consenso, link footer per riaprire preferenze |
-| **Dati Societari Footer** | ✅ Completo | Ragione sociale, sede legale, P.IVA/C.F. visibili nel footer di ogni pagina |
+| Area                                | Stato              | Dettagli                                                                                                                                                                                                                                                                       |
+| ----------------------------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Database PostgreSQL**             | ✅ Completo        | Schema Drizzle ORM con tutte le tabelle: pages, page_blocks, menu_items, wines, cocktails, events, media, media_categories, site_settings, admin_sessions                                                                                                                      |
+| **Supabase Backend**                | ✅ Completo        | Produzione su Supabase con `SupabaseStorage`, conversione automatica camelCase↔snake_case, snapshot draft/publish in `metadata.__publishedSnapshot`                                                                                                                            |
+| **Contenuti bilingui IT/EN**        | ✅ Completo        | Tutti i campi supportano italiano e inglese con helper `t(it, en)`                                                                                                                                                                                                             |
+| **Autenticazione Admin**            | ✅ Completo        | Login a `/admina` con password 1909, sessioni persistenti nel database, cambio password                                                                                                                                                                                        |
+| **Pagine pubbliche con dati reali** | ✅ Completo        | Home, Menu, Carta Vini, Cocktail Bar, Eventi, Eventi Privati, Galleria, Dove Siamo - tutte collegano al database via React Query                                                                                                                                               |
+| **Cambio lingua pubblico**          | ✅ Completo        | Toggle IT/EN funzionante su tutte le pagine                                                                                                                                                                                                                                    |
+| **Schema draft/publish**            | ✅ Completo nel DB | Campi `isDraft`, `isVisible`, `publishedAt` presenti in schema                                                                                                                                                                                                                 |
+| **Device-specific overrides**       | ✅ Completo nel DB | Schema `page_blocks` include campi separati desktop/mobile per immagini e font                                                                                                                                                                                                 |
+| **Click-to-Edit WYSIWYG**           | ✅ Completo        | Componenti `EditableText` e `EditableImage` usati su tutte le pagine pubbliche con editing inline in modalità admin preview                                                                                                                                                    |
+| **Admin Eventi**                    | ✅ Completo        | CRUD completo con max 10 eventi, poster Instagram Story (9:16), controlli zoom/offset, modalità visibilità (ACTIVE_ONLY/UNTIL_DAYS_AFTER), integrazione prenotazioni                                                                                                           |
+| **Admin Media Library**             | ✅ Completo        | Upload file su Supabase Storage, gestione categorie/cartelle dinamiche, dettagli immagine con zoom/offset                                                                                                                                                                      |
+| **Footer Management**               | ✅ Completo        | Gestione completa footer via Admin → Impostazioni: testi about IT/EN, contatti, orari, social, link rapidi, link legali                                                                                                                                                        |
+| **Media Categories**                | ✅ Completo        | Sistema cartelle dinamico per media library con CRUD categorie                                                                                                                                                                                                                 |
+| **Mobile Responsive System**        | ✅ Completo        | Design mobile-first con breakpoints Tailwind ottimizzati                                                                                                                                                                                                                       |
+| **Admin Mobile Preview**            | ✅ Completo        | Simulazione iPhone 15 Pro (393x852px) con CSS `transform: scale()` per precisione pixel-perfect, Dynamic Island, contenuto correttamente clipped nei bordi arrotondati                                                                                                         |
+| **ImageContainer System**           | ✅ Completo        | Componente unificato per gestione immagini con controlli zoom/overlay ottimizzati per mobile e posizionamento intelligente                                                                                                                                                     |
+| **Galleria Album**                  | ✅ Completo        | Sistema album-based con copertine e titoli centrati. Admin CRUD album a `/admina/gallery`. GallerySlideViewer per visualizzazione immagini 9:16 con swipe/navigazione. Controlli zoom/offset per copertine e immagini. MediaPickerModal per selezione immagini dalla libreria. |
+| **Google Sheets Sync**              | ✅ Completo        | Sistema sync completo con configurazione URL semplificata, draft/publish indipendente per Menu/Vini/Cocktail                                                                                                                                                                   |
+| **SEO System**                      | ✅ Completo        | Middleware server-side, robots.txt, sitemap.xml dinamico, JSON-LD, Open Graph, hreflang, admin `/admina/seo`                                                                                                                                                                   |
+| **Canonical URL Redirect**          | ✅ Completo        | Middleware server-side 301 redirect per trailing slash e www enforcement in produzione                                                                                                                                                                                         |
+| **Image Loading Optimization**      | ✅ Completo        | DNS preconnect Supabase, loading eager/lazy, prefetch hover navigazione, cache headers produzione, preloader staggered                                                                                                                                                         |
+| **Eventi Privati**                  | ✅ Completo        | Pagina con 4 service box editabili (package-1 to package-4), 3 immagini editabili "I nostri spazi", pulsante "Contattaci" con mailto:info@cameraconvista.it                                                                                                                    |
+| **Privacy Policy**                  | ✅ Completo        | Pagina `/privacy` bilingue con dati titolare, dati trattati, finalità, base giuridica, conservazione, destinatari, diritti interessato, link a Cookie Policy                                                                                                                   |
+| **Cookie Policy**                   | ✅ Completo        | Pagina `/cookie` bilingue con categorie cookie (essenziali, analytics, marketing), gestione consenso, opt-out terze parti, link a Privacy Policy                                                                                                                               |
+| **Consenso Cookie (GDPR)**          | ✅ Completo        | Banner con 3 opzioni (Accetta tutti / Solo essenziali / Preferenze granulari), GA e Meta Pixel caricati SOLO dopo consenso, link footer per riaprire preferenze                                                                                                                |
+| **Dati Societari Footer**           | ✅ Completo        | Ragione sociale, sede legale, P.IVA/C.F. visibili nel footer di ogni pagina                                                                                                                                                                                                    |
 
 ---
 
 ## FUNZIONALITÀ PARZIALMENTE IMPLEMENTATE
 
-| Area | Stato | Cosa manca |
-|------|-------|------------|
+| Area                                              | Stato       | Cosa manca                                                                                                                |
+| ------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------------------------------- |
 | **Anteprima in Sezioni Pagine** (`/admina/pages`) | 🟡 Parziale | Mostra anteprima delle pagine pubbliche embedded con IPhoneFrame. L'editing click-to-edit funziona in admin preview mode. |
-| **Pagina Anteprima** (`/admina/preview`) | 🟡 Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine |
-| **Workflow Draft/Publish** | 🟡 Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish |
+| **Pagina Anteprima** (`/admina/preview`)          | 🟡 Parziale | Mostra solo la Homepage, non permette navigazione completa tra tutte le pagine                                            |
+| **Workflow Draft/Publish**                        | 🟡 Parziale | I campi esistono e sono usati per alcuni contenuti, ma manca UI completa per gestire il workflow draft→publish            |
 
 ---
 
 ## FUNZIONALITÀ NON IMPLEMENTATE (Requisiti originali)
 
-| Requisito | Stato | Note |
-|-----------|-------|------|
+| Requisito                           | Stato               | Note                                                                |
+| ----------------------------------- | ------------------- | ------------------------------------------------------------------- |
 | **Editing blocchi pagina avanzato** | ❌ Non implementato | Nessun form per creare/modificare/riordinare `page_blocks` dalla UI |
 
 ---
 
 ## PERCENTUALE COMPLETAMENTO STIMATA
 
-| Modulo | Completamento |
-|--------|---------------|
-| Backend API & Database | 95% |
-| Pagine Pubbliche | 98% |
-| Admin Authentication | 100% |
-| Admin Dashboard | 75% |
-| Admin Sezioni Pagine | 85% |
-| Admin Eventi | 100% |
-| Admin Media | 95% |
-| Admin Galleria Album | 100% |
-| Click-to-Edit WYSIWYG | 95% |
-| Device Image Controls | 90% |
-| Footer Management | 100% |
-| Mobile Responsive | 98% |
-| Admin Mobile Preview | 100% |
-| Traduzione Automatica | 100% |
-| Admin SEO | 100% |
-| Google Sheets Sync | 100% |
-| Image Loading / Performance | 100% |
-| Canonical URL / Redirect | 100% |
+| Modulo                      | Completamento |
+| --------------------------- | ------------- |
+| Backend API & Database      | 95%           |
+| Pagine Pubbliche            | 98%           |
+| Admin Authentication        | 100%          |
+| Admin Dashboard             | 75%           |
+| Admin Sezioni Pagine        | 85%           |
+| Admin Eventi                | 100%          |
+| Admin Media                 | 95%           |
+| Admin Galleria Album        | 100%          |
+| Click-to-Edit WYSIWYG       | 95%           |
+| Device Image Controls       | 90%           |
+| Footer Management           | 100%          |
+| Mobile Responsive           | 98%           |
+| Admin Mobile Preview        | 100%          |
+| Traduzione Automatica       | 100%          |
+| Admin SEO                   | 100%          |
+| Google Sheets Sync          | 100%          |
+| Image Loading / Performance | 100%          |
+| Canonical URL / Redirect    | 100%          |
 
 **Completamento globale stimato: ~97%** rispetto ai requisiti originali completi.
 
@@ -236,21 +275,23 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 
 ## DEPLOYMENT
 
-| Piattaforma | URL | Stato |
-|-------------|-----|-------|
-| **Render** | https://cameraconvista.onrender.com | ✅ Attivo |
-| **Dominio Produzione** | https://www.cameraconvista.it | ✅ Attivo |
-| **GitHub** | https://github.com/siteccv/cameraconvista.git | ✅ Sincronizzato |
-| **Supabase** | Database produzione | ✅ Attivo |
+| Piattaforma            | URL                                           | Stato            |
+| ---------------------- | --------------------------------------------- | ---------------- |
+| **Render**             | https://cameraconvista.onrender.com           | ✅ Attivo        |
+| **Dominio Produzione** | https://www.cameraconvista.it                 | ✅ Attivo        |
+| **GitHub**             | https://github.com/siteccv/cameraconvista.git | ✅ Sincronizzato |
+| **Supabase**           | Database produzione                           | ✅ Attivo        |
 
 ---
 
 ## FILE CHIAVE DEL PROGETTO
 
 ### Schema Database
+
 - `shared/schema.ts` - Definizioni tabelle Drizzle ORM (events, media_categories aggiunti)
 
 ### Backend
+
 - `server/index.ts` - Bootstrap Express con middleware canonical redirect (www + trailing slash)
 - `server/storage.ts` - DatabaseStorage con CRUD operations (eventi, media categories, footer settings)
 - `server/supabase-storage.ts` - SupabaseStorage per produzione (camelCase↔snake_case, publishedSnapshot)
@@ -269,6 +310,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - `server/db.ts` - Connessione PostgreSQL
 
 ### Frontend Pubblico
+
 - `client/src/pages/home.tsx` - Homepage con classi responsive condizionali per forceMobileLayout
 - `client/src/pages/menu.tsx` - Pagina menu con dati da DB e EditableText/EditableImage
 - `client/src/pages/carta-vini.tsx` - Pagina vini con dati da DB
@@ -282,6 +324,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - `client/src/pages/cookie-policy.tsx` - Cookie Policy bilingue IT/EN
 
 ### Frontend Admin
+
 - `client/src/pages/admin/login.tsx` - Login admin
 - `client/src/pages/admin/dashboard.tsx` - Dashboard con statistiche
 - `client/src/pages/admin/pages.tsx` - Anteprima pagine con IPhoneFrame e forceMobileLayout
@@ -294,6 +337,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - `client/src/pages/admin/settings.tsx` - Impostazioni e cambio password
 
 ### Componenti Admin WYSIWYG
+
 - `client/src/components/admin/EditableText.tsx` - Editing inline testi con traduzione automatica
 - `client/src/components/admin/EditableImage.tsx` - Editing inline immagini con zoom/offset, loading eager/lazy
 - `client/src/components/admin/EventModal.tsx` - Modal creazione/modifica eventi con traduzione automatica
@@ -306,22 +350,26 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - `client/src/components/GallerySlideViewer.tsx` - Viewer immagini 9:16 con swipe e navigazione
 
 ### Componenti Admin Gallery (Refactored)
+
 - `client/src/components/admin/gallery/GalleryModal.tsx` - Modal creazione/modifica album
 - `client/src/components/admin/gallery/AlbumImagesModal.tsx` - Gestione immagini album con drag-and-drop (HTML5 nativo)
 - `client/src/components/admin/gallery/ImageZoomModal.tsx` - Modal zoom/offset immagini
 
 ### Componenti Home Page (Refactored)
+
 - `client/src/components/home/TeaserCard.tsx` - Card servizi per homepage
 - `client/src/components/home/BookingDialog.tsx` - Modal conferma prenotazione bilingue
 - `client/src/components/home/PhilosophySection.tsx` - Sezione filosofia con immagine
 - `client/src/components/home/homeDefaults.ts` - Configurazioni default blocchi e teaser cards
 
 ### Hooks
+
 - `client/src/hooks/useTranslation.ts` - Hook per chiamate API traduzione con loading/error states
 - `client/src/hooks/use-image-preloader.ts` - Preloader immagini staggered con cleanup (pagine, gallery, eventi)
 - `client/src/hooks/use-page-blocks.ts` - Hook per caricamento page blocks con auto-creazione blocchi mancanti
 
 ### Layout
+
 - `client/src/components/layout/Header.tsx` - Header responsive con prefetch dati pagina su hover navigazione
 - `client/src/components/layout/Footer.tsx` - Footer responsive con layout stacked mobile
 - `client/src/components/layout/PublicLayout.tsx` - Layout pubblico con Header, Footer, CookieConsent, ConsentTracking
@@ -330,13 +378,16 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - `client/src/components/layout/AdminLayout.tsx` - Layout admin con sidebar
 
 ### Utilities
+
 - `client/src/components/ScrollToTop.tsx` - Scroll to top su cambio route
 
 ### Context
+
 - `client/src/contexts/LanguageContext.tsx` - Gestione lingua IT/EN
 - `client/src/contexts/AdminContext.tsx` - Stato autenticazione admin, preview mode, deviceView, forceMobileLayout (Zoom Lock rimosso 8 Mar 2026)
 
 ### Assets
+
 - `LOGOS/` - Cartella per loghi e icone del ristorante
 
 ---
@@ -344,6 +395,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 ## NOTE TECNICHE
 
 ### Stack Tecnologico
+
 - **Frontend:** React 18.3.1, TypeScript, Vite, Wouter, TanStack React Query, Tailwind CSS, shadcn/ui
 - **Backend:** Node.js, Express, TypeScript
 - **Database:** PostgreSQL con Drizzle ORM (locale) / Supabase (produzione)
@@ -353,11 +405,13 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Deployment:** Render (hosting), GitHub (repository), Supabase (database produzione)
 
 ### Integrazioni Attive
+
 - **Supabase Storage** - Funzionante per upload media
 - **OpenAI** - Attivo per traduzioni automatiche IT→EN con prompt contestuali hospitality
 - **Supabase** - Database produzione con conversione automatica camelCase↔snake_case
 
 ### Sistema Performance / Ottimizzazione Immagini (10-11 Feb 2026)
+
 - **DNS Preconnect**: `client/index.html` include `<link rel="preconnect">` e `<link rel="dns-prefetch">` verso `pjrdnfbfpogvztfjuxya.supabase.co` per ridurre latenza DNS
 - **Loading Strategy**: Hero images usano `loading="eager"`, immagini below-fold usano `loading="lazy"`
 - **Image Preloader**: Hook `useImagePreloader` carica immagini di tutte le pagine in background con intervalli staggered (100ms), batch processing, cleanup su unmount
@@ -366,6 +420,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Slug-based Blocks Endpoint**: `/api/pages/slug/:slug/blocks` per prefetching efficiente senza necessità di conoscere page ID
 
 ### Canonical URL Redirect (11 Feb 2026)
+
 - **Middleware server-side** in `server/index.ts` (prima di tutte le route)
 - **Trailing slash**: `/lista-vini/` → 301 → `/lista-vini` (preserva querystring)
 - **www enforcement** (solo produzione): `cameraconvista.it` → 301 → `https://www.cameraconvista.it`
@@ -374,6 +429,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Compatibilità QR code**: I QR distribuiti con `/lista-vini/` ora funzionano correttamente
 
 ### Sistema Responsive Mobile
+
 - **Breakpoints:** Tailwind md: (768px) e lg: (1024px)
 - **forceMobileLayout:** Stato in AdminContext per forzare layout mobile in admin preview
 - **deviceView:** Sincronizzato con forceMobileLayout per EditableImage e altri componenti
@@ -385,6 +441,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 ## PROGRESSI RECENTI
 
 ### Privacy, Cookie Policy e Consenso GDPR (11 Feb 2026)
+
 - **Privacy Policy** (`/privacy`): Pagina bilingue IT/EN con dati titolare, dati trattati, finalità, base giuridica, conservazione, destinatari, diritti interessato
 - **Cookie Policy** (`/cookie`): Pagina bilingue IT/EN con categorie cookie (essenziali, analytics, marketing), gestione consenso, opt-out terze parti
 - **Consenso Cookie GDPR**: Banner con 3 opzioni (Accetta tutti / Solo essenziali / Preferenze granulari con toggle analytics/marketing)
@@ -396,6 +453,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Variabile ambiente Render**: Aggiungere `OPENAI_API_KEY` nelle env vars del progetto Render per abilitare traduzione in produzione
 
 ### Canonical URL Redirect e Performance (10-11 Feb 2026)
+
 - **Canonical redirect middleware**: Trailing slash removal + www enforcement in produzione con 301 permanent redirect
 - **Compatibilità QR code**: `/lista-vini/` ora reindirizza correttamente a `/lista-vini`
 - **Image loading optimization**: DNS preconnect, eager/lazy loading, preloader staggered, nav hover prefetch, cache headers produzione
@@ -403,6 +461,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Eventi Privati**: 4 service box completamente editabili da admin (package-1 to package-4), pulsante "Contattaci" con mailto:info@cameraconvista.it
 
 ### Modifiche Pagine Pubbliche (10 Feb 2026)
+
 - **Rinominata pagina Contatti → Dove Siamo**: Slug `/contatti` → `/dove-siamo`, titolo IT "Dove Siamo", EN "Where We Are". Aggiornati: header, footer, SEO server-side, admin pages/seo, page-defaults, database, link interni (homepage, eventi privati). Redirect 301 da `/contatti` a `/dove-siamo` per compatibilità.
 - **Cocktail Bar**: Aggiunte 3 immagini editabili (gallery-1/2/3) tra intro e lista cocktail, gestibili da admin preview con EditableImage. Su mobile: aspect-ratio 4/5 (come homepage), su desktop: 4/3.
 - **Eventi Privati**: Le 3 immagini "I nostri spazi" (spaces-1/2/3) ora sono editabili da admin preview con EditableImage
@@ -410,6 +469,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - **Fix usePageBlocks**: Il hook ora crea automaticamente i blocchi mancanti nel database anche quando ci sono già altri blocchi sulla pagina
 
 ### Google Sheets Sync System Completo (8-9 Feb 2026)
+
 - **Configurazione semplificata**: Rimossi campi tecnici (spreadsheetId, GID, publishedKey)
 - Configurazione basata su URL diretti CSV memorizzati in `site_settings.google_sheets_config`
 - **Menu e Cocktail**: Un singolo URL di sincronizzazione CSV ciascuno
@@ -422,6 +482,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - Validazione client-side e server-side degli URL
 
 ### SEO System Completo (7-8 Feb 2026)
+
 - Middleware server-side per iniezione meta tag nell'HTML
 - robots.txt, sitemap.xml dinamico con hreflang
 - JSON-LD Restaurant, BreadcrumbList, Event schema
@@ -430,6 +491,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - Salvataggio immediato (non soggetto a draft/publish)
 
 ### Fix Gallery Drag & Drop e Aggiunta Immagini (5 Feb 2026)
+
 - **Problema risolto:** Errore "Impossibile aggiungere l'immagine" nella gestione album
   - Causa: Sequence database disallineato dopo eliminazione immagini (tentava di usare ID già esistenti)
   - Soluzione: Riallineato sequence `gallery_images_id_seq` per generare nuovi ID
@@ -444,6 +506,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
   - ✅ Persistenza ordine dopo reload
 
 ### Fix Responsive Mobile Viewport (4 Feb 2026 - sera)
+
 - Risolto problema critico: i componenti usavano solo `forceMobileLayout` per determinare il layout mobile
 - Questo causava che su iPhone reale il sito mostrava layout desktop (font grandi, proporzioni sbagliate)
 - Aggiunto hook `useIsMobile()` in combinazione con `forceMobileLayout` per rilevamento corretto:
@@ -456,6 +519,7 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - Ora il sito mostra correttamente il layout mobile su iPhone reale
 
 ### Refactoring Architettura Modulare (4 Feb 2026 - sera)
+
 - **server/routes.ts refactored**: Da 1336 righe a 24 righe
   - Suddiviso in 9 moduli in `server/routes/`: auth, pages, menu, events, gallery, media, settings, sync, helpers
   - Ogni modulo gestisce un dominio specifico dell'applicazione
@@ -469,12 +533,14 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 - Tutti i test E2E passati con successo
 
 ### Galleria Album System (3-4 Feb 2026)
+
 - Implementato sistema galleria basato su album con copertine e titoli centrati
 - Schema DB: tabelle `galleries` e `gallery_images` con supporto bilingue IT/EN
 - API admin e pubbliche per CRUD album e immagini
 - GallerySlideViewer per visualizzazione pubblica con swipe touch e navigazione frecce
 
 ### Traduzione Automatica IT→EN (3 Feb 2026, fix 11 Feb 2026)
+
 - Endpoint `/api/admin/translate` con OpenAI diretto:
   - `OPENAI_API_KEY` → modello `gpt-4o-mini`, `temperature: 0.3`, `max_tokens: 1000`
 - Hook `useTranslation` e componente `TranslateButton` riutilizzabili
@@ -485,23 +551,23 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 
 ## PROBLEMI RISOLTI
 
-| Problema | Soluzione | Data |
-|----------|-----------|------|
-| Orario evento: selezionare 20:00 salva 19:00 | Sostituito `toISOString()` (UTC) con formatter fuso orario locale nel campo datetime-local | 11 Feb 2026 |
-| Modale modifica evento mostra orario vecchio | Fresh copy dell'evento al click + formatter locale per datetime input | 11 Feb 2026 |
-| Traduzione automatica non funziona su deploy esterno | Configurato uso diretto di `OPENAI_API_KEY` | 11 Feb 2026 |
-| QR code con trailing slash `/lista-vini/` non funziona | Middleware canonical redirect 301 trailing slash → senza slash | 11 Feb 2026 |
-| URL non canoniche (www/non-www) | Middleware www enforcement 301 in produzione | 11 Feb 2026 |
-| React 18 non supporta `fetchPriority` JSX prop | Rimosso fetchPriority, mantenuto solo `loading="eager"` per hero images | 10 Feb 2026 |
-| Header prefetch usava custom queryFn | Refactored per usare default fetcher + getQueryData per image preload | 10 Feb 2026 |
-| useImagePreloader memory leak su navigazione SPA | Aggiunto tracking timers con cleanup su unmount | 10 Feb 2026 |
-| Errore "Impossibile aggiungere immagine" in album galleria | Riallineato sequence database `gallery_images_id_seq` | 5 Feb 2026 |
-| Drag & Drop immagini album non funzionava | Riscritto con API HTML5 Drag & Drop nativa, rimosso dnd-kit | 5 Feb 2026 |
-| Layout mobile non funziona su iPhone reale | Aggiunto `useIsMobile()` combinato con `forceMobileLayout` in tutti i componenti | 4 Feb 2026 |
-| EditableText/Image usano dimensioni desktop su mobile | Modificata logica per usare `forceMobileLayout \|\| viewportIsMobile` | 4 Feb 2026 |
-| Contenuto deborda da IPhoneFrame | Aggiunto clipPath con bordi arrotondati | 3 Feb 2026 |
-| Media queries non funzionano in IPhoneFrame | Classi condizionali basate su forceMobileLayout invece di md:/lg: | 3 Feb 2026 |
-| Pagine si aprono a fondo pagina | Aggiunto ScrollToTop component | 3 Feb 2026 |
+| Problema                                                   | Soluzione                                                                                  | Data        |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ----------- |
+| Orario evento: selezionare 20:00 salva 19:00               | Sostituito `toISOString()` (UTC) con formatter fuso orario locale nel campo datetime-local | 11 Feb 2026 |
+| Modale modifica evento mostra orario vecchio               | Fresh copy dell'evento al click + formatter locale per datetime input                      | 11 Feb 2026 |
+| Traduzione automatica non funziona su deploy esterno       | Configurato uso diretto di `OPENAI_API_KEY`                                                | 11 Feb 2026 |
+| QR code con trailing slash `/lista-vini/` non funziona     | Middleware canonical redirect 301 trailing slash → senza slash                             | 11 Feb 2026 |
+| URL non canoniche (www/non-www)                            | Middleware www enforcement 301 in produzione                                               | 11 Feb 2026 |
+| React 18 non supporta `fetchPriority` JSX prop             | Rimosso fetchPriority, mantenuto solo `loading="eager"` per hero images                    | 10 Feb 2026 |
+| Header prefetch usava custom queryFn                       | Refactored per usare default fetcher + getQueryData per image preload                      | 10 Feb 2026 |
+| useImagePreloader memory leak su navigazione SPA           | Aggiunto tracking timers con cleanup su unmount                                            | 10 Feb 2026 |
+| Errore "Impossibile aggiungere immagine" in album galleria | Riallineato sequence database `gallery_images_id_seq`                                      | 5 Feb 2026  |
+| Drag & Drop immagini album non funzionava                  | Riscritto con API HTML5 Drag & Drop nativa, rimosso dnd-kit                                | 5 Feb 2026  |
+| Layout mobile non funziona su iPhone reale                 | Aggiunto `useIsMobile()` combinato con `forceMobileLayout` in tutti i componenti           | 4 Feb 2026  |
+| EditableText/Image usano dimensioni desktop su mobile      | Modificata logica per usare `forceMobileLayout \|\| viewportIsMobile`                      | 4 Feb 2026  |
+| Contenuto deborda da IPhoneFrame                           | Aggiunto clipPath con bordi arrotondati                                                    | 3 Feb 2026  |
+| Media queries non funzionano in IPhoneFrame                | Classi condizionali basate su forceMobileLayout invece di md:/lg:                          | 3 Feb 2026  |
+| Pagine si aprono a fondo pagina                            | Aggiunto ScrollToTop component                                                             | 3 Feb 2026  |
 
 ---
 
@@ -509,12 +575,12 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 
 I report tecnici del progetto sono stati consolidati in 3 documenti organizzati:
 
-| Documento | Contenuto |
-|-----------|-----------|
-| `report/MIGRATION_IMAGE_SYSTEM.md` | Architettura ImageContainer, migrazioni pagine, fixedCropRatio, sistema preview mobile, ottimizzazione caricamento immagini |
-| `report/TECHNICAL_AUDIT_DATABASE.md` | Schema database, integrazione Supabase, Google Sheets sync, architettura server modulare, problemi risolti |
-| `report/INFRASTRUCTURE_SEO_COMPLIANCE.md` | Deployment, middleware SEO, robots.txt/sitemap, canonical redirect, privacy/cookie GDPR, Search Console |
+| Documento                                 | Contenuto                                                                                                                   |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `report/MIGRATION_IMAGE_SYSTEM.md`        | Architettura ImageContainer, migrazioni pagine, fixedCropRatio, sistema preview mobile, ottimizzazione caricamento immagini |
+| `report/TECHNICAL_AUDIT_DATABASE.md`      | Schema database, integrazione Supabase, Google Sheets sync, architettura server modulare, problemi risolti                  |
+| `report/INFRASTRUCTURE_SEO_COMPLIANCE.md` | Deployment, middleware SEO, robots.txt/sitemap, canonical redirect, privacy/cookie GDPR, Search Console                     |
 
 ---
 
-*Questo documento è stato aggiornato con lo stato attuale del progetto al 13 Febbraio 2026.*
+_Questo documento è stato aggiornato con lo stato attuale del progetto al 13 Febbraio 2026._

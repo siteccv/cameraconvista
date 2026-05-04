@@ -20,14 +20,26 @@ export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-[90vw] sm:max-w-md mx-auto rounded-xl ${isMobile ? "px-4 py-6" : "px-6 py-8"}`}>
+      <DialogContent
+        className={`max-w-[90vw] sm:max-w-md mx-auto rounded-xl ${isMobile ? "px-4 py-6" : "px-6 py-8"}`}
+      >
         <DialogHeader>
           <DialogTitle className="text-center font-display text-xl">
             {t("Prima di prenotare", "Before you book")}
           </DialogTitle>
           <DialogDescription className="text-center pt-4 space-y-1 text-[13px] sm:text-sm">
-            <p>{t("Accettiamo prenotazioni esclusivamente per la cena.", "We accept reservations exclusively for dinner.")}</p>
-            <p>{t("Verrà richiesta una carta di credito a garanzia,", "A credit card will be required as a guarantee,")}</p>
+            <p>
+              {t(
+                "Accettiamo prenotazioni esclusivamente per la cena.",
+                "We accept reservations exclusively for dinner.",
+              )}
+            </p>
+            <p>
+              {t(
+                "Verrà richiesta una carta di credito a garanzia,",
+                "A credit card will be required as a guarantee,",
+              )}
+            </p>
             <p>{t("con addebito della penale SOLO", "and a penalty will be charged ONLY")}</p>
             <p>{t("in caso di mancata presentazione,", "in the event of a no-show,")}</p>
             <p>{t("senza preventiva comunicazione.", "without prior notice.")}</p>
@@ -47,7 +59,7 @@ export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogPro
               onOpenChange(false);
               window.open("https://cameraconvista.resos.com/booking", "_blank");
             }}
-            style={{ backgroundColor: '#722f37' }}
+            style={{ backgroundColor: "#722f37" }}
             className="text-white rounded-full px-6"
             data-testid="button-continue-booking"
           >

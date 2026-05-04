@@ -18,7 +18,13 @@ interface TeaserSectionProps {
   onUpdateBlock?: (id: number, data: Partial<PageBlock>) => void;
 }
 
-export function TeaserSection({ block, defaults, reverse = false, alternate = false, onUpdateBlock }: TeaserSectionProps) {
+export function TeaserSection({
+  block,
+  defaults,
+  reverse = false,
+  alternate = false,
+  onUpdateBlock,
+}: TeaserSectionProps) {
   const { t } = useLanguage();
   const { forceMobileLayout } = useAdmin();
   const viewportIsMobile = useIsMobile();
@@ -53,14 +59,24 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
   const imageOverlay = (meta?.overlay as number) ?? 0;
   const imageOverlayMobile = (meta?.overlayMobile as number) ?? 0;
 
-  const handleSubtitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleSubtitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!block || !onUpdateBlock) return;
     onUpdateBlock(block.id, {
       metadata: { ...meta, subtitleIt: data.textIt, subtitleEn: data.textEn },
     });
   };
 
-  const handleTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!block || !onUpdateBlock) return;
     onUpdateBlock(block.id, {
       titleIt: data.textIt,
@@ -70,7 +86,12 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
     });
   };
 
-  const handleBodySave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleBodySave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!block || !onUpdateBlock) return;
     onUpdateBlock(block.id, {
       bodyIt: data.textIt,
@@ -80,7 +101,12 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
     });
   };
 
-  const handleCtaSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleCtaSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!block || !onUpdateBlock) return;
     onUpdateBlock(block.id, {
       ctaTextIt: data.textIt,
@@ -112,18 +138,20 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
   return (
     <section
       className={`${isMobile ? "py-10" : "py-16 md:py-24 lg:py-32"}`}
-      style={alternate ? { backgroundColor: 'hsl(34 60% 94.5%)' } : undefined}
+      style={alternate ? { backgroundColor: "hsl(34 60% 94.5%)" } : undefined}
       data-testid={`section-${testId}`}
     >
       <div className="max-w-7xl mx-auto px-4 md:px-6">
-        <div className={`grid ${isMobile ? "grid-cols-1 gap-8" : "md:grid-cols-2 gap-12"} items-center`}>
+        <div
+          className={`grid ${isMobile ? "grid-cols-1 gap-8" : "md:grid-cols-2 gap-12"} items-center`}
+        >
           <div className={isMobile ? "" : textOrderClass}>
             <EditableText
               textIt={subtitleIt}
               textEn={subtitleEn}
               as="p"
               className={`uppercase tracking-widest font-medium mb-3 ${isMobile ? "text-[11px]" : "text-[11px] md:text-base"}`}
-              style={{ color: '#c7902f' }}
+              style={{ color: "#c7902f" }}
               onSave={handleSubtitleSave}
               data-testid={`text-subtitle-${testId}`}
             />
@@ -135,13 +163,16 @@ export function TeaserSection({ block, defaults, reverse = false, alternate = fa
               fontSizeMobile={titleFontSizeMobile}
               as="h2"
               className="font-display font-light"
-              style={{ color: '#2f2b2a' }}
+              style={{ color: "#2f2b2a" }}
               applyFontSize
               onSave={handleTitleSave}
               data-testid={`text-title-${testId}`}
             />
 
-            <div className="mt-6 h-px max-w-24" style={{ backgroundColor: 'rgba(199, 144, 47, 0.3)' }} />
+            <div
+              className="mt-6 h-px max-w-24"
+              style={{ backgroundColor: "rgba(199, 144, 47, 0.3)" }}
+            />
 
             <EditableText
               textIt={bodyIt}

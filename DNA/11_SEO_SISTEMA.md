@@ -1,5 +1,15 @@
 # 11 - Sistema SEO Enterprise-Grade
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+SEO server-side e routing canonico non sono stati modificati dall hardening. Gli smoke E2E includono pagine pubbliche principali per intercettare regressioni di render e navigazione.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Panoramica
 
 Il sistema SEO è stato progettato per massimizzare la visibilità sui motori di ricerca in un contesto SPA (Single Page Application) dove il rendering avviene lato client. La sfida principale è che i crawler (Googlebot, Bingbot) ricevono l'HTML iniziale dal server — senza i meta tag dinamici che normalmente una SPA genera solo dopo il rendering JavaScript. La soluzione adottata inietta tutti i meta tag necessari **a livello Express**, prima che l'HTML raggiunga il browser.
@@ -56,14 +66,14 @@ Il sistema SEO è stato progettato per massimizzare la visibilità sui motori di
 
 ## File Coinvolti
 
-| File | Ruolo |
-|------|-------|
-| `server/seo.ts` | Cuore del sistema: middleware, sitemap, meta tags, JSON-LD |
-| `server/index.ts` | Monta il middleware SEO e le route `/sitemap.xml` |
-| `client/public/robots.txt` | Direttive per i crawler |
-| `client/src/App.tsx` | `PublicPageRoute` aggiorna `document.title` lato client |
-| `client/src/pages/admin/seo.tsx` | Pannello admin per gestione meta tag per pagina |
-| `server/routes/pages.ts` | PATCH `/api/admin/pages/:id` salva i metadati SEO |
+| File                             | Ruolo                                                      |
+| -------------------------------- | ---------------------------------------------------------- |
+| `server/seo.ts`                  | Cuore del sistema: middleware, sitemap, meta tags, JSON-LD |
+| `server/index.ts`                | Monta il middleware SEO e le route `/sitemap.xml`          |
+| `client/public/robots.txt`       | Direttive per i crawler                                    |
+| `client/src/App.tsx`             | `PublicPageRoute` aggiorna `document.title` lato client    |
+| `client/src/pages/admin/seo.tsx` | Pannello admin per gestione meta tag per pagina            |
+| `server/routes/pages.ts`         | PATCH `/api/admin/pages/:id` salva i metadati SEO          |
 
 ## Dettaglio Componenti
 
@@ -82,6 +92,7 @@ Sitemap: /sitemap.xml
 ```
 
 **Logica**:
+
 - Permette l'indicizzazione di tutto il sito pubblico
 - Blocca il pannello admin (`/admina` e sotto-percorsi)
 - Blocca le API admin (`/api/admin/`)
@@ -93,6 +104,7 @@ Sitemap: /sitemap.xml
 Endpoint: `GET /sitemap.xml`
 
 **Generazione**:
+
 ```
 1. Fetch tutte le pagine dal database → filtra solo isVisible=true
 2. Fetch tutti gli eventi → filtra per visibilità (active + modalità)
@@ -102,6 +114,7 @@ Endpoint: `GET /sitemap.xml`
 ```
 
 **Struttura output**:
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
@@ -119,11 +132,13 @@ Endpoint: `GET /sitemap.xml`
 ```
 
 **Priorità pagine**:
+
 - Home: `1.0`, changefreq `daily`
 - Altre pagine: `0.8`, changefreq `weekly`
 - Eventi: `0.6`, changefreq `weekly`
 
 **Filtro eventi**: Rispetta la stessa logica di visibilità della pagina pubblica:
+
 - `ACTIVE_ONLY`: solo se `active=true`
 - `UNTIL_DAYS_AFTER`: solo se la data attuale è entro N giorni dopo `startAt`
 
@@ -180,6 +195,7 @@ Il mapping inverso `PATH_TO_SLUG` viene generato automaticamente.
 Per ogni pagina, il middleware inietta:
 
 #### Meta Tags Standard
+
 ```html
 <title>Menu - Camera con Vista | Ristorante Bologna</title>
 <meta name="description" content="Scopri il menu del ristorante..." />
@@ -187,6 +203,7 @@ Per ogni pagina, il middleware inietta:
 ```
 
 #### Hreflang (Bilinguismo)
+
 ```html
 <link rel="alternate" hreflang="it" href="https://dominio.com/menu" />
 <link rel="alternate" hreflang="en" href="https://dominio.com/menu?lang=en" />
@@ -196,6 +213,7 @@ Per ogni pagina, il middleware inietta:
 **Strategia linguistica**: Il sito è primariamente in italiano. La versione inglese è accessibile aggiungendo `?lang=en` all'URL. Il tag `x-default` punta alla versione italiana.
 
 #### Open Graph (Facebook, LinkedIn, WhatsApp)
+
 ```html
 <meta property="og:title" content="Menu - Camera con Vista | Ristorante Bologna" />
 <meta property="og:description" content="Scopri il menu del ristorante..." />
@@ -204,19 +222,23 @@ Per ogni pagina, il middleware inietta:
 <meta property="og:site_name" content="Camera con Vista" />
 <meta property="og:locale" content="it_IT" />
 <meta property="og:locale:alternate" content="en_US" />
-<meta property="og:image" content="..." />  <!-- solo se disponibile -->
+<meta property="og:image" content="..." />
+<!-- solo se disponibile -->
 ```
 
 **Casi speciali**:
+
 - Pagine evento: `og:type = "article"`, `og:image` = poster evento
 - Altre pagine: `og:type = "website"`
 
 #### Twitter Card
+
 ```html
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="..." />
 <meta name="twitter:description" content="..." />
-<meta name="twitter:image" content="..." />  <!-- solo se disponibile -->
+<meta name="twitter:image" content="..." />
+<!-- solo se disponibile -->
 ```
 
 ### 5. JSON-LD Strutturato
@@ -224,6 +246,7 @@ Per ogni pagina, il middleware inietta:
 Dati strutturati iniettati come `<script type="application/ld+json">` per Google Rich Results.
 
 #### Restaurant (solo Home)
+
 ```json
 {
   "@context": "https://schema.org",
@@ -257,6 +280,7 @@ Dati strutturati iniettati come `<script type="application/ld+json">` per Google
 I dati di contatto (telefono, email, social) vengono letti dal `footer_settings` nel database per rimanere sincronizzati con il footer pubblico.
 
 #### Menu (pagina Menu)
+
 ```json
 {
   "@context": "https://schema.org",
@@ -267,6 +291,7 @@ I dati di contatto (telefono, email, social) vengono letti dal `footer_settings`
 ```
 
 #### Event (pagine evento singolo `/eventi/:id`)
+
 ```json
 {
   "@context": "https://schema.org",
@@ -286,6 +311,7 @@ I dati di contatto (telefono, email, social) vengono letti dal `footer_settings`
 ```
 
 #### BreadcrumbList (tutte le pagine)
+
 ```json
 {
   "@context": "https://schema.org",
@@ -311,7 +337,7 @@ const PAGE_TITLES: Record<string, { it: string; en: string }> = {
 function PublicPageRoute({ component, slug }) {
   const { language } = useLanguage();
   const { data: visiblePages } = useQuery(["/api/pages"]);
-  const page = visiblePages.find(p => p.slug === slug);
+  const page = visiblePages.find((p) => p.slug === slug);
 
   useEffect(() => {
     const customTitle = language === "it" ? page?.metaTitleIt : page?.metaTitleEn;
@@ -328,6 +354,7 @@ Path: `/admina/seo`
 File: `client/src/pages/admin/seo.tsx`
 
 **Funzionalità**:
+
 - Mostra una card per ogni pagina del sito
 - Per ogni pagina: 4 campi editabili
   - Meta Title IT / EN (input, con contatore caratteri /60)
@@ -336,6 +363,7 @@ File: `client/src/pages/admin/seo.tsx`
 - Indicatore visivo: "Salvato" (check verde) quando non ci sono modifiche pendenti
 
 **Salvataggio**: `PATCH /api/admin/pages/:id` con payload:
+
 ```json
 {
   "metaTitleIt": "...",
@@ -357,17 +385,20 @@ File: `client/src/pages/admin/seo.tsx`
 ## Scalabilità
 
 ### Performance
+
 - **Per-request DB fetch**: Ogni richiesta HTML legge le pagine dal database per costruire i meta tag. A scala corrente (8 pagine + pochi eventi) è trascurabile.
 - **Miglioramento futuro**: Implementare cache in-memory con TTL breve (es. 60 secondi) per `storage.getPages()` e `storage.getEvents()` nel middleware SEO.
 - **Sitemap caching**: Header `Cache-Control: public, max-age=3600` (1 ora) sul sitemap.
 
 ### Estensibilità
+
 - **Nuove pagine**: Aggiungere entry in `SLUG_TO_PATH`, `DEFAULT_PAGE_TITLES_IT/EN`, `DEFAULT_PAGE_DESCS_IT/EN` in `server/seo.ts`, e in `PAGE_TITLES` in `App.tsx`.
 - **Nuovi tipi JSON-LD**: Aggiungere condizioni in `buildSeoData()` basate su slug/pathname.
 - **OG Image per pagina**: Attualmente solo gli eventi hanno `og:image` (poster). Possibile estendere con campo `ogImageUrl` nella tabella `pages`.
 - **Schema.org aggiuntivi**: Possibile aggiungere `FoodEstablishment`, `AggregateRating`, `OpeningHoursSpecification` al Restaurant schema.
 
 ### Multi-dominio
+
 - Il `baseUrl` viene costruito dinamicamente da `req.headers` (`x-forwarded-proto`, `x-forwarded-host`), quindi funziona correttamente con:
   - Dominio produzione
   - Dominio di staging
@@ -376,16 +407,21 @@ File: `client/src/pages/admin/seo.tsx`
 ## Interazione con Altri Sistemi
 
 ### Draft/Publish
+
 I meta tag SEO **non** sono soggetti al sistema draft/publish. Quando l'admin salva un meta title/description, questo viene immediatamente utilizzato dal middleware SEO per le richieste successive. Non è necessario "pubblicare" per rendere effettive le modifiche SEO.
 
 ### Google Sheets Sync
+
 Il sync Google Sheets **non** interagisce con il sistema SEO. Il sync aggiorna `menu_items`, `wines`, `cocktails` — tabelle che non hanno campi SEO. I meta tag delle pagine menu/vini/cocktail sono gestiti separatamente tramite il pannello SEO admin.
 
 ### Footer Settings
+
 Il schema JSON-LD `Restaurant` (iniettato solo nella Home) legge telefono, email e social links dal `footer_settings` nel database. Se il footer viene aggiornato, i dati strutturati si aggiornano automaticamente alla prossima richiesta.
 
 ### Bilinguismo
+
 Il sistema SEO rispetta il parametro `?lang=en` per servire meta tag nella lingua corretta:
+
 - URL senza `?lang=en` → meta tag in italiano
 - URL con `?lang=en` → meta tag in inglese
 - Canonical URL include il parametro lingua quando presente
@@ -394,29 +430,32 @@ Il sistema SEO rispetta il parametro `?lang=en` per servire meta tag nella lingu
 ## Debugging SEO
 
 ### Verificare meta tag iniettati
+
 ```bash
 curl -s https://dominio.com/menu | grep -E '<title>|<meta|<link rel="canonical"|application/ld\+json'
 ```
 
 ### Verificare sitemap
+
 ```bash
 curl -s https://dominio.com/sitemap.xml
 ```
 
 ### Verificare robots.txt
+
 ```bash
 curl -s https://dominio.com/robots.txt
 ```
 
 ### Problemi comuni
 
-| Problema | Causa | Soluzione |
-|----------|-------|-----------|
-| Titolo uguale su tutte le pagine | `req.path` usato al posto di `req.originalUrl` | Verificare che `buildSeoData()` usi `req.originalUrl` |
-| Meta tag non iniettati | HTML non contiene `</head>` o è un asset statico | Verificare che il middleware escluda correttamente gli asset |
-| Sitemap vuota | Nessuna pagina con `isVisible=true` | Verificare `SELECT slug, is_visible FROM pages` |
-| JSON-LD mancante | Pagina non mappata in `SLUG_TO_PATH` | Aggiungere il mapping |
-| Titolo non aggiornato in SPA | `PAGE_TITLES` in App.tsx non include lo slug | Aggiungere entry in `PAGE_TITLES` |
+| Problema                         | Causa                                            | Soluzione                                                    |
+| -------------------------------- | ------------------------------------------------ | ------------------------------------------------------------ |
+| Titolo uguale su tutte le pagine | `req.path` usato al posto di `req.originalUrl`   | Verificare che `buildSeoData()` usi `req.originalUrl`        |
+| Meta tag non iniettati           | HTML non contiene `</head>` o è un asset statico | Verificare che il middleware escluda correttamente gli asset |
+| Sitemap vuota                    | Nessuna pagina con `isVisible=true`              | Verificare `SELECT slug, is_visible FROM pages`              |
+| JSON-LD mancante                 | Pagina non mappata in `SLUG_TO_PATH`             | Aggiungere il mapping                                        |
+| Titolo non aggiornato in SPA     | `PAGE_TITLES` in App.tsx non include lo slug     | Aggiungere entry in `PAGE_TITLES`                            |
 
 ## Checklist SEO
 
@@ -443,48 +482,57 @@ curl -s https://dominio.com/robots.txt
 ## Stato Produzione SEO — CHIUSO (9 Febbraio 2026)
 
 ### Deployment attivo
+
 - **URL produzione**: https://cameraconvista.onrender.com
 - **SEO server-side**: ATTIVO e funzionante su tutte le pagine pubbliche
 - **Nessun errore bloccante** rilevato
 
 ### Google Search Console
+
 - **Proprietà**: Prefisso URL `https://cameraconvista.onrender.com`
 - **Metodo verifica**: File HTML (`google2c3b1fd28b11c04d.html` in `client/public/`)
 - **Stato verifica**: VERIFICATA
 - **Sitemap**: Inviata con successo (`/sitemap.xml`)
 
 ### Fix produzione applicato
+
 Il middleware SEO originale intercettava `res.send()` verificando `typeof chunk === "string"`. In produzione, `res.sendFile()` (usato in `server/static.ts`) invia Buffer tramite streaming, bypassando il controllo. **Fix**: il catch-all in `server/static.ts` ora legge `index.html` come stringa, chiama `generateSeoHtml()` + `injectSeoIntoHtml()`, e risponde con `res.send(html)`.
 
 ### robots.txt
+
 - Ora servito come **endpoint Express dinamico** (non più file statico)
 - URL Sitemap: assoluto (es. `https://cameraconvista.onrender.com/sitemap.xml`)
 - Conforme alle specifiche Google
 
 ### Sitemap
+
 - Pagine pubbliche + eventi attivi
 - hreflang completo: IT / EN / x-default (inclusi eventi)
 - Cache: `max-age=3600` (1 ora)
 
 ### Multilingua SEO
+
 - Lingua gestita via parametro `?lang=en`
 - hreflang server-side coerente su tutte le pagine e eventi
 - `x-default` punta sempre alla versione italiana
 - Nota: URL con prefisso `/en/` valutabile come ottimizzazione futura (non implementata, non necessaria ora)
 
 ### Limiti noti (accettati)
+
 - SPA senza SSR / prerender — scelta consapevole e documentata
 - Indicizzazione contenuti JS demandata a Googlebot (supportato da Google)
 - SSR/prerender documentato come upgrade futuro, non necessario ora
 - `og:image` presente solo su eventi (poster) — estendibile in futuro con campo dedicato per pagina
 
 ### Conclusione task
+
 - **Task SEO: CONCLUSO**
 - Nessun ulteriore intervento richiesto lato codice
 - Nessuna modifica React/UX/UI effettuata
 - Nessuna dipendenza aggiunta
 
 ### Prossimi step futuri (strategici, non richiedono codice ora)
+
 1. **Switch dominio ufficiale**: Quando il dominio definitivo sarà attivo, aggiornare la proprietà Search Console e verificare che `baseUrl` dinamico funzioni correttamente
 2. **Ranking locale**: Attivare Google Business Profile e collegarlo al sito
 3. **SSR/Prerender**: Valutabile solo se l'indicizzazione Google risulta insufficiente (monitorare via Search Console → Copertura)

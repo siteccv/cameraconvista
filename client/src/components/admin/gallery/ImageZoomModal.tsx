@@ -28,62 +28,74 @@ export function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalP
     onClose();
   };
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    if (zoom <= 100) return;
-    setIsDragging(true);
-    dragStartRef.current = { x: e.clientX, y: e.clientY, offsetX, offsetY };
-    e.preventDefault();
-  }, [zoom, offsetX, offsetY]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (zoom <= 100) return;
+      setIsDragging(true);
+      dragStartRef.current = { x: e.clientX, y: e.clientY, offsetX, offsetY };
+      e.preventDefault();
+    },
+    [zoom, offsetX, offsetY],
+  );
 
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const rect = container.getBoundingClientRect();
-    const sensitivity = 100 / rect.width;
-    
-    const deltaX = (e.clientX - dragStartRef.current.x) * sensitivity;
-    const deltaY = (e.clientY - dragStartRef.current.y) * sensitivity;
-    
-    const maxOffset = (zoom - 100) / 2;
-    const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
-    const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
-    
-    setOffsetX(Math.round(newX));
-    setOffsetY(Math.round(newY));
-  }, [isDragging, zoom]);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (!isDragging) return;
+      const container = containerRef.current;
+      if (!container) return;
+
+      const rect = container.getBoundingClientRect();
+      const sensitivity = 100 / rect.width;
+
+      const deltaX = (e.clientX - dragStartRef.current.x) * sensitivity;
+      const deltaY = (e.clientY - dragStartRef.current.y) * sensitivity;
+
+      const maxOffset = (zoom - 100) / 2;
+      const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
+      const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
+
+      setOffsetX(Math.round(newX));
+      setOffsetY(Math.round(newY));
+    },
+    [isDragging, zoom],
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
   }, []);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (zoom <= 100) return;
-    const touch = e.touches[0];
-    setIsDragging(true);
-    dragStartRef.current = { x: touch.clientX, y: touch.clientY, offsetX, offsetY };
-  }, [zoom, offsetX, offsetY]);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (zoom <= 100) return;
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = { x: touch.clientX, y: touch.clientY, offsetX, offsetY };
+    },
+    [zoom, offsetX, offsetY],
+  );
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDragging) return;
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const touch = e.touches[0];
-    const rect = container.getBoundingClientRect();
-    const sensitivity = 100 / rect.width;
-    
-    const deltaX = (touch.clientX - dragStartRef.current.x) * sensitivity;
-    const deltaY = (touch.clientY - dragStartRef.current.y) * sensitivity;
-    
-    const maxOffset = (zoom - 100) / 2;
-    const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
-    const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
-    
-    setOffsetX(Math.round(newX));
-    setOffsetY(Math.round(newY));
-  }, [isDragging, zoom]);
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging) return;
+      const container = containerRef.current;
+      if (!container) return;
+
+      const touch = e.touches[0];
+      const rect = container.getBoundingClientRect();
+      const sensitivity = 100 / rect.width;
+
+      const deltaX = (touch.clientX - dragStartRef.current.x) * sensitivity;
+      const deltaY = (touch.clientY - dragStartRef.current.y) * sensitivity;
+
+      const maxOffset = (zoom - 100) / 2;
+      const newX = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetX + deltaX));
+      const newY = Math.max(-maxOffset, Math.min(maxOffset, dragStartRef.current.offsetY + deltaY));
+
+      setOffsetX(Math.round(newX));
+      setOffsetY(Math.round(newY));
+    },
+    [isDragging, zoom],
+  );
 
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -93,7 +105,7 @@ export function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalP
         </DialogHeader>
 
         <div className="py-4 space-y-6">
-          <div 
+          <div
             ref={containerRef}
             className={`aspect-[9/16] rounded-lg overflow-hidden bg-muted mx-auto max-w-[200px] ${zoom > 100 ? "cursor-grab" : ""} ${isDragging ? "cursor-grabbing" : ""}`}
             onMouseDown={handleMouseDown}
@@ -117,7 +129,10 @@ export function ImageZoomModal({ open, onClose, image, onSave }: ImageZoomModalP
           </div>
           {zoom > 100 && (
             <p className="text-xs text-center text-muted-foreground">
-              {t("Trascina l'immagine per regolare la posizione", "Drag the image to adjust position")}
+              {t(
+                "Trascina l'immagine per regolare la posizione",
+                "Drag the image to adjust position",
+              )}
             </p>
           )}
 

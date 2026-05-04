@@ -108,20 +108,24 @@ export function usePageBlocks({ pageId, defaults }: UsePageBlocksOptions) {
     (id: number, data: Partial<PageBlock>) => {
       updateBlockMutation.mutate({ id, data });
     },
-    [updateBlockMutation]
+    [updateBlockMutation],
   );
 
   const getBlock = useCallback(
     (blockType: string) => blocks.find((b) => b.blockType === blockType) || null,
-    [blocks]
+    [blocks],
   );
 
   const getBlockValue = useCallback(
-    <K extends keyof PageBlock>(blockType: string, field: K, fallback: PageBlock[K]): PageBlock[K] => {
+    <K extends keyof PageBlock>(
+      blockType: string,
+      field: K,
+      fallback: PageBlock[K],
+    ): PageBlock[K] => {
       const block = blocks.find((b) => b.blockType === blockType);
       return block?.[field] ?? fallback;
     },
-    [blocks]
+    [blocks],
   );
 
   return {

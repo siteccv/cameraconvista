@@ -18,14 +18,14 @@
 
 ### 1.2 Key Properties
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `blockKey` | string | Identifies the page block (e.g., `hero`, `gallery-1`) |
-| `fixedCropRatio` | number | Aspect ratio for stable cropping across viewports (e.g., `16/9`, `4/5`) |
-| `referenceWidth` | number | Reference width for consistent desktop rendering (default: 1200) |
-| `imageScaleDesktop` / `imageScaleMobile` | number | Zoom level per device |
-| `imageOffsetXDesktop` / `imageOffsetXMobile` | number | Horizontal offset [-100,+100] |
-| `imageOffsetYDesktop` / `imageOffsetYMobile` | number | Vertical offset [-100,+100] |
+| Property                                     | Type   | Description                                                             |
+| -------------------------------------------- | ------ | ----------------------------------------------------------------------- |
+| `blockKey`                                   | string | Identifies the page block (e.g., `hero`, `gallery-1`)                   |
+| `fixedCropRatio`                             | number | Aspect ratio for stable cropping across viewports (e.g., `16/9`, `4/5`) |
+| `referenceWidth`                             | number | Reference width for consistent desktop rendering (default: 1200)        |
+| `imageScaleDesktop` / `imageScaleMobile`     | number | Zoom level per device                                                   |
+| `imageOffsetXDesktop` / `imageOffsetXMobile` | number | Horizontal offset [-100,+100]                                           |
+| `imageOffsetYDesktop` / `imageOffsetYMobile` | number | Vertical offset [-100,+100]                                             |
 
 ### 1.3 Rendering Pipeline
 
@@ -52,11 +52,11 @@ The `fixedCropRatio` property solves the viewport stability problem:
 
 ### 2.1 Completed Migrations
 
-| Page | Block Keys | fixedCropRatio | Date | Notes |
-|------|-----------|----------------|------|-------|
-| **Home** | `hero` | 16/9 | 7 Feb 2026 | Hero banner, first migration |
-| **Cocktail Bar** | `hero`, `gallery-1/2/3` | 16/9 (hero), 4/3 desktop / 4/5 mobile (gallery) | 8 Feb 2026 | Gallery images between intro and cocktail list |
-| **Eventi Privati** | `hero`, `spaces-1/2/3` | 16/9 (hero), 4/3 desktop / 4/5 mobile (spaces) | 10 Feb 2026 | "I nostri spazi" section images |
+| Page               | Block Keys              | fixedCropRatio                                  | Date        | Notes                                          |
+| ------------------ | ----------------------- | ----------------------------------------------- | ----------- | ---------------------------------------------- |
+| **Home**           | `hero`                  | 16/9                                            | 7 Feb 2026  | Hero banner, first migration                   |
+| **Cocktail Bar**   | `hero`, `gallery-1/2/3` | 16/9 (hero), 4/3 desktop / 4/5 mobile (gallery) | 8 Feb 2026  | Gallery images between intro and cocktail list |
+| **Eventi Privati** | `hero`, `spaces-1/2/3`  | 16/9 (hero), 4/3 desktop / 4/5 mobile (spaces)  | 10 Feb 2026 | "I nostri spazi" section images                |
 
 ### 2.2 Pages Still Using EditableImage
 
@@ -72,10 +72,10 @@ Migration of these pages is low priority but would resolve the legacy issues.
 
 ### 2.3 Legacy Component Status
 
-| Component | File | Status |
-|-----------|------|--------|
-| `EditableImage.tsx` | `client/src/components/admin/EditableImage.tsx` | **Active** — still used by non-migrated pages, has known issues (see Section 6) |
-| `TestImageContainer.tsx` | — | **Removed** — test harness deleted after migration validation |
+| Component                | File                                            | Status                                                                          |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------------------------------------------- |
+| `EditableImage.tsx`      | `client/src/components/admin/EditableImage.tsx` | **Active** — still used by non-migrated pages, has known issues (see Section 6) |
+| `TestImageContainer.tsx` | —                                               | **Removed** — test harness deleted after migration validation                   |
 
 ---
 
@@ -125,6 +125,7 @@ isMobile = forceMobileLayout || useIsMobile() (viewport detection)
 ```
 
 When `isMobile` is true:
+
 - ImageContainer reads `imageScaleMobile`, `imageOffsetXMobile`, `imageOffsetYMobile`
 - Layout uses mobile-specific aspect ratios (e.g., 4/5 instead of 4/3)
 - Typography and spacing adjust via conditional Tailwind classes
@@ -141,13 +142,13 @@ When `isMobile` is true:
 
 ### 5.1 Strategy (10-11 Feb 2026)
 
-| Technique | Implementation |
-|-----------|---------------|
-| DNS Preconnect | `<link rel="preconnect">` for Supabase storage domain in `client/index.html` |
-| Eager/Lazy Loading | Hero images: `loading="eager"`, below-fold: `loading="lazy"` |
+| Technique           | Implementation                                                                                                 |
+| ------------------- | -------------------------------------------------------------------------------------------------------------- |
+| DNS Preconnect      | `<link rel="preconnect">` for Supabase storage domain in `client/index.html`                                   |
+| Eager/Lazy Loading  | Hero images: `loading="eager"`, below-fold: `loading="lazy"`                                                   |
 | Staggered Preloader | `useImagePreloader` hook loads images in background with 100ms intervals, batch processing, cleanup on unmount |
-| Nav Hover Prefetch | Header prefetches page data + hero images on link hover |
-| Cache Headers | Production API: `Cache-Control` 60-300s with `stale-while-revalidate` |
+| Nav Hover Prefetch  | Header prefetches page data + hero images on link hover                                                        |
+| Cache Headers       | Production API: `Cache-Control` 60-300s with `stale-while-revalidate`                                          |
 
 ### 5.2 Slug-based Blocks Endpoint
 
@@ -161,12 +162,12 @@ These issues affect pages still using `EditableImage` and legacy event/gallery i
 
 ### 6.1 Offset & Zoom Logic Issues
 
-| Issue | Description | Impact |
-|-------|-------------|--------|
-| **Offset units inconsistency** | EditableImage uses pixel-based offsets that behave differently at different viewport widths | Crop position shifts when viewport changes |
-| **Missing clamp logic** | Offset values are not clamped to valid ranges, allowing the image to be positioned partially or fully outside the visible container | Admin can accidentally make image invisible |
-| **Zoom minimum definition** | `zoom=1` maps to different effective scales depending on image aspect ratio vs container aspect ratio | Inconsistent baseline zoom behavior |
-| **Modal ↔ public mismatch** | Admin edit modals render images with different container dimensions than public pages, so the preview in the modal doesn't match the final rendering | Admin sees different crop than visitors |
+| Issue                          | Description                                                                                                                                          | Impact                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| **Offset units inconsistency** | EditableImage uses pixel-based offsets that behave differently at different viewport widths                                                          | Crop position shifts when viewport changes  |
+| **Missing clamp logic**        | Offset values are not clamped to valid ranges, allowing the image to be positioned partially or fully outside the visible container                  | Admin can accidentally make image invisible |
+| **Zoom minimum definition**    | `zoom=1` maps to different effective scales depending on image aspect ratio vs container aspect ratio                                                | Inconsistent baseline zoom behavior         |
+| **Modal ↔ public mismatch**    | Admin edit modals render images with different container dimensions than public pages, so the preview in the modal doesn't match the final rendering | Admin sees different crop than visitors     |
 
 ### 6.2 Event Poster Public Rendering
 

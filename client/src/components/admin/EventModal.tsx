@@ -3,12 +3,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -40,10 +35,10 @@ function toLocalDatetimeString(date: Date | string | null): string {
   const d = new Date(date);
   if (isNaN(d.getTime())) return "";
   const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  const hours = String(d.getHours()).padStart(2, '0');
-  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hours = String(d.getHours()).padStart(2, "0");
+  const minutes = String(d.getMinutes()).padStart(2, "0");
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 }
 
@@ -79,32 +74,38 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
   const dragStartOffset = useRef({ x: 0, y: 0 });
   const posterPreviewRef = useRef<HTMLDivElement>(null);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-    dragStartPos.current = { x: e.clientX, y: e.clientY };
-    dragStartOffset.current = { 
-      x: formData.posterOffsetX || 0, 
-      y: formData.posterOffsetY || 0 
-    };
-  }, [formData.posterOffsetX, formData.posterOffsetY]);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      e.preventDefault();
+      setIsDragging(true);
+      dragStartPos.current = { x: e.clientX, y: e.clientY };
+      dragStartOffset.current = {
+        x: formData.posterOffsetX || 0,
+        y: formData.posterOffsetY || 0,
+      };
+    },
+    [formData.posterOffsetX, formData.posterOffsetY],
+  );
 
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !posterPreviewRef.current) return;
-    
-    const rect = posterPreviewRef.current.getBoundingClientRect();
-    const deltaX = ((e.clientX - dragStartPos.current.x) / rect.width) * 100;
-    const deltaY = ((e.clientY - dragStartPos.current.y) / rect.height) * 100;
-    
-    const newOffsetX = Math.max(-50, Math.min(50, dragStartOffset.current.x + deltaX));
-    const newOffsetY = Math.max(-50, Math.min(50, dragStartOffset.current.y + deltaY));
-    
-    setFormData(prev => ({
-      ...prev,
-      posterOffsetX: Math.round(newOffsetX),
-      posterOffsetY: Math.round(newOffsetY),
-    }));
-  }, [isDragging]);
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !posterPreviewRef.current) return;
+
+      const rect = posterPreviewRef.current.getBoundingClientRect();
+      const deltaX = ((e.clientX - dragStartPos.current.x) / rect.width) * 100;
+      const deltaY = ((e.clientY - dragStartPos.current.y) / rect.height) * 100;
+
+      const newOffsetX = Math.max(-50, Math.min(50, dragStartOffset.current.x + deltaX));
+      const newOffsetY = Math.max(-50, Math.min(50, dragStartOffset.current.y + deltaY));
+
+      setFormData((prev) => ({
+        ...prev,
+        posterOffsetX: Math.round(newOffsetX),
+        posterOffsetY: Math.round(newOffsetY),
+      }));
+    },
+    [isDragging],
+  );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
@@ -112,11 +113,11 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
   useEffect(() => {
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
       return () => {
-        window.removeEventListener('mousemove', handleMouseMove);
-        window.removeEventListener('mouseup', handleMouseUp);
+        window.removeEventListener("mousemove", handleMouseMove);
+        window.removeEventListener("mouseup", handleMouseUp);
       };
     }
   }, [isDragging, handleMouseMove, handleMouseUp]);
@@ -213,11 +214,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.titleIt || !formData.titleEn) {
       toast({
         title: t("Errore", "Error"),
-        description: t("Titolo obbligatorio in entrambe le lingue.", "Title required in both languages."),
+        description: t(
+          "Titolo obbligatorio in entrambe le lingue.",
+          "Title required in both languages.",
+        ),
         variant: "destructive",
       });
       return;
@@ -271,7 +275,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="titleEn" className="flex-1">{t("Titolo (Inglese)", "Title (English)")} *</Label>
+                    <Label htmlFor="titleEn" className="flex-1">
+                      {t("Titolo (Inglese)", "Title (English)")} *
+                    </Label>
                     <TranslateButton
                       textIt={formData.titleIt || ""}
                       onTranslated={(text) => setFormData({ ...formData, titleEn: text })}
@@ -290,7 +296,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="descriptionIt">{t("Descrizione (Italiano)", "Description (Italian)")}</Label>
+                  <Label htmlFor="descriptionIt">
+                    {t("Descrizione (Italiano)", "Description (Italian)")}
+                  </Label>
                   <Textarea
                     id="descriptionIt"
                     value={formData.descriptionIt ?? ""}
@@ -302,7 +310,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="descriptionEn" className="flex-1">{t("Descrizione (Inglese)", "Description (English)")}</Label>
+                    <Label htmlFor="descriptionEn" className="flex-1">
+                      {t("Descrizione (Inglese)", "Description (English)")}
+                    </Label>
                     <TranslateButton
                       textIt={formData.descriptionIt || ""}
                       onTranslated={(text) => setFormData({ ...formData, descriptionEn: text })}
@@ -334,7 +344,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <Label htmlFor="detailsEn" className="flex-1">{t("Dettagli (Inglese)", "Details (English)")}</Label>
+                    <Label htmlFor="detailsEn" className="flex-1">
+                      {t("Dettagli (Inglese)", "Details (English)")}
+                    </Label>
                     <TranslateButton
                       textIt={formData.detailsIt || ""}
                       onTranslated={(text) => setFormData({ ...formData, detailsEn: text })}
@@ -360,14 +372,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   <p className="text-sm text-muted-foreground">
                     {t(
                       "Formato Instagram Story (9:16). Senza poster l'evento non sarà visibile.",
-                      "Instagram Story format (9:16). Without poster the event won't be visible."
+                      "Instagram Story format (9:16). Without poster the event won't be visible.",
                     )}
                   </p>
 
                   {formData.posterUrl ? (
-                    <div 
+                    <div
                       ref={posterPreviewRef}
-                      className={`relative aspect-[9/16] w-48 bg-muted rounded-lg overflow-hidden border ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+                      className={`relative aspect-[9/16] w-48 bg-muted rounded-lg overflow-hidden border ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
                       onMouseDown={handleMouseDown}
                     >
                       <img
@@ -390,7 +402,11 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   )}
 
                   <div className="flex gap-2">
-                    <Button type="button" variant="outline" onClick={() => setShowMediaPicker(true)}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowMediaPicker(true)}
+                    >
                       {t("Scegli dalla libreria", "Choose from library")}
                     </Button>
                     {formData.posterUrl && (
@@ -407,7 +423,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label>{t("Zoom", "Zoom")} ({formData.posterZoom}%)</Label>
+                    <Label>
+                      {t("Zoom", "Zoom")} ({formData.posterZoom}%)
+                    </Label>
                     <Slider
                       value={[formData.posterZoom || 100]}
                       onValueChange={([value]) => setFormData({ ...formData, posterZoom: value })}
@@ -418,10 +436,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>{t("Offset X", "Offset X")} ({formData.posterOffsetX}%)</Label>
+                    <Label>
+                      {t("Offset X", "Offset X")} ({formData.posterOffsetX}%)
+                    </Label>
                     <Slider
                       value={[formData.posterOffsetX || 0]}
-                      onValueChange={([value]) => setFormData({ ...formData, posterOffsetX: value })}
+                      onValueChange={([value]) =>
+                        setFormData({ ...formData, posterOffsetX: value })
+                      }
                       min={-50}
                       max={50}
                       step={1}
@@ -429,10 +451,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>{t("Offset Y", "Offset Y")} ({formData.posterOffsetY}%)</Label>
+                    <Label>
+                      {t("Offset Y", "Offset Y")} ({formData.posterOffsetY}%)
+                    </Label>
                     <Slider
                       value={[formData.posterOffsetY || 0]}
-                      onValueChange={([value]) => setFormData({ ...formData, posterOffsetY: value })}
+                      onValueChange={([value]) =>
+                        setFormData({ ...formData, posterOffsetY: value })
+                      }
                       min={-50}
                       max={50}
                       step={1}
@@ -443,12 +469,14 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setFormData({ 
-                      ...formData, 
-                      posterZoom: 100, 
-                      posterOffsetX: 0, 
-                      posterOffsetY: 0 
-                    })}
+                    onClick={() =>
+                      setFormData({
+                        ...formData,
+                        posterZoom: 100,
+                        posterOffsetX: 0,
+                        posterOffsetY: 0,
+                      })
+                    }
                     className="mt-4"
                     data-testid="button-reset-position"
                   >
@@ -456,7 +484,6 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   </Button>
                 </div>
               </div>
-
             </TabsContent>
 
             <TabsContent value="settings" className="space-y-4 mt-4">
@@ -467,7 +494,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     id="startAt"
                     type="datetime-local"
                     value={toLocalDatetimeString(formData.startAt ?? null)}
-                    onChange={(e) => setFormData({ ...formData, startAt: (e.target.value || null) as any })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startAt: (e.target.value || null) as any })
+                    }
                     data-testid="input-start-at"
                   />
                 </div>
@@ -477,7 +506,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     id="endAt"
                     type="datetime-local"
                     value={toLocalDatetimeString(formData.endAt ?? null)}
-                    onChange={(e) => setFormData({ ...formData, endAt: (e.target.value || null) as any })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endAt: (e.target.value || null) as any })
+                    }
                     data-testid="input-end-at"
                   />
                 </div>
@@ -490,7 +521,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     id="sortOrder"
                     type="number"
                     value={formData.sortOrder}
-                    onChange={(e) => setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, sortOrder: parseInt(e.target.value) || 0 })
+                    }
                     data-testid="input-sort-order"
                   />
                 </div>
@@ -498,7 +531,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
               <div className="space-y-4 p-4 border rounded-lg">
                 <h4 className="font-medium">{t("Visibilità", "Visibility")}</h4>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>{t("Evento Attivo", "Event Active")}</Label>
@@ -539,7 +572,12 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     <Input
                       type="number"
                       value={formData.visibilityDaysAfter || 7}
-                      onChange={(e) => setFormData({ ...formData, visibilityDaysAfter: parseInt(e.target.value) || 7 })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          visibilityDaysAfter: parseInt(e.target.value) || 7,
+                        })
+                      }
                       min={0}
                       max={365}
                       data-testid="input-visibility-days"
@@ -550,7 +588,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
 
               <div className="space-y-4 p-4 border rounded-lg">
                 <h4 className="font-medium">{t("Prenotazioni", "Bookings")}</h4>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label>{t("Prenotazioni Attive", "Bookings Enabled")}</Label>
@@ -560,7 +598,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                   </div>
                   <Switch
                     checked={formData.bookingEnabled}
-                    onCheckedChange={(checked) => setFormData({ ...formData, bookingEnabled: checked })}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, bookingEnabled: checked })
+                    }
                     data-testid="switch-booking-enabled"
                   />
                 </div>

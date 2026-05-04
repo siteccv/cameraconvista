@@ -14,7 +14,11 @@ export default function CartaVini() {
   const { t } = useLanguage();
   const { adminPreview } = useAdmin();
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS["carta-vini"],
     defaults: CARTA_VINI_DEFAULTS,
   });
@@ -39,17 +43,26 @@ export default function CartaVini() {
     "Vini Dolci",
   ];
 
-  const categorizedWines = wines?.reduce((acc, wine) => {
-    if (!acc[wine.category]) {
-      acc[wine.category] = [];
-    }
-    acc[wine.category].push(wine);
-    return acc;
-  }, {} as Record<string, Wine[]>) ?? {};
+  const categorizedWines =
+    wines?.reduce(
+      (acc, wine) => {
+        if (!acc[wine.category]) {
+          acc[wine.category] = [];
+        }
+        acc[wine.category].push(wine);
+        return acc;
+      },
+      {} as Record<string, Wine[]>,
+    ) ?? {};
 
-  const orderedCategories = CATEGORY_ORDER.filter(cat => categorizedWines[cat]?.length > 0);
+  const orderedCategories = CATEGORY_ORDER.filter((cat) => categorizedWines[cat]?.length > 0);
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -70,14 +83,19 @@ export default function CartaVini() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -107,11 +125,13 @@ export default function CartaVini() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -124,7 +144,9 @@ export default function CartaVini() {
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -171,7 +193,10 @@ export default function CartaVini() {
           ) : orderedCategories.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground" data-testid="text-wines-empty">
-                {t("La carta dei vini sarà disponibile a breve.", "The wine list will be available soon.")}
+                {t(
+                  "La carta dei vini sarà disponibile a breve.",
+                  "The wine list will be available soon.",
+                )}
               </p>
             </div>
           ) : (
@@ -181,7 +206,7 @@ export default function CartaVini() {
                   <div className="flex items-center justify-center mb-8">
                     <h2
                       className="font-display text-3xl md:text-4xl"
-                      style={{ color: '#722F37' }}
+                      style={{ color: "#722F37" }}
                       data-testid={`text-wine-category-${category}`}
                     >
                       {category}
@@ -215,10 +240,7 @@ function WineCard({ wine }: { wine: Wine }) {
     >
       <div className="space-y-1">
         <div className="md:flex md:items-center md:justify-between md:gap-4">
-          <h3
-            className="text-base md:text-lg leading-tight"
-            style={{ color: '#2f2b2a' }}
-          >
+          <h3 className="text-base md:text-lg leading-tight" style={{ color: "#2f2b2a" }}>
             {t(wine.nameIt, wine.nameEn)}
             {wine.year && <span className="ml-2 text-sm">{wine.year}</span>}
           </h3>
@@ -227,9 +249,9 @@ function WineCard({ wine }: { wine: Wine }) {
               <span
                 className="price-text"
                 style={{
-                  fontSize: '20px',
+                  fontSize: "20px",
                   fontWeight: 500,
-                  color: '#c7902f'
+                  color: "#c7902f",
                 }}
               >
                 <span>€</span>
@@ -240,9 +262,9 @@ function WineCard({ wine }: { wine: Wine }) {
               <span
                 className="price-text"
                 style={{
-                  fontSize: '20px',
+                  fontSize: "20px",
                   fontWeight: 500,
-                  color: '#c7902f'
+                  color: "#c7902f",
                 }}
               >
                 <span>€</span>
@@ -263,9 +285,9 @@ function WineCard({ wine }: { wine: Wine }) {
             <span
               className="price-text"
               style={{
-                fontSize: '20px',
+                fontSize: "20px",
                 fontWeight: 500,
-                color: '#c7902f'
+                color: "#c7902f",
               }}
             >
               <span>€</span>
@@ -276,9 +298,9 @@ function WineCard({ wine }: { wine: Wine }) {
             <span
               className="price-text"
               style={{
-                fontSize: '20px',
+                fontSize: "20px",
                 fontWeight: 500,
-                color: '#c7902f'
+                color: "#c7902f",
               }}
             >
               <span>€</span>

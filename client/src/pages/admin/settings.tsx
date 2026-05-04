@@ -8,7 +8,17 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
-import { Lock, Save, Eye, EyeOff, FileText, ChevronLeft, Link2, ShieldCheck, Globe } from "lucide-react";
+import {
+  Lock,
+  Save,
+  Eye,
+  EyeOff,
+  FileText,
+  ChevronLeft,
+  Link2,
+  ShieldCheck,
+  Globe,
+} from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 
 type SettingsSection = "main" | "password" | "footer" | "site-links";
@@ -43,7 +53,10 @@ export default function AdminSettings() {
     if (newPassword.length < 4) {
       toast({
         title: t("Errore", "Error"),
-        description: t("La password deve essere di almeno 4 caratteri", "Password must be at least 4 characters"),
+        description: t(
+          "La password deve essere di almeno 4 caratteri",
+          "Password must be at least 4 characters",
+        ),
         variant: "destructive",
       });
       return;
@@ -105,7 +118,10 @@ export default function AdminSettings() {
               {t("Cambia Password", "Change Password")}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              {t("Modifica la password di accesso all'area admin", "Change the admin area access password")}
+              {t(
+                "Modifica la password di accesso all'area admin",
+                "Change the admin area access password",
+              )}
             </p>
           </div>
 
@@ -126,9 +142,7 @@ export default function AdminSettings() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="newPassword">
-                    {t("Nuova Password", "New Password")}
-                  </Label>
+                  <Label htmlFor="newPassword">{t("Nuova Password", "New Password")}</Label>
                   <Input
                     id="newPassword"
                     type={showPasswords ? "text" : "password"}
@@ -169,7 +183,9 @@ export default function AdminSettings() {
                   data-testid="button-save-password"
                 >
                   <Save className="mr-2 h-4 w-4" />
-                  {isLoading ? t("Salvataggio...", "Saving...") : t("Salva Password", "Save Password")}
+                  {isLoading
+                    ? t("Salvataggio...", "Saving...")
+                    : t("Salva Password", "Save Password")}
                 </Button>
               </form>
             </CardContent>
@@ -199,7 +215,10 @@ export default function AdminSettings() {
               {t("Impostazioni Footer", "Footer Settings")}
             </h1>
             <p className="text-muted-foreground text-sm mt-1">
-              {t("Gestisci i contenuti del footer del sito pubblico", "Manage the public site footer content")}
+              {t(
+                "Gestisci i contenuti del footer del sito pubblico",
+                "Manage the public site footer content",
+              )}
             </p>
           </div>
 
@@ -236,7 +255,9 @@ export default function AdminSettings() {
                 <Lock className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base mb-0.5">{t("Password Admin", "Admin Password")}</CardTitle>
+                <CardTitle className="text-base mb-0.5">
+                  {t("Password Admin", "Admin Password")}
+                </CardTitle>
                 <CardDescription className="text-sm">
                   {t("Modifica la password di accesso", "Change the access password")}
                 </CardDescription>
@@ -255,9 +276,14 @@ export default function AdminSettings() {
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-base mb-0.5">{t("Impostazioni Footer", "Footer Settings")}</CardTitle>
+                <CardTitle className="text-base mb-0.5">
+                  {t("Impostazioni Footer", "Footer Settings")}
+                </CardTitle>
                 <CardDescription className="text-sm">
-                  {t("Descrizione, contatti, orari, social e link", "Description, contacts, hours, social and links")}
+                  {t(
+                    "Descrizione, contatti, orari, social e link",
+                    "Description, contacts, hours, social and links",
+                  )}
                 </CardDescription>
               </div>
               <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
@@ -354,7 +380,7 @@ function SiteLinksSection({ onBack }: { onBack: () => void }) {
           <p className="text-muted-foreground text-sm mt-1">
             {t(
               "Configura gli URL per i pulsanti nella barra laterale",
-              "Configure URLs for the sidebar buttons"
+              "Configure URLs for the sidebar buttons",
             )}
           </p>
         </div>
@@ -378,7 +404,7 @@ function SiteLinksSection({ onBack }: { onBack: () => void }) {
                 <p className="text-xs text-muted-foreground">
                   {t(
                     "URL del pannello admin sul sito di produzione",
-                    "URL of the admin panel on the production site"
+                    "URL of the admin panel on the production site",
                   )}
                 </p>
               </div>
@@ -399,7 +425,7 @@ function SiteLinksSection({ onBack }: { onBack: () => void }) {
                 <p className="text-xs text-muted-foreground">
                   {t(
                     "URL del sito pubblico visibile ai clienti",
-                    "URL of the public site visible to customers"
+                    "URL of the public site visible to customers",
                   )}
                 </p>
               </div>

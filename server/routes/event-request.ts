@@ -8,13 +8,33 @@ const router = Router();
 const HEADER_COLOR = "#6F2A36";
 
 const ITALIAN_MONTHS = [
-  "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
-  "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
+  "Gennaio",
+  "Febbraio",
+  "Marzo",
+  "Aprile",
+  "Maggio",
+  "Giugno",
+  "Luglio",
+  "Agosto",
+  "Settembre",
+  "Ottobre",
+  "Novembre",
+  "Dicembre",
 ];
 
 const ENGLISH_MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 function formatDateItalian(dateStr: string): string {
@@ -126,7 +146,7 @@ function buildHtmlEmail(data: ParsedData): string {
   const tableRows = rows
     .map(
       ([label, value, isPreformatted]) =>
-        `<tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151;white-space:nowrap;vertical-align:top;width:140px">${label}</td><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;color:#111827;word-break:break-word${isPreformatted ? ";white-space:pre-wrap" : ""}">${value}</td></tr>`
+        `<tr><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;font-weight:600;color:#374151;white-space:nowrap;vertical-align:top;width:140px">${label}</td><td style="padding:12px 16px;border-bottom:1px solid #e5e7eb;color:#111827;word-break:break-word${isPreformatted ? ";white-space:pre-wrap" : ""}">${value}</td></tr>`,
     )
     .join("");
 
@@ -210,7 +230,10 @@ router.post("/", async (req: Request, res: Response) => {
   const recipientEmail = process.env.EVENT_REQUEST_EMAIL || "info@cameraconvista.it"; // Note: Also update server/seo.ts if this changes
 
   if (!apiKey) {
-    console.error("[event-request] RESEND_API_KEY not configured — NODE_ENV:", process.env.NODE_ENV);
+    console.error(
+      "[event-request] RESEND_API_KEY not configured — NODE_ENV:",
+      process.env.NODE_ENV,
+    );
     res.status(500).json({ error: "Email service not configured" });
     return;
   }
@@ -219,9 +242,12 @@ router.post("/", async (req: Request, res: Response) => {
     const resend = new Resend(apiKey);
 
     const senderDomain = process.env.RESEND_SENDER_DOMAIN || "resend.dev";
-    const senderEmail = senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
+    const senderEmail =
+      senderDomain === "resend.dev" ? "onboarding@resend.dev" : `noreply@${senderDomain}`;
 
-    console.log(`[event-request] Sending from=${senderEmail} to=${recipientEmail} type=${data.eventType}`);
+    console.log(
+      `[event-request] Sending from=${senderEmail} to=${recipientEmail} type=${data.eventType}`,
+    );
 
     const result = await resend.emails.send({
       from: `Camera con Vista <${senderEmail}>`,
@@ -241,7 +267,10 @@ router.post("/", async (req: Request, res: Response) => {
     console.log("[event-request] Email sent successfully, id:", result.data?.id);
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("[event-request] Email send exception:", err instanceof Error ? err.message : String(err));
+    console.error(
+      "[event-request] Email send exception:",
+      err instanceof Error ? err.message : String(err),
+    );
     res.status(500).json({ error: "Failed to send email" });
   }
 });

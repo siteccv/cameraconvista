@@ -31,7 +31,7 @@ export default function AdminSeo() {
     queryKey: ["/api/admin/pages"],
   });
 
-  const visiblePages = pages.filter(p => PAGE_LABELS[p.slug]);
+  const visiblePages = pages.filter((p) => PAGE_LABELS[p.slug]);
 
   return (
     <AdminLayout>
@@ -43,7 +43,7 @@ export default function AdminSeo() {
           <p className="text-muted-foreground mt-1 text-sm">
             {t(
               "Configura title e description per ogni pagina. Questi dati vengono iniettati nell'HTML per i motori di ricerca.",
-              "Configure title and description for each page. This data is injected into HTML for search engines."
+              "Configure title and description for each page. This data is injected into HTML for search engines.",
             )}
           </p>
         </div>
@@ -90,7 +90,7 @@ function PageSeoCard({ page }: { page: Page }) {
         title: t("Salvato", "Saved"),
         description: t(
           `Metadata SEO per "${label?.it}" aggiornati`,
-          `SEO metadata for "${label?.en}" updated`
+          `SEO metadata for "${label?.en}" updated`,
         ),
       });
     },
@@ -132,9 +132,7 @@ function PageSeoCard({ page }: { page: Page }) {
             ) : (
               <Check className="h-4 w-4 mr-1" />
             )}
-            {hasChanges
-              ? t("Salva", "Save")
-              : t("Salvato", "Saved")}
+            {hasChanges ? t("Salva", "Save") : t("Salvato", "Saved")}
           </Button>
         </div>
       </CardHeader>
@@ -177,7 +175,10 @@ function PageSeoCard({ page }: { page: Page }) {
             <Textarea
               value={metaDescIt}
               onChange={(e) => setMetaDescIt(e.target.value)}
-              placeholder={t("Descrizione per i motori di ricerca...", "Description for search engines...")}
+              placeholder={t(
+                "Descrizione per i motori di ricerca...",
+                "Description for search engines...",
+              )}
               rows={2}
               data-testid={`input-seo-desc-it-${page.slug}`}
             />
@@ -192,7 +193,10 @@ function PageSeoCard({ page }: { page: Page }) {
             <Textarea
               value={metaDescEn}
               onChange={(e) => setMetaDescEn(e.target.value)}
-              placeholder={t("Descrizione per i motori di ricerca...", "Description for search engines...")}
+              placeholder={t(
+                "Descrizione per i motori di ricerca...",
+                "Description for search engines...",
+              )}
               rows={2}
               data-testid={`input-seo-desc-en-${page.slug}`}
             />

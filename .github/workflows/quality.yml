@@ -41,15 +41,17 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Build
-        run: npm run build
-
-      - name: Unit tests
-        run: npm run test
+      - name: Format check
+        run: npm run format:check
 
       - name: Security audit
         run: npm run audit
-        continue-on-error: true
+
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests with coverage
+        run: npm run test:coverage
 
       - name: Install Playwright Chromium
         if: ${{ env.SUPABASE_URL != '' && env.SUPABASE_SERVICE_ROLE_KEY != '' }}

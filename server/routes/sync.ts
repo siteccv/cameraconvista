@@ -1,5 +1,13 @@
 import { Router } from "express";
-import { syncMenuFromSheets, syncWinesFromSheets, syncCocktailsFromSheets, syncAllFromSheets, getGoogleSheetsConfig, saveGoogleSheetsConfig, invalidateConfigCache } from "../sheets-sync";
+import {
+  syncMenuFromSheets,
+  syncWinesFromSheets,
+  syncCocktailsFromSheets,
+  syncAllFromSheets,
+  getGoogleSheetsConfig,
+  saveGoogleSheetsConfig,
+  invalidateConfigCache,
+} from "../sheets-sync";
 import { requireAuth } from "./helpers";
 import { storage } from "../storage";
 
@@ -156,12 +164,22 @@ router.get("/publish-status", requireAuth, async (req, res) => {
       storage.getSiteSetting("published_cocktails"),
     ]);
     const parseCount = (val: string | null | undefined): number => {
-      try { return JSON.parse(val || "[]").length; } catch { return 0; }
+      try {
+        return JSON.parse(val || "[]").length;
+      } catch {
+        return 0;
+      }
     };
     res.json({
-      menu: menuSetting ? { publishedAt: menuSetting.updatedAt, count: parseCount(menuSetting.valueIt) } : null,
-      wines: winesSetting ? { publishedAt: winesSetting.updatedAt, count: parseCount(winesSetting.valueIt) } : null,
-      cocktails: cocktailsSetting ? { publishedAt: cocktailsSetting.updatedAt, count: parseCount(cocktailsSetting.valueIt) } : null,
+      menu: menuSetting
+        ? { publishedAt: menuSetting.updatedAt, count: parseCount(menuSetting.valueIt) }
+        : null,
+      wines: winesSetting
+        ? { publishedAt: winesSetting.updatedAt, count: parseCount(winesSetting.valueIt) }
+        : null,
+      cocktails: cocktailsSetting
+        ? { publishedAt: cocktailsSetting.updatedAt, count: parseCount(cocktailsSetting.valueIt) }
+        : null,
     });
   } catch (error) {
     console.error("Error fetching publish status:", error);

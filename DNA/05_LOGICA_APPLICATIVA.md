@@ -1,13 +1,25 @@
 # 05 - Logica Applicativa
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Le logiche draft/publish, snapshot pubblici e sync restano invariate. Gli smoke E2E validano i flussi read-only critici senza scrivere su database live o attivare sincronizzazioni esterne.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Sistema Draft/Publish
 
 ### Concetto
+
 Le modifiche admin non sono immediatamente visibili al pubblico. Ogni modifica imposta `isDraft: true`. Solo quando l'admin clicca "Pubblica Sito", le modifiche vengono copiate nello snapshot pubblico.
 
 ### Flusso Dettagliato
 
 #### 1. Modifica Admin
+
 ```
 Admin modifica blocco → PATCH /api/admin/page-blocks/:id
   → updateData = { ...parsed.data, isDraft: true }
@@ -15,6 +27,7 @@ Admin modifica blocco → PATCH /api/admin/page-blocks/:id
 ```
 
 #### 2. Stato nel Database
+
 ```
 page_blocks:
   - campi correnti (titleIt, bodyIt, imageUrl, etc.) = DRAFT (ultimo editing)
@@ -23,6 +36,7 @@ page_blocks:
 ```
 
 #### 3. Pubblicazione
+
 ```
 POST /api/admin/publish-all
   → Per ogni pagina:
@@ -33,6 +47,7 @@ POST /api/admin/publish-all
 ```
 
 #### 4. Lettura Pubblica
+
 ```
 GET /api/pages/:pageId/blocks
   → blocks = storage.getPageBlocks(pageId)
@@ -42,6 +57,7 @@ GET /api/pages/:pageId/blocks
 ```
 
 #### 5. Lettura Admin (Preview)
+
 ```
 GET /api/admin/page-blocks/:pageId/blocks
   → blocks = storage.getPageBlocks(pageId)
@@ -49,7 +65,9 @@ GET /api/admin/page-blocks/:pageId/blocks
 ```
 
 ### Snapshot Fields
+
 Campi inclusi nello snapshot:
+
 ```
 titleIt, titleEn, bodyIt, bodyEn,
 ctaTextIt, ctaTextEn, ctaUrl,
@@ -62,6 +80,7 @@ titleFontSize, bodyFontSize, titleFontSizeMobile, bodyFontSizeMobile
 ## Sistema Bilinguismo
 
 ### LanguageContext
+
 ```typescript
 const t = (it: string | null, en: string | null): string => {
   if (language === "en") return en || it || "";
@@ -74,7 +93,9 @@ const t = (it: string | null, en: string | null): string => {
 - HTML lang: `document.documentElement.lang = language`
 
 ### Convenzione Campi Database
+
 Ogni contenuto testuale ha doppio campo:
+
 - `titleIt` / `titleEn`
 - `bodyIt` / `bodyEn`
 - `descriptionIt` / `descriptionEn`
@@ -82,11 +103,13 @@ Ogni contenuto testuale ha doppio campo:
 - `altIt` / `altEn`
 
 ### Traduzione AI
+
 Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il testo dalla lingua corrente all'altra.
 
 ## Sistema Autenticazione Admin
 
 ### Flow
+
 1. Utente naviga a `/admina` → `ProtectedAdminRoute` verifica `isAuthenticated`
 2. Se non autenticato → redirect a `/admina/login`
 3. Login form → `POST /api/admin/login` con password
@@ -96,14 +119,17 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 7. Frontend: `setIsAuthenticated(true)` → redirect a `/admina`
 
 ### Verifica Sessione
+
 - Al mount dell'app, `AdminProvider.useEffect` chiama `checkSession()`
 - `GET /api/admin/check-session` → verifica token nel cookie → verifica in tabella `admin_sessions`
 - Se sessione scaduta → cancella e ritorna `false`
 
 ### Cambio Password
+
 - `POST /api/admin/change-password` → verifica password corrente → hash nuova password → salva in `site_settings`
 
 ### Protezione Sicurezza
+
 - Rate limiting login: `express-rate-limit`, 5 tentativi / 15 min per IP
 - Cookie httpOnly + secure (produzione) + sameSite: lax
 - Token sessione: 32 bytes crypto random
@@ -115,28 +141,36 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 ## Sistema Eventi
 
 ### Visibilità
+
 Due modalità:
+
 1. **ACTIVE_ONLY**: L'evento è visibile solo se `active: true`
 2. **UNTIL_DAYS_AFTER**: L'evento è visibile se attivo E la data attuale è entro N giorni dopo `startAt`
 
 ### Formattazione Date
+
 ```typescript
 // Formato: "SABATO 14 FEBBRAIO"
-date.toLocaleDateString(language === 'en' ? 'en-US' : 'it-IT', {
-  weekday: 'long',
-  day: 'numeric',
-  month: 'long'
-}).toUpperCase()
+date
+  .toLocaleDateString(language === "en" ? "en-US" : "it-IT", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+  })
+  .toUpperCase();
 ```
+
 - Date sempre uppercase
 - Titoli rispettano il case inserito dall'admin
 
 ### Limite
+
 Max 10 eventi concorrenti. Il server rifiuta la creazione se il limite è raggiunto.
 
 ## Sistema Galleria
 
 ### Struttura
+
 ```
 Gallery (album)
 ├── titleIt, titleEn
@@ -149,13 +183,16 @@ Gallery (album)
 ```
 
 ### Viewer
+
 - Formato 9:16 (Instagram Story)
 - Mobile: swipe gesture per navigazione
 - Desktop: frecce tastiera + click
 - Galleria pubblica mostra solo album con `isVisible: true`
 
 ### Bug Fix: ID Sequenze Supabase
+
 Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono andare fuori sync con i dati esistenti. Fix implementato in `SupabaseStorage`:
+
 - Prima di inserire, fetch `MAX(id)` dalla tabella
 - Inserisci con `id = maxId + 1` esplicito
 - Escludi `id`, `created_at`, `updated_at` dall'output di `toSnakeCase`
@@ -163,6 +200,7 @@ Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono anda
 ## Sistema Media
 
 ### Upload Flow
+
 1. Frontend: form media admin → upload via `POST /api/admin/uploads/direct`
 2. Backend riceve il file con `multer` (memory storage, max 25MB)
 3. **Compressione obbligatoria**: `sharp` processa tutte le immagini JPEG/PNG/WebP
@@ -170,23 +208,26 @@ Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono anda
 5. `POST /api/admin/media` → salva metadata in DB (filename, url, mimeType, size, width, height)
 
 ### Policy di Compressione Immagini
+
 Tutte le immagini caricate o ruotate vengono automaticamente ottimizzate:
 
-| Parametro | Valore |
-|-----------|--------|
-| Formato output | **WebP** (conversione forzata da JPEG/PNG) |
-| Qualità | **80%** |
-| Dimensione massima (lato lungo) | **1920px** |
-| Ridimensionamento | `fit: inside`, `withoutEnlargement: true` |
-| Target peso file | **70KB – 250KB** |
+| Parametro                       | Valore                                     |
+| ------------------------------- | ------------------------------------------ |
+| Formato output                  | **WebP** (conversione forzata da JPEG/PNG) |
+| Qualità                         | **80%**                                    |
+| Dimensione massima (lato lungo) | **1920px**                                 |
+| Ridimensionamento               | `fit: inside`, `withoutEnlargement: true`  |
+| Target peso file                | **70KB – 250KB**                           |
 
 La compressione è applicata in due punti:
+
 - **Upload** (`POST /api/admin/uploads/direct`): Converte in WebP, ridimensiona a max 1920px
 - **Rotazione** (`POST /api/admin/media/:id/rotate`): Ri-comprime in WebP dopo rotazione
 
 Il filename salvato su Supabase Storage usa l'estensione `.webp` coerente con il formato effettivo.
 
 ### Categorie
+
 - Tabella `media_categories` con slug, labelIt, labelEn, sortOrder
 - Admin può creare/modificare/eliminare categorie ("Gestisci cartelle")
 - Upload assegna automaticamente la categoria selezionata o la prima disponibile
@@ -196,21 +237,27 @@ Il filename salvato su Supabase Storage usa l'estensione `.webp` coerente con il
 > Documentazione completa: vedi `11_SEO_SISTEMA.md`
 
 ### Relazione con Draft/Publish
+
 I meta tag SEO (title, description) **non** sono soggetti al sistema draft/publish. Quando l'admin salva un meta tag nel pannello SEO (`/admina/seo`), questo è immediatamente attivo per i crawler alla prossima richiesta.
 
 ### Relazione con Google Sheets Sync
+
 Il sync Google Sheets aggiorna solo `menu_items`, `wines`, `cocktails` — tabelle senza campi SEO. I meta tag delle pagine menu/vini/cocktail sono gestiti separatamente nel pannello SEO admin e salvati nella tabella `pages`.
 
 ### Relazione con Footer
+
 Il JSON-LD `Restaurant` (iniettato nella Home) legge telefono, email e social links dal `footer_settings` per mantenere i dati strutturati sincronizzati con il footer pubblico.
 
 ### Relazione con Bilinguismo
+
 Il middleware SEO rileva la lingua dal parametro `?lang=en` e serve meta tag nella lingua corretta. I tag hreflang sono sempre presenti in entrambe le direzioni (IT→EN, EN→IT, x-default→IT).
 
 ## Google Sheets Sync System
 
 ### Configurazione
+
 La configurazione è semplificata e memorizzata in `site_settings` con chiave `google_sheets_config`:
+
 ```json
 {
   "menu": { "syncUrl": "https://docs.google.com/spreadsheets/d/.../export?format=csv" },
@@ -230,6 +277,7 @@ La configurazione è semplificata e memorizzata in `site_settings` con chiave `g
 ```
 
 ### Sync Flow
+
 1. Admin configura URL CSV nel pannello `/admina/sync-google`
 2. **Sync** (`POST /api/admin/sync/menu|wines|cocktails`):
    - Scarica CSV dall'URL configurato
@@ -241,6 +289,7 @@ La configurazione è semplificata e memorizzata in `site_settings` con chiave `g
    - Il sito pubblico usa lo snapshot
 
 ### Lettura Pubblica
+
 ```
 GET /api/menu-items  → legge da site_settings["published_menu_items"]
                      → fallback: legge da tabella menu_items
@@ -251,6 +300,7 @@ GET /api/cocktails   → legge da site_settings["published_cocktails"]
 ```
 
 ### UI Admin
+
 - Pulsante "Link di sincronizzazione": tutta larghezza, sfondo ambra, icona ingranaggio con animazione rotazione
 - Categorie vini: 6 categorie fisse, nomi read-only (titoli, non input box)
 - Pulsanti Sync e Pubblica indipendenti per Menu, Vini, Cocktail
@@ -259,12 +309,14 @@ GET /api/cocktails   → legge da site_settings["published_cocktails"]
 ## Footer Database-Driven
 
 Il footer è completamente gestito dal database:
+
 ```
 site_settings.key = "footer_settings"
 site_settings.valueIt = JSON (footerSettingsSchema)
 ```
 
 Struttura JSON:
+
 - `about`: { it, en } — testo about
 - `contacts`: { address, phone, email }
 - `hours`: [{ selectedDays, hours, isClosed }] — orari
@@ -276,17 +328,20 @@ Editabile via Admin → Impostazioni → `FooterSettingsForm`.
 ## Responsive System
 
 ### Admin Preview Mobile
+
 - `IPhoneFrame` simula iPhone 15 Pro (393x771px area visibile)
 - 393px larghezza logica, 771px = 852 - 47 (status bar) - 34 (home indicator)
 - `forceMobileLayout` forza layout mobile in tutti i componenti figli
 - `deviceView` sincronizzato con `forceMobileLayout`
 
 ### Font Size Indipendenti
+
 - `EditableText` permette font size diversi per desktop e mobile
 - Modifiche in vista mobile aggiornano solo `titleFontSizeMobile` / `bodyFontSizeMobile`
 - Modifiche in vista desktop aggiornano solo `titleFontSize` / `bodyFontSize`
 
 ### Breakpoints
+
 - `md:` (768px) — tablet
 - `lg:` (1024px) — desktop
 - Mobile padding: `py-10` (vs `py-20` desktop)

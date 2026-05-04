@@ -2,7 +2,14 @@ import { useState } from "react";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,7 +59,7 @@ export function EditableText({
   const [editFontMobile, setEditFontMobile] = useState(fontSizeMobile);
 
   const displayText = t(textIt, textEn);
-  
+
   // Use mobile font size when: admin forces mobile layout OR real viewport is mobile
   const isMobile = forceMobileLayout || viewportIsMobile;
   const currentFontSize = isMobile ? fontSizeMobile : fontSizeDesktop;
@@ -86,11 +93,17 @@ export function EditableText({
 
   const TextInput = multiline ? Textarea : Input;
 
-  const textStyle = multiline ? { ...combinedStyle, whiteSpace: 'pre-line' as const } : combinedStyle;
+  const textStyle = multiline
+    ? { ...combinedStyle, whiteSpace: "pre-line" as const }
+    : combinedStyle;
 
   if (!adminPreview) {
     if (!displayText) return null;
-    return <Component className={className} style={textStyle}>{displayText}</Component>;
+    return (
+      <Component className={className} style={textStyle}>
+        {displayText}
+      </Component>
+    );
   }
 
   return (
@@ -104,7 +117,9 @@ export function EditableText({
         }}
         onClick={handleClick}
       >
-        {displayText || <span className="text-muted-foreground/50 italic text-sm">Clicca per inserire testo</span>}
+        {displayText || (
+          <span className="text-muted-foreground/50 italic text-sm">Clicca per inserire testo</span>
+        )}
         <span className="absolute -top-2 -right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground rounded-full p-1">
           <Pencil className="h-3 w-3" />
         </span>
@@ -112,14 +127,21 @@ export function EditableText({
       </Component>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-lg" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+        <DialogContent
+          className="max-w-lg"
+          onClick={(e) => e.stopPropagation()}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
           <DialogHeader>
             <DialogTitle>{t("Modifica testo", "Edit Text")}</DialogTitle>
             <DialogDescription>
-              {t("Modifica il contenuto (IT/EN) e la dimensione del testo.", "Edit the content (IT/EN) and text size.")}
+              {t(
+                "Modifica il contenuto (IT/EN) e la dimensione del testo.",
+                "Edit the content (IT/EN) and text size.",
+              )}
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>{t("Testo IT", "Text IT")}</Label>
@@ -131,7 +153,7 @@ export function EditableText({
                 data-testid="input-text-it"
               />
             </div>
-            
+
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label className="flex-1">{t("Testo EN", "Text EN")}</Label>
@@ -152,7 +174,7 @@ export function EditableText({
 
             <div className="space-y-2">
               <Label>
-                {deviceView === "mobile" 
+                {deviceView === "mobile"
                   ? t("Dimensione testo Mobile (px)", "Mobile Text Size (px)")
                   : t("Dimensione testo Desktop (px)", "Desktop Text Size (px)")}
               </Label>
@@ -220,7 +242,7 @@ export function EditableText({
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                {deviceView === "mobile" 
+                {deviceView === "mobile"
                   ? t("Stai modificando la dimensione per mobile", "You are editing mobile size")
                   : t("Stai modificando la dimensione per desktop", "You are editing desktop size")}
               </p>

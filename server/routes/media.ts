@@ -1,6 +1,11 @@
 import { Router } from "express";
 import { storage } from "../storage";
-import { insertMediaSchema, updateMediaSchema, insertMediaCategorySchema, updateMediaCategorySchema } from "@shared/schema";
+import {
+  insertMediaSchema,
+  updateMediaSchema,
+  insertMediaCategorySchema,
+  updateMediaCategorySchema,
+} from "@shared/schema";
 import { requireAuth, parseId } from "./helpers";
 import multer from "multer";
 import sharp from "sharp";
@@ -56,7 +61,7 @@ adminMediaRouter.post("/rename-all", requireAuth, async (req, res) => {
     let renamed = 0;
     for (const [category, items] of Object.entries(grouped)) {
       if (category === "uncategorized") continue;
-      const prefix = category.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+      const prefix = category.toUpperCase().replace(/[^A-Z0-9]/g, "_");
       const sorted = items.sort((a, b) => a.id - b.id);
       for (let i = 0; i < sorted.length; i++) {
         const num = String(i + 1).padStart(2, "0");
@@ -140,11 +145,13 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
     const { supabaseAdmin } = await import("../supabase");
 
     const timestamp = Date.now();
-    const baseName = (mediaItem.filename || "image").replace(/\.[^.]+$/, '').replace(/[^a-zA-Z0-9._-]/g, '_');
+    const baseName = (mediaItem.filename || "image")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "_");
     const storagePath = `public/${timestamp}-rot-${baseName}.webp`;
 
     const { error: uploadError } = await supabaseAdmin.storage
-      .from('media-public')
+      .from("media-public")
       .upload(storagePath, rotatedBuffer, {
         contentType: "image/webp",
         upsert: false,
@@ -156,11 +163,9 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
       return;
     }
 
-    const { data: urlData } = supabaseAdmin.storage
-      .from('media-public')
-      .getPublicUrl(storagePath);
+    const { data: urlData } = supabaseAdmin.storage.from("media-public").getPublicUrl(storagePath);
 
-    const newFilename = mediaItem.filename.replace(/\.[^.]+$/, '.webp');
+    const newFilename = mediaItem.filename.replace(/\.[^.]+$/, ".webp");
     const updated = await storage.updateMedia(id, {
       url: urlData.publicUrl,
       size: rotatedBuffer.length,
@@ -211,95 +216,101 @@ adminMediaRouter.delete("/:id", requireAuth, async (req, res) => {
 // ========================================
 export const adminUploadsRouter = Router();
 
-adminUploadsRouter.post("/direct", requireAuth, (req, res, next) => {
-  upload.single("file")(req, res, (err) => {
-    if (err) {
-      if (err.code === "LIMIT_FILE_SIZE") {
-        res.status(413).json({ error: "File too large. Maximum size is 25MB." });
+adminUploadsRouter.post(
+  "/direct",
+  requireAuth,
+  (req, res, next) => {
+    upload.single("file")(req, res, (err) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          res.status(413).json({ error: "File too large. Maximum size is 25MB." });
+          return;
+        }
+        res.status(400).json({ error: err.message || "Upload error" });
         return;
       }
-      res.status(400).json({ error: err.message || "Upload error" });
-      return;
-    }
-    next();
-  });
-}, async (req, res) => {
-  try {
-    const { supabaseAdmin } = await import("../supabase");
-    
-    if (!req.file) {
-      res.status(400).json({ error: "No file provided" });
-      return;
-    }
-
-    const file = req.file;
-    let buffer = file.buffer;
-    let finalMimeType = file.mimetype;
-    const isImage = file.mimetype.startsWith("image/");
-
-    // Optimize images (JPEG/PNG/WebP)
-    if (isImage && ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
-      try {
-        const sharpInstance = sharp(buffer);
-        const metadata = await sharpInstance.metadata();
-        
-        // Max resolution 1920px for better performance/storage
-        const maxDimension = 1920;
-        if (metadata.width && metadata.height) {
-          if (metadata.width > maxDimension || metadata.height > maxDimension) {
-            sharpInstance.resize(maxDimension, maxDimension, {
-              fit: "inside",
-              withoutEnlargement: true,
-            });
-          }
-        }
-
-        // Convert all to WebP for maximum efficiency
-        buffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
-        finalMimeType = "image/webp";
-      } catch (sharpError) {
-        console.warn("Sharp processing failed, using original:", sharpError);
-      }
-    }
-
-    // Generate unique filename (use .webp extension if converted)
-    const timestamp = Date.now();
-    const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    const finalName = finalMimeType === "image/webp"
-      ? sanitizedName.replace(/\.(png|jpg|jpeg|PNG|JPG|JPEG)$/i, '.webp')
-      : sanitizedName;
-    const storagePath = `public/${timestamp}-${finalName}`;
-
-    // Upload to Supabase Storage
-    const { data, error } = await supabaseAdmin.storage
-      .from('media-public')
-      .upload(storagePath, buffer, {
-        contentType: finalMimeType,
-        upsert: false,
-      });
-
-    if (error) {
-      console.error("Supabase upload error:", error);
-      res.status(500).json({ error: "Failed to upload file to storage" });
-      return;
-    }
-
-    // Get public URL
-    const { data: urlData } = supabaseAdmin.storage
-      .from('media-public')
-      .getPublicUrl(storagePath);
-
-    res.json({
-      url: urlData.publicUrl,
-      filename: file.originalname,
-      size: buffer.length,
-      mimeType: finalMimeType,
+      next();
     });
-  } catch (error) {
-    console.error("Error uploading file:", error);
-    res.status(500).json({ error: "Failed to upload file" });
-  }
-});
+  },
+  async (req, res) => {
+    try {
+      const { supabaseAdmin } = await import("../supabase");
+
+      if (!req.file) {
+        res.status(400).json({ error: "No file provided" });
+        return;
+      }
+
+      const file = req.file;
+      let buffer = file.buffer;
+      let finalMimeType = file.mimetype;
+      const isImage = file.mimetype.startsWith("image/");
+
+      // Optimize images (JPEG/PNG/WebP)
+      if (isImage && ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
+        try {
+          const sharpInstance = sharp(buffer);
+          const metadata = await sharpInstance.metadata();
+
+          // Max resolution 1920px for better performance/storage
+          const maxDimension = 1920;
+          if (metadata.width && metadata.height) {
+            if (metadata.width > maxDimension || metadata.height > maxDimension) {
+              sharpInstance.resize(maxDimension, maxDimension, {
+                fit: "inside",
+                withoutEnlargement: true,
+              });
+            }
+          }
+
+          // Convert all to WebP for maximum efficiency
+          buffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
+          finalMimeType = "image/webp";
+        } catch (sharpError) {
+          console.warn("Sharp processing failed, using original:", sharpError);
+        }
+      }
+
+      // Generate unique filename (use .webp extension if converted)
+      const timestamp = Date.now();
+      const sanitizedName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
+      const finalName =
+        finalMimeType === "image/webp"
+          ? sanitizedName.replace(/\.(png|jpg|jpeg|PNG|JPG|JPEG)$/i, ".webp")
+          : sanitizedName;
+      const storagePath = `public/${timestamp}-${finalName}`;
+
+      // Upload to Supabase Storage
+      const { data, error } = await supabaseAdmin.storage
+        .from("media-public")
+        .upload(storagePath, buffer, {
+          contentType: finalMimeType,
+          upsert: false,
+        });
+
+      if (error) {
+        console.error("Supabase upload error:", error);
+        res.status(500).json({ error: "Failed to upload file to storage" });
+        return;
+      }
+
+      // Get public URL
+      const { data: urlData } = supabaseAdmin.storage
+        .from("media-public")
+        .getPublicUrl(storagePath);
+
+      res.json({
+        url: urlData.publicUrl,
+        filename: file.originalname,
+        size: buffer.length,
+        mimeType: finalMimeType,
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ error: "Failed to upload file" });
+    }
+  },
+);
 
 // ========================================
 // Media Categories

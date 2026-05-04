@@ -19,7 +19,11 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
   const { t } = useLanguage();
   const { adminPreview } = useAdmin();
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS["eventi-privati"],
     defaults: EVENTI_PRIVATI_DEFAULTS,
   });
@@ -37,20 +41,25 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
   const ctaBlock = getBlock("cta");
   const spacesTitleBlock = getBlock("spaces-title");
 
-  const heroDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "hero")!;
-  const introDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "intro")!;
-  const sectionTitleDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "section-title")!;
-  const pkg1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-1")!;
-  const pkg2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-2")!;
-  const pkg3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-3")!;
-  const pkg4Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "package-4")!;
-  const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-1")!;
-  const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-2")!;
-  const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-3")!;
-  const ctaDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "cta")!;
-  const spacesTitleDef = EVENTI_PRIVATI_DEFAULTS.find(d => d.blockType === "spaces-title")!;
+  const heroDef = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "hero")!;
+  const introDef = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "intro")!;
+  const sectionTitleDef = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "section-title")!;
+  const pkg1Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "package-1")!;
+  const pkg2Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "package-2")!;
+  const pkg3Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "package-3")!;
+  const pkg4Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "package-4")!;
+  const spaces1Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "spaces-1")!;
+  const spaces2Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "spaces-2")!;
+  const spaces3Def = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "spaces-3")!;
+  const ctaDef = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "cta")!;
+  const spacesTitleDef = EVENTI_PRIVATI_DEFAULTS.find((d) => d.blockType === "spaces-title")!;
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -71,14 +80,19 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -88,7 +102,12 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
     });
   };
 
-  const handleSectionTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleSectionTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!sectionTitleBlock) return;
     updateBlock(sectionTitleBlock.id, {
       titleIt: data.textIt,
@@ -98,56 +117,79 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
     });
   };
 
-  const makeSpacesImageSave = (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
-    if (!block) return;
-    updateBlock(block.id, {
-      imageUrl: data.src,
-      imageScaleDesktop: data.zoom,
-      imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.panX,
-      imageOffsetY: data.panY,
-      imageOffsetXMobile: data.panXMobile,
-      imageOffsetYMobile: data.panYMobile,
-      metadata: {
-        ...(block.metadata as Record<string, unknown> || {}),
-        overlay: data.overlay,
-        overlayMobile: data.overlayMobile,
-      },
-    });
-  };
+  const makeSpacesImageSave =
+    (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
+      if (!block) return;
+      updateBlock(block.id, {
+        imageUrl: data.src,
+        imageScaleDesktop: data.zoom,
+        imageScaleMobile: data.zoomMobile,
+        imageOffsetX: data.panX,
+        imageOffsetY: data.panY,
+        imageOffsetXMobile: data.panXMobile,
+        imageOffsetYMobile: data.panYMobile,
+        metadata: {
+          ...((block.metadata as Record<string, unknown>) || {}),
+          overlay: data.overlay,
+          overlayMobile: data.overlayMobile,
+        },
+      });
+    };
 
-  const makePackageTitleSave = (block: ReturnType<typeof getBlock>) => (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    if (!block) return;
-    updateBlock(block.id, {
-      titleIt: data.textIt,
-      titleEn: data.textEn,
-      titleFontSize: data.fontSizeDesktop,
-      titleFontSizeMobile: data.fontSizeMobile,
-    });
-  };
-
-  const makePackageBodySave = (block: ReturnType<typeof getBlock>) => (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
-    if (!block) return;
-    updateBlock(block.id, {
-      bodyIt: data.textIt,
-      bodyEn: data.textEn,
-      bodyFontSize: data.fontSizeDesktop,
-      bodyFontSizeMobile: data.fontSizeMobile,
-    });
-  };
-
-  const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
+  const makePackageTitleSave =
+    (block: ReturnType<typeof getBlock>) =>
     (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
       if (!block) return;
-      updateBlock(block.id, field === "title"
-        ? { titleIt: data.textIt, titleEn: data.textEn, titleFontSize: data.fontSizeDesktop, titleFontSizeMobile: data.fontSizeMobile }
-        : { bodyIt: data.textIt, bodyEn: data.textEn, bodyFontSize: data.fontSizeDesktop, bodyFontSizeMobile: data.fontSizeMobile }
+      updateBlock(block.id, {
+        titleIt: data.textIt,
+        titleEn: data.textEn,
+        titleFontSize: data.fontSizeDesktop,
+        titleFontSizeMobile: data.fontSizeMobile,
+      });
+    };
+
+  const makePackageBodySave =
+    (block: ReturnType<typeof getBlock>) =>
+    (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+      if (!block) return;
+      updateBlock(block.id, {
+        bodyIt: data.textIt,
+        bodyEn: data.textEn,
+        bodyFontSize: data.fontSizeDesktop,
+        bodyFontSizeMobile: data.fontSizeMobile,
+      });
+    };
+
+  const makeTextSave =
+    (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
+    (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+      if (!block) return;
+      updateBlock(
+        block.id,
+        field === "title"
+          ? {
+              titleIt: data.textIt,
+              titleEn: data.textEn,
+              titleFontSize: data.fontSizeDesktop,
+              titleFontSizeMobile: data.fontSizeMobile,
+            }
+          : {
+              bodyIt: data.textIt,
+              bodyEn: data.textEn,
+              bodyFontSize: data.fontSizeDesktop,
+              bodyFontSizeMobile: data.fontSizeMobile,
+            },
       );
     };
 
   const packageItems = [
     { block: pkg1Block, def: pkg1Def, href: "/eventi-privati/aperitivo", enabled: true },
-    { block: pkg2Block, def: pkg2Def, href: "/eventi-privati/cena", enabled: PRIVATE_DINNER_ENABLED },
+    {
+      block: pkg2Block,
+      def: pkg2Def,
+      href: "/eventi-privati/cena",
+      enabled: PRIVATE_DINNER_ENABLED,
+    },
     { block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo", enabled: true },
   ].filter((item) => item.enabled);
 
@@ -171,11 +213,13 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -188,7 +232,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -223,8 +269,12 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
             <EditableText
               textIt={sectionTitleBlock?.titleIt || sectionTitleDef.titleIt || ""}
               textEn={sectionTitleBlock?.titleEn || sectionTitleDef.titleEn || ""}
-              fontSizeDesktop={sectionTitleBlock?.titleFontSize || sectionTitleDef.titleFontSize || 36}
-              fontSizeMobile={sectionTitleBlock?.titleFontSizeMobile || sectionTitleDef.titleFontSizeMobile || 28}
+              fontSizeDesktop={
+                sectionTitleBlock?.titleFontSize || sectionTitleDef.titleFontSize || 36
+              }
+              fontSizeMobile={
+                sectionTitleBlock?.titleFontSizeMobile || sectionTitleDef.titleFontSizeMobile || 28
+              }
               as="h2"
               className="font-display mb-4"
               applyFontSize
@@ -235,13 +285,18 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-5xl">
             {packageItems.map((pkg, index) => {
               const cardContent = (
-                <Card className="hover-elevate cursor-pointer h-full" data-testid={`card-package-${index}`}>
+                <Card
+                  className="hover-elevate cursor-pointer h-full"
+                  data-testid={`card-package-${index}`}
+                >
                   <CardContent className="p-6 md:p-14 flex flex-col items-center text-center">
                     <EditableText
                       textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
                       textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
                       fontSizeDesktop={pkg.block?.titleFontSize || pkg.def.titleFontSize || 20}
-                      fontSizeMobile={pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18}
+                      fontSizeMobile={
+                        pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18
+                      }
                       as="h3"
                       className="font-display mb-2"
                       applyFontSize
@@ -251,7 +306,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                       textIt={pkg.block?.bodyIt || pkg.def.bodyIt || ""}
                       textEn={pkg.block?.bodyEn || pkg.def.bodyEn || ""}
                       fontSizeDesktop={pkg.block?.bodyFontSize || pkg.def.bodyFontSize || 14}
-                      fontSizeMobile={pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13}
+                      fontSizeMobile={
+                        pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13
+                      }
                       as="p"
                       className="text-muted-foreground"
                       multiline
@@ -277,12 +334,14 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                     onClick={(e) => {
                       if (document.querySelector('[role="dialog"]')) return;
                       const target = e.target as HTMLElement;
-                      if (target.closest('.editable-text-zone')) return;
+                      if (target.closest(".editable-text-zone")) return;
                       onNavigateSubPage(pkg.href);
                     }}
                     role="button"
                     tabIndex={0}
-                    onKeyDown={(e) => { if (e.key === "Enter") onNavigateSubPage(pkg.href); }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") onNavigateSubPage(pkg.href);
+                    }}
                     data-testid={`admin-card-package-${index}`}
                   >
                     {cardContent}
@@ -306,7 +365,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
             textIt={spacesTitleBlock?.titleIt || spacesTitleDef.titleIt || ""}
             textEn={spacesTitleBlock?.titleEn || spacesTitleDef.titleEn || ""}
             fontSizeDesktop={spacesTitleBlock?.titleFontSize || spacesTitleDef.titleFontSize || 32}
-            fontSizeMobile={spacesTitleBlock?.titleFontSizeMobile || spacesTitleDef.titleFontSizeMobile || 24}
+            fontSizeMobile={
+              spacesTitleBlock?.titleFontSizeMobile || spacesTitleDef.titleFontSizeMobile || 24
+            }
             as="h2"
             className="font-display text-center mb-8"
             applyFontSize
@@ -324,11 +385,13 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                   zoom={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
                   panX={block?.imageOffsetX ?? def.imageOffsetX ?? 0}
                   panY={block?.imageOffsetY ?? def.imageOffsetY ?? 0}
-                  overlay={(block?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+                  overlay={((block?.metadata as Record<string, unknown>)?.overlay as number) ?? 0}
                   zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
                   panXMobile={block?.imageOffsetXMobile ?? def.imageOffsetXMobile ?? 0}
                   panYMobile={block?.imageOffsetYMobile ?? def.imageOffsetYMobile ?? 0}
-                  overlayMobile={(block?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  overlayMobile={
+                    ((block?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 0
+                  }
                   containerClassName="rounded-placeholder"
                   aspectRatio="4/3"
                   testIdPrefix={`spaces-${idx}`}

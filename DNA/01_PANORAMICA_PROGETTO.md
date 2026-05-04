@@ -1,5 +1,15 @@
 # 01 - Panoramica del Progetto
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Il progetto e stato consolidato come sito hospitality live con pipeline enterprise locale verde: typecheck, lint, format, audit, build, coverage e smoke E2E. La regola operativa primaria resta non compromettere sito pubblico, menu e funzionalita clienti attive.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Identità
 
 **Nome**: Camera con Vista - Bistrot & Cocktail Bar  
@@ -19,22 +29,23 @@
 
 ## Stack Tecnologico
 
-| Layer | Tecnologia |
-|-------|-----------|
-| Frontend | React 18 + TypeScript + Vite |
-| Routing | Wouter (lightweight) |
-| State | TanStack React Query v5 |
-| UI | shadcn/ui + Radix UI + Tailwind CSS |
-| Backend | Node.js + Express 5 |
-| ORM | Drizzle ORM |
-| Database | PostgreSQL o Supabase |
-| Storage | Supabase Storage |
-| AI | OpenAI (traduzione, generazione immagini) |
-| Build | Vite (dev) + esbuild (prod) |
+| Layer    | Tecnologia                                |
+| -------- | ----------------------------------------- |
+| Frontend | React 18 + TypeScript + Vite              |
+| Routing  | Wouter (lightweight)                      |
+| State    | TanStack React Query v5                   |
+| UI       | shadcn/ui + Radix UI + Tailwind CSS       |
+| Backend  | Node.js + Express 5                       |
+| ORM      | Drizzle ORM                               |
+| Database | PostgreSQL o Supabase                     |
+| Storage  | Supabase Storage                          |
+| AI       | OpenAI (traduzione, generazione immagini) |
+| Build    | Vite (dev) + esbuild (prod)               |
 
 ## Funzionalità Principali
 
 ### Sito Pubblico
+
 - **Home**: Hero image, branding, logo, tagline, pulsante prenotazione
 - **Menu**: Lista piatti per categoria con prezzi
 - **Carta Vini**: Lista vini per categoria con regione, anno, prezzo
@@ -45,6 +56,7 @@
 - **Contatti**: Informazioni di contatto
 
 ### Pannello Admin (`/admina`)
+
 - **Sezioni Pagine**: Editing WYSIWYG di tutte le pagine con anteprima iPhone 15 Pro (393x852px) e scaling CSS deterministico.
 - **Admin Control Center**: Sistema di blocco zoom globale per garantire coerenza visuale 1:1 durante l'editing.
 - **Eventi**: CRUD completo con max 10 eventi
@@ -55,6 +67,7 @@
 - **Impostazioni**: Password, footer, configurazioni
 
 ### SEO Enterprise-Grade
+
 - **robots.txt**: Blocca admin e API admin
 - **Sitemap XML dinamica**: Pagine visibili + eventi attivi con hreflang IT/EN
 - **Meta injection server-side**: Title, description, canonical, OG, Twitter Card, JSON-LD
@@ -71,6 +84,7 @@
 ## Doppio Backend
 
 Il progetto supporta due backend database intercambiabili:
+
 - **PostgreSQL diretto** (via `DATABASE_URL`): Usa Drizzle ORM (`DatabaseStorage`)
 - **Supabase** (via `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`): Usa `SupabaseStorage` con conversione automatica camelCase↔snake_case
 
@@ -81,6 +95,7 @@ La selezione è deterministica e fail-fast in `server/storage.ts`: Supabase ha p
 Il progetto implementa un livello di sicurezza avanzato (production-ready per progetto hospitality con admin privato):
 
 ### Backend Express
+
 - **Helmet** attivo con security headers su tutte le risposte: `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `X-Frame-Options: SAMEORIGIN`, `Permissions-Policy`
 - **X-Powered-By** rimosso (tecnologia server nascosta)
 - **Rate limiting login** attivo: 5 tentativi ogni 15 minuti per IP
@@ -89,6 +104,7 @@ Il progetto implementa un livello di sicurezza avanzato (production-ready per pr
 - Nessuna chiave sensibile esposta lato client
 
 ### Database (Supabase)
+
 - **Row Level Security (RLS)** attiva su tutte le tabelle critiche
 - Accesso `anon` limitato a SELECT consentiti per dati pubblici
 - Scrittura consentita esclusivamente tramite backend con `service_role`
@@ -99,6 +115,7 @@ Il progetto implementa un livello di sicurezza avanzato (production-ready per pr
 ## Portabilità
 
 Il progetto è portabile tra ambienti locali e hosting Node standard:
+
 - `reusePort` rimosso dal server listen (evita crash su macOS/Windows)
 - ETag disabilitato in dev per le API (evita 304 problematici)
 - Storage selection deterministica senza fallback ambigui

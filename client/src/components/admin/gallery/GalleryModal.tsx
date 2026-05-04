@@ -37,11 +37,18 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
-      toast({ title: t("Creato", "Created"), description: t("Album creato con successo.", "Album created successfully.") });
+      toast({
+        title: t("Creato", "Created"),
+        description: t("Album creato con successo.", "Album created successfully."),
+      });
       onClose();
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile creare l'album.", "Failed to create album."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile creare l'album.", "Failed to create album."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -52,11 +59,18 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
-      toast({ title: t("Salvato", "Saved"), description: t("Album aggiornato.", "Album updated.") });
+      toast({
+        title: t("Salvato", "Saved"),
+        description: t("Album aggiornato.", "Album updated."),
+      });
       onClose();
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiornare l'album.", "Failed to update album."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile aggiornare l'album.", "Failed to update album."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -199,7 +213,6 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
                   </div>
                 )}
               </div>
-              
             </div>
           </div>
 
@@ -209,7 +222,9 @@ export function GalleryModal({ open, onClose, gallery }: GalleryModalProps) {
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={!titleIt || !titleEn || createMutation.isPending || updateMutation.isPending}
+              disabled={
+                !titleIt || !titleEn || createMutation.isPending || updateMutation.isPending
+              }
               data-testid="button-save-gallery"
             >
               {gallery ? t("Salva", "Save") : t("Crea Album", "Create Album")}

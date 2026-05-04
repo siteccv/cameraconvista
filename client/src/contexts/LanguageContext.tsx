@@ -36,7 +36,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       }
       return it || en || "";
     },
-    [language]
+    [language],
   );
 
   return (

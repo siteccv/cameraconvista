@@ -37,37 +37,76 @@ import type { Page } from "@shared/schema";
 
 function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
   const { isAuthenticated } = useAdmin();
-  
+
   if (!isAuthenticated) {
     return <Redirect to="/admina/login" />;
   }
-  
+
   return <Component />;
 }
 
 const PAGE_TITLES: Record<string, { it: string; en: string }> = {
-  home: { it: "Camera con Vista - Ristorante & Cocktail Bar Bologna", en: "Camera con Vista - Restaurant & Cocktail Bar Bologna" },
-  menu: { it: "Menu - Camera con Vista | Ristorante Bologna", en: "Menu - Camera con Vista | Restaurant Bologna" },
-  "carta-vini": { it: "Lista Vini - Camera con Vista | Wine List Bologna", en: "Wine List - Camera con Vista | Bologna" },
-  "cocktail-bar": { it: "Cocktail Bar - Camera con Vista | Bologna", en: "Cocktail Bar - Camera con Vista | Bologna" },
-  eventi: { it: "Eventi - Camera con Vista | Events Bologna", en: "Events - Camera con Vista | Bologna" },
-  "eventi-privati": { it: "Eventi Privati - Camera con Vista | Bologna", en: "Private Events - Camera con Vista | Bologna" },
-  "eventi-privati-aperitivo": { it: "Aperitivo Privato - Camera con Vista | Bologna", en: "Private Aperitivo - Camera con Vista | Bologna" },
-  "eventi-privati-cena": { it: "Cena Privata - Camera con Vista | Bologna", en: "Private Dinner - Camera con Vista | Bologna" },
-  "eventi-privati-esclusivo": { it: "Evento Privato Esclusivo - Camera con Vista | Bologna", en: "Exclusive Private Event - Camera con Vista | Bologna" },
-  galleria: { it: "Galleria - Camera con Vista | Gallery Bologna", en: "Gallery - Camera con Vista | Bologna" },
-  "dove-siamo": { it: "Dove Siamo - Camera con Vista | Bologna", en: "Where We Are - Camera con Vista | Bologna" },
+  home: {
+    it: "Camera con Vista - Ristorante & Cocktail Bar Bologna",
+    en: "Camera con Vista - Restaurant & Cocktail Bar Bologna",
+  },
+  menu: {
+    it: "Menu - Camera con Vista | Ristorante Bologna",
+    en: "Menu - Camera con Vista | Restaurant Bologna",
+  },
+  "carta-vini": {
+    it: "Lista Vini - Camera con Vista | Wine List Bologna",
+    en: "Wine List - Camera con Vista | Bologna",
+  },
+  "cocktail-bar": {
+    it: "Cocktail Bar - Camera con Vista | Bologna",
+    en: "Cocktail Bar - Camera con Vista | Bologna",
+  },
+  eventi: {
+    it: "Eventi - Camera con Vista | Events Bologna",
+    en: "Events - Camera con Vista | Bologna",
+  },
+  "eventi-privati": {
+    it: "Eventi Privati - Camera con Vista | Bologna",
+    en: "Private Events - Camera con Vista | Bologna",
+  },
+  "eventi-privati-aperitivo": {
+    it: "Aperitivo Privato - Camera con Vista | Bologna",
+    en: "Private Aperitivo - Camera con Vista | Bologna",
+  },
+  "eventi-privati-cena": {
+    it: "Cena Privata - Camera con Vista | Bologna",
+    en: "Private Dinner - Camera con Vista | Bologna",
+  },
+  "eventi-privati-esclusivo": {
+    it: "Evento Privato Esclusivo - Camera con Vista | Bologna",
+    en: "Exclusive Private Event - Camera con Vista | Bologna",
+  },
+  galleria: {
+    it: "Galleria - Camera con Vista | Gallery Bologna",
+    en: "Gallery - Camera con Vista | Bologna",
+  },
+  "dove-siamo": {
+    it: "Dove Siamo - Camera con Vista | Bologna",
+    en: "Where We Are - Camera con Vista | Bologna",
+  },
   privacy: { it: "Privacy Policy - Camera con Vista", en: "Privacy Policy - Camera con Vista" },
   cookie: { it: "Cookie Policy - Camera con Vista", en: "Cookie Policy - Camera con Vista" },
 };
 
-function PublicPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
+function PublicPageRoute({
+  component: Component,
+  slug,
+}: {
+  component: React.ComponentType;
+  slug: string;
+}) {
   const { language } = useLanguage();
   const { data: visiblePages = [], isLoading } = useQuery<Page[]>({
     queryKey: ["/api/pages"],
   });
 
-  const page = visiblePages.find(p => p.slug === slug);
+  const page = visiblePages.find((p) => p.slug === slug);
   const titles = PAGE_TITLES[slug];
 
   useEffect(() => {
@@ -76,21 +115,27 @@ function PublicPageRoute({ component: Component, slug }: { component: React.Comp
     const customTitle = langKey === "it" ? page?.metaTitleIt : page?.metaTitleEn;
     document.title = customTitle || titles[langKey];
   }, [slug, language, page?.metaTitleIt, page?.metaTitleEn, titles]);
-  
+
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;
   }
-  
-  const isPageVisible = visiblePages.some(p => p.slug === slug);
-  
+
+  const isPageVisible = visiblePages.some((p) => p.slug === slug);
+
   if (!isPageVisible && visiblePages.length > 0) {
     return <NotFound />;
   }
-  
+
   return <Component />;
 }
 
-function StaticPageRoute({ component: Component, slug }: { component: React.ComponentType; slug: string }) {
+function StaticPageRoute({
+  component: Component,
+  slug,
+}: {
+  component: React.ComponentType;
+  slug: string;
+}) {
   const { language } = useLanguage();
   const titles = PAGE_TITLES[slug];
 
@@ -104,11 +149,11 @@ function StaticPageRoute({ component: Component, slug }: { component: React.Comp
 
 function AdminLoginRoute() {
   const { isAuthenticated } = useAdmin();
-  
+
   if (isAuthenticated) {
     return <Redirect to="/admina" />;
   }
-  
+
   return <AdminLogin />;
 }
 
@@ -117,52 +162,78 @@ function Router() {
     <>
       <ScrollToTop />
       <Switch>
-      <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
-      <Route path="/home">{() => <Redirect to="/" />}</Route>
-      <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
-      <Route path="/lista-vini">{() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}</Route>
-      <Route path="/carta-vini">{() => { window.location.replace("/lista-vini"); return null; }}</Route>
-      <Route path="/cocktail-bar">{() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}</Route>
-      <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
-      <Route path="/eventi/:id" component={EventDetail} />
-      <Route path="/eventi-privati">{() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}</Route>
-      <Route path="/eventi-privati/aperitivo">{() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}</Route>
-      <Route path="/eventi-privati/cena">
-        {() => PRIVATE_DINNER_ENABLED ? <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" /> : <Redirect to="/eventi-privati" />}
-      </Route>
-      <Route path="/eventi-privati/esclusivo">{() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}</Route>
-      <Route path="/galleria">{() => <PublicPageRoute component={Galleria} slug="galleria" />}</Route>
-      <Route path="/dove-siamo">{() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}</Route>
-      <Route path="/privacy">{() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}</Route>
-      <Route path="/cookie">{() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}</Route>
-      <Route path="/contatti">{() => { window.location.replace("/dove-siamo"); return null; }}</Route>
-      <Route path="/admina/login" component={AdminLoginRoute} />
-      <Route path="/admina/settings">
-        {() => <ProtectedAdminRoute component={AdminSettings} />}
-      </Route>
-      <Route path="/admina/sync-google">
-        {() => <ProtectedAdminRoute component={AdminSyncGoogle} />}
-      </Route>
-            <Route path="/admina/events">
-        {() => <ProtectedAdminRoute component={AdminEvents} />}
-      </Route>
-      <Route path="/admina/media">
-        {() => <ProtectedAdminRoute component={AdminMedia} />}
-      </Route>
-      <Route path="/admina/gallery">
-        {() => <ProtectedAdminRoute component={AdminGallery} />}
-      </Route>
-      <Route path="/admina/seo">
-        {() => <ProtectedAdminRoute component={AdminSeo} />}
-      </Route>
-      <Route path="/admina/preview">
-        {() => <ProtectedAdminRoute component={AdminPreview} />}
-      </Route>
-      <Route path="/admina">
-        {() => <ProtectedAdminRoute component={AdminPages} />}
-      </Route>
-      <Route component={NotFound} />
-    </Switch>
+        <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
+        <Route path="/home">{() => <Redirect to="/" />}</Route>
+        <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
+        <Route path="/lista-vini">
+          {() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}
+        </Route>
+        <Route path="/carta-vini">
+          {() => {
+            window.location.replace("/lista-vini");
+            return null;
+          }}
+        </Route>
+        <Route path="/cocktail-bar">
+          {() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}
+        </Route>
+        <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
+        <Route path="/eventi/:id" component={EventDetail} />
+        <Route path="/eventi-privati">
+          {() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}
+        </Route>
+        <Route path="/eventi-privati/aperitivo">
+          {() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}
+        </Route>
+        <Route path="/eventi-privati/cena">
+          {() =>
+            PRIVATE_DINNER_ENABLED ? (
+              <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />
+            ) : (
+              <Redirect to="/eventi-privati" />
+            )
+          }
+        </Route>
+        <Route path="/eventi-privati/esclusivo">
+          {() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}
+        </Route>
+        <Route path="/galleria">
+          {() => <PublicPageRoute component={Galleria} slug="galleria" />}
+        </Route>
+        <Route path="/dove-siamo">
+          {() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}
+        </Route>
+        <Route path="/privacy">
+          {() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}
+        </Route>
+        <Route path="/cookie">
+          {() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}
+        </Route>
+        <Route path="/contatti">
+          {() => {
+            window.location.replace("/dove-siamo");
+            return null;
+          }}
+        </Route>
+        <Route path="/admina/login" component={AdminLoginRoute} />
+        <Route path="/admina/settings">
+          {() => <ProtectedAdminRoute component={AdminSettings} />}
+        </Route>
+        <Route path="/admina/sync-google">
+          {() => <ProtectedAdminRoute component={AdminSyncGoogle} />}
+        </Route>
+        <Route path="/admina/events">{() => <ProtectedAdminRoute component={AdminEvents} />}</Route>
+        <Route path="/admina/media">{() => <ProtectedAdminRoute component={AdminMedia} />}</Route>
+        <Route path="/admina/gallery">
+          {() => <ProtectedAdminRoute component={AdminGallery} />}
+        </Route>
+        <Route path="/admina/seo">{() => <ProtectedAdminRoute component={AdminSeo} />}</Route>
+        <Route path="/admina/preview">
+          {() => <ProtectedAdminRoute component={AdminPreview} />}
+        </Route>
+        <Route path="/admina">{() => <ProtectedAdminRoute component={AdminPages} />}</Route>
+        <Route component={NotFound} />
+      </Switch>
     </>
   );
 }

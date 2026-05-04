@@ -17,7 +17,19 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { RefreshCw, Upload, UtensilsCrossed, Wine, GlassWater, ExternalLink, Settings, Save, Plus, Trash2, Check } from "lucide-react";
+import {
+  RefreshCw,
+  Upload,
+  UtensilsCrossed,
+  Wine,
+  GlassWater,
+  ExternalLink,
+  Settings,
+  Save,
+  Plus,
+  Trash2,
+  Check,
+} from "lucide-react";
 
 type SyncTarget = "menu" | "wines" | "cocktails";
 
@@ -167,20 +179,47 @@ export default function AdminSyncGoogle() {
   const handleSaveConfig = async () => {
     if (!editConfig) return;
     if (!editConfig.menu.syncUrl.trim()) {
-      toast({ title: t("Errore", "Error"), description: t("Il link di sincronizzazione Menù è obbligatorio", "Menu sync link is required"), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t(
+          "Il link di sincronizzazione Menù è obbligatorio",
+          "Menu sync link is required",
+        ),
+        variant: "destructive",
+      });
       return;
     }
     if (editConfig.wines.categories.length === 0) {
-      toast({ title: t("Errore", "Error"), description: t("Aggiungi almeno una categoria vini", "Add at least one wine category"), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Aggiungi almeno una categoria vini", "Add at least one wine category"),
+        variant: "destructive",
+      });
       return;
     }
-    const invalidCat = editConfig.wines.categories.find(c => !c.syncUrl.trim() || !c.category.trim());
+    const invalidCat = editConfig.wines.categories.find(
+      (c) => !c.syncUrl.trim() || !c.category.trim(),
+    );
     if (invalidCat) {
-      toast({ title: t("Errore", "Error"), description: t("Ogni categoria vino deve avere nome e link", "Each wine category needs name and link"), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t(
+          "Ogni categoria vino deve avere nome e link",
+          "Each wine category needs name and link",
+        ),
+        variant: "destructive",
+      });
       return;
     }
     if (!editConfig.cocktails.syncUrl.trim()) {
-      toast({ title: t("Errore", "Error"), description: t("Il link di sincronizzazione Cocktail è obbligatorio", "Cocktails sync link is required"), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t(
+          "Il link di sincronizzazione Cocktail è obbligatorio",
+          "Cocktails sync link is required",
+        ),
+        variant: "destructive",
+      });
       return;
     }
     setSavingConfig(true);
@@ -190,7 +229,10 @@ export default function AdminSyncGoogle() {
       setConfigDirty(false);
       toast({
         title: t("Configurazione salvata", "Configuration saved"),
-        description: t("I link di sincronizzazione sono stati aggiornati", "Sync links have been updated"),
+        description: t(
+          "I link di sincronizzazione sono stati aggiornati",
+          "Sync links have been updated",
+        ),
       });
     } catch (error) {
       toast({
@@ -254,7 +296,7 @@ export default function AdminSyncGoogle() {
           <p className="text-muted-foreground text-sm mt-1">
             {t(
               "Sincronizza i dati dai fogli Google e pubblica online quando sei pronto",
-              "Sync data from Google Sheets and publish online when ready"
+              "Sync data from Google Sheets and publish online when ready",
             )}
           </p>
         </div>
@@ -280,7 +322,8 @@ export default function AdminSyncGoogle() {
 
                   {status && (
                     <p className="text-xs text-muted-foreground pl-[52px]">
-                      {t("Ultimo aggiornamento online", "Last published")}: {formatDate(status.publishedAt)} ({status.count} {t("elementi", "items")})
+                      {t("Ultimo aggiornamento online", "Last published")}:{" "}
+                      {formatDate(status.publishedAt)} ({status.count} {t("elementi", "items")})
                     </p>
                   )}
 
@@ -335,8 +378,8 @@ export default function AdminSyncGoogle() {
             variant="outline"
             size="lg"
             className={`w-full py-8 text-lg font-semibold transition-all duration-300 ${
-              showConfig 
-                ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600 shadow-inner" 
+              showConfig
+                ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600 shadow-inner"
                 : "bg-amber-400 text-amber-950 border-amber-500 hover:bg-amber-500 shadow-md"
             }`}
             onClick={() => {
@@ -348,7 +391,9 @@ export default function AdminSyncGoogle() {
             }}
             data-testid="button-toggle-config"
           >
-            <Settings className={`h-6 w-6 mr-3 ${showConfig ? "rotate-90" : ""} transition-transform duration-500`} />
+            <Settings
+              className={`h-6 w-6 mr-3 ${showConfig ? "rotate-90" : ""} transition-transform duration-500`}
+            />
             {t("Link di sincronizzazione", "Sync links")}
           </Button>
         </div>
@@ -362,10 +407,16 @@ export default function AdminSyncGoogle() {
                   <CardTitle className="text-base">{t("Menù", "Menu")}</CardTitle>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    {t("Link CSV sincronizzazione", "CSV sync link")}
+                  </label>
                   <Input
                     value={editConfig.menu.syncUrl}
-                    onChange={(e) => updateConfig((c) => { c.menu.syncUrl = e.target.value; })}
+                    onChange={(e) =>
+                      updateConfig((c) => {
+                        c.menu.syncUrl = e.target.value;
+                      })
+                    }
                     placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..."
                     data-testid="input-menu-sync-url"
                   />
@@ -381,10 +432,16 @@ export default function AdminSyncGoogle() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link generico foglio Vini", "Generic Wines sheet link")}</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    {t("Link generico foglio Vini", "Generic Wines sheet link")}
+                  </label>
                   <Input
                     value={editConfig.wines.spreadsheetUrl}
-                    onChange={(e) => updateConfig((c) => { c.wines.spreadsheetUrl = e.target.value; })}
+                    onChange={(e) =>
+                      updateConfig((c) => {
+                        c.wines.spreadsheetUrl = e.target.value;
+                      })
+                    }
                     placeholder="https://docs.google.com/spreadsheets/d/..."
                     data-testid="input-wines-spreadsheet-url"
                   />
@@ -395,14 +452,22 @@ export default function AdminSyncGoogle() {
                     <div key={idx} className="space-y-1.5 border-b pb-4 last:border-b-0 last:pb-0">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="h-1.5 w-1.5 rounded-full bg-primary" />
-                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">{cat.category}</h3>
+                        <h3 className="text-sm font-semibold text-foreground uppercase tracking-wider">
+                          {cat.category}
+                        </h3>
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[10px] font-medium uppercase text-muted-foreground ml-0.5">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
+                        <label className="text-[10px] font-medium uppercase text-muted-foreground ml-0.5">
+                          {t("Link CSV sincronizzazione", "CSV sync link")}
+                        </label>
                         <Input
                           placeholder="https://docs.google.com/spreadsheets/d/e/.../pub?gid=...&single=true&output=csv"
                           value={cat.syncUrl}
-                          onChange={(e) => updateConfig((c) => { c.wines.categories[idx].syncUrl = e.target.value; })}
+                          onChange={(e) =>
+                            updateConfig((c) => {
+                              c.wines.categories[idx].syncUrl = e.target.value;
+                            })
+                          }
                           data-testid={`input-wine-cat-url-${idx}`}
                         />
                       </div>
@@ -419,10 +484,16 @@ export default function AdminSyncGoogle() {
                   <CardTitle className="text-base">{t("Cocktail", "Cocktails")}</CardTitle>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-xs font-medium text-muted-foreground">{t("Link CSV sincronizzazione", "CSV sync link")}</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    {t("Link CSV sincronizzazione", "CSV sync link")}
+                  </label>
                   <Input
                     value={editConfig.cocktails.syncUrl}
-                    onChange={(e) => updateConfig((c) => { c.cocktails.syncUrl = e.target.value; })}
+                    onChange={(e) =>
+                      updateConfig((c) => {
+                        c.cocktails.syncUrl = e.target.value;
+                      })
+                    }
                     placeholder="https://docs.google.com/spreadsheets/d/.../export?format=csv&gid=..."
                     data-testid="input-cocktails-sync-url"
                   />
@@ -454,25 +525,33 @@ export default function AdminSyncGoogle() {
           </div>
         )}
 
-        <AlertDialog open={confirmPublish !== null} onOpenChange={(open) => { if (!open) setConfirmPublish(null); }}>
+        <AlertDialog
+          open={confirmPublish !== null}
+          onOpenChange={(open) => {
+            if (!open) setConfirmPublish(null);
+          }}
+        >
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>
                 {t("Conferma pubblicazione", "Confirm publication")}
               </AlertDialogTitle>
               <AlertDialogDescription>
-                {confirmPublish === "menu" && t(
-                  "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
-                  "The current Menu will be published online and visible to customers. Do you want to proceed?"
-                )}
-                {confirmPublish === "wines" && t(
-                  "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                  "The current Wine List will be published online and visible to customers. Do you want to proceed?"
-                )}
-                {confirmPublish === "cocktails" && t(
-                  "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
-                  "The current Cocktail list will be published online and visible to customers. Do you want to proceed?"
-                )}
+                {confirmPublish === "menu" &&
+                  t(
+                    "Il Menù attuale verrà pubblicato online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Menu will be published online and visible to customers. Do you want to proceed?",
+                  )}
+                {confirmPublish === "wines" &&
+                  t(
+                    "La Carta dei Vini attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Wine List will be published online and visible to customers. Do you want to proceed?",
+                  )}
+                {confirmPublish === "cocktails" &&
+                  t(
+                    "La lista Cocktail attuale verrà pubblicata online e sarà visibile ai clienti. Vuoi procedere?",
+                    "The current Cocktail list will be published online and visible to customers. Do you want to proceed?",
+                  )}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

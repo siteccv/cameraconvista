@@ -13,20 +13,22 @@ const prefetchedSlugs = new Set<string>();
 function prefetchPageData(slug: string) {
   if (prefetchedSlugs.has(slug)) return;
   prefetchedSlugs.add(slug);
-  queryClient.prefetchQuery({
-    queryKey: ["/api/pages/slug", slug, "blocks"],
-    staleTime: 5 * 60 * 1000,
-  }).then(() => {
-    const blocks = queryClient.getQueryData<PageBlock[]>(["/api/pages/slug", slug, "blocks"]);
-    if (blocks) {
-      blocks.forEach(b => {
-        if (b.imageUrl) {
-          const img = new Image();
-          img.src = b.imageUrl;
-        }
-      });
-    }
-  });
+  queryClient
+    .prefetchQuery({
+      queryKey: ["/api/pages/slug", slug, "blocks"],
+      staleTime: 5 * 60 * 1000,
+    })
+    .then(() => {
+      const blocks = queryClient.getQueryData<PageBlock[]>(["/api/pages/slug", slug, "blocks"]);
+      if (blocks) {
+        blocks.forEach((b) => {
+          if (b.imageUrl) {
+            const img = new Image();
+            img.src = b.imageUrl;
+          }
+        });
+      }
+    });
 }
 
 const allNavItems = [
@@ -35,7 +37,12 @@ const allNavItems = [
   { slug: "carta-vini", path: "/lista-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
   { slug: "cocktail-bar", path: "/cocktail-bar", labelIt: "Cocktail Bar", labelEn: "Cocktail Bar" },
   { slug: "eventi", path: "/eventi", labelIt: "Eventi", labelEn: "Events" },
-  { slug: "eventi-privati", path: "/eventi-privati", labelIt: "Eventi Privati", labelEn: "Private Events" },
+  {
+    slug: "eventi-privati",
+    path: "/eventi-privati",
+    labelIt: "Eventi Privati",
+    labelEn: "Private Events",
+  },
   { slug: "galleria", path: "/galleria", labelIt: "Galleria", labelEn: "Gallery" },
   { slug: "dove-siamo", path: "/dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are" },
 ];
@@ -62,8 +69,8 @@ export function Header() {
 
   const isMobile = forceMobileLayout || isMobileView;
 
-  const navItems = allNavItems.filter(item => {
-    const dbPage = visiblePages.find(p => p.slug === item.slug);
+  const navItems = allNavItems.filter((item) => {
+    const dbPage = visiblePages.find((p) => p.slug === item.slug);
     return dbPage !== undefined || visiblePages.length === 0;
   });
 
@@ -77,17 +84,21 @@ export function Header() {
 
               {adminPreview ? (
                 <div className="absolute left-1/2 -translate-x-1/2">
-                  <img 
-                    src={logoImg} 
-                    alt="Camera con Vista" 
+                  <img
+                    src={logoImg}
+                    alt="Camera con Vista"
                     className="h-[18px] w-auto object-contain"
                   />
                 </div>
               ) : (
-                <Link href="/" className="absolute left-1/2 -translate-x-1/2" data-testid="link-home-logo">
-                  <img 
-                    src={logoImg} 
-                    alt="Camera con Vista" 
+                <Link
+                  href="/"
+                  className="absolute left-1/2 -translate-x-1/2"
+                  data-testid="link-home-logo"
+                >
+                  <img
+                    src={logoImg}
+                    alt="Camera con Vista"
                     className="h-[18px] w-auto object-contain"
                   />
                 </Link>
@@ -110,17 +121,17 @@ export function Header() {
             <>
               {adminPreview ? (
                 <div className="flex items-center gap-2">
-                  <img 
-                    src={logoImg} 
-                    alt="Camera con Vista" 
+                  <img
+                    src={logoImg}
+                    alt="Camera con Vista"
                     className="h-[18px] w-auto object-contain"
                   />
                 </div>
               ) : (
                 <Link href="/" className="flex items-center gap-2" data-testid="link-home-logo">
-                  <img 
-                    src={logoImg} 
-                    alt="Camera con Vista" 
+                  <img
+                    src={logoImg}
+                    alt="Camera con Vista"
                     className="h-[18px] w-auto object-contain"
                   />
                 </Link>
@@ -134,7 +145,7 @@ export function Header() {
                       ? "text-[#722f37] underline underline-offset-4"
                       : "text-muted-foreground"
                   } ${adminPreview ? "cursor-default pointer-events-none" : "cursor-pointer hover:text-foreground"}`;
-                  
+
                   if (adminPreview) {
                     return (
                       <span
@@ -146,7 +157,7 @@ export function Header() {
                       </span>
                     );
                   }
-                  
+
                   return (
                     <Link key={item.slug} href={item.path}>
                       <span
@@ -199,9 +210,7 @@ export function Header() {
                   <Link key={item.slug} href={item.path}>
                     <span
                       className={`block px-4 py-3 font-display text-lg tracking-wide transition-colors cursor-pointer ${
-                        isActive
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
+                        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                       data-testid={`nav-mobile-${item.slug || "home"}`}
@@ -215,7 +224,10 @@ export function Header() {
               <div className="mt-4 pt-4 border-t border-border px-4">
                 <div className="flex items-center gap-3 font-display text-base">
                   <button
-                    onClick={() => { setLanguage("it"); setMobileMenuOpen(false); }}
+                    onClick={() => {
+                      setLanguage("it");
+                      setMobileMenuOpen(false);
+                    }}
                     className={`px-3 py-1.5 rounded transition-colors ${
                       language === "it"
                         ? "bg-primary text-primary-foreground"
@@ -226,7 +238,10 @@ export function Header() {
                     Italiano
                   </button>
                   <button
-                    onClick={() => { setLanguage("en"); setMobileMenuOpen(false); }}
+                    onClick={() => {
+                      setLanguage("en");
+                      setMobileMenuOpen(false);
+                    }}
                     className={`px-3 py-1.5 rounded transition-colors ${
                       language === "en"
                         ? "bg-primary text-primary-foreground"

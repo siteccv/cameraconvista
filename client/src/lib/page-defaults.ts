@@ -21,7 +21,8 @@ export const MENU_DEFAULTS: BlockDefault[] = [
     titleEn: "Menu",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -32,8 +33,10 @@ export const MENU_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "La nostra cucina celebra i sapori autentici della tradizione italiana, reinterpretati con creatività e ingredienti di stagione.",
-    bodyEn: "Our cuisine celebrates the authentic flavors of Italian tradition, reinterpreted with creativity and seasonal ingredients.",
+    bodyIt:
+      "La nostra cucina celebra i sapori autentici della tradizione italiana, reinterpretati con creatività e ingredienti di stagione.",
+    bodyEn:
+      "Our cuisine celebrates the authentic flavors of Italian tradition, reinterpreted with creativity and seasonal ingredients.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
@@ -47,7 +50,8 @@ export const CARTA_VINI_DEFAULTS: BlockDefault[] = [
     titleEn: "Wine List",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -58,8 +62,10 @@ export const CARTA_VINI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
-    bodyEn: "A curated selection of Italian and international labels, chosen to accompany every moment of your experience.",
+    bodyIt:
+      "Una selezione curata di etichette italiane e internazionali, scelte per accompagnare ogni momento della vostra esperienza.",
+    bodyEn:
+      "A curated selection of Italian and international labels, chosen to accompany every moment of your experience.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
@@ -73,7 +79,8 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
     titleEn: "Cocktail Bar",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -84,15 +91,18 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
-    bodyEn: "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience.",
+    bodyIt:
+      "I nostri cocktail sono creazioni uniche, preparate con ingredienti selezionati e tecniche innovative per offrirvi un'esperienza sensoriale indimenticabile.",
+    bodyEn:
+      "Our cocktails are unique creations, prepared with selected ingredients and innovative techniques to offer you an unforgettable sensory experience.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
   },
   {
     blockType: "gallery-1",
-    imageUrl: "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -103,7 +113,8 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "gallery-2",
-    imageUrl: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1551024709-8f23befc6f87?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -114,7 +125,8 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "gallery-3",
-    imageUrl: "https://images.unsplash.com/photo-1560963689-b5682b6440f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1560963689-b5682b6440f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -125,8 +137,10 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "outro",
-    bodyIt: "Oltre alla nostra selezione di cocktail, il bar offre grandi classici internazionali, una scelta di whisky, rum e spirits, più birre e altre referenze.",
-    bodyEn: "In addition to our cocktail selection, the bar offers great international classics, a curated selection of whiskies, rums and spirits, plus beers and other offerings.",
+    bodyIt:
+      "Oltre alla nostra selezione di cocktail, il bar offre grandi classici internazionali, una scelta di whisky, rum e spirits, più birre e altre referenze.",
+    bodyEn:
+      "In addition to our cocktail selection, the bar offers great international classics, a curated selection of whiskies, rums and spirits, plus beers and other offerings.",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 5,
@@ -140,7 +154,8 @@ export const EVENTI_DEFAULTS: BlockDefault[] = [
     titleEn: "Events",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -151,7 +166,8 @@ export const EVENTI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Scopri i nostri eventi speciali: serate a tema, degustazioni, musica dal vivo e molto altro.",
+    bodyIt:
+      "Scopri i nostri eventi speciali: serate a tema, degustazioni, musica dal vivo e molto altro.",
     bodyEn: "Discover our special events: themed nights, tastings, live music and much more.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
@@ -166,7 +182,8 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
     titleEn: "Private Events",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -177,8 +194,10 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Camera con Vista offre spazi esclusivi e servizi personalizzati per rendere ogni occasione indimenticabile. Dal party aziendale alla celebrazione privata, ogni dettaglio è curato con la massima attenzione.",
-    bodyEn: "Camera con Vista offers exclusive spaces and personalized services to make every occasion unforgettable. From corporate parties to private celebrations, every detail is curated with the utmost attention.",
+    bodyIt:
+      "Camera con Vista offre spazi esclusivi e servizi personalizzati per rendere ogni occasione indimenticabile. Dal party aziendale alla celebrazione privata, ogni dettaglio è curato con la massima attenzione.",
+    bodyEn:
+      "Camera con Vista offers exclusive spaces and personalized services to make every occasion unforgettable. From corporate parties to private celebrations, every detail is curated with the utmost attention.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
@@ -197,8 +216,10 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
     titleEn: "Exclusive Aperitivo",
     titleFontSize: 20,
     titleFontSizeMobile: 18,
-    bodyIt: "Cocktail personalizzati e finger food selezionati per i tuoi ospiti. Ideale per 20-50 persone.",
-    bodyEn: "Personalized cocktails and selected finger food for your guests. Ideal for 20-50 people.",
+    bodyIt:
+      "Cocktail personalizzati e finger food selezionati per i tuoi ospiti. Ideale per 20-50 persone.",
+    bodyEn:
+      "Personalized cocktails and selected finger food for your guests. Ideal for 20-50 people.",
     bodyFontSize: 14,
     bodyFontSizeMobile: 13,
     sortOrder: 3,
@@ -221,7 +242,8 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
     titleEn: "Parties & Celebrations",
     titleFontSize: 20,
     titleFontSizeMobile: 18,
-    bodyIt: "Location completa con DJ, cocktail bar dedicato e catering. Ideale per 50-100 persone.",
+    bodyIt:
+      "Location completa con DJ, cocktail bar dedicato e catering. Ideale per 50-100 persone.",
     bodyEn: "Complete venue with DJ, dedicated cocktail bar and catering. Ideal for 50-100 people.",
     bodyFontSize: 14,
     bodyFontSizeMobile: 13,
@@ -241,7 +263,8 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "spaces-1",
-    imageUrl: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -252,7 +275,8 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "spaces-2",
-    imageUrl: "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1560624052-449f5ddf0c31?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -263,7 +287,8 @@ export const EVENTI_PRIVATI_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "spaces-3",
-    imageUrl: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -323,8 +348,10 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Cocktail personalizzati e finger food selezionati per i tuoi ospiti, in un'atmosfera elegante e riservata.",
-    bodyEn: "Personalized cocktails and selected finger food for your guests, in an elegant and private atmosphere.",
+    bodyIt:
+      "Cocktail personalizzati e finger food selezionati per i tuoi ospiti, in un'atmosfera elegante e riservata.",
+    bodyEn:
+      "Personalized cocktails and selected finger food for your guests, in an elegant and private atmosphere.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
@@ -335,8 +362,10 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Up to 25/30 guests",
     titleFontSize: 24,
     titleFontSizeMobile: 20,
-    bodyIt: "Sala 1 riservata in esclusiva.\nMenu dedicato a base di finger food.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
-    bodyEn: "Sala 1 exclusively reserved.\nDedicated finger food menu.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
+    bodyIt:
+      "Sala 1 riservata in esclusiva.\nMenu dedicato a base di finger food.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
+    bodyEn:
+      "Sala 1 exclusively reserved.\nDedicated finger food menu.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 2,
@@ -347,8 +376,10 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "From 30 to 80 guests",
     titleFontSize: 24,
     titleFontSizeMobile: 20,
-    bodyIt: "Sala 1 e Sala 2 riservate.\nMenu dedicato a base di finger food.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
-    bodyEn: "Sala 1 and Sala 2 reserved.\nDedicated finger food menu.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
+    bodyIt:
+      "Sala 1 e Sala 2 riservate.\nMenu dedicato a base di finger food.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
+    bodyEn:
+      "Sala 1 and Sala 2 reserved.\nDedicated finger food menu.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 3,
@@ -381,8 +412,10 @@ export const APERITIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Outdoor Aperitivo — Dehors",
     titleFontSize: 24,
     titleFontSizeMobile: 20,
-    bodyIt: "Nella bella stagione, il nostro dehors diventa il palcoscenico ideale per il vostro aperitivo privato.\nCocktail e finger food serviti all'aperto, in un'atmosfera rilassata e conviviale.\n\nDisponibilità stagionale, su richiesta.",
-    bodyEn: "In the warm season, our dehors becomes the ideal setting for your private aperitivo.\nCocktails and finger food served outdoors, in a relaxed and convivial atmosphere.\n\nSeasonal availability, upon request.",
+    bodyIt:
+      "Nella bella stagione, il nostro dehors diventa il palcoscenico ideale per il vostro aperitivo privato.\nCocktail e finger food serviti all'aperto, in un'atmosfera rilassata e conviviale.\n\nDisponibilità stagionale, su richiesta.",
+    bodyEn:
+      "In the warm season, our dehors becomes the ideal setting for your private aperitivo.\nCocktails and finger food served outdoors, in a relaxed and convivial atmosphere.\n\nSeasonal availability, upon request.",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 6,
@@ -430,7 +463,8 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Una cena classica a sedere, con tavoli riservati e un servizio dedicato per il vostro gruppo.",
+    bodyIt:
+      "Una cena classica a sedere, con tavoli riservati e un servizio dedicato per il vostro gruppo.",
     bodyEn: "A classic seated dinner, with reserved tables and dedicated service for your group.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
@@ -442,8 +476,10 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Your dinner",
     titleFontSize: 24,
     titleFontSizeMobile: 20,
-    bodyIt: "Tavoli riservati in base al numero di ospiti.\nMenu e pacchetti dedicati in fase di definizione.",
-    bodyEn: "Tables reserved based on the number of guests.\nDedicated menus and packages coming soon.",
+    bodyIt:
+      "Tavoli riservati in base al numero di ospiti.\nMenu e pacchetti dedicati in fase di definizione.",
+    bodyEn:
+      "Tables reserved based on the number of guests.\nDedicated menus and packages coming soon.",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 2,
@@ -465,8 +501,10 @@ export const CENA_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Outdoor Dinner — Dehors",
     titleFontSize: 24,
     titleFontSizeMobile: 20,
-    bodyIt: "Nella bella stagione, il nostro dehors accoglie cene private sotto le stelle.\nUn'esperienza intima e raffinata, con menu dedicato e servizio esclusivo.\n\nDisponibilità stagionale, su richiesta.",
-    bodyEn: "In the warm season, our dehors hosts private dinners under the stars.\nAn intimate and refined experience, with a dedicated menu and exclusive service.\n\nSeasonal availability, upon request.",
+    bodyIt:
+      "Nella bella stagione, il nostro dehors accoglie cene private sotto le stelle.\nUn'esperienza intima e raffinata, con menu dedicato e servizio esclusivo.\n\nDisponibilità stagionale, su richiesta.",
+    bodyEn:
+      "In the warm season, our dehors hosts private dinners under the stars.\nAn intimate and refined experience, with a dedicated menu and exclusive service.\n\nSeasonal availability, upon request.",
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 4,
@@ -514,8 +552,10 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Scegli la formula esclusiva più adatta al tuo evento. Sale riservate o l'intero locale, per un'esperienza senza compromessi.",
-    bodyEn: "Choose the exclusive formula that best suits your event. Private rooms or the entire venue, for an uncompromising experience.",
+    bodyIt:
+      "Scegli la formula esclusiva più adatta al tuo evento. Sale riservate o l'intero locale, per un'esperienza senza compromessi.",
+    bodyEn:
+      "Choose the exclusive formula that best suits your event. Private rooms or the entire venue, for an uncompromising experience.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,
     sortOrder: 1,
@@ -526,8 +566,10 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Convivialis Table",
     titleFontSize: 22,
     titleFontSizeMobile: 18,
-    bodyIt: "Cena esclusiva al grande tavolo conviviale, con la sala riservata.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
-    bodyEn: "Exclusive dinner at the large communal table, with a private room.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
+    bodyIt:
+      "Cena esclusiva al grande tavolo conviviale, con la sala riservata.\n\nMinimum spending:\n• Lunedì–Giovedì: 1.000€\n• Venerdì–Sabato: 1.500€",
+    bodyEn:
+      "Exclusive dinner at the large communal table, with a private room.\n\nMinimum spending:\n• Monday–Thursday: €1,000\n• Friday–Saturday: €1,500",
     bodyFontSize: 15,
     bodyFontSizeMobile: 13,
     sortOrder: 2,
@@ -538,8 +580,10 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Reserve Camera con Vista",
     titleFontSize: 22,
     titleFontSizeMobile: 18,
-    bodyIt: "Riserva l'intero Bistrot Camera con Vista per il tuo evento.\nParty con DJ set, cocktail bar dedicato, menu personalizzato.\n\nTrattative riservate a partire da 4.000€",
-    bodyEn: "Reserve the entire Camera con Vista Bistrot for your event.\nParty with DJ set, dedicated cocktail bar, custom menu.\n\nPrivate negotiations starting from €4,000",
+    bodyIt:
+      "Riserva l'intero Bistrot Camera con Vista per il tuo evento.\nParty con DJ set, cocktail bar dedicato, menu personalizzato.\n\nTrattative riservate a partire da 4.000€",
+    bodyEn:
+      "Reserve the entire Camera con Vista Bistrot for your event.\nParty with DJ set, dedicated cocktail bar, custom menu.\n\nPrivate negotiations starting from €4,000",
     bodyFontSize: 15,
     bodyFontSizeMobile: 13,
     sortOrder: 3,
@@ -550,8 +594,10 @@ export const ESCLUSIVO_PAGE_DEFAULTS: BlockDefault[] = [
     titleEn: "Reserve Camera Jazz Club",
     titleFontSize: 22,
     titleFontSizeMobile: 18,
-    bodyIt: "Riserva l'intero Camera Jazz Club per il tuo evento.\nParty con DJ set, cocktail bar dedicato, menu personalizzato.\n\nTrattative riservate a partire da 4.000€",
-    bodyEn: "Reserve the entire Camera Jazz Club for your event.\nParty with DJ set, dedicated cocktail bar, custom menu.\n\nPrivate negotiations starting from €4,000",
+    bodyIt:
+      "Riserva l'intero Camera Jazz Club per il tuo evento.\nParty con DJ set, cocktail bar dedicato, menu personalizzato.\n\nTrattative riservate a partire da 4.000€",
+    bodyEn:
+      "Reserve the entire Camera Jazz Club for your event.\nParty with DJ set, dedicated cocktail bar, custom menu.\n\nPrivate negotiations starting from €4,000",
     bodyFontSize: 15,
     bodyFontSizeMobile: 13,
     sortOrder: 4,
@@ -610,7 +656,8 @@ export const GALLERIA_DEFAULTS: BlockDefault[] = [
     titleEn: "Gallery",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -636,7 +683,8 @@ export const DOVE_SIAMO_DEFAULTS: BlockDefault[] = [
     titleEn: "Where We Are",
     titleFontSize: 72,
     titleFontSizeMobile: 40,
-    imageUrl: "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
+    imageUrl:
+      "https://images.unsplash.com/photo-1566417713940-fe7c737a9ef2?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80",
     imageScaleDesktop: 100,
     imageScaleMobile: 100,
     imageOffsetX: 0,
@@ -647,7 +695,8 @@ export const DOVE_SIAMO_DEFAULTS: BlockDefault[] = [
   },
   {
     blockType: "intro",
-    bodyIt: "Nel cuore di Bologna..\na 200 metri dalle Due Torri\nraggiungibile in 3 minuti a piedi.",
+    bodyIt:
+      "Nel cuore di Bologna..\na 200 metri dalle Due Torri\nraggiungibile in 3 minuti a piedi.",
     bodyEn: "In the heart of Bologna..\n200 meters from the Two Towers\njust a 3-minute walk.",
     bodyFontSize: 20,
     bodyFontSizeMobile: 14,

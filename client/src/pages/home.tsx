@@ -12,11 +12,11 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { PageBlock } from "@shared/schema";
 import logoImg from "@assets/Logo_ccv_nobistrot.png";
 import { Button } from "@/components/ui/button";
-import { 
-  BookingDialog, 
+import {
+  BookingDialog,
   TeaserSection,
-  HOME_PAGE_ID, 
-  DEFAULT_BLOCKS, 
+  HOME_PAGE_ID,
+  DEFAULT_BLOCKS,
   TEASER_BLOCK_DEFAULTS,
   TEASER_BLOCK_TYPES,
 } from "@/components/home";
@@ -37,7 +37,9 @@ export default function Home() {
     : ["/api", "pages", HOME_PAGE_ID, "blocks"];
 
   const adminQueryFn = async () => {
-    const res = await fetch(`/api/admin/page-blocks/${HOME_PAGE_ID}/blocks`, { credentials: "include" });
+    const res = await fetch(`/api/admin/page-blocks/${HOME_PAGE_ID}/blocks`, {
+      credentials: "include",
+    });
     if (!res.ok) throw new Error("Failed to fetch blocks");
     return res.json();
   };
@@ -47,9 +49,11 @@ export default function Home() {
     ...(adminPreview ? { queryFn: adminQueryFn } : {}),
   });
 
-  const heroBlock = blocks.find(b => b.blockType === "hero");
-  const brandingBlock = blocks.find(b => b.blockType === "branding");
-  const teaserBlocks = TEASER_BLOCK_TYPES.map(type => blocks.find(b => b.blockType === type) || null);
+  const heroBlock = blocks.find((b) => b.blockType === "hero");
+  const brandingBlock = blocks.find((b) => b.blockType === "branding");
+  const teaserBlocks = TEASER_BLOCK_TYPES.map(
+    (type) => blocks.find((b) => b.blockType === type) || null,
+  );
 
   const updateBlockMutation = useMutation({
     mutationFn: async ({ id, data }: { id: number; data: Partial<PageBlock> }) => {
@@ -58,16 +62,16 @@ export default function Home() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: blocksQueryKey });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
-      toast({ 
-        title: t("Salvato", "Saved"), 
-        description: t("Le modifiche sono state salvate.", "Changes have been saved.") 
+      toast({
+        title: t("Salvato", "Saved"),
+        description: t("Le modifiche sono state salvate.", "Changes have been saved."),
       });
     },
     onError: () => {
-      toast({ 
-        title: t("Errore", "Error"), 
+      toast({
+        title: t("Errore", "Error"),
         description: t("Impossibile salvare le modifiche.", "Failed to save changes."),
-        variant: "destructive"
+        variant: "destructive",
       });
     },
   });
@@ -79,7 +83,7 @@ export default function Home() {
     const allDefaults: Partial<PageBlock>[] = [
       DEFAULT_BLOCKS.hero as Partial<PageBlock>,
       DEFAULT_BLOCKS.branding as Partial<PageBlock>,
-      ...TEASER_BLOCK_DEFAULTS.map(def => def as unknown as Partial<PageBlock>),
+      ...TEASER_BLOCK_DEFAULTS.map((def) => def as unknown as Partial<PageBlock>),
     ];
 
     const createSequentially = async () => {
@@ -98,9 +102,12 @@ export default function Home() {
     createSequentially();
   }, [adminPreview, isLoading, blocks.length, hasInitialized]);
 
-  const handleUpdateBlock = useCallback((id: number, data: Partial<PageBlock>) => {
-    updateBlockMutation.mutate({ id, data });
-  }, [updateBlockMutation]);
+  const handleUpdateBlock = useCallback(
+    (id: number, data: Partial<PageBlock>) => {
+      updateBlockMutation.mutate({ id, data });
+    },
+    [updateBlockMutation],
+  );
 
   const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
@@ -113,14 +120,19 @@ export default function Home() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleBrandingTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleBrandingTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!brandingBlock) return;
     handleUpdateBlock(brandingBlock.id, {
       titleIt: data.textIt,
@@ -130,7 +142,12 @@ export default function Home() {
     });
   };
 
-  const handleBrandingTaglineSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleBrandingTaglineSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!brandingBlock) return;
     handleUpdateBlock(brandingBlock.id, {
       bodyIt: data.textIt,
@@ -148,15 +165,16 @@ export default function Home() {
     panY: heroBlock?.imageOffsetY ?? DEFAULT_BLOCKS.hero.imageOffsetY ?? 0,
     panXMobile: heroBlock?.imageOffsetXMobile ?? DEFAULT_BLOCKS.hero.imageOffsetXMobile ?? 0,
     panYMobile: heroBlock?.imageOffsetYMobile ?? DEFAULT_BLOCKS.hero.imageOffsetYMobile ?? 0,
-    overlay: (heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0,
-    overlayMobile: (heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0,
+    overlay: ((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 0,
+    overlayMobile: ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 0,
   };
 
   const brandingTitle = {
     it: brandingBlock?.titleIt || DEFAULT_BLOCKS.branding.titleIt,
     en: brandingBlock?.titleEn || DEFAULT_BLOCKS.branding.titleEn,
     fontSizeDesktop: brandingBlock?.titleFontSize || DEFAULT_BLOCKS.branding.titleFontSize,
-    fontSizeMobile: brandingBlock?.titleFontSizeMobile || DEFAULT_BLOCKS.branding.titleFontSizeMobile,
+    fontSizeMobile:
+      brandingBlock?.titleFontSizeMobile || DEFAULT_BLOCKS.branding.titleFontSizeMobile,
   };
 
   const brandingTagline = {
@@ -205,7 +223,7 @@ export default function Home() {
 
         <section className="flex-1 flex flex-col text-center" data-testid="section-branding">
           <div className="flex-1" />
-          
+
           <div className="container mx-auto px-4">
             <div className={isMobile ? "mb-2 py-1" : "mb-4 py-2"}>
               <EditableText
@@ -215,25 +233,25 @@ export default function Home() {
                 fontSizeMobile={brandingTitle.fontSizeMobile}
                 as="p"
                 className={`${isMobile ? "tracking-[0.1em]" : "tracking-[0.2em]"} font-medium uppercase`}
-                style={{ 
-                  color: '#c9a048',
-                  fontFamily: 'Montserrat, sans-serif'
+                style={{
+                  color: "#c9a048",
+                  fontFamily: "Montserrat, sans-serif",
                 }}
                 applyFontSize
                 onSave={handleBrandingTitleSave}
                 data-testid="text-restaurant-bar"
               />
             </div>
-            
+
             <div className={`flex justify-center ${isMobile ? "mb-2" : "mb-4"}`}>
-              <img 
-                src={logoImg} 
-                alt="Camera con Vista" 
+              <img
+                src={logoImg}
+                alt="Camera con Vista"
                 className={`${logoHeight} w-auto`}
                 data-testid="img-logo"
               />
             </div>
-            
+
             <div className={isMobile ? "mt-4" : "mt-6"}>
               <EditableText
                 textIt={brandingTagline.it}
@@ -242,9 +260,9 @@ export default function Home() {
                 fontSizeMobile={brandingTagline.fontSizeMobile}
                 as="p"
                 className="italic"
-                style={{ 
-                  fontFamily: 'Adelia, cursive',
-                  color: '#2d2926'
+                style={{
+                  fontFamily: "Adelia, cursive",
+                  color: "#2d2926",
                 }}
                 applyFontSize
                 onSave={handleBrandingTaglineSave}
@@ -252,14 +270,14 @@ export default function Home() {
               />
             </div>
           </div>
-          
+
           <div className="flex-1 flex items-end justify-center pb-6">
-            <Button 
+            <Button
               onClick={() => setBookingDialogOpen(true)}
               className={`${isMobile ? "px-6 py-4 text-[10px] tracking-[0.08em]" : "px-10 py-5 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
-              style={{ 
-                backgroundColor: '#722f37',
-                fontFamily: 'Montserrat, sans-serif'
+              style={{
+                backgroundColor: "#722f37",
+                fontFamily: "Montserrat, sans-serif",
               }}
               data-testid="button-book-table"
             >
@@ -269,10 +287,10 @@ export default function Home() {
         </section>
       </div>
 
-      <BookingDialog 
-        open={bookingDialogOpen} 
-        onOpenChange={setBookingDialogOpen} 
-        isMobile={isMobile} 
+      <BookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        isMobile={isMobile}
       />
 
       {TEASER_BLOCK_DEFAULTS.map((def, idx) => (

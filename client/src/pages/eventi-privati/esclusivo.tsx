@@ -30,22 +30,35 @@ export default function EsclusivoPage() {
   const gallery3Block = getBlock("gallery-3");
   const ctaBlock = getBlock("cta");
 
-  const heroDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "hero")!;
-  const introDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "intro")!;
-  const convDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "option-convivialis")!;
-  const ccvDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "option-riserva-ccv")!;
-  const jazzDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "option-riserva-jazz")!;
-  const gallery1Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-1")!;
-  const gallery2Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-2")!;
-  const gallery3Def = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "gallery-3")!;
-  const ctaDef = ESCLUSIVO_PAGE_DEFAULTS.find(d => d.blockType === "cta")!;
+  const heroDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "hero")!;
+  const introDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "intro")!;
+  const convDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "option-convivialis")!;
+  const ccvDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "option-riserva-ccv")!;
+  const jazzDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "option-riserva-jazz")!;
+  const gallery1Def = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-1")!;
+  const gallery2Def = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-2")!;
+  const gallery3Def = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "gallery-3")!;
+  const ctaDef = ESCLUSIVO_PAGE_DEFAULTS.find((d) => d.blockType === "cta")!;
 
-  const makeTextSave = (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
+  const makeTextSave =
+    (block: ReturnType<typeof getBlock>, field: "title" | "body") =>
     (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
       if (!block) return;
-      updateBlock(block.id, field === "title"
-        ? { titleIt: data.textIt, titleEn: data.textEn, titleFontSize: data.fontSizeDesktop, titleFontSizeMobile: data.fontSizeMobile }
-        : { bodyIt: data.textIt, bodyEn: data.textEn, bodyFontSize: data.fontSizeDesktop, bodyFontSizeMobile: data.fontSizeMobile }
+      updateBlock(
+        block.id,
+        field === "title"
+          ? {
+              titleIt: data.textIt,
+              titleEn: data.textEn,
+              titleFontSize: data.fontSizeDesktop,
+              titleFontSizeMobile: data.fontSizeMobile,
+            }
+          : {
+              bodyIt: data.textIt,
+              bodyEn: data.textEn,
+              bodyFontSize: data.fontSizeDesktop,
+              bodyFontSizeMobile: data.fontSizeMobile,
+            },
       );
     };
 
@@ -60,7 +73,7 @@ export default function EsclusivoPage() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(block.metadata as Record<string, unknown> || {}),
+        ...((block.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
@@ -130,7 +143,9 @@ export default function EsclusivoPage() {
                     textIt={opt.block?.titleIt || opt.def.titleIt || ""}
                     textEn={opt.block?.titleEn || opt.def.titleEn || ""}
                     fontSizeDesktop={opt.block?.titleFontSize || opt.def.titleFontSize || 22}
-                    fontSizeMobile={opt.block?.titleFontSizeMobile || opt.def.titleFontSizeMobile || 18}
+                    fontSizeMobile={
+                      opt.block?.titleFontSizeMobile || opt.def.titleFontSizeMobile || 18
+                    }
                     as="h3"
                     className="font-display mb-3"
                     applyFontSize
@@ -140,7 +155,9 @@ export default function EsclusivoPage() {
                     textIt={opt.block?.bodyIt || opt.def.bodyIt || ""}
                     textEn={opt.block?.bodyEn || opt.def.bodyEn || ""}
                     fontSizeDesktop={opt.block?.bodyFontSize || opt.def.bodyFontSize || 15}
-                    fontSizeMobile={opt.block?.bodyFontSizeMobile || opt.def.bodyFontSizeMobile || 13}
+                    fontSizeMobile={
+                      opt.block?.bodyFontSizeMobile || opt.def.bodyFontSizeMobile || 13
+                    }
                     as="p"
                     className="text-muted-foreground whitespace-pre-line text-sm"
                     multiline
@@ -155,11 +172,15 @@ export default function EsclusivoPage() {
                   zoom={imgBlock?.imageScaleDesktop || imgDef.imageScaleDesktop || 100}
                   panX={imgBlock?.imageOffsetX ?? imgDef.imageOffsetX ?? 0}
                   panY={imgBlock?.imageOffsetY ?? imgDef.imageOffsetY ?? 0}
-                  overlay={(imgBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+                  overlay={
+                    ((imgBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 0
+                  }
                   zoomMobile={imgBlock?.imageScaleMobile || imgDef.imageScaleMobile || 100}
                   panXMobile={imgBlock?.imageOffsetXMobile ?? imgDef.imageOffsetXMobile ?? 0}
                   panYMobile={imgBlock?.imageOffsetYMobile ?? imgDef.imageOffsetYMobile ?? 0}
-                  overlayMobile={(imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  overlayMobile={
+                    ((imgBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 0
+                  }
                   containerClassName="rounded-placeholder"
                   aspectRatio="4/3"
                   testIdPrefix={`esclusivo-gallery-${idx + 1}`}

@@ -20,14 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { 
-  Plus, 
-  Calendar, 
-  Trash2, 
-  Copy,
-  Image as ImageIcon,
-  ExternalLink
-} from "lucide-react";
+import { Plus, Calendar, Trash2, Copy, Image as ImageIcon, ExternalLink } from "lucide-react";
 import type { Event, InsertEvent } from "@shared/schema";
 
 export default function AdminEvents() {
@@ -111,16 +104,26 @@ export default function AdminEvents() {
     if (events.length >= 10) {
       toast({
         title: t("Limite raggiunto", "Limit reached"),
-        description: t("Hai raggiunto il limite massimo di 10 eventi.", "You have reached the maximum limit of 10 events."),
+        description: t(
+          "Hai raggiunto il limite massimo di 10 eventi.",
+          "You have reached the maximum limit of 10 events.",
+        ),
         variant: "destructive",
       });
       return;
     }
-    
-    if (!confirm(t(`Vuoi duplicare l'evento "${event.titleIt}"?`, `Do you want to duplicate "${event.titleEn}"?`))) {
+
+    if (
+      !confirm(
+        t(
+          `Vuoi duplicare l'evento "${event.titleIt}"?`,
+          `Do you want to duplicate "${event.titleEn}"?`,
+        ),
+      )
+    ) {
       return;
     }
-    
+
     const duplicatedEvent = {
       titleIt: `${event.titleIt} (copia)`,
       titleEn: `${event.titleEn} (copy)`,
@@ -140,7 +143,7 @@ export default function AdminEvents() {
       visibilityDaysAfter: event.visibilityDaysAfter || 7,
       sortOrder: events.length,
     };
-    
+
     apiRequest("POST", "/api/admin/events", duplicatedEvent)
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ["/api/admin/events"] });
@@ -188,11 +191,11 @@ export default function AdminEvents() {
             <p className="text-muted-foreground mt-1">
               {t(
                 `Gestisci gli eventi del ristorante (max 10 eventi, ${events.length}/10)`,
-                `Manage restaurant events (max 10 events, ${events.length}/10)`
+                `Manage restaurant events (max 10 events, ${events.length}/10)`,
               )}
             </p>
           </div>
-          <Button 
+          <Button
             onClick={handleAddEvent}
             disabled={events.length >= 10}
             data-testid="button-add-event"
@@ -220,7 +223,7 @@ export default function AdminEvents() {
               <p className="text-muted-foreground text-center py-8" data-testid="text-no-events">
                 {t(
                   "Nessun evento creato. Clicca su 'Nuovo Evento' per iniziare.",
-                  "No events created. Click 'New Event' to get started."
+                  "No events created. Click 'New Event' to get started.",
                 )}
               </p>
             ) : (
@@ -275,9 +278,12 @@ export default function AdminEvents() {
                       <div className="flex items-center gap-4 mt-1 text-xs text-muted-foreground">
                         <span>{formatDate(event.startAt)}</span>
                         <span>
-                          {event.visibilityMode === "ACTIVE_ONLY" 
+                          {event.visibilityMode === "ACTIVE_ONLY"
                             ? t("Sempre visibile", "Always visible")
-                            : t(`Visibile ${event.visibilityDaysAfter}gg dopo`, `Visible ${event.visibilityDaysAfter}d after`)}
+                            : t(
+                                `Visibile ${event.visibilityDaysAfter}gg dopo`,
+                                `Visible ${event.visibilityDaysAfter}d after`,
+                              )}
                         </span>
                         {event.bookingEnabled && (
                           <span className="flex items-center gap-1">
@@ -321,22 +327,16 @@ export default function AdminEvents() {
         </Card>
       </div>
 
-      <EventModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        event={editingEvent}
-      />
+      <EventModal open={modalOpen} onOpenChange={setModalOpen} event={editingEvent} />
 
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t("Elimina evento", "Delete event")}
-            </AlertDialogTitle>
+            <AlertDialogTitle>{t("Elimina evento", "Delete event")}</AlertDialogTitle>
             <AlertDialogDescription>
               {t(
                 `Sei sicuro di voler eliminare "${deleteTarget?.titleIt}"? Questa azione non può essere annullata.`,
-                `Are you sure you want to delete "${deleteTarget?.titleEn}"? This action cannot be undone.`
+                `Are you sure you want to delete "${deleteTarget?.titleEn}"? This action cannot be undone.`,
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>

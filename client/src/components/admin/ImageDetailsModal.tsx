@@ -13,7 +13,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, Save, Loader2, X, RotateCcw, RotateCw } from "lucide-react";
 import type { Media, MediaCategory } from "@shared/schema";
@@ -54,7 +60,12 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   }, [media]);
 
   const updateMutation = useMutation({
-    mutationFn: async (data: { altIt: string; altEn: string; category: string; tags: string[] }) => {
+    mutationFn: async (data: {
+      altIt: string;
+      altEn: string;
+      category: string;
+      tags: string[];
+    }) => {
       if (!media) return;
       const response = await apiRequest("PUT", `/api/admin/media/${media.id}`, data);
       return response.json();
@@ -79,7 +90,9 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   const rotateMutation = useMutation({
     mutationFn: async (direction: "cw" | "ccw") => {
       if (!media) return;
-      const response = await apiRequest("POST", `/api/admin/media/${media.id}/rotate`, { direction });
+      const response = await apiRequest("POST", `/api/admin/media/${media.id}/rotate`, {
+        direction,
+      });
       return response.json();
     },
     onSuccess: (data: any) => {
@@ -131,7 +144,14 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   };
 
   const handleDelete = () => {
-    if (window.confirm(t("Sei sicuro di voler eliminare questa immagine?", "Are you sure you want to delete this image?"))) {
+    if (
+      window.confirm(
+        t(
+          "Sei sicuro di voler eliminare questa immagine?",
+          "Are you sure you want to delete this image?",
+        ),
+      )
+    ) {
       deleteMutation.mutate();
     }
   };
@@ -145,7 +165,7 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
   };
 
   const removeTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
+    setTags(tags.filter((t) => t !== tag));
   };
 
   const handleTagKeyDown = (e: React.KeyboardEvent) => {
@@ -163,7 +183,10 @@ export function ImageDetailsModal({ media, open, onOpenChange }: ImageDetailsMod
         <DialogHeader className="shrink-0">
           <DialogTitle>{t("Dettagli immagine", "Image Details")}</DialogTitle>
           <DialogDescription>
-            {t("Visualizza e gestisci le informazioni dell'immagine", "View and manage image information")}
+            {t(
+              "Visualizza e gestisci le informazioni dell'immagine",
+              "View and manage image information",
+            )}
           </DialogDescription>
         </DialogHeader>
 

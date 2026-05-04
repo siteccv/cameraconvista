@@ -30,7 +30,7 @@ export function useTranslation(): UseTranslationResult {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Translation failed");
       }

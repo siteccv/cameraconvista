@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -11,18 +11,18 @@ export const supabaseAdmin = isSupabaseAdminConfigured
   ? createClient(supabaseUrl!, supabaseServiceRoleKey!, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     })
-  : null as unknown as ReturnType<typeof createClient>;
+  : (null as unknown as ReturnType<typeof createClient>);
 
 export const supabasePublic = isSupabasePublicConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!, {
       auth: {
         autoRefreshToken: false,
-        persistSession: false
-      }
+        persistSession: false,
+      },
     })
-  : null as unknown as ReturnType<typeof createClient>;
+  : (null as unknown as ReturnType<typeof createClient>);
 
 export { supabaseUrl, supabaseAnonKey };

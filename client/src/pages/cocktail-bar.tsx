@@ -14,7 +14,11 @@ export default function CocktailBar() {
   const { t } = useLanguage();
   const { adminPreview } = useAdmin();
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS["cocktail-bar"],
     defaults: COCKTAIL_BAR_DEFAULTS,
   });
@@ -38,15 +42,24 @@ export default function CocktailBar() {
     queryKey: [cocktailsEndpoint],
   });
 
-  const categorizedCocktails = cocktails?.reduce((acc, cocktail) => {
-    if (!acc[cocktail.category]) {
-      acc[cocktail.category] = [];
-    }
-    acc[cocktail.category].push(cocktail);
-    return acc;
-  }, {} as Record<string, Cocktail[]>) ?? {};
+  const categorizedCocktails =
+    cocktails?.reduce(
+      (acc, cocktail) => {
+        if (!acc[cocktail.category]) {
+          acc[cocktail.category] = [];
+        }
+        acc[cocktail.category].push(cocktail);
+        return acc;
+      },
+      {} as Record<string, Cocktail[]>,
+    ) ?? {};
 
-  const handleHeroTitleSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleHeroTitleSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!heroBlock) return;
     updateBlock(heroBlock.id, {
       titleIt: data.textIt,
@@ -67,14 +80,19 @@ export default function CocktailBar() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -84,25 +102,31 @@ export default function CocktailBar() {
     });
   };
 
-  const makeGalleryImageSave = (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
-    if (!block) return;
-    updateBlock(block.id, {
-      imageUrl: data.src,
-      imageScaleDesktop: data.zoom,
-      imageScaleMobile: data.zoomMobile,
-      imageOffsetX: data.panX,
-      imageOffsetY: data.panY,
-      imageOffsetXMobile: data.panXMobile,
-      imageOffsetYMobile: data.panYMobile,
-      metadata: {
-        ...(block.metadata as Record<string, unknown> || {}),
-        overlay: data.overlay,
-        overlayMobile: data.overlayMobile,
-      },
-    });
-  };
+  const makeGalleryImageSave =
+    (block: ReturnType<typeof getBlock>) => (data: ImageContainerSaveData) => {
+      if (!block) return;
+      updateBlock(block.id, {
+        imageUrl: data.src,
+        imageScaleDesktop: data.zoom,
+        imageScaleMobile: data.zoomMobile,
+        imageOffsetX: data.panX,
+        imageOffsetY: data.panY,
+        imageOffsetXMobile: data.panXMobile,
+        imageOffsetYMobile: data.panYMobile,
+        metadata: {
+          ...((block.metadata as Record<string, unknown>) || {}),
+          overlay: data.overlay,
+          overlayMobile: data.overlayMobile,
+        },
+      });
+    };
 
-  const handleOutroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleOutroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!outroBlock) return;
     updateBlock(outroBlock.id, {
       bodyIt: data.textIt,
@@ -132,11 +156,13 @@ export default function CocktailBar() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -149,7 +175,9 @@ export default function CocktailBar() {
                     textIt={heroBlock?.titleIt || heroDef.titleIt || ""}
                     textEn={heroBlock?.titleEn || heroDef.titleEn || ""}
                     fontSizeDesktop={heroBlock?.titleFontSize || heroDef.titleFontSize || 72}
-                    fontSizeMobile={heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40}
+                    fontSizeMobile={
+                      heroBlock?.titleFontSizeMobile || heroDef.titleFontSizeMobile || 40
+                    }
                     as="h1"
                     className="font-display drop-shadow-lg"
                     applyFontSize
@@ -192,11 +220,13 @@ export default function CocktailBar() {
                   zoom={block?.imageScaleDesktop || def.imageScaleDesktop || 100}
                   panX={block?.imageOffsetX ?? def.imageOffsetX ?? 0}
                   panY={block?.imageOffsetY ?? def.imageOffsetY ?? 0}
-                  overlay={(block?.metadata as Record<string, unknown>)?.overlay as number ?? 0}
+                  overlay={((block?.metadata as Record<string, unknown>)?.overlay as number) ?? 0}
                   zoomMobile={block?.imageScaleMobile || def.imageScaleMobile || 100}
                   panXMobile={block?.imageOffsetXMobile ?? def.imageOffsetXMobile ?? 0}
                   panYMobile={block?.imageOffsetYMobile ?? def.imageOffsetYMobile ?? 0}
-                  overlayMobile={(block?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 0}
+                  overlayMobile={
+                    ((block?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 0
+                  }
                   containerClassName="rounded-2xl"
                   aspectRatio="4/5"
                   testIdPrefix={`cocktail-gallery-${idx}`}
@@ -226,7 +256,10 @@ export default function CocktailBar() {
           ) : Object.keys(categorizedCocktails).length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground" data-testid="text-cocktails-empty">
-                {t("La lista cocktail sarà disponibile a breve.", "The cocktail list will be available soon.")}
+                {t(
+                  "La lista cocktail sarà disponibile a breve.",
+                  "The cocktail list will be available soon.",
+                )}
               </p>
             </div>
           ) : (
@@ -235,7 +268,7 @@ export default function CocktailBar() {
                 <div key={category}>
                   <h3
                     className="font-display text-4xl md:text-5xl mb-8 text-center"
-                    style={{ color: '#722F37' }}
+                    style={{ color: "#722F37" }}
                     data-testid={`text-cocktail-category-${category}`}
                   >
                     {category}
@@ -280,10 +313,7 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
       data-testid={`cocktail-item-${cocktail.id}`}
     >
       <div className="space-y-1">
-        <h4
-          className="text-lg md:text-xl"
-          style={{ color: '#2f2b2a' }}
-        >
+        <h4 className="text-lg md:text-xl" style={{ color: "#2f2b2a" }}>
           {t(cocktail.nameIt, cocktail.nameEn)}
         </h4>
 
@@ -298,13 +328,13 @@ function CocktailCard({ cocktail }: { cocktail: Cocktail }) {
             <span
               className="price-text"
               style={{
-                fontSize: '20px',
+                fontSize: "20px",
                 fontWeight: 500,
-                color: '#c7902f'
+                color: "#c7902f",
               }}
             >
               <span>€</span>
-              <span>{cocktail.price.replace('€', '').trim()}</span>
+              <span>{cocktail.price.replace("€", "").trim()}</span>
             </span>
           </div>
         )}

@@ -86,7 +86,7 @@ export function CookieConsent() {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {t(
                   "Utilizziamo cookie tecnici necessari al funzionamento del sito e, previo tuo consenso, cookie di analytics e marketing. Puoi accettare tutti i cookie, rifiutare quelli non essenziali o personalizzare le tue preferenze.",
-                  "We use technical cookies necessary for the site to function and, with your consent, analytics and marketing cookies. You can accept all cookies, reject non-essential ones or customize your preferences."
+                  "We use technical cookies necessary for the site to function and, with your consent, analytics and marketing cookies. You can accept all cookies, reject non-essential ones or customize your preferences.",
                 )}
               </p>
             </div>
@@ -103,18 +103,32 @@ export function CookieConsent() {
             <div className="mt-4 space-y-3 border-t border-border pt-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t("Cookie essenziali", "Essential cookies")}</p>
-                  <p className="text-xs text-muted-foreground">{t("Sempre attivi – necessari per il funzionamento", "Always active – necessary for operation")}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("Cookie essenziali", "Essential cookies")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t(
+                      "Sempre attivi – necessari per il funzionamento",
+                      "Always active – necessary for operation",
+                    )}
+                  </p>
                 </div>
-                <div className="text-xs text-muted-foreground italic">{t("Sempre attivi", "Always on")}</div>
+                <div className="text-xs text-muted-foreground italic">
+                  {t("Sempre attivi", "Always on")}
+                </div>
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-foreground">{t("Statistiche", "Statistics")}</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {t("Statistiche", "Statistics")}
+                  </p>
                   <p className="text-xs text-muted-foreground">Google Analytics</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer" data-testid="toggle-analytics">
+                <label
+                  className="relative inline-flex items-center cursor-pointer"
+                  data-testid="toggle-analytics"
+                >
                   <input
                     type="checkbox"
                     checked={analytics}
@@ -130,7 +144,10 @@ export function CookieConsent() {
                   <p className="text-sm font-medium text-foreground">Marketing</p>
                   <p className="text-xs text-muted-foreground">Meta (Facebook) Pixel</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer" data-testid="toggle-marketing">
+                <label
+                  className="relative inline-flex items-center cursor-pointer"
+                  data-testid="toggle-marketing"
+                >
                   <input
                     type="checkbox"
                     checked={marketing}
@@ -147,11 +164,19 @@ export function CookieConsent() {
             <Button onClick={handleAcceptAll} data-testid="button-cookie-accept">
               {t("Accetta tutti", "Accept All")}
             </Button>
-            <Button variant="outline" onClick={handleEssentialOnly} data-testid="button-cookie-decline">
+            <Button
+              variant="outline"
+              onClick={handleEssentialOnly}
+              data-testid="button-cookie-decline"
+            >
               {t("Solo essenziali", "Essential Only")}
             </Button>
             {showPreferences ? (
-              <Button variant="outline" onClick={handleSavePreferences} data-testid="button-cookie-save-preferences">
+              <Button
+                variant="outline"
+                onClick={handleSavePreferences}
+                data-testid="button-cookie-save-preferences"
+              >
                 {t("Salva preferenze", "Save preferences")}
               </Button>
             ) : (

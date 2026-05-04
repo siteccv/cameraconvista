@@ -1,5 +1,15 @@
 # 10 - Guida al Debugging
 
+---
+
+## Aggiornamento Operativo - 4 Maggio 2026
+
+Per debugging post-hardening, partire da `npm run check:all`, poi verificare `/api/health/email`, pagine pubbliche e smoke E2E. Eventuali fix devono restare chirurgici e validati localmente.
+
+- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Gate locale richiesto: `npm run check:all`
+- Stato gate: verde al termine dell hardening locale
+
 ## Problemi Comuni e Soluzioni
 
 ### 1. Sequenze ID Fuori Sync (Supabase)
@@ -9,18 +19,20 @@
 **Causa**: Le sequenze PostgreSQL (`galleries_id_seq`, `gallery_images_id_seq`, etc.) non sono allineate con il MAX(id) nella tabella, tipicamente dopo import dati o manipolazioni manuali.
 
 **Soluzione implementata** (in `supabase-storage.ts`):
+
 ```typescript
 // Fetch MAX(id) e inserisci con id esplicito
 const { data: maxResult } = await supabaseAdmin
-  .from('table_name')
-  .select('id')
-  .order('id', { ascending: false })
+  .from("table_name")
+  .select("id")
+  .order("id", { ascending: false })
   .limit(1);
 const nextId = (maxResult?.[0]?.id || 0) + 1;
 // Insert con id: nextId
 ```
 
 **Soluzione alternativa SQL**:
+
 ```sql
 SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 ```
@@ -30,6 +42,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Le modifiche admin non appaiono sul sito pubblico dopo "Pubblica".
 
 **Debug steps**:
+
 1. Verificare che il pulsante "Pubblica Sito" sia rosso (ci sono modifiche pending)
 2. Controllare la risposta di `POST /api/admin/publish-all`
 3. Verificare che `publishedSnapshot` sia popolato nei blocchi:
@@ -46,6 +59,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Login riuscito ma redirect immediato a login.
 
 **Debug steps**:
+
 1. Verificare che il cookie `ccv_admin_session` sia presente nel browser
 2. Controllare che la sessione esista in DB:
    ```sql
@@ -63,6 +77,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Immagini rotte o placeholder vuoti.
 
 **Debug steps**:
+
 1. Verificare URL nel database:
    ```sql
    SELECT url FROM media WHERE id = X;
@@ -79,6 +94,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Testo mostrato nella lingua sbagliata o vuoto.
 
 **Debug steps**:
+
 1. Verificare il valore di `language` nel LanguageContext
 2. Controllare che entrambi i campi (IT e EN) siano popolati nel DB:
    ```sql
@@ -92,6 +108,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Errore durante upload file.
 
 **Debug steps**:
+
 1. Verificare dimensione file (max 20MB)
 2. Controllare che Supabase Storage sia configurato
 3. Verificare log server per errori di upload Supabase
@@ -105,13 +122,15 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Causa**: `usePageBlocks` crea blocchi default se non ne trova. Se il fetch fallisce temporaneamente, può creare duplicati.
 
 **Soluzione**:
+
 1. Usare l'endpoint cleanup: `POST /api/admin/cleanup-duplicates`
 2. Oppure manualmente:
+
    ```sql
    -- Trova duplicati per pagina
-   SELECT page_id, block_type, COUNT(*) FROM page_blocks 
+   SELECT page_id, block_type, COUNT(*) FROM page_blocks
    GROUP BY page_id, block_type HAVING COUNT(*) > 1;
-   
+
    -- Elimina duplicati (mantieni il più recente)
    DELETE FROM page_blocks WHERE id IN (
      SELECT id FROM (
@@ -126,6 +145,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Cambio font size in admin non si riflette nel rendering.
 
 **Debug steps**:
+
 1. Verificare che la modifica sia per il device corretto:
    - Desktop: `titleFontSize`, `bodyFontSize`
    - Mobile: `titleFontSizeMobile`, `bodyFontSizeMobile`
@@ -138,6 +158,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Errori dopo switch tra backend.
 
 **Debug steps**:
+
 1. Verificare le variabili d'ambiente:
    - Supabase: `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY` tutte presenti
    - PostgreSQL diretto: `DATABASE_URL` presente
@@ -151,6 +172,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: App non parte o API rispondono 304 in ambiente locale.
 
 **Verifiche**:
+
 1. **reusePort**: Rimosso dal progetto. Se presente per errore → `ENOTSUP` su macOS/Windows
 2. **ETag 304**: In dev, ETag è disabilitato per `/api/*`. Verificare che `NODE_ENV=development`
 3. **Variabili env**: Servono almeno `DATABASE_URL` o `SUPABASE_URL`+`SUPABASE_SERVICE_ROLE_KEY`
@@ -163,6 +185,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Causa**: Build non completata o file mancanti.
 
 **Soluzione**:
+
 1. Rieseguire `npm run build`
 2. Verificare che `dist/public/` contenga i file compilati
 3. Verificare che `dist/index.cjs` esista
@@ -173,6 +196,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: Titolo generico su tutte le pagine, meta tag mancanti nell'HTML.
 
 **Debug steps**:
+
 1. Verificare con curl che i meta tag siano presenti:
    ```bash
    curl -s https://dominio.com/menu | grep -E '<title>|<meta name="description"'
@@ -192,6 +216,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 **Sintomo**: `/sitemap.xml` non contiene tutte le pagine o gli eventi.
 
 **Debug steps**:
+
 1. Verificare che le pagine siano visibili: `SELECT slug, is_visible FROM pages;`
 2. Verificare che gli eventi siano attivi e nel range di visibilità
 3. Controllare il mapping `SLUG_TO_PATH` in `server/seo.ts` — pagine non mappate vengono escluse
@@ -199,31 +224,35 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 ## Strumenti di Debug
 
 ### Log Server
+
 - Tutte le API calls sono loggate con timing: `METHOD /path STATUS in Xms`
 - Errori loggati con `console.error`
 - Formato: `HH:MM:SS AM/PM [express] message`
 
 ### Database Queries
+
 - Usare `execute_sql_tool` per query dirette
 - Non usare `psql` da bash (non disponibile)
 - Query utili:
+
   ```sql
   -- Stato pagine
   SELECT slug, is_draft, is_visible, published_at FROM pages;
-  
+
   -- Blocchi con snapshot
-  SELECT id, page_id, block_type, is_draft, 
-         (published_snapshot IS NOT NULL) as has_snapshot 
+  SELECT id, page_id, block_type, is_draft,
+         (published_snapshot IS NOT NULL) as has_snapshot
   FROM page_blocks ORDER BY page_id, sort_order;
-  
+
   -- Sessioni attive
   SELECT id, expires_at, (expires_at > NOW()) as valid FROM admin_sessions;
-  
+
   -- Media per categoria
   SELECT category, COUNT(*) FROM media GROUP BY category;
   ```
 
 ### Browser DevTools
+
 - Network tab: verificare API calls e risposte
 - Application → Cookies: verificare `ccv_admin_session`
 - Console: errori React Query, rendering issues

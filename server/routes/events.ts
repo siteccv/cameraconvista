@@ -12,23 +12,27 @@ publicEventsRouter.get("/", async (req, res) => {
   try {
     const events = await storage.getEvents();
     const now = new Date();
-    
-    const visibleEvents = events.filter(event => {
+
+    const visibleEvents = events.filter((event) => {
       if (!event.active || !event.posterUrl) return false;
-      
+
       if (event.visibilityMode === "ACTIVE_ONLY") {
         return true;
       }
-      
-      if (event.visibilityMode === "UNTIL_DAYS_AFTER" && event.startAt && event.visibilityDaysAfter) {
+
+      if (
+        event.visibilityMode === "UNTIL_DAYS_AFTER" &&
+        event.startAt &&
+        event.visibilityDaysAfter
+      ) {
         const hideAfterDate = new Date(event.startAt);
         hideAfterDate.setDate(hideAfterDate.getDate() + event.visibilityDaysAfter);
         return now <= hideAfterDate;
       }
-      
+
       return true;
     });
-    
+
     visibleEvents.sort((a, b) => a.sortOrder - b.sortOrder);
     res.json(visibleEvents);
   } catch (error) {
@@ -69,10 +73,10 @@ adminEventsRouter.get("/", requireAuth, async (req, res) => {
 adminEventsRouter.post("/", requireAuth, async (req, res) => {
   try {
     const body = { ...req.body };
-    if (body.startAt && typeof body.startAt === 'string') {
+    if (body.startAt && typeof body.startAt === "string") {
       body.startAt = new Date(body.startAt);
     }
-    if (body.endAt && typeof body.endAt === 'string') {
+    if (body.endAt && typeof body.endAt === "string") {
       body.endAt = new Date(body.endAt);
     }
     const parsed = insertEventSchema.safeParse(body);
@@ -91,10 +95,10 @@ adminEventsRouter.post("/", requireAuth, async (req, res) => {
 adminEventsRouter.patch("/:id", requireAuth, async (req, res) => {
   try {
     const body = { ...req.body };
-    if (body.startAt && typeof body.startAt === 'string') {
+    if (body.startAt && typeof body.startAt === "string") {
       body.startAt = new Date(body.startAt);
     }
-    if (body.endAt && typeof body.endAt === 'string') {
+    if (body.endAt && typeof body.endAt === "string") {
       body.endAt = new Date(body.endAt);
     }
     const parsed = insertEventSchema.partial().safeParse(body);

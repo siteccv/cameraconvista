@@ -15,7 +15,11 @@ export default function EventDetail() {
   const eventId = params?.id;
   const [showBookingDialog, setShowBookingDialog] = useState(false);
 
-  const { data: event, isLoading, error } = useQuery<Event>({
+  const {
+    data: event,
+    isLoading,
+    error,
+  } = useQuery<Event>({
     queryKey: [`/api/events/${eventId}`],
     enabled: !!eventId,
   });
@@ -70,7 +74,10 @@ export default function EventDetail() {
             {t("Evento non trovato", "Event not found")}
           </h1>
           <p className="text-muted-foreground mb-8">
-            {t("L'evento che stai cercando non esiste o non è più disponibile.", "The event you're looking for doesn't exist or is no longer available.")}
+            {t(
+              "L'evento che stai cercando non esiste o non è più disponibile.",
+              "The event you're looking for doesn't exist or is no longer available.",
+            )}
           </p>
           <Link href="/eventi">
             <Button variant="outline" data-testid="button-back-to-events">
@@ -119,7 +126,10 @@ export default function EventDetail() {
 
             <div className="space-y-6">
               <div>
-                <h1 className="font-display text-3xl md:text-4xl mb-4" data-testid="text-event-title">
+                <h1
+                  className="font-display text-3xl md:text-4xl mb-4"
+                  data-testid="text-event-title"
+                >
                   {title}
                 </h1>
 
@@ -139,12 +149,13 @@ export default function EventDetail() {
 
               {description && (
                 <div>
-                  <h2 className="font-display text-xl mb-2">
-                    {t("Descrizione", "Description")}
-                  </h2>
+                  <h2 className="font-display text-xl mb-2">{t("Descrizione", "Description")}</h2>
                   <div className="text-muted-foreground" data-testid="text-event-description">
                     {description.split(/\r?\n/).map((line, i, arr) => (
-                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                      <span key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -152,15 +163,13 @@ export default function EventDetail() {
 
               {details && (
                 <div>
-                  <h2 className="font-display text-xl mb-2">
-                    {t("Dettagli", "Details")}
-                  </h2>
-                  <div 
-                    className="text-muted-foreground" 
-                    data-testid="text-event-details"
-                  >
+                  <h2 className="font-display text-xl mb-2">{t("Dettagli", "Details")}</h2>
+                  <div className="text-muted-foreground" data-testid="text-event-details">
                     {details.split(/\r?\n/).map((line, i, arr) => (
-                      <span key={i}>{line}{i < arr.length - 1 && <br />}</span>
+                      <span key={i}>
+                        {line}
+                        {i < arr.length - 1 && <br />}
+                      </span>
                     ))}
                   </div>
                 </div>
@@ -170,25 +179,27 @@ export default function EventDetail() {
                 <div className="pt-4 flex flex-col items-center md:items-start gap-3">
                   <Button
                     className="min-w-[200px] md:min-w-[240px] px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium text-white rounded-full shadow-lg"
-                    style={{ 
-                      backgroundColor: '#722f37',
-                      fontFamily: 'Montserrat, sans-serif'
+                    style={{
+                      backgroundColor: "#722f37",
+                      fontFamily: "Montserrat, sans-serif",
                     }}
                     onClick={() => setShowBookingDialog(true)}
                     data-testid="button-book-event"
                   >
                     {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
                   </Button>
-                  
+
                   {details && (details.includes("soci") || details.includes("members")) && (
                     <Button
                       className="min-w-[200px] md:min-w-[240px] px-6 py-4 text-[10px] tracking-[0.08em] md:px-10 md:py-5 md:text-xs md:tracking-[0.1em] font-medium rounded-full shadow-lg border-0"
-                      style={{ 
-                        backgroundColor: '#d97706',
-                        color: '#ffffff',
-                        fontFamily: 'Montserrat, sans-serif'
+                      style={{
+                        backgroundColor: "#d97706",
+                        color: "#ffffff",
+                        fontFamily: "Montserrat, sans-serif",
                       }}
-                      onClick={() => window.open("https://camerajazzclub.com/registrati/", "_blank")}
+                      onClick={() =>
+                        window.open("https://camerajazzclub.com/registrati/", "_blank")
+                      }
                       data-testid="button-become-member"
                     >
                       {t("DIVENTA SOCIO", "BECOME A MEMBER")}
@@ -201,8 +212,8 @@ export default function EventDetail() {
         </div>
       </div>
 
-      <BookingDialog 
-        open={showBookingDialog} 
+      <BookingDialog
+        open={showBookingDialog}
         onOpenChange={setShowBookingDialog}
         isMobile={false}
       />

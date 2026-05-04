@@ -11,16 +11,22 @@ export default function NotFound() {
     <PublicLayout>
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center px-4">
-          <h1 className="font-display text-8xl md:text-9xl text-primary mb-4" data-testid="text-404">
+          <h1
+            className="font-display text-8xl md:text-9xl text-primary mb-4"
+            data-testid="text-404"
+          >
             404
           </h1>
           <h2 className="font-display text-2xl md:text-3xl mb-4" data-testid="text-not-found-title">
             {t("Pagina non trovata", "Page Not Found")}
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-md mx-auto" data-testid="text-not-found-message">
+          <p
+            className="text-muted-foreground mb-8 max-w-md mx-auto"
+            data-testid="text-not-found-message"
+          >
             {t(
               "La pagina che stai cercando non esiste o è stata spostata.",
-              "The page you are looking for does not exist or has been moved."
+              "The page you are looking for does not exist or has been moved.",
             )}
           </p>
           <Link href="/">

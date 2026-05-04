@@ -15,7 +15,13 @@ import { it as itLocale, enUS } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { getCountryCallingCode, getCountries, type CountryCode } from "libphonenumber-js";
 import flags from "react-phone-number-input/flags";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { EventType, ExclusiveSubOption, EventRequestData } from "./types";
 import { EVENT_TYPE_LABELS, EXCLUSIVE_SUB_LABELS } from "./types";
 
@@ -26,10 +32,26 @@ interface EventWizardProps {
 }
 
 const TIME_SLOTS = [
-  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-  "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-  "18:00", "18:30", "19:00", "19:30", "20:00", "20:30",
-  "21:00", "21:30",
+  "12:00",
+  "12:30",
+  "13:00",
+  "13:30",
+  "14:00",
+  "14:30",
+  "15:00",
+  "15:30",
+  "16:00",
+  "16:30",
+  "17:00",
+  "17:30",
+  "18:00",
+  "18:30",
+  "19:00",
+  "19:30",
+  "20:00",
+  "20:30",
+  "21:00",
+  "21:30",
 ];
 
 function getStepLabel(step: number, t: (it: string, en: string) => string): string {
@@ -93,12 +115,15 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
     setIsSubmitted(false);
   }, [eventType]);
 
-  const handleOpenChange = useCallback((newOpen: boolean) => {
-    if (!newOpen) {
-      resetForm();
-    }
-    onOpenChange(newOpen);
-  }, [onOpenChange, resetForm]);
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      if (!newOpen) {
+        resetForm();
+      }
+      onOpenChange(newOpen);
+    },
+    [onOpenChange, resetForm],
+  );
 
   const isStepValid = useCallback((): boolean => {
     switch (step) {
@@ -114,15 +139,32 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
       case 5:
         return true;
       case 6:
-        return firstName.trim().length > 0 && lastName.trim().length > 0 &&
-               email.trim().length > 0 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-               phoneLocal.trim().length > 0 && termsAccepted;
+        return (
+          firstName.trim().length > 0 &&
+          lastName.trim().length > 0 &&
+          email.trim().length > 0 &&
+          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+          phoneLocal.trim().length > 0 &&
+          termsAccepted
+        );
       case 7:
         return true;
       default:
         return false;
     }
-  }, [step, eventType, subOption, date, time, guests, firstName, lastName, email, phoneLocal, termsAccepted]);
+  }, [
+    step,
+    eventType,
+    subOption,
+    date,
+    time,
+    guests,
+    firstName,
+    lastName,
+    email,
+    phoneLocal,
+    termsAccepted,
+  ]);
 
   const handleNext = () => {
     if (step < totalSteps + startStep - 1) {
@@ -194,7 +236,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" data-testid="wizard-dialog">
+      <DialogContent
+        className="sm:max-w-lg max-h-[90vh] overflow-y-auto"
+        data-testid="wizard-dialog"
+      >
         <DialogHeader>
           <DialogTitle className="font-display text-xl" data-testid="wizard-title">
             {t("Richiedi preventivo", "Request Quote")} — {eventLabel}
@@ -202,7 +247,9 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
           <div className="mt-2">
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
               <span>{getStepLabel(step, t)}</span>
-              <span>{displayStep}/{totalSteps}</span>
+              <span>
+                {displayStep}/{totalSteps}
+              </span>
             </div>
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
               <div
@@ -226,7 +273,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                   onValueChange={(v) => setSubOption(v as ExclusiveSubOption)}
                 >
                   {(Object.keys(EXCLUSIVE_SUB_LABELS) as ExclusiveSubOption[]).map((key) => (
-                    <div key={key} className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors">
+                    <div
+                      key={key}
+                      className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                    >
                       <RadioGroupItem value={key} id={`sub-${key}`} data-testid={`radio-${key}`} />
                       <Label htmlFor={`sub-${key}`} className="cursor-pointer flex-1">
                         {t(EXCLUSIVE_SUB_LABELS[key].it, EXCLUSIVE_SUB_LABELS[key].en)}
@@ -245,18 +295,26 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
-                    className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground",
+                    )}
                     data-testid="button-date-picker"
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP", { locale }) : t("Seleziona una data", "Pick a date")}
+                    {date
+                      ? format(date, "PPP", { locale })
+                      : t("Seleziona una data", "Pick a date")}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={(d) => { setDate(d); setCalendarOpen(false); }}
+                    onSelect={(d) => {
+                      setDate(d);
+                      setCalendarOpen(false);
+                    }}
                     disabled={(d) => d < new Date()}
                     locale={locale}
                     data-testid="calendar"
@@ -269,7 +327,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
           {step === 3 && (
             <div className="space-y-4" data-testid="wizard-step-3">
               <Label>{t("Orario desiderato", "Preferred time")}</Label>
-              <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[240px] overflow-y-auto pr-1 py-1" data-testid="time-slot-grid">
+              <div
+                className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-[240px] overflow-y-auto pr-1 py-1"
+                data-testid="time-slot-grid"
+              >
                 {TIME_SLOTS.map((slot) => (
                   <button
                     key={slot}
@@ -281,7 +342,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                       "active:scale-95",
                       time === slot
                         ? "bg-primary text-primary-foreground border-primary"
-                        : "bg-background border-input hover:bg-accent hover:text-accent-foreground"
+                        : "bg-background border-input hover:bg-accent hover:text-accent-foreground",
                     )}
                   >
                     {slot}
@@ -295,7 +356,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                   onCheckedChange={(c) => setTimeApproximate(c === true)}
                   data-testid="checkbox-time-approx"
                 />
-                <Label htmlFor="time-approx" className="text-sm text-muted-foreground cursor-pointer">
+                <Label
+                  htmlFor="time-approx"
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
                   {t("Orario indicativo (flessibile)", "Approximate time (flexible)")}
                 </Label>
               </div>
@@ -322,7 +386,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                   onCheckedChange={(c) => setGuestsApproximate(c === true)}
                   data-testid="checkbox-guests-approx"
                 />
-                <Label htmlFor="guests-approx" className="text-sm text-muted-foreground cursor-pointer">
+                <Label
+                  htmlFor="guests-approx"
+                  className="text-sm text-muted-foreground cursor-pointer"
+                >
                   {t("Numero indicativo (potrebbe variare)", "Approximate number (may vary)")}
                 </Label>
               </div>
@@ -331,22 +398,22 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
 
           {step === 5 && (
             <div className="space-y-4" data-testid="wizard-step-5">
-              <Label htmlFor="notes">{t("Note o richieste particolari", "Notes or special requests")}</Label>
+              <Label htmlFor="notes">
+                {t("Note o richieste particolari", "Notes or special requests")}
+              </Label>
               <Textarea
                 id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder={t(
                   "Es. allergie, preferenze musicali, decorazioni...",
-                  "E.g. allergies, music preferences, decorations..."
+                  "E.g. allergies, music preferences, decorations...",
                 )}
                 rows={5}
                 className="resize-none"
                 data-testid="textarea-notes"
               />
-              <p className="text-xs text-muted-foreground">
-                {t("Facoltativo", "Optional")}
-              </p>
+              <p className="text-xs text-muted-foreground">{t("Facoltativo", "Optional")}</p>
             </div>
           )}
 
@@ -385,7 +452,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
               <div>
                 <Label htmlFor="phone">{t("Telefono", "Phone")} *</Label>
                 <div className="flex items-stretch">
-                  <Select value={phoneCountry} onValueChange={(v) => setPhoneCountry(v as CountryCode)}>
+                  <Select
+                    value={phoneCountry}
+                    onValueChange={(v) => setPhoneCountry(v as CountryCode)}
+                  >
                     <SelectTrigger
                       className="w-auto rounded-r-none border-r-0 px-2 gap-1 shrink-0"
                       data-testid="select-phone-country"
@@ -393,28 +463,44 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                       <span className="inline-flex items-center gap-1.5">
                         {(() => {
                           const FlagComp = flags[phoneCountry];
-                          return FlagComp ? <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full"><FlagComp title={phoneCountry} /></span> : <span>{phoneCountry}</span>;
+                          return FlagComp ? (
+                            <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full">
+                              <FlagComp title={phoneCountry} />
+                            </span>
+                          ) : (
+                            <span>{phoneCountry}</span>
+                          );
                         })()}
-                        <span className="text-sm font-medium text-muted-foreground">+{getCountryCallingCode(phoneCountry)}</span>
+                        <span className="text-sm font-medium text-muted-foreground">
+                          +{getCountryCallingCode(phoneCountry)}
+                        </span>
                       </span>
                     </SelectTrigger>
                     <SelectContent className="max-h-[240px]">
-                      {getCountries().sort((a, b) => {
-                        if (a === "IT") return -1;
-                        if (b === "IT") return 1;
-                        return a.localeCompare(b);
-                      }).map((c) => {
-                        const FlagComp = flags[c];
-                        return (
-                          <SelectItem key={c} value={c}>
-                            <span className="inline-flex items-center gap-2">
-                              {FlagComp && <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full"><FlagComp title={c} /></span>}
-                              <span>{c}</span>
-                              <span className="text-muted-foreground">+{getCountryCallingCode(c)}</span>
-                            </span>
-                          </SelectItem>
-                        );
-                      })}
+                      {getCountries()
+                        .sort((a, b) => {
+                          if (a === "IT") return -1;
+                          if (b === "IT") return 1;
+                          return a.localeCompare(b);
+                        })
+                        .map((c) => {
+                          const FlagComp = flags[c];
+                          return (
+                            <SelectItem key={c} value={c}>
+                              <span className="inline-flex items-center gap-2">
+                                {FlagComp && (
+                                  <span className="inline-block w-5 h-3.5 [&>svg]:w-full [&>svg]:h-full">
+                                    <FlagComp title={c} />
+                                  </span>
+                                )}
+                                <span>{c}</span>
+                                <span className="text-muted-foreground">
+                                  +{getCountryCallingCode(c)}
+                                </span>
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
                     </SelectContent>
                   </Select>
                   <Input
@@ -436,10 +522,13 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                   onCheckedChange={(c) => setTermsAccepted(c === true)}
                   data-testid="checkbox-terms"
                 />
-                <Label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer leading-tight">
+                <Label
+                  htmlFor="terms"
+                  className="text-xs text-muted-foreground cursor-pointer leading-tight"
+                >
                   {t(
                     "Acconsento al trattamento dei dati personali ai sensi della normativa vigente sulla privacy.",
-                    "I consent to the processing of my personal data in accordance with applicable privacy regulations."
+                    "I consent to the processing of my personal data in accordance with applicable privacy regulations.",
                   )}
                 </Label>
               </div>
@@ -457,13 +546,18 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
 
           {step === 7 && (
             <div className="space-y-3 text-sm" data-testid="wizard-step-7">
-              <h3 className="font-display text-lg mb-3">{t("Riepilogo richiesta", "Request Summary")}</h3>
+              <h3 className="font-display text-lg mb-3">
+                {t("Riepilogo richiesta", "Request Summary")}
+              </h3>
               <div className="space-y-2 divide-y">
                 <SummaryRow label={t("Tipo evento", "Event Type")} value={eventLabel} />
                 {subOption && (
                   <SummaryRow
                     label={t("Formula", "Formula")}
-                    value={t(EXCLUSIVE_SUB_LABELS[subOption].it, EXCLUSIVE_SUB_LABELS[subOption].en)}
+                    value={t(
+                      EXCLUSIVE_SUB_LABELS[subOption].it,
+                      EXCLUSIVE_SUB_LABELS[subOption].en,
+                    )}
                   />
                 )}
                 <SummaryRow
@@ -481,7 +575,10 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
                 {notes && <SummaryRow label={t("Note", "Notes")} value={notes} />}
                 <SummaryRow label={t("Nome", "Name")} value={`${firstName} ${lastName}`} />
                 <SummaryRow label="Email" value={email} />
-                <SummaryRow label={t("Telefono", "Phone")} value={`+${getCountryCallingCode(phoneCountry)} ${phoneLocal}`} />
+                <SummaryRow
+                  label={t("Telefono", "Phone")}
+                  value={`+${getCountryCallingCode(phoneCountry)} ${phoneLocal}`}
+                />
               </div>
             </div>
           )}
@@ -499,11 +596,7 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
           </Button>
 
           {step < totalSteps + startStep - 1 ? (
-            <Button
-              onClick={handleNext}
-              disabled={!isStepValid()}
-              data-testid="button-wizard-next"
-            >
+            <Button onClick={handleNext} disabled={!isStepValid()} data-testid="button-wizard-next">
               {t("Avanti", "Next")}
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

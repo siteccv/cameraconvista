@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
-import { insertSiteSettingsSchema, footerSettingsSchema, defaultFooterSettings } from "@shared/schema";
+import {
+  insertSiteSettingsSchema,
+  footerSettingsSchema,
+  defaultFooterSettings,
+} from "@shared/schema";
 import { requireAuth } from "./helpers";
 
 const FOOTER_SETTINGS_KEY = "footer_settings";
@@ -15,7 +19,7 @@ export const publicSettingsRouter = Router();
 publicSettingsRouter.get("/site-settings", async (req, res) => {
   try {
     const settings = await storage.getSiteSettings();
-    const publicSettings = settings.filter(s => !s.key.includes("password"));
+    const publicSettings = settings.filter((s) => !s.key.includes("password"));
     res.json(publicSettings);
   } catch (error) {
     console.error("Error fetching site settings:", error);
@@ -48,7 +52,7 @@ export const adminSettingsRouter = Router();
 adminSettingsRouter.get("/site-settings", requireAuth, async (req, res) => {
   try {
     const settings = await storage.getSiteSettings();
-    const filteredSettings = settings.filter(s => !s.key.includes("password"));
+    const filteredSettings = settings.filter((s) => !s.key.includes("password"));
     res.json(filteredSettings);
   } catch (error) {
     console.error("Error fetching site settings:", error);
@@ -174,10 +178,10 @@ adminSettingsRouter.post("/translate", requireAuth, async (req, res) => {
     }
 
     const { text, context } = parsed.data;
-    
+
     const apiKey = process.env.OPENAI_API_KEY;
     const model = "gpt-4o-mini";
-    
+
     if (!apiKey) {
       res.status(500).json({ error: "OpenAI API key not configured. Set OPENAI_API_KEY." });
       return;
@@ -203,14 +207,14 @@ Respond with ONLY the English translation, nothing else.`;
       model,
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: text }
+        { role: "user", content: text },
       ],
       max_tokens: 1000,
       temperature: 0.3,
     });
 
     const translation = response.choices[0]?.message?.content?.trim() || "";
-    
+
     if (!translation) {
       res.status(500).json({ error: "No translation received" });
       return;

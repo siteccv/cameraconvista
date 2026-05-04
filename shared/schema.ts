@@ -1,5 +1,14 @@
 import { sql, relations } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, serial, jsonb } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  varchar,
+  integer,
+  boolean,
+  timestamp,
+  serial,
+  jsonb,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7,11 +16,15 @@ import { z } from "zod";
 // USERS (Admin authentication)
 // ============================================================================
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
   role: text("role").notNull().default("admin"),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertUserSchema = createInsertSchema(users).pick({
@@ -27,7 +40,9 @@ export type User = typeof users.$inferSelect;
 export const adminSessions = pgTable("admin_sessions", {
   id: varchar("id").primaryKey(),
   expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertAdminSessionSchema = createInsertSchema(adminSessions);
@@ -42,7 +57,9 @@ export const siteSettings = pgTable("site_settings", {
   key: text("key").notNull().unique(),
   valueIt: text("value_it"),
   valueEn: text("value_en"),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertSiteSettingsSchema = createInsertSchema(siteSettings).omit({
@@ -67,8 +84,12 @@ export const pages = pgTable("pages", {
   isVisible: boolean("is_visible").notNull().default(true),
   isDraft: boolean("is_draft").notNull().default(true),
   publishedAt: timestamp("published_at"),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
 });
 
@@ -89,10 +110,12 @@ export type Page = typeof pages.$inferSelect;
 // ============================================================================
 export const pageBlocks = pgTable("page_blocks", {
   id: serial("id").primaryKey(),
-  pageId: integer("page_id").notNull().references(() => pages.id, { onDelete: "cascade" }),
+  pageId: integer("page_id")
+    .notNull()
+    .references(() => pages.id, { onDelete: "cascade" }),
   blockType: text("block_type").notNull(), // hero, section, text, image, cta, etc.
   sortOrder: integer("sort_order").notNull().default(0),
-  
+
   // Bilingual text content
   titleIt: text("title_it"),
   titleEn: text("title_en"),
@@ -101,39 +124,43 @@ export const pageBlocks = pgTable("page_blocks", {
   ctaTextIt: text("cta_text_it"),
   ctaTextEn: text("cta_text_en"),
   ctaUrl: text("cta_url"),
-  
+
   // Media
   imageUrl: text("image_url"),
   imageAltIt: text("image_alt_it"),
   imageAltEn: text("image_alt_en"),
-  
+
   // Desktop image transforms
   imageOffsetX: integer("image_offset_x").default(0),
   imageOffsetY: integer("image_offset_y").default(0),
   imageScaleDesktop: integer("image_scale_desktop").default(100),
-  
+
   // Mobile image transforms (independent)
   imageOffsetXMobile: integer("image_offset_x_mobile").default(0),
   imageOffsetYMobile: integer("image_offset_y_mobile").default(0),
   imageScaleMobile: integer("image_scale_mobile").default(100),
-  
+
   // Desktop font sizes
   titleFontSize: integer("title_font_size").default(48),
   bodyFontSize: integer("body_font_size").default(16),
-  
+
   // Mobile font sizes (independent)
   titleFontSizeMobile: integer("title_font_size_mobile").default(32),
   bodyFontSizeMobile: integer("body_font_size_mobile").default(14),
-  
+
   // Draft/publish
   isDraft: boolean("is_draft").notNull().default(true),
   publishedSnapshot: jsonb("published_snapshot"),
-  
+
   // Extra data (flexible JSON for custom block types)
   metadata: jsonb("metadata"),
-  
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const pageBlocksRelations = relations(pageBlocks, ({ one }) => ({
@@ -160,7 +187,9 @@ export const mediaCategories = pgTable("media_categories", {
   labelIt: text("label_it").notNull(),
   labelEn: text("label_en").notNull(),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertMediaCategorySchema = createInsertSchema(mediaCategories).omit({
@@ -192,7 +221,9 @@ export const media = pgTable("media", {
   altEn: text("alt_en"),
   category: text("category"),
   tags: text("tags").array(),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertMediaSchema = createInsertSchema(media).omit({
@@ -235,8 +266,12 @@ export const events = pgTable("events", {
   visibilityMode: text("visibility_mode").notNull().default("ACTIVE_ONLY"),
   visibilityDaysAfter: integer("visibility_days_after"),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertEventSchema = createInsertSchema(events).omit({
@@ -261,8 +296,12 @@ export const menuItems = pgTable("menu_items", {
   isAvailable: boolean("is_available").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   sheetRowIndex: integer("sheet_row_index"),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertMenuItemSchema = createInsertSchema(menuItems).omit({
@@ -290,8 +329,12 @@ export const wines = pgTable("wines", {
   isAvailable: boolean("is_available").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   sheetRowIndex: integer("sheet_row_index"),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertWineSchema = createInsertSchema(wines).omit({
@@ -316,8 +359,12 @@ export const cocktails = pgTable("cocktails", {
   isAvailable: boolean("is_available").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   sheetRowIndex: integer("sheet_row_index"),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const insertCocktailSchema = createInsertSchema(cocktails).omit({
@@ -381,8 +428,12 @@ export const galleries = pgTable("galleries", {
   coverOffsetY: integer("cover_offset_y").default(0),
   isVisible: boolean("is_visible").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
-  updatedAt: timestamp("updated_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const galleriesRelations = relations(galleries, ({ many }) => ({
@@ -402,7 +453,9 @@ export type Gallery = typeof galleries.$inferSelect;
 // ============================================================================
 export const galleryImages = pgTable("gallery_images", {
   id: serial("id").primaryKey(),
-  galleryId: integer("gallery_id").notNull().references(() => galleries.id, { onDelete: "cascade" }),
+  galleryId: integer("gallery_id")
+    .notNull()
+    .references(() => galleries.id, { onDelete: "cascade" }),
   imageUrl: text("image_url").notNull(),
   imageZoom: integer("image_zoom").default(100),
   imageOffsetX: integer("image_offset_x").default(0),
@@ -410,7 +463,9 @@ export const galleryImages = pgTable("gallery_images", {
   altIt: text("alt_it"),
   altEn: text("alt_en"),
   sortOrder: integer("sort_order").notNull().default(0),
-  createdAt: timestamp("created_at").default(sql`CURRENT_TIMESTAMP`).notNull(),
+  createdAt: timestamp("created_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
 });
 
 export const galleryImagesRelations = relations(galleryImages, ({ one }) => ({

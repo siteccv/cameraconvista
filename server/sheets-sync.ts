@@ -5,7 +5,7 @@ const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE
 function toSnakeCase(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
   for (const key in obj) {
-    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
     result[snakeKey] = obj[key];
   }
   return result;
@@ -16,7 +16,7 @@ async function getDbClient() {
     const { supabaseAdmin } = await import("./supabase");
     return {
       async deleteAll(table: string) {
-        const { error } = await supabaseAdmin.from(table).delete().gte('id', 0);
+        const { error } = await supabaseAdmin.from(table).delete().gte("id", 0);
         if (error) throw new Error(`Delete ${table} failed: ${error.message}`);
       },
       async insertMany(table: string, items: Record<string, any>[]) {
@@ -27,7 +27,7 @@ async function getDbClient() {
           const { error } = await supabaseAdmin.from(table).insert(batch);
           if (error) throw new Error(`Insert ${table} batch failed: ${error.message}`);
         }
-      }
+      },
     };
   } else {
     const { db } = await import("./db");
@@ -41,7 +41,7 @@ async function getDbClient() {
         if (items.length > 0) {
           await db.insert(tableMap[table]).values(items);
         }
-      }
+      },
     };
   }
 }
@@ -61,21 +61,48 @@ export interface GoogleSheetsConfig {
 
 const DEFAULT_CONFIG: GoogleSheetsConfig = {
   menu: {
-    syncUrl: "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/export?format=csv&gid=1122482173",
+    syncUrl:
+      "https://docs.google.com/spreadsheets/d/1TVHaO3bM4WALAey-TXNWYJh--RiGUheAaoU00gamJpY/export?format=csv&gid=1122482173",
   },
   wines: {
-    spreadsheetUrl: "https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?usp=sharing",
+    spreadsheetUrl:
+      "https://docs.google.com/spreadsheets/d/1slvYCYuQ78Yf9fsRL1yR5xkW2kshOcQVe8E2HsvGZ8Y/edit?usp=sharing",
     categories: [
-      { category: "Bollicine Italiane", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=294419425&single=true&output=csv" },
-      { category: "Bollicine Francesi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=700257433&single=true&output=csv" },
-      { category: "Bianchi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=2127910877&single=true&output=csv" },
-      { category: "Rossi", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=254687727&single=true&output=csv" },
-      { category: "Rosati", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=498630601&single=true&output=csv" },
-      { category: "Vini Dolci", syncUrl: "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=1582691495&single=true&output=csv" },
+      {
+        category: "Bollicine Italiane",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=294419425&single=true&output=csv",
+      },
+      {
+        category: "Bollicine Francesi",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=700257433&single=true&output=csv",
+      },
+      {
+        category: "Bianchi",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=2127910877&single=true&output=csv",
+      },
+      {
+        category: "Rossi",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=254687727&single=true&output=csv",
+      },
+      {
+        category: "Rosati",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=498630601&single=true&output=csv",
+      },
+      {
+        category: "Vini Dolci",
+        syncUrl:
+          "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ_DIwWlGmqp3ciC47s5RBnFBPtDR-NodJOJ-BaO4zGnwpsF54l73hi7174Pc9p9ZAn8T2z_z5i7ssy/pub?gid=1582691495&single=true&output=csv",
+      },
     ],
   },
   cocktails: {
-    syncUrl: "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/export?format=csv&gid=1122482173",
+    syncUrl:
+      "https://docs.google.com/spreadsheets/d/1kDXAPQ73vXh1RiEICXLneizZm4I0wdNy1WKng0CQ5SQ/export?format=csv&gid=1122482173",
   },
 };
 
@@ -141,7 +168,7 @@ function parseCSV(csvText: string): string[][] {
         currentField = "";
       } else if (char === "\n" || (char === "\r" && nextChar === "\n")) {
         currentRow.push(currentField.trim());
-        if (currentRow.some(f => f !== "")) {
+        if (currentRow.some((f) => f !== "")) {
           rows.push(currentRow);
         }
         currentRow = [];
@@ -155,7 +182,7 @@ function parseCSV(csvText: string): string[][] {
 
   if (currentField || currentRow.length > 0) {
     currentRow.push(currentField.trim());
-    if (currentRow.some(f => f !== "")) {
+    if (currentRow.some((f) => f !== "")) {
       rows.push(currentRow);
     }
   }
@@ -181,14 +208,25 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
       return { count: 0, error: "No data rows found" };
     }
 
-    const headers = rows[0].map(h => h.toLowerCase().trim());
-    const categoryIdx = headers.findIndex(h => h === "categoria" || (h.includes("categoria") && !h.includes("en")));
-    const categoryEnIdx = headers.findIndex(h => h === "categoria en" || h === "category en" || h === "categoria_en" || h === "category_en");
-    const nameItIdx = headers.findIndex(h => h.includes("titolo it") || h === "nome_it" || h === "nome" || h.includes("name_it"));
-    const nameEnIdx = headers.findIndex(h => h.includes("titolo en") || h === "nome_en" || h.includes("name_en"));
-    const descItIdx = headers.findIndex(h => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"));
-    const descEnIdx = headers.findIndex(h => h === "descrizione_en" || h.includes("desc_en"));
-    const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
+    const headers = rows[0].map((h) => h.toLowerCase().trim());
+    const categoryIdx = headers.findIndex(
+      (h) => h === "categoria" || (h.includes("categoria") && !h.includes("en")),
+    );
+    const categoryEnIdx = headers.findIndex(
+      (h) =>
+        h === "categoria en" || h === "category en" || h === "categoria_en" || h === "category_en",
+    );
+    const nameItIdx = headers.findIndex(
+      (h) => h.includes("titolo it") || h === "nome_it" || h === "nome" || h.includes("name_it"),
+    );
+    const nameEnIdx = headers.findIndex(
+      (h) => h.includes("titolo en") || h === "nome_en" || h.includes("name_en"),
+    );
+    const descItIdx = headers.findIndex(
+      (h) => h === "descrizione_it" || h === "descrizione" || h.includes("desc_it"),
+    );
+    const descEnIdx = headers.findIndex((h) => h === "descrizione_en" || h.includes("desc_en"));
+    const priceIdx = headers.findIndex((h) => h.includes("prezzo") || h.includes("price"));
 
     const items: InsertMenuItem[] = [];
     const categoryMap: Record<string, string> = {};
@@ -197,8 +235,8 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
       const row = rows[i];
       const category = row[categoryIdx] || "";
       const nameIt = row[nameItIdx] || "";
-      const nameEn = nameEnIdx >= 0 ? (row[nameEnIdx] || nameIt) : nameIt;
-      
+      const nameEn = nameEnIdx >= 0 ? row[nameEnIdx] || nameIt : nameIt;
+
       if (!category || !nameIt) continue;
 
       // Build IT→EN category map from sheet column
@@ -210,17 +248,17 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
         category,
         nameIt: nameIt.trim(),
         nameEn: nameEn.trim(),
-        descriptionIt: descItIdx >= 0 ? (row[descItIdx] || null) : null,
-        descriptionEn: descEnIdx >= 0 ? (row[descEnIdx] || null) : null,
-        price: priceIdx >= 0 ? (row[priceIdx] || null) : null,
+        descriptionIt: descItIdx >= 0 ? row[descItIdx] || null : null,
+        descriptionEn: descEnIdx >= 0 ? row[descEnIdx] || null : null,
+        price: priceIdx >= 0 ? row[priceIdx] || null : null,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,
       });
     }
 
-    await client.deleteAll('menu_items');
-    await client.insertMany('menu_items', items);
+    await client.deleteAll("menu_items");
+    await client.insertMany("menu_items", items);
 
     // Save category IT→EN map to site_settings so frontend can use it
     if (Object.keys(categoryMap).length > 0) {
@@ -254,23 +292,33 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
         const rows = await fetchCsvFromUrl(syncUrl);
         if (rows.length < 2) continue;
 
-        const headers = rows[0].map(h => h.toLowerCase().trim());
-        const nameIdx = headers.findIndex(h => h.includes("nome vino") || h.includes("nome") || h.includes("name"));
-        const yearIdx = headers.findIndex(h => h.includes("anno") || h.includes("year") || h.includes("annata"));
-        const producerIdx = headers.findIndex(h => h.includes("produttore") || h.includes("producer"));
-        const regionIdx = headers.findIndex(h => h.includes("provenienza") || h.includes("regione") || h.includes("region"));
-        const glassIdx = headers.findIndex(h => h.includes("calice") || h.includes("glass"));
-        const bottleIdx = headers.findIndex(h => h.includes("bottiglia") || h.includes("bottle"));
+        const headers = rows[0].map((h) => h.toLowerCase().trim());
+        const nameIdx = headers.findIndex(
+          (h) => h.includes("nome vino") || h.includes("nome") || h.includes("name"),
+        );
+        const yearIdx = headers.findIndex(
+          (h) => h.includes("anno") || h.includes("year") || h.includes("annata"),
+        );
+        const producerIdx = headers.findIndex(
+          (h) => h.includes("produttore") || h.includes("producer"),
+        );
+        const regionIdx = headers.findIndex(
+          (h) => h.includes("provenienza") || h.includes("regione") || h.includes("region"),
+        );
+        const glassIdx = headers.findIndex((h) => h.includes("calice") || h.includes("glass"));
+        const bottleIdx = headers.findIndex((h) => h.includes("bottiglia") || h.includes("bottle"));
 
         for (let i = 1; i < rows.length; i++) {
           const row = rows[i];
           const wineName = nameIdx >= 0 ? (row[nameIdx] || "").trim() : "";
-          
+
           if (!wineName) continue;
 
-          const glassPrice = glassIdx >= 0 ? (row[glassIdx] || "").replace(/[€\s]/g, "").trim() : "";
-          const bottlePrice = bottleIdx >= 0 ? (row[bottleIdx] || "").replace(/[€\s]/g, "").trim() : "";
-          
+          const glassPrice =
+            glassIdx >= 0 ? (row[glassIdx] || "").replace(/[€\s]/g, "").trim() : "";
+          const bottlePrice =
+            bottleIdx >= 0 ? (row[bottleIdx] || "").replace(/[€\s]/g, "").trim() : "";
+
           const producer = producerIdx >= 0 ? (row[producerIdx] || "").trim() : "";
           const region = regionIdx >= 0 ? (row[regionIdx] || "").trim() : "";
           const descLine = [producer, region].filter(Boolean).join(" · ");
@@ -281,7 +329,7 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
             nameIt: wineName,
             nameEn: wineName,
             region: region || null,
-            year: yearIdx >= 0 ? (row[yearIdx] || null) : null,
+            year: yearIdx >= 0 ? row[yearIdx] || null : null,
             price: bottlePrice || null,
             priceGlass: glassPrice || null,
             descriptionIt: descLine || null,
@@ -296,8 +344,8 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
       }
     }
 
-    await client.deleteAll('wines');
-    await client.insertMany('wines', allWines);
+    await client.deleteAll("wines");
+    await client.insertMany("wines", allWines);
 
     console.log(`[sheets-sync] Wines synced: ${allWines.length} items`);
     return { count: allWines.length };
@@ -317,36 +365,46 @@ export async function syncCocktailsFromSheets(): Promise<{ count: number; error?
       return { count: 0, error: "No data rows found" };
     }
 
-    const headers = rows[0].map(h => h.toLowerCase().trim());
-    const categoryIdx = headers.findIndex(h => h.includes("categoria") || h.includes("category"));
-    const nameIdx = headers.findIndex(h => h.includes("titolo") || h === "nome" || h.includes("name"));
-    const descItIdx = headers.findIndex(h => h.includes("ingredienti it") || h.includes("descrizione_it") || h.includes("desc_it"));
-    const descEnIdx = headers.findIndex(h => h.includes("ingredienti en") || h.includes("ingredienti eng") || h.includes("descrizione_en") || h.includes("desc_en"));
-    const priceIdx = headers.findIndex(h => h.includes("prezzo") || h.includes("price"));
+    const headers = rows[0].map((h) => h.toLowerCase().trim());
+    const categoryIdx = headers.findIndex((h) => h.includes("categoria") || h.includes("category"));
+    const nameIdx = headers.findIndex(
+      (h) => h.includes("titolo") || h === "nome" || h.includes("name"),
+    );
+    const descItIdx = headers.findIndex(
+      (h) => h.includes("ingredienti it") || h.includes("descrizione_it") || h.includes("desc_it"),
+    );
+    const descEnIdx = headers.findIndex(
+      (h) =>
+        h.includes("ingredienti en") ||
+        h.includes("ingredienti eng") ||
+        h.includes("descrizione_en") ||
+        h.includes("desc_en"),
+    );
+    const priceIdx = headers.findIndex((h) => h.includes("prezzo") || h.includes("price"));
 
     const items: InsertCocktail[] = [];
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       const category = categoryIdx >= 0 ? (row[categoryIdx] || "").trim() : "";
       const name = nameIdx >= 0 ? (row[nameIdx] || "").trim() : "";
-      
+
       if (!category || !name) continue;
 
       items.push({
         category,
         nameIt: name,
         nameEn: name,
-        descriptionIt: descItIdx >= 0 ? (row[descItIdx] || null) : null,
-        descriptionEn: descEnIdx >= 0 ? (row[descEnIdx] || null) : null,
-        price: priceIdx >= 0 ? (row[priceIdx] || null) : null,
+        descriptionIt: descItIdx >= 0 ? row[descItIdx] || null : null,
+        descriptionEn: descEnIdx >= 0 ? row[descEnIdx] || null : null,
+        price: priceIdx >= 0 ? row[priceIdx] || null : null,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,
       });
     }
 
-    await client.deleteAll('cocktails');
-    await client.insertMany('cocktails', items);
+    await client.deleteAll("cocktails");
+    await client.insertMany("cocktails", items);
 
     console.log(`[sheets-sync] Cocktails synced: ${items.length} items`);
     return { count: items.length };

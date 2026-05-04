@@ -5,8 +5,10 @@ import type { Page, Event } from "@shared/schema";
 const SITE_NAME = "Camera con Vista";
 const DEFAULT_TITLE_IT = "Camera con Vista - Ristorante & Cocktail Bar Bologna";
 const DEFAULT_TITLE_EN = "Camera con Vista - Restaurant & Cocktail Bar Bologna";
-const DEFAULT_DESC_IT = "Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.";
-const DEFAULT_DESC_EN = "Restaurant and cocktail bar in Bologna's historic center. Contemporary Italian cuisine, romantic dinners, private events and refined DJ nights.";
+const DEFAULT_DESC_IT =
+  "Ristorante e cocktail bar nel centro storico di Bologna. Cucina emiliana rivisitata, cene romantiche, eventi privati e DJ set raffinati.";
+const DEFAULT_DESC_EN =
+  "Restaurant and cocktail bar in Bologna's historic center. Contemporary Italian cuisine, romantic dinners, private events and refined DJ nights.";
 
 const SLUG_TO_PATH: Record<string, string> = {
   home: "/",
@@ -59,27 +61,42 @@ const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
 const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
   home: DEFAULT_DESC_IT,
   menu: "Scopri il menu del ristorante Camera con Vista a Bologna. Piatti ricercati preparati con ingredienti di prima qualità.",
-  "carta-vini": "La lista vini di Camera con Vista, una selezione curata di etichette italiane e internazionali per accompagnare ogni piatto.",
-  "cocktail-bar": "Il cocktail bar di Camera con Vista a Bologna. Drink d'autore, classici rivisitati e creazioni originali.",
-  eventi: "Scopri gli eventi in programma da Camera con Vista a Bologna. Serate speciali, degustazioni e appuntamenti esclusivi.",
-  "eventi-privati": "Organizza il tuo evento privato da Camera con Vista a Bologna. Spazi esclusivi per cene private, aperitivi e celebrazioni.",
-  galleria: "La galleria fotografica di Camera con Vista. Scopri l'atmosfera del nostro ristorante e cocktail bar a Bologna.",
-  "dove-siamo": "Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.",
-  privacy: "Informativa sulla privacy di Camera con Vista. Come trattiamo i tuoi dati personali, basi giuridiche e diritti dell'interessato.",
-  cookie: "Cookie Policy di Camera con Vista. Dettagli sui cookie utilizzati, categorie e gestione del consenso.",
+  "carta-vini":
+    "La lista vini di Camera con Vista, una selezione curata di etichette italiane e internazionali per accompagnare ogni piatto.",
+  "cocktail-bar":
+    "Il cocktail bar di Camera con Vista a Bologna. Drink d'autore, classici rivisitati e creazioni originali.",
+  eventi:
+    "Scopri gli eventi in programma da Camera con Vista a Bologna. Serate speciali, degustazioni e appuntamenti esclusivi.",
+  "eventi-privati":
+    "Organizza il tuo evento privato da Camera con Vista a Bologna. Spazi esclusivi per cene private, aperitivi e celebrazioni.",
+  galleria:
+    "La galleria fotografica di Camera con Vista. Scopri l'atmosfera del nostro ristorante e cocktail bar a Bologna.",
+  "dove-siamo":
+    "Scopri dove si trova Camera con Vista a Bologna. Indirizzo, orari di apertura, telefono e indicazioni stradali.",
+  privacy:
+    "Informativa sulla privacy di Camera con Vista. Come trattiamo i tuoi dati personali, basi giuridiche e diritti dell'interessato.",
+  cookie:
+    "Cookie Policy di Camera con Vista. Dettagli sui cookie utilizzati, categorie e gestione del consenso.",
 };
 
 const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
   home: DEFAULT_DESC_EN,
   menu: "Discover the menu at Camera con Vista in Bologna. Refined dishes prepared with top-quality ingredients.",
-  "carta-vini": "The wine list at Camera con Vista, a curated selection of Italian and international labels to complement every dish.",
-  "cocktail-bar": "The cocktail bar at Camera con Vista in Bologna. Signature drinks, revisited classics and original creations.",
-  eventi: "Discover upcoming events at Camera con Vista in Bologna. Special evenings, tastings and exclusive appointments.",
-  "eventi-privati": "Organize your private event at Camera con Vista in Bologna. Exclusive spaces for private dinners, aperitifs and celebrations.",
-  galleria: "The photo gallery of Camera con Vista. Discover the atmosphere of our restaurant and cocktail bar in Bologna.",
+  "carta-vini":
+    "The wine list at Camera con Vista, a curated selection of Italian and international labels to complement every dish.",
+  "cocktail-bar":
+    "The cocktail bar at Camera con Vista in Bologna. Signature drinks, revisited classics and original creations.",
+  eventi:
+    "Discover upcoming events at Camera con Vista in Bologna. Special evenings, tastings and exclusive appointments.",
+  "eventi-privati":
+    "Organize your private event at Camera con Vista in Bologna. Exclusive spaces for private dinners, aperitifs and celebrations.",
+  galleria:
+    "The photo gallery of Camera con Vista. Discover the atmosphere of our restaurant and cocktail bar in Bologna.",
   "dove-siamo": "Find Camera con Vista in Bologna. Address, opening hours, phone and directions.",
-  privacy: "Privacy Policy of Camera con Vista. How we process your personal data, legal bases and your rights.",
-  cookie: "Cookie Policy of Camera con Vista. Details on cookies used, categories and consent management.",
+  privacy:
+    "Privacy Policy of Camera con Vista. How we process your personal data, legal bases and your rights.",
+  cookie:
+    "Cookie Policy of Camera con Vista. Details on cookies used, categories and consent management.",
 };
 
 interface SeoData {
@@ -120,9 +137,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
   let ogImage: string | undefined;
   const jsonLd: object[] = [];
 
-  const breadcrumbs: { name: string; url: string }[] = [
-    { name: "Home", url: baseUrl + "/" },
-  ];
+  const breadcrumbs: { name: string; url: string }[] = [{ name: "Home", url: baseUrl + "/" }];
 
   if (slug) {
     let page: Page | undefined;
@@ -132,22 +147,28 @@ async function buildSeoData(req: Request): Promise<SeoData> {
     } catch {}
 
     if (page) {
-      const metaTitle =
-        lang === "it" ? page.metaTitleIt : page.metaTitleEn;
-      const metaDesc =
-        lang === "it" ? page.metaDescriptionIt : page.metaDescriptionEn;
+      const metaTitle = lang === "it" ? page.metaTitleIt : page.metaTitleEn;
+      const metaDesc = lang === "it" ? page.metaDescriptionIt : page.metaDescriptionEn;
 
-      title = metaTitle || (lang === "it" ? DEFAULT_PAGE_TITLES_IT[slug] : DEFAULT_PAGE_TITLES_EN[slug]) || DEFAULT_TITLE_IT;
-      description = metaDesc || (lang === "it" ? DEFAULT_PAGE_DESCS_IT[slug] : DEFAULT_PAGE_DESCS_EN[slug]) || DEFAULT_DESC_IT;
+      title =
+        metaTitle ||
+        (lang === "it" ? DEFAULT_PAGE_TITLES_IT[slug] : DEFAULT_PAGE_TITLES_EN[slug]) ||
+        DEFAULT_TITLE_IT;
+      description =
+        metaDesc ||
+        (lang === "it" ? DEFAULT_PAGE_DESCS_IT[slug] : DEFAULT_PAGE_DESCS_EN[slug]) ||
+        DEFAULT_DESC_IT;
     } else {
-      title = (lang === "it" ? DEFAULT_PAGE_TITLES_IT[slug] : DEFAULT_PAGE_TITLES_EN[slug]) || DEFAULT_TITLE_IT;
-      description = (lang === "it" ? DEFAULT_PAGE_DESCS_IT[slug] : DEFAULT_PAGE_DESCS_EN[slug]) || DEFAULT_DESC_IT;
+      title =
+        (lang === "it" ? DEFAULT_PAGE_TITLES_IT[slug] : DEFAULT_PAGE_TITLES_EN[slug]) ||
+        DEFAULT_TITLE_IT;
+      description =
+        (lang === "it" ? DEFAULT_PAGE_DESCS_IT[slug] : DEFAULT_PAGE_DESCS_EN[slug]) ||
+        DEFAULT_DESC_IT;
     }
 
     if (slug !== "home") {
-      const pageName = lang === "it"
-        ? (page?.titleIt || slug)
-        : (page?.titleEn || slug);
+      const pageName = lang === "it" ? page?.titleIt || slug : page?.titleEn || slug;
       breadcrumbs.push({ name: pageName, url: baseUrl + pathname });
     }
   } else if (pathname.startsWith("/eventi/")) {
@@ -169,7 +190,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
 
       breadcrumbs.push(
         { name: lang === "it" ? "Eventi" : "Events", url: baseUrl + "/eventi" },
-        { name: eventTitle, url: baseUrl + pathname }
+        { name: eventTitle, url: baseUrl + pathname },
       );
 
       if (event.startAt) {
@@ -199,7 +220,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
             url: baseUrl,
           },
         };
-        
+
         // Add endDate if available, otherwise default to 2 hours after start
         if (event.endAt) {
           eventSchema.endDate = new Date(event.endAt).toISOString();
@@ -208,7 +229,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
           defaultEnd.setHours(defaultEnd.getHours() + 2);
           eventSchema.endDate = defaultEnd.toISOString();
         }
-        
+
         jsonLd.push(eventSchema);
       }
     } else {
@@ -233,7 +254,8 @@ async function buildSeoData(req: Request): Promise<SeoData> {
     try {
       const setting = await storage.getSiteSetting("footer_settings");
       if (setting?.valueIt) {
-        footerData = typeof setting.valueIt === "string" ? JSON.parse(setting.valueIt) : setting.valueIt;
+        footerData =
+          typeof setting.valueIt === "string" ? JSON.parse(setting.valueIt) : setting.valueIt;
       }
     } catch {}
 
@@ -262,10 +284,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       servesCuisine: ["Italian", "Cocktails"],
       priceRange: "€€-€€€",
       image: baseUrl + "/favicon.png",
-      sameAs: [
-        footerData.instagramUrl,
-        footerData.facebookUrl,
-      ].filter(Boolean),
+      sameAs: [footerData.instagramUrl, footerData.facebookUrl].filter(Boolean),
       hasMenu: {
         "@type": "Menu",
         url: baseUrl + "/menu" + (lang === "en" ? "?lang=en" : ""),
@@ -292,11 +311,11 @@ async function buildSeoData(req: Request): Promise<SeoData> {
         // Ensure breadcrumb URLs include ?lang=en if we are in EN mode
         let breadcrumbUrl = b.url;
         if (lang === "en" && !breadcrumbUrl.includes("?lang=en")) {
-          breadcrumbUrl = breadcrumbUrl.includes("?") 
-            ? `${breadcrumbUrl}&lang=en` 
+          breadcrumbUrl = breadcrumbUrl.includes("?")
+            ? `${breadcrumbUrl}&lang=en`
             : `${breadcrumbUrl}?lang=en`;
         }
-        
+
         return {
           "@type": "ListItem",
           position: i + 1,
@@ -338,7 +357,7 @@ function buildMetaTags(seo: SeoData, baseUrl: string): string {
   lines.push(`<meta property="og:type" content="${seo.ogType}" />`);
   lines.push(`<meta property="og:url" content="${escapeAttr(seo.canonicalUrl)}" />`);
   lines.push(`<meta property="og:site_name" content="${SITE_NAME}" />`);
-  
+
   if (seo.lang === "en") {
     lines.push(`<meta property="og:locale" content="en_US" />`);
     lines.push(`<meta property="og:locale:alternate" content="it_IT" />`);
@@ -366,18 +385,26 @@ function buildMetaTags(seo: SeoData, baseUrl: string): string {
 }
 
 function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function escapeAttr(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
 export function injectSeoIntoHtml(html: string, metaTags: string, lang: string = "it"): string {
   let cleaned = html;
   // Update html lang attribute
   cleaned = cleaned.replace(/<html[^>]*>/, `<html lang="${lang}">`);
-  
+
   cleaned = cleaned.replace(/<title>[^<]*<\/title>\s*/g, "");
   cleaned = cleaned.replace(/<meta\s+name="description"[^>]*\/?\s*>\s*/g, "");
   cleaned = cleaned.replace(/<link\s+rel="canonical"[^>]*\/?\s*>\s*/g, "");
@@ -394,7 +421,7 @@ export async function generateSeoHtml(req: Request): Promise<{ metaTags: string;
   const baseUrl = getBaseUrl(req);
   return {
     metaTags: buildMetaTags(seo, baseUrl),
-    lang: seo.lang
+    lang: seo.lang,
   };
 }
 

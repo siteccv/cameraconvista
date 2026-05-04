@@ -27,7 +27,7 @@ export default function AdminLogin() {
     try {
       const response = await apiRequest("POST", "/api/admin/login", { password });
       const data = await response.json();
-      
+
       if (data.success) {
         setIsAuthenticated(true);
         setLocation("/admina");
@@ -51,9 +51,7 @@ export default function AdminLogin() {
           <CardTitle className="font-display text-2xl">
             {t("Accesso Admin", "Admin Access")}
           </CardTitle>
-          <p className="text-sm text-muted-foreground mt-2">
-            Camera con Vista
-          </p>
+          <p className="text-sm text-muted-foreground mt-2">Camera con Vista</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -76,16 +74,16 @@ export default function AdminLogin() {
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            
+
             {error && (
               <p className="text-sm text-destructive" data-testid="text-login-error">
                 {error}
               </p>
             )}
 
-            <Button 
-              type="submit" 
-              className="w-full" 
+            <Button
+              type="submit"
+              className="w-full"
               disabled={isLoading || !password}
               data-testid="button-admin-login"
             >

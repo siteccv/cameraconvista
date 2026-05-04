@@ -26,12 +26,12 @@ router.post("/login", loginLimiter, async (req, res) => {
   try {
     const { password } = req.body;
     const isValid = await verifyPassword(password);
-    
+
     if (isValid) {
       const sessionToken = generateSessionToken();
       const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_MS);
       await storage.createAdminSession({ id: sessionToken, expiresAt });
-      
+
       res.cookie(SESSION_COOKIE_NAME, sessionToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -39,7 +39,7 @@ router.post("/login", loginLimiter, async (req, res) => {
         maxAge: SESSION_MAX_AGE_MS,
         path: "/",
       });
-      
+
       res.json({ success: true });
     } else {
       res.status(401).json({ success: false, error: "Invalid password" });
@@ -67,17 +67,17 @@ router.post("/change-password", requireAuth, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
     const isValid = await verifyPassword(currentPassword);
-    
+
     if (!isValid) {
       res.status(401).json({ success: false, error: "Current password is incorrect" });
       return;
     }
-    
+
     if (!newPassword || newPassword.length < 4) {
       res.status(400).json({ success: false, error: "New password must be at least 4 characters" });
       return;
     }
-    
+
     await setAdminPassword(newPassword);
     res.json({ success: true });
   } catch (error) {

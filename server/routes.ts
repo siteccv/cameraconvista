@@ -4,7 +4,7 @@ import { registerRoutes as mountAllRoutes } from "./routes/index";
 
 /**
  * Main routes registration function
- * 
+ *
  * Routes are organized in modular files under server/routes/:
  * - auth.ts: Admin authentication (login, logout, sessions)
  * - pages.ts: Pages and page blocks management
@@ -16,9 +16,6 @@ import { registerRoutes as mountAllRoutes } from "./routes/index";
  * - sync.ts: Google Sheets synchronization
  * - helpers.ts: Shared utilities (auth middleware, parsing)
  */
-export async function registerRoutes(
-  httpServer: Server,
-  app: Express
-): Promise<Server> {
+export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   return mountAllRoutes(httpServer, app);
 }

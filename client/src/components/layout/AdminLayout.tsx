@@ -73,7 +73,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     queryKey: ["/api/admin/site-links"],
   });
 
-  const hasPendingChanges = dbPages.some(p => p.isDraft);
+  const hasPendingChanges = dbPages.some((p) => p.isDraft);
 
   const publishAllMutation = useMutation({
     mutationFn: async () => {
@@ -83,16 +83,16 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/pages"] });
       queryClient.invalidateQueries({ queryKey: ["/api/admin/page-blocks"] });
       queryClient.invalidateQueries({ queryKey: ["/api"] });
-      toast({ 
+      toast({
         title: t("Sito Pubblicato", "Site Published"),
-        description: t("Tutte le pagine sono state pubblicate.", "All pages have been published.")
+        description: t("Tutte le pagine sono state pubblicate.", "All pages have been published."),
       });
     },
     onError: () => {
-      toast({ 
+      toast({
         title: t("Errore", "Error"),
         description: t("Impossibile pubblicare il sito.", "Failed to publish site."),
-        variant: "destructive"
+        variant: "destructive",
       });
     },
   });
@@ -117,7 +117,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {adminNavItems.map((item) => {
-                    const isActive = location === item.slug || 
+                    const isActive =
+                      location === item.slug ||
                       (item.slug !== "/admina" && location.startsWith(item.slug));
                     return (
                       <SidebarMenuItem key={item.slug}>
@@ -153,7 +154,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <Button
                       size="sm"
                       className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate animate-subtle-pulse"
-                      style={{ backgroundColor: '#dc2626', color: '#fff', borderColor: '#dc2626' }}
+                      style={{ backgroundColor: "#dc2626", color: "#fff", borderColor: "#dc2626" }}
                       onClick={() => publishAllMutation.mutate()}
                       disabled={publishAllMutation.isPending}
                       data-testid="button-publish-site"
@@ -169,7 +170,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     <Button
                       size="sm"
                       className="w-full justify-start gap-2 no-default-hover-elevate no-default-active-elevate cursor-default publish-done"
-                      style={{ backgroundColor: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                      style={{ backgroundColor: "#16a34a", color: "#fff", borderColor: "#16a34a" }}
                       disabled
                       data-testid="button-publish-site"
                     >
@@ -192,7 +193,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     size="sm"
                     className="w-full justify-start gap-2"
                     disabled={!siteLinks?.adminSiteUrl}
-                    onClick={() => siteLinks?.adminSiteUrl && window.open(siteLinks.adminSiteUrl, "_blank")}
+                    onClick={() =>
+                      siteLinks?.adminSiteUrl && window.open(siteLinks.adminSiteUrl, "_blank")
+                    }
                     data-testid="button-view-site-admin"
                   >
                     <ShieldCheck className="h-4 w-4" />
@@ -203,7 +206,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                     size="sm"
                     className="w-full justify-start gap-2"
                     disabled={!siteLinks?.publicSiteUrl}
-                    onClick={() => siteLinks?.publicSiteUrl && window.open(siteLinks.publicSiteUrl, "_blank")}
+                    onClick={() =>
+                      siteLinks?.publicSiteUrl && window.open(siteLinks.publicSiteUrl, "_blank")
+                    }
                     data-testid="button-view-site-public"
                   >
                     <Globe className="h-4 w-4" />
@@ -232,9 +237,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           <header className="h-14 border-b border-border bg-background flex items-center px-4 shrink-0 gap-2">
             <SidebarTrigger data-testid="button-sidebar-toggle" />
           </header>
-          <main className="flex-1 overflow-auto bg-background">
-            {children}
-          </main>
+          <main className="flex-1 overflow-auto bg-background">{children}</main>
         </div>
       </div>
     </SidebarProvider>

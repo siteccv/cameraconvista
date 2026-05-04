@@ -3,7 +3,17 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Twitter, Linkedin, Youtube } from "lucide-react";
+import {
+  MapPin,
+  Phone,
+  Mail,
+  Clock,
+  Instagram,
+  Facebook,
+  Twitter,
+  Linkedin,
+  Youtube,
+} from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import type { FooterSettings, FooterHoursEntry } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
@@ -30,7 +40,7 @@ const daysOfWeek = [
 function formatTimeToAmPm(time24: string): string {
   const [hours, minutes] = time24.split(":").map(Number);
   if (isNaN(hours) || isNaN(minutes)) return time24;
-  
+
   const period = hours >= 12 ? "PM" : "AM";
   const hours12 = hours % 12 || 12;
   return `${hours12}:${minutes.toString().padStart(2, "0")} ${period}`;
@@ -38,7 +48,7 @@ function formatTimeToAmPm(time24: string): string {
 
 function formatHoursRange(hoursStr: string, language: "it" | "en"): string {
   if (language === "it") return hoursStr;
-  
+
   const parts = hoursStr.split(" - ");
   if (parts.length === 2) {
     return `${formatTimeToAmPm(parts[0].trim())} - ${formatTimeToAmPm(parts[1].trim())}`;
@@ -49,17 +59,17 @@ function formatHoursRange(hoursStr: string, language: "it" | "en"): string {
 // Helper to parse legacy day strings (single days or ranges) into index arrays
 function parseLegacyDayString(dayKeyIt: string): number[] {
   // Check for exact single day match
-  const singleDayIndex = daysOfWeek.findIndex(d => d.it === dayKeyIt);
+  const singleDayIndex = daysOfWeek.findIndex((d) => d.it === dayKeyIt);
   if (singleDayIndex >= 0) return [singleDayIndex];
-  
+
   // Check for "Tutti i giorni" (every day)
   if (dayKeyIt.toLowerCase().includes("tutti")) return [0, 1, 2, 3, 4, 5, 6];
-  
+
   // Check for range format "DayA - DayB"
   const rangeParts = dayKeyIt.split(" - ");
   if (rangeParts.length === 2) {
-    const startIndex = daysOfWeek.findIndex(d => d.it === rangeParts[0].trim());
-    const endIndex = daysOfWeek.findIndex(d => d.it === rangeParts[1].trim());
+    const startIndex = daysOfWeek.findIndex((d) => d.it === rangeParts[0].trim());
+    const endIndex = daysOfWeek.findIndex((d) => d.it === rangeParts[1].trim());
     if (startIndex >= 0 && endIndex >= 0) {
       const result: number[] = [];
       if (startIndex <= endIndex) {
@@ -72,21 +82,21 @@ function parseLegacyDayString(dayKeyIt: string): number[] {
       return result;
     }
   }
-  
+
   return [];
 }
 
 function formatDaysLabel(selectedDays: number[], language: "it" | "en"): string {
   if (selectedDays.length === 0) return "";
   if (selectedDays.length === 7) return language === "it" ? "Tutti i giorni" : "Every day";
-  
+
   const sorted = [...selectedDays].sort((a, b) => a - b);
-  
+
   // Check for consecutive days to form ranges
   const ranges: { start: number; end: number }[] = [];
   let rangeStart = sorted[0];
   let rangeEnd = sorted[0];
-  
+
   for (let i = 1; i < sorted.length; i++) {
     if (sorted[i] === rangeEnd + 1) {
       rangeEnd = sorted[i];
@@ -97,12 +107,12 @@ function formatDaysLabel(selectedDays: number[], language: "it" | "en"): string 
     }
   }
   ranges.push({ start: rangeStart, end: rangeEnd });
-  
+
   // Format ranges
-  const parts = ranges.map(range => {
+  const parts = ranges.map((range) => {
     const startDay = daysOfWeek[range.start];
     const endDay = daysOfWeek[range.end];
-    
+
     if (range.start === range.end) {
       return language === "it" ? startDay.it : startDay.en;
     } else {
@@ -111,36 +121,40 @@ function formatDaysLabel(selectedDays: number[], language: "it" | "en"): string 
       return `${startName} - ${endName}`;
     }
   });
-  
+
   return parts.join(", ");
 }
 
 // Group hours entries by their hours value and isClosed status
-function groupHoursEntries(hours: FooterHoursEntry[]): { selectedDays: number[]; hours: string; isClosed: boolean }[] {
+function groupHoursEntries(
+  hours: FooterHoursEntry[],
+): { selectedDays: number[]; hours: string; isClosed: boolean }[] {
   const groups = new Map<string, { selectedDays: number[]; hours: string; isClosed: boolean }>();
-  
+
   for (const entry of hours) {
     let selectedDays = entry.selectedDays ? [...entry.selectedDays] : [];
     // Handle old format migration - parse legacy day strings including ranges
-    if (!selectedDays.length && 'dayKeyIt' in entry) {
+    if (!selectedDays.length && "dayKeyIt" in entry) {
       const oldEntry = entry as unknown as { dayKeyIt: string; hours: string; isClosed: boolean };
       selectedDays = parseLegacyDayString(oldEntry.dayKeyIt);
     }
-    
+
     const key = entry.isClosed ? "closed" : entry.hours;
-    
+
     if (groups.has(key)) {
       const existing = groups.get(key)!;
-      existing.selectedDays = Array.from(new Set([...existing.selectedDays, ...selectedDays])).sort((a, b) => a - b);
+      existing.selectedDays = Array.from(new Set([...existing.selectedDays, ...selectedDays])).sort(
+        (a, b) => a - b,
+      );
     } else {
-      groups.set(key, { 
-        selectedDays: [...selectedDays], 
-        hours: entry.hours, 
-        isClosed: entry.isClosed 
+      groups.set(key, {
+        selectedDays: [...selectedDays],
+        hours: entry.hours,
+        isClosed: entry.isClosed,
       });
     }
   }
-  
+
   return Array.from(groups.values());
 }
 
@@ -159,12 +173,12 @@ export function Footer() {
   const isMobile = forceMobileLayout || viewportIsMobile;
 
   // Quando forceMobileLayout è true, forza layout mobile senza media queries
-  const gridClass = isMobile 
-    ? "grid grid-cols-1 gap-6" 
+  const gridClass = isMobile
+    ? "grid grid-cols-1 gap-6"
     : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12";
-  
+
   const containerPadding = isMobile ? "py-6" : "py-8 md:py-12";
-  
+
   // Group hours entries by same hours/closed status
   const groupedHours = groupHoursEntries(footer.hours);
 
@@ -190,13 +204,19 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="h-4 w-4 shrink-0" />
-                <a href={`tel:${footer.contacts.phone.replace(/\s/g, "")}`} className="hover:text-background transition-colors">
+                <a
+                  href={`tel:${footer.contacts.phone.replace(/\s/g, "")}`}
+                  className="hover:text-background transition-colors"
+                >
                   {footer.contacts.phone}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="h-4 w-4 shrink-0" />
-                <a href={`mailto:${footer.contacts.email}`} className="hover:text-background transition-colors">
+                <a
+                  href={`mailto:${footer.contacts.email}`}
+                  className="hover:text-background transition-colors"
+                >
                   {footer.contacts.email}
                 </a>
               </li>
@@ -215,7 +235,11 @@ export function Footer() {
                     {index === 0 && <Clock className="h-4 w-4 mt-0.5 shrink-0" />}
                     <div>
                       <p className="font-medium text-background">{daysLabel}</p>
-                      <p>{entry.isClosed ? t("Chiuso", "Closed") : formatHoursRange(entry.hours, language)}</p>
+                      <p>
+                        {entry.isClosed
+                          ? t("Chiuso", "Closed")
+                          : formatHoursRange(entry.hours, language)}
+                      </p>
                     </div>
                   </li>
                 );
@@ -260,7 +284,9 @@ export function Footer() {
           </div>
         </div>
 
-        <div className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}>
+        <div
+          className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}
+        >
           <div className="text-center text-sm md:text-xs opacity-80 leading-relaxed">
             <div className="md:hidden">
               <p>© {new Date().getFullYear()} Camera con Vista bistrot</p>
@@ -273,11 +299,21 @@ export function Footer() {
             </div>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link href={footer.legalLinks.privacyUrl} className="hover:text-background transition-colors">
-              {language === "it" ? footer.legalLinks.privacyLabelIt : footer.legalLinks.privacyLabelEn}
+            <Link
+              href={footer.legalLinks.privacyUrl}
+              className="hover:text-background transition-colors"
+            >
+              {language === "it"
+                ? footer.legalLinks.privacyLabelIt
+                : footer.legalLinks.privacyLabelEn}
             </Link>
-            <Link href={footer.legalLinks.cookieUrl} className="hover:text-background transition-colors">
-              {language === "it" ? footer.legalLinks.cookieLabelIt : footer.legalLinks.cookieLabelEn}
+            <Link
+              href={footer.legalLinks.cookieUrl}
+              className="hover:text-background transition-colors"
+            >
+              {language === "it"
+                ? footer.legalLinks.cookieLabelIt
+                : footer.legalLinks.cookieLabelEn}
             </Link>
             <button
               onClick={() => {

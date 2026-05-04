@@ -30,7 +30,10 @@ export default function AdminPreview() {
               {t("Anteprima", "Preview")}
             </h1>
             <p className="text-muted-foreground mt-1">
-              {t("Visualizza il sito come lo vedranno i visitatori", "View the site as visitors will see it")}
+              {t(
+                "Visualizza il sito come lo vedranno i visitatori",
+                "View the site as visitors will see it",
+              )}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -85,9 +88,12 @@ export default function AdminPreview() {
           </div>
         </div>
 
-        <div 
+        <div
           className={`border border-border rounded-lg bg-muted/30 overflow-hidden flex items-start justify-center ${deviceView === "mobile" ? "p-4" : "p-8"}`}
-          style={{ height: deviceView === "mobile" ? "calc(100vh - 200px)" : "auto", minHeight: deviceView === "mobile" ? "600px" : "auto" }}
+          style={{
+            height: deviceView === "mobile" ? "calc(100vh - 200px)" : "auto",
+            minHeight: deviceView === "mobile" ? "600px" : "auto",
+          }}
           data-testid="preview-frame"
         >
           {deviceView === "mobile" ? (

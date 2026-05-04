@@ -6,10 +6,8 @@ const { Pool } = pg;
 
 const databaseUrl = process.env.DATABASE_URL;
 
-export const pool = databaseUrl
-  ? new Pool({ connectionString: databaseUrl })
-  : null;
+export const pool = databaseUrl ? new Pool({ connectionString: databaseUrl }) : null;
 
 export const db = pool
   ? drizzle(pool, { schema })
-  : null as unknown as ReturnType<typeof drizzle<typeof schema>>;
+  : (null as unknown as ReturnType<typeof drizzle<typeof schema>>);

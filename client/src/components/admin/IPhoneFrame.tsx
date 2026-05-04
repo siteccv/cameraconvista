@@ -62,10 +62,7 @@ export function IPhoneFrame({ children }: IPhoneFrameProps) {
         }}
       >
         <div className="bg-background rounded-[2rem] overflow-hidden w-full h-full">
-          <div
-            className="h-full overflow-y-auto overflow-x-hidden"
-            style={{ width: IPHONE_WIDTH }}
-          >
+          <div className="h-full overflow-y-auto overflow-x-hidden" style={{ width: IPHONE_WIDTH }}>
             {children}
           </div>
         </div>

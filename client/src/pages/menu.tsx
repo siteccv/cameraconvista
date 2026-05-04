@@ -18,7 +18,11 @@ export default function Menu() {
     queryKey: ["/api/menu-category-map"],
   });
 
-  const { getBlock, updateBlock, isLoading: blocksLoading } = usePageBlocks({
+  const {
+    getBlock,
+    updateBlock,
+    isLoading: blocksLoading,
+  } = usePageBlocks({
     pageId: PAGE_IDS.menu,
     defaults: MENU_DEFAULTS,
   });
@@ -34,13 +38,17 @@ export default function Menu() {
     queryKey: [menuEndpoint],
   });
 
-  const categorizedItems = menuItems?.reduce((acc, item) => {
-    if (!acc[item.category]) {
-      acc[item.category] = [];
-    }
-    acc[item.category].push(item);
-    return acc;
-  }, {} as Record<string, MenuItem[]>) ?? {};
+  const categorizedItems =
+    menuItems?.reduce(
+      (acc, item) => {
+        if (!acc[item.category]) {
+          acc[item.category] = [];
+        }
+        acc[item.category].push(item);
+        return acc;
+      },
+      {} as Record<string, MenuItem[]>,
+    ) ?? {};
 
   const handleHeroImageSave = (data: ImageContainerSaveData) => {
     if (!heroBlock) return;
@@ -53,14 +61,19 @@ export default function Menu() {
       imageOffsetXMobile: data.panXMobile,
       imageOffsetYMobile: data.panYMobile,
       metadata: {
-        ...(heroBlock.metadata as Record<string, unknown> || {}),
+        ...((heroBlock.metadata as Record<string, unknown>) || {}),
         overlay: data.overlay,
         overlayMobile: data.overlayMobile,
       },
     });
   };
 
-  const handleIntroSave = (data: { textIt: string; textEn: string; fontSizeDesktop: number; fontSizeMobile: number }) => {
+  const handleIntroSave = (data: {
+    textIt: string;
+    textEn: string;
+    fontSizeDesktop: number;
+    fontSizeMobile: number;
+  }) => {
     if (!introBlock) return;
     updateBlock(introBlock.id, {
       bodyIt: data.textIt,
@@ -90,11 +103,13 @@ export default function Menu() {
               zoom={heroBlock?.imageScaleDesktop || heroDef.imageScaleDesktop || 100}
               panX={heroBlock?.imageOffsetX ?? heroDef.imageOffsetX ?? 0}
               panY={heroBlock?.imageOffsetY ?? heroDef.imageOffsetY ?? 0}
-              overlay={(heroBlock?.metadata as Record<string, unknown>)?.overlay as number ?? 35}
+              overlay={((heroBlock?.metadata as Record<string, unknown>)?.overlay as number) ?? 35}
               zoomMobile={heroBlock?.imageScaleMobile || heroDef.imageScaleMobile || 100}
               panXMobile={heroBlock?.imageOffsetXMobile ?? heroDef.imageOffsetXMobile ?? 0}
               panYMobile={heroBlock?.imageOffsetYMobile ?? heroDef.imageOffsetYMobile ?? 0}
-              overlayMobile={(heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number ?? 35}
+              overlayMobile={
+                ((heroBlock?.metadata as Record<string, unknown>)?.overlayMobile as number) ?? 35
+              }
               containerClassName="w-full h-full rounded-xl"
               aspectRatio="auto"
               referenceWidth={1560}
@@ -148,10 +163,10 @@ export default function Menu() {
                 <div key={category}>
                   <h2
                     className="font-display text-4xl md:text-5xl mb-8 text-center"
-                    style={{ color: '#722F37' }}
+                    style={{ color: "#722F37" }}
                     data-testid={`text-category-${category}`}
                   >
-                    {language === "en" ? (categoryMap[category] || category) : category}
+                    {language === "en" ? categoryMap[category] || category : category}
                   </h2>
                   <div className="space-y-6">
                     {items.map((item) => (
@@ -178,23 +193,20 @@ function MenuItemCard({ item }: { item: MenuItem }) {
     >
       <div className="space-y-1">
         <div className="md:flex md:items-center md:justify-between md:gap-4">
-          <h3
-            className="text-lg md:text-xl leading-tight"
-            style={{ color: '#2f2b2a' }}
-          >
+          <h3 className="text-lg md:text-xl leading-tight" style={{ color: "#2f2b2a" }}>
             {t(item.nameIt, item.nameEn)}
           </h3>
           {item.price && (
             <span
               className="price-text shrink-0 leading-tight"
               style={{
-                fontSize: '20px',
+                fontSize: "20px",
                 fontWeight: 500,
-                color: '#c7902f'
+                color: "#c7902f",
               }}
             >
               <span>€</span>
-              <span>{item.price.replace('€', '').trim()}</span>
+              <span>{item.price.replace("€", "").trim()}</span>
             </span>
           )}
         </div>

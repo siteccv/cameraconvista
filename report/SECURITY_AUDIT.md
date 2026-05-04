@@ -9,15 +9,15 @@
 
 ## 1. Superficie d'Attacco
 
-| Superficie | Endpoint/Area | Esposizione |
-|---|---|---|
-| API pubblica | `/api/pages`, `/api/events`, `/api/galleries`, `/api/media`, `/api/menu-items`, `/api/wines`, `/api/cocktails`, `/api/footer-settings` | Read-only, nessuna autenticazione richiesta |
-| API admin | `/api/admin/*` (pages, events, galleries, media, uploads, settings, sync) | Protetta da `requireAuth` (cookie session) |
-| Auth endpoint | `/api/admin/login`, `/api/admin/logout`, `/api/admin/check-session` | Aperto (login con rate limit), protetto (change-password) |
-| Upload file | `/api/admin/uploads/direct` (Multer → Supabase) | Protetto da `requireAuth` |
-| File serving | Supabase Storage public URLs | Aperto, serve file pubblici dallo storage |
-| SPA | Tutte le route non-API | Servite come index.html con SEO injection |
-| Client Supabase | Inizializzato con `anon key` nel browser | Accesso diretto a Supabase da browser |
+| Superficie      | Endpoint/Area                                                                                                                          | Esposizione                                               |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| API pubblica    | `/api/pages`, `/api/events`, `/api/galleries`, `/api/media`, `/api/menu-items`, `/api/wines`, `/api/cocktails`, `/api/footer-settings` | Read-only, nessuna autenticazione richiesta               |
+| API admin       | `/api/admin/*` (pages, events, galleries, media, uploads, settings, sync)                                                              | Protetta da `requireAuth` (cookie session)                |
+| Auth endpoint   | `/api/admin/login`, `/api/admin/logout`, `/api/admin/check-session`                                                                    | Aperto (login con rate limit), protetto (change-password) |
+| Upload file     | `/api/admin/uploads/direct` (Multer → Supabase)                                                                                        | Protetto da `requireAuth`                                 |
+| File serving    | Supabase Storage public URLs                                                                                                           | Aperto, serve file pubblici dallo storage                 |
+| SPA             | Tutte le route non-API                                                                                                                 | Servite come index.html con SEO injection                 |
+| Client Supabase | Inizializzato con `anon key` nel browser                                                                                               | Accesso diretto a Supabase da browser                     |
 
 ---
 
@@ -29,23 +29,23 @@
 
 **Variabili server-side** (file `server/`):
 
-| Variabile | File | Rischio |
-|---|---|---|
-| `SUPABASE_URL` | `supabase-storage.ts:3`, `storage.ts:523` | Basso (URL pubblico) |
+| Variabile                   | File                                      | Rischio                              |
+| --------------------------- | ----------------------------------------- | ------------------------------------ |
+| `SUPABASE_URL`              | `supabase-storage.ts:3`, `storage.ts:523` | Basso (URL pubblico)                 |
 | `SUPABASE_SERVICE_ROLE_KEY` | `supabase-storage.ts:4`, `storage.ts:523` | **CRITICO se esposto** — bypassa RLS |
-| `SUPABASE_ANON_KEY` | `supabase-storage.ts:5` | Basso (chiave pubblica by design) |
-| `DATABASE_URL` | `storage.ts:524`, `db.ts:7,13` | Alto se esposto |
-| `SESSION_SECRET` | Secret configurato | Medio (usato per cookie) |
-| `OPENAI_API_KEY` | `server/routes/settings.ts` | Alto se esposto (costi) |
+| `SUPABASE_ANON_KEY`         | `supabase-storage.ts:5`                   | Basso (chiave pubblica by design)    |
+| `DATABASE_URL`              | `storage.ts:524`, `db.ts:7,13`            | Alto se esposto                      |
+| `SESSION_SECRET`            | Secret configurato                        | Medio (usato per cookie)             |
+| `OPENAI_API_KEY`            | `server/routes/settings.ts`               | Alto se esposto (costi)              |
 
 **Variabili client-side** (file `client/`):
 
-| Variabile | File | Rischio |
-|---|---|---|
-| `VITE_SUPABASE_URL` | `client/src/lib/supabase.ts:3` | Basso (URL pubblico) |
+| Variabile                | File                           | Rischio                              |
+| ------------------------ | ------------------------------ | ------------------------------------ |
+| `VITE_SUPABASE_URL`      | `client/src/lib/supabase.ts:3` | Basso (URL pubblico)                 |
 | `VITE_SUPABASE_ANON_KEY` | `client/src/lib/supabase.ts:4` | Basso (anon key, by design pubblica) |
-| `VITE_GA_MEASUREMENT_ID` | analytics | Nessuno |
-| `VITE_FB_PIXEL_ID` | analytics | Nessuno |
+| `VITE_GA_MEASUREMENT_ID` | analytics                      | Nessuno                              |
+| `VITE_FB_PIXEL_ID`       | analytics                      | Nessuno                              |
 
 **Risultato**: Nessuna chiave sensibile (service_role, DATABASE_URL, OPENAI_API_KEY) esposta nel codice client.
 
@@ -58,40 +58,44 @@
 ### 2.3 Express/API Hardening
 
 #### Rate Limiting
+
 **Stato**: **IMPLEMENTATO** su `/api/admin/login`  
 Libreria: `express-rate-limit` — 5 tentativi ogni 15 minuti.  
 **File**: `server/routes/auth.ts:16-22`
 
 #### Security Headers
+
 **Stato**: **IMPLEMENTATO** con `helmet` + middleware custom  
 **File**: `server/index.ts:18-34`
 
 Header attivi su TUTTE le risposte (API e HTML):
 
-| Header | Valore | Scopo |
-|---|---|---|
-| `X-Content-Type-Options` | `nosniff` | Blocca MIME sniffing |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` | Limita invio del referer a terze parti |
-| `X-Frame-Options` | `SAMEORIGIN` | Previene clickjacking (iframe da altri domini) |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disabilita accesso a camera, microfono, GPS |
-| `X-Powered-By` | (rimosso da helmet) | Nasconde tecnologia server |
+| Header                   | Valore                                     | Scopo                                          |
+| ------------------------ | ------------------------------------------ | ---------------------------------------------- |
+| `X-Content-Type-Options` | `nosniff`                                  | Blocca MIME sniffing                           |
+| `Referrer-Policy`        | `strict-origin-when-cross-origin`          | Limita invio del referer a terze parti         |
+| `X-Frame-Options`        | `SAMEORIGIN`                               | Previene clickjacking (iframe da altri domini) |
+| `Permissions-Policy`     | `camera=(), microphone=(), geolocation=()` | Disabilita accesso a camera, microfono, GPS    |
+| `X-Powered-By`           | (rimosso da helmet)                        | Nasconde tecnologia server                     |
 
 Header **disabilitati intenzionalmente** (scelta conservativa):
 
-| Header | Motivo |
-|---|---|
-| `Content-Security-Policy` | Disabilitata per compatibilità con Google Fonts, Supabase CDN, inline scripts di Vite, analytics (GA/FB pixel). Rischio di bloccare risorse legittime. Valutare attivazione in modalità Report-Only come passo successivo. |
+| Header                             | Motivo                                                                                                                                                                                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Content-Security-Policy`          | Disabilitata per compatibilità con Google Fonts, Supabase CDN, inline scripts di Vite, analytics (GA/FB pixel). Rischio di bloccare risorse legittime. Valutare attivazione in modalità Report-Only come passo successivo.       |
 | `Strict-Transport-Security` (HSTS) | Disabilitata per precauzione. HSTS è irreversibile: se attivato e qualcosa va storto con HTTPS, il sito diventa inaccessibile. Attivare solo dopo conferma che www.cameraconvista.it gira stabilmente su HTTPS da almeno 1 mese. |
-| `Cross-Origin-Embedder-Policy` | Disabilitata per compatibilità con risorse cross-origin (Supabase storage, Google Fonts) |
-| `Cross-Origin-Opener-Policy` | Disabilitata per compatibilità con popup OAuth se necessari in futuro |
-| `Cross-Origin-Resource-Policy` | Disabilitata per permettere caricamento immagini da Supabase CDN |
+| `Cross-Origin-Embedder-Policy`     | Disabilitata per compatibilità con risorse cross-origin (Supabase storage, Google Fonts)                                                                                                                                         |
+| `Cross-Origin-Opener-Policy`       | Disabilitata per compatibilità con popup OAuth se necessari in futuro                                                                                                                                                            |
+| `Cross-Origin-Resource-Policy`     | Disabilitata per permettere caricamento immagini da Supabase CDN                                                                                                                                                                 |
 
 #### Auth Protection
+
 **Stato**: **BUONO** — tutti gli endpoint admin usano `requireAuth` middleware.
 
 Autenticazione: cookie `httpOnly`, `secure` in produzione, `sameSite: lax`, session token 32 bytes, bcrypt hash, scadenza 24h.
 
 #### Input Validation
+
 **Stato**: **BUONO con eccezioni** — la maggior parte delle rotte usa `zod` con `.safeParse()`.
 
 ### 2.4 Supabase Storage / Upload
@@ -108,18 +112,18 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 
 ## 3. Top 10 Rischi (impatto × probabilità)
 
-| # | Rischio | Impatto | Probabilità | Priorità | File/Riga |
-|---|---|---|---|---|---|
-| 1 | **Brute force login** — protetto con rate limiting (5 tentativi / 15 min) | CRITICO | BASSA (mitigato) | **P0 FIXED** | `server/routes/auth.ts:16` |
-| 2 | **Upload endpoint** — protetto da `requireAuth` | ALTO | BASSA (mitigato) | **P0 FIXED** | `server/routes/media.ts` |
-| 3 | **Security headers** — helmet configurato con set conservativo | ALTO | BASSA (mitigato) | **P0 FIXED** | `server/index.ts:18-34` |
-| 4 | **RLS Supabase non verificata** — il client browser ha anon key | CRITICO | MEDIA | **P0** | `client/src/lib/supabase.ts:3-4` |
-| 5 | **Nessun rate limiting globale** su API — DoS possibile | MEDIO | MEDIA | **P1** | `server/index.ts` |
-| 6 | **Nessun CORS esplicito** — rischio cross-origin request | MEDIO | BASSA | **P1** | `server/index.ts` |
-| 7 | **Nessuna protezione CSRF** — `sameSite: lax` mitiga parzialmente | MEDIO | BASSA | **P1** | `server/routes/auth.ts` |
-| 8 | **Input validation mancante** su alcuni endpoint | MEDIO | BASSA | **P2** | vari |
-| 9 | **Password policy debole** — minimo 4 caratteri | BASSO | MEDIA | **P2** | `server/routes/auth.ts:66` |
-| 10 | **Dipendenza `qs` con vulnerabilità low** | BASSO | BASSA | **P2** | `package.json` |
+| #   | Rischio                                                                   | Impatto | Probabilità      | Priorità     | File/Riga                        |
+| --- | ------------------------------------------------------------------------- | ------- | ---------------- | ------------ | -------------------------------- |
+| 1   | **Brute force login** — protetto con rate limiting (5 tentativi / 15 min) | CRITICO | BASSA (mitigato) | **P0 FIXED** | `server/routes/auth.ts:16`       |
+| 2   | **Upload endpoint** — protetto da `requireAuth`                           | ALTO    | BASSA (mitigato) | **P0 FIXED** | `server/routes/media.ts`         |
+| 3   | **Security headers** — helmet configurato con set conservativo            | ALTO    | BASSA (mitigato) | **P0 FIXED** | `server/index.ts:18-34`          |
+| 4   | **RLS Supabase non verificata** — il client browser ha anon key           | CRITICO | MEDIA            | **P0**       | `client/src/lib/supabase.ts:3-4` |
+| 5   | **Nessun rate limiting globale** su API — DoS possibile                   | MEDIO   | MEDIA            | **P1**       | `server/index.ts`                |
+| 6   | **Nessun CORS esplicito** — rischio cross-origin request                  | MEDIO   | BASSA            | **P1**       | `server/index.ts`                |
+| 7   | **Nessuna protezione CSRF** — `sameSite: lax` mitiga parzialmente         | MEDIO   | BASSA            | **P1**       | `server/routes/auth.ts`          |
+| 8   | **Input validation mancante** su alcuni endpoint                          | MEDIO   | BASSA            | **P2**       | vari                             |
+| 9   | **Password policy debole** — minimo 4 caratteri                           | BASSO   | MEDIA            | **P2**       | `server/routes/auth.ts:66`       |
+| 10  | **Dipendenza `qs` con vulnerabilità low**                                 | BASSO   | BASSA            | **P2**       | `package.json`                   |
 
 ---
 
@@ -153,6 +157,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 ### A. Verificare Security Headers (senza conoscere il codice)
 
 **Da browser (Chrome/Edge/Firefox)**:
+
 1. Apri il sito (es. `www.cameraconvista.it`)
 2. Premi **F12** per aprire gli Strumenti Sviluppatore
 3. Vai alla scheda **"Network"** (Rete)
@@ -170,6 +175,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 ### B. Verificare SEO (senza conoscere il codice)
 
 **Da browser**:
+
 1. Apri una qualsiasi pagina del sito (es. `/menu`, `/eventi`, `/galleria`)
 2. Clicca col tasto destro sulla pagina → **"Visualizza sorgente pagina"** (oppure premi **Ctrl+U**)
 3. Cerca nella parte `<head>` del sorgente:
@@ -184,7 +190,7 @@ npm audit: 1 vulnerabilità low (qs - DoS via comma parsing)
 
 1. Vai alla pagina di login admin (`/admina`)
 2. Inserisci una password errata e premi "Entra" per **6 volte di fila**
-3. Al 6° tentativo dovresti vedere il messaggio: *"Troppi tentativi di login. Riprova tra 15 minuti."*
+3. Al 6° tentativo dovresti vedere il messaggio: _"Troppi tentativi di login. Riprova tra 15 minuti."_
 4. Dopo 15 minuti, il login torna a funzionare normalmente.
 
 ---
@@ -225,4 +231,4 @@ Nessun duplicato `<title>` su nessuna pagina.
 
 ---
 
-*Fine report.*
+_Fine report._

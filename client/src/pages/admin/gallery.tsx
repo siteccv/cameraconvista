@@ -42,7 +42,11 @@ export default function GalleryPage() {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile aggiornare la visibilità.", "Failed to update visibility."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile aggiornare la visibilità.", "Failed to update visibility."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -53,10 +57,17 @@ export default function GalleryPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/admin/galleries"] });
-      toast({ title: t("Eliminato", "Deleted"), description: t("Album eliminato con successo.", "Album deleted successfully.") });
+      toast({
+        title: t("Eliminato", "Deleted"),
+        description: t("Album eliminato con successo.", "Album deleted successfully."),
+      });
     },
     onError: () => {
-      toast({ title: t("Errore", "Error"), description: t("Impossibile eliminare l'album.", "Failed to delete album."), variant: "destructive" });
+      toast({
+        title: t("Errore", "Error"),
+        description: t("Impossibile eliminare l'album.", "Failed to delete album."),
+        variant: "destructive",
+      });
     },
   });
 
@@ -71,7 +82,14 @@ export default function GalleryPage() {
   });
 
   const handleDelete = (gallery: Gallery) => {
-    if (confirm(t("Sei sicuro di voler eliminare questo album e tutte le sue immagini?", "Are you sure you want to delete this album and all its images?"))) {
+    if (
+      confirm(
+        t(
+          "Sei sicuro di voler eliminare questo album e tutte le sue immagini?",
+          "Are you sure you want to delete this album and all its images?",
+        ),
+      )
+    ) {
       deleteMutation.mutate(gallery.id);
     }
   };
@@ -104,7 +122,13 @@ export default function GalleryPage() {
               {t("Gestisci gli album fotografici del ristorante", "Manage restaurant photo albums")}
             </p>
           </div>
-          <Button onClick={() => { setEditingGallery(null); setShowGalleryModal(true); }} data-testid="button-new-gallery">
+          <Button
+            onClick={() => {
+              setEditingGallery(null);
+              setShowGalleryModal(true);
+            }}
+            data-testid="button-new-gallery"
+          >
             <Plus className="h-4 w-4 mr-2" />
             {t("Nuovo Album", "New Album")}
           </Button>
@@ -121,7 +145,10 @@ export default function GalleryPage() {
             <Images className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
             <h3 className="text-lg font-medium mb-2">{t("Nessun album", "No albums")}</h3>
             <p className="text-muted-foreground mb-4">
-              {t("Crea il primo album per iniziare a organizzare le foto.", "Create the first album to start organizing photos.")}
+              {t(
+                "Crea il primo album per iniziare a organizzare le foto.",
+                "Create the first album to start organizing photos.",
+              )}
             </p>
             <Button onClick={() => setShowGalleryModal(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -131,8 +158,12 @@ export default function GalleryPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedGalleries.map((gallery, index) => (
-              <Card key={gallery.id} className="overflow-hidden" data-testid={`gallery-card-${gallery.id}`}>
-                <div 
+              <Card
+                key={gallery.id}
+                className="overflow-hidden"
+                data-testid={`gallery-card-${gallery.id}`}
+              >
+                <div
                   className="relative aspect-square bg-muted cursor-pointer hover-elevate"
                   onClick={() => setManagingImages(gallery)}
                 >
@@ -193,7 +224,10 @@ export default function GalleryPage() {
                       <Button
                         variant="outline"
                         size="icon"
-                        onClick={() => { setEditingGallery(gallery); setShowGalleryModal(true); }}
+                        onClick={() => {
+                          setEditingGallery(gallery);
+                          setShowGalleryModal(true);
+                        }}
                         data-testid={`button-edit-gallery-${gallery.id}`}
                       >
                         <Edit2 className="h-4 w-4" />
@@ -218,7 +252,10 @@ export default function GalleryPage() {
 
       <GalleryModal
         open={showGalleryModal}
-        onClose={() => { setShowGalleryModal(false); setEditingGallery(null); }}
+        onClose={() => {
+          setShowGalleryModal(false);
+          setEditingGallery(null);
+        }}
         gallery={editingGallery}
       />
 

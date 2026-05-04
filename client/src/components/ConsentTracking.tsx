@@ -31,15 +31,20 @@ function loadGoogleAnalytics(gaId: string) {
 
 function loadMetaPixel(pixelId: string) {
   if (!pixelId || document.getElementById("fb-pixel-script")) return;
-  window.fbq = window.fbq || function () {
-    (window.fbq as unknown as { callMethod?: (...a: unknown[]) => void; queue: unknown[] }).queue =
-      (window.fbq as unknown as { queue: unknown[] }).queue || [];
-    if ((window.fbq as unknown as { callMethod?: (...a: unknown[]) => void }).callMethod) {
-      (window.fbq as unknown as { callMethod: (...a: unknown[]) => void }).callMethod(...Array.from(arguments));
-    } else {
-      (window.fbq as unknown as { queue: unknown[] }).queue.push(arguments);
-    }
-  };
+  window.fbq =
+    window.fbq ||
+    function () {
+      (
+        window.fbq as unknown as { callMethod?: (...a: unknown[]) => void; queue: unknown[] }
+      ).queue = (window.fbq as unknown as { queue: unknown[] }).queue || [];
+      if ((window.fbq as unknown as { callMethod?: (...a: unknown[]) => void }).callMethod) {
+        (window.fbq as unknown as { callMethod: (...a: unknown[]) => void }).callMethod(
+          ...Array.from(arguments),
+        );
+      } else {
+        (window.fbq as unknown as { queue: unknown[] }).queue.push(arguments);
+      }
+    };
   window._fbq = window.fbq;
 
   const script = document.createElement("script");
