@@ -10,7 +10,6 @@ Serve a capire come lavorare nel progetto senza ricostruire ogni volta tutto da 
 1. Codice reale
 2. Questo file
 3. `DNA/`
-4. `report/` come storico
 
 Se documentazione e codice divergono, vale il codice. La documentazione va poi riallineata.
 
@@ -28,8 +27,6 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
   Workflow Git/GitHub persistente anche in export
 - `DNA/`
   Contesto operativo canonico e sintetico
-- `report/`
-  Archivio storico di audit, diagnostiche e report una tantum
 
 ## File DNA da usare
 
@@ -50,7 +47,7 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
 
 1. Non usare `DNA/` come sostituto del codice.
 2. Leggere solo i file `DNA` pertinenti al task.
-3. Non usare `report/` come fonte di verita corrente.
+3. Non usare materiale storico come fonte di verita corrente.
 4. Non creare documentazione parallela con lo stesso scopo in piu posti.
 5. Aggiornare `DNA/` solo quando cambia una logica, un vincolo o un workflow reale.
 6. Non gonfiare `DNA/` con dettagli di UI, liste file-per-file o note narrative inutili.
@@ -89,4 +86,4 @@ Non aggiornare `DNA/` per:
 - micro-cambi UI
 - descrizioni estetiche
 - dettagli ovvi leggibili direttamente dai file
-- note temporanee o report investigativi
+- note temporanee o analisi storiche

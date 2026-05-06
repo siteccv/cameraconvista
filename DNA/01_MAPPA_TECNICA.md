@@ -104,4 +104,4 @@ Redirect attivi:
 - `README_OPERATIVO.md`
 - `GITHUB_PUSH_GUIDE.md`
 
-I file root diversi da questi devono essere eccezioni motivate. Il resto della documentazione deve stare in `DNA/` oppure in `report/`.
+I file root diversi da questi devono essere eccezioni motivate. Lo storico non operativo va lasciato fuori dal runtime documentale attivo e, se serve, recuperato da Git o dai backup.

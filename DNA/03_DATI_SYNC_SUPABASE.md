@@ -110,4 +110,4 @@ Prima di toccare dati:
 1. capire se il flusso e draft oppure snapshot pubblico
 2. capire se il backend attivo e Supabase oppure PostgreSQL diretto
 3. evitare scritture non richieste
-4. non usare `report/` per dedurre stato dati corrente
+4. non usare note storiche o audit passati per dedurre stato dati corrente

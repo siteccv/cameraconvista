@@ -9,7 +9,7 @@ Raccogliere le regole non negoziabili e le decisioni gia prese che l'agent non d
 - Il sito e live
 - Il codice e la fonte di verita primaria
 - `DNA/` serve a ridurre errori, non a duplicare il repo
-- `report/` e storico, non fonte di verita operativa
+- Lo storico non operativo non deve restare nel percorso documentale attivo
 - Non creare nuovi file `.md` paralleli con lo stesso scopo
 - Non fare refactor larghi o estetici senza richiesta
 - Non modificare logiche di business senza richiesta
@@ -21,7 +21,6 @@ Raccogliere le regole non negoziabili e le decisioni gia prese che l'agent non d
 - L'entry point per l'agent e `README_OPERATIVO.md`
 - `GITHUB_PUSH_GUIDE.md` resta in root per export e operativita
 - `DNA/` deve restare corta e canonica
-- `report/` contiene diagnostiche, audit e storico
 - `scripts/` e la cartella unica per build e utility operative
 - `BookingDialog` resta condiviso
 - La logica `PRIVATE_DINNER_ENABLED` controlla la sottopagina cena
@@ -62,5 +61,5 @@ Non aggiornare `DNA/` per:
 2. selezionare solo i file `DNA` pertinenti
 3. verificare il codice reale
 4. dichiarare eventuali mismatch tra docs e codice
-5. trattare le note in `report/` come storico
+5. trattare note storiche e audit passati come materiale secondario, recuperabile da Git o backup
 6. tenere la documentazione asciutta, non enciclopedica
