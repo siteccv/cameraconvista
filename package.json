@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "NODE_ENV=development node --env-file-if-exists=.env --import tsx server/index.ts",
-    "build": "node --env-file-if-exists=.env --import tsx script/build.ts",
+    "build": "node --env-file-if-exists=.env --import tsx scripts/build.ts",
     "start": "NODE_ENV=production node --env-file-if-exists=.env dist/index.cjs",
     "check": "tsc",
     "db:push": "node --env-file-if-exists=.env ./node_modules/drizzle-kit/bin.cjs push",

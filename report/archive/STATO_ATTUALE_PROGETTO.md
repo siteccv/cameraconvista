@@ -43,7 +43,7 @@
 
 - **Dipendenze rimosse**: Eliminati pacchetti npm non importati dal codice attivo o dalla configurazione, inclusi residui auth/session/upload/cloud non collegati al runtime corrente
 - **Dipendenze dichiarate correttamente**: Aggiunti come dipendenze dirette `libphonenumber-js` e `@radix-ui/react-visually-hidden`, gia' importate dal codice ma prima risolte transitivamente
-- **Build server ripulita**: `script/build.ts` ora contiene solo allowlist backend coerente con import reali e servizi effettivi
+- **Build server ripulita**: `scripts/build.ts` ora contiene solo allowlist backend coerente con import reali e servizi effettivi
 - **Artefatti locali rimossi**: Eliminati `client/dist` duplicato/stale e directory locali vuote `.agents` / `.config`
 - **File mantenuti intenzionalmente**: Tutti i file `.md`, backup, asset storici e libreria UI sono stati mantenuti perche' non eliminabili con certezza assoluta senza rischio operativo
 - **Verifiche**: `npm run check` e `npm run build` completati con successo
@@ -575,11 +575,11 @@ Verifica completa del progetto: errori, conflitti, file morti, residui, duplicat
 
 I report tecnici del progetto sono stati consolidati in 3 documenti organizzati:
 
-| Documento                                 | Contenuto                                                                                                                   |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `report/MIGRATION_IMAGE_SYSTEM.md`        | Architettura ImageContainer, migrazioni pagine, fixedCropRatio, sistema preview mobile, ottimizzazione caricamento immagini |
-| `report/TECHNICAL_AUDIT_DATABASE.md`      | Schema database, integrazione Supabase, Google Sheets sync, architettura server modulare, problemi risolti                  |
-| `report/INFRASTRUCTURE_SEO_COMPLIANCE.md` | Deployment, middleware SEO, robots.txt/sitemap, canonical redirect, privacy/cookie GDPR, Search Console                     |
+| Documento                                         | Contenuto                                                                                                                   |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `report/archive/MIGRATION_IMAGE_SYSTEM.md`        | Architettura ImageContainer, migrazioni pagine, fixedCropRatio, sistema preview mobile, ottimizzazione caricamento immagini |
+| `report/archive/TECHNICAL_AUDIT_DATABASE.md`      | Schema database, integrazione Supabase, Google Sheets sync, architettura server modulare, problemi risolti                  |
+| `report/archive/INFRASTRUCTURE_SEO_COMPLIANCE.md` | Deployment, middleware SEO, robots.txt/sitemap, canonical redirect, privacy/cookie GDPR, Search Console                     |
 
 ---
 
