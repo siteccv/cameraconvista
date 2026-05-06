@@ -1,21 +1,15 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-set -e
+set -euo pipefail
 
-echo "🚀 Deploying to GitHub..."
+echo "Preflight GitHub push..."
+bash scripts/preflight-github-push.sh
 
-# Check if there are uncommitted changes
 if git status --porcelain | grep -q .; then
-  echo "📝 Committing changes..."
-  git add -A
-  
-  # Generate timestamp for commit message
-  TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
-  git commit -m "Auto-sync: $TIMESTAMP"
-  echo "✅ Commit created"
+  echo "Errore: worktree non pulito. Crea/stagia/committa intenzionalmente prima del push." >&2
+  exit 1
 fi
 
-# Push to GitHub using 'github' remote (will show "Everything up-to-date" if nothing to push)
-echo "📤 Pushing to GitHub..."
+echo "Push su github/main..."
 git push github main
-echo "✅ Deployment complete!"
+echo "Push completato."

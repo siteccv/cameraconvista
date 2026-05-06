@@ -19,12 +19,13 @@ La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatu
 ├── LOGOS/                     # Logo files (single source of truth)
 ├── BACKUP/                    # Backup archives
 ├── DNA/                       # Documentazione progetto (questa cartella)
+├── GITHUB_PUSH_GUIDE.md       # Guida persistente per commit/push e export progetto
 ├── .github/workflows/         # GitHub Actions Quality + Supabase Keepalive
 ├── attached_assets/           # Asset allegati (logo_ccv.png per @assets alias)
 ├── e2e/                       # Smoke test Playwright
 ├── tests/                     # Test unit/component Vitest
 ├── script/                    # Build script TypeScript
-├── scripts/                   # Script di migrazione/utility
+├── scripts/                   # Script di migrazione/utility + bootstrap/preflight GitHub push
 ├── drizzle.config.ts          # Configurazione Drizzle Kit
 ├── eslint.config.js           # Config ESLint
 ├── playwright.config.ts       # Config Playwright

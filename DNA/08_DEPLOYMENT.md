@@ -76,6 +76,12 @@ Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa
 | `GITHUB_URL`             | URL repository per operativita locale  |
 | `GITHUB_TOKEN`           | Token GitHub locale, mai da committare |
 
+Nota operativa:
+
+- Il repository canonico e `https://github.com/siteccv/cameraconvista.git`
+- Il remote Git atteso nel progetto e `github`
+- In caso di export del progetto, rieseguire `bash scripts/bootstrap-github-remote.sh`
+
 ## Database
 
 ### PostgreSQL Diretto (Default senza Supabase)
@@ -167,6 +173,15 @@ La pubblicazione del sito avviene su hosting Node standard:
 - Start: `npm run start`
 - Dominio produzione: `https://www.cameraconvista.it`
 - Database produzione: Supabase
+
+## GitHub Push Persistente
+
+Per rendere il flusso commit/push riusabile anche in export progetto:
+
+- guida persistente in root: `GITHUB_PUSH_GUIDE.md`
+- bootstrap remote: `scripts/bootstrap-github-remote.sh`
+- preflight locale: `scripts/preflight-github-push.sh`
+- helper push: `deploy.sh`
 
 **NOTA**: La "pubblicazione" del contenuto (draft → public) è un'operazione interna dell'app, non da confondere con il deployment dell'applicazione.
 

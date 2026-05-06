@@ -269,6 +269,12 @@ Usare solo se richiesto esplicitamente.
 7. Verificare `git ls-remote github refs/heads/main`.
 8. Verificare workflow GitHub Actions.
 
+Riferimenti persistenti da mantenere anche in export progetto:
+
+- [GITHUB_PUSH_GUIDE.md](/Users/dero/Documents/SITE-CCV/GITHUB_PUSH_GUIDE.md)
+- `scripts/bootstrap-github-remote.sh`
+- `scripts/preflight-github-push.sh`
+
 ## Backup Policy
 
 Formato corrente:

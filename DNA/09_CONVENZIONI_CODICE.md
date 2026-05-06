@@ -273,4 +273,7 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 - Comando: "esegui commit in github"
 - Branch: main
 - Remote operativo locale: `github`
+- File persistente da mantenere anche in export: `GITHUB_PUSH_GUIDE.md`
+- Bootstrap remoto: `bash scripts/bootstrap-github-remote.sh`
+- Preflight: `bash scripts/preflight-github-push.sh`
 - Dopo push verificare `git ls-remote github refs/heads/main` e stato GitHub Actions
