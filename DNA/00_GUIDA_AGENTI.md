@@ -36,8 +36,9 @@ Prima di modificare codice o configurazioni:
   - `Quality` su push main e pull request.
   - `Supabase Keepalive` schedulato ogni giorno e manuale.
 - Ultimo gate locale completo richiesto: `npm run check:all`.
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`.
-- Ultimo refresh backup: 5 Maggio 2026 00:43 Europe/Rome, dopo il deploy SEO tapas/cocktail/eventi.
+- Ultime modifiche locali documentate: aggiornamento copy del `BookingDialog`, CTA "Prenota un tavolo" aggiunto in fondo a Menu e Cocktail Bar, riallineamento whitelist pubblica `site_settings`.
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`.
+- Ultimo refresh backup: 6 Maggio 2026 11:53 Europe/Rome, archivio locale creato dopo aggiornamento DNA, booking flow e hardening `site_settings`.
 - `BACKUP/` e `*.tar` sono esclusi da Git.
 
 ## Mappa Documentazione DNA

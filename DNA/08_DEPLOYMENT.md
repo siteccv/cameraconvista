@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
 La sequenza raccomandata prima di push/deploy e `npm run check:all`, ora comprensiva di check, lint, format, audit, build, coverage e Playwright E2E. La build continua a produrre `dist/` come artefatto runtime.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 

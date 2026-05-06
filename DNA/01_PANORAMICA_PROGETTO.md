@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-Il progetto e stato consolidato come sito hospitality live con pipeline enterprise locale verde: typecheck, lint, format, audit, build, coverage e smoke E2E. La regola operativa primaria resta non compromettere sito pubblico, menu e funzionalita clienti attive.
+Il progetto resta un sito hospitality live con pipeline locale verde e documentazione riallineata al codice corrente. Il booking dialog condiviso e ora usato in Home, Menu e Cocktail Bar; il copy del modale e stato aggiornato in IT/EN con a-capo espliciti.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -49,9 +49,9 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 ### Sito Pubblico
 
 - **Home**: Hero image, branding, logo, tagline, pulsante prenotazione
-- **Menu**: Lista piatti per categoria con prezzi
+- **Menu**: Lista piatti per categoria con prezzi + CTA finale "Prenota un tavolo"
 - **Carta Vini**: Lista vini per categoria con regione, anno, prezzo
-- **Cocktail Bar**: Lista cocktail per categoria
+- **Cocktail Bar**: Lista cocktail per categoria + CTA finale "Prenota un tavolo"
 - **Eventi**: Griglia di poster 9:16 stile Instagram Story
 - **Eventi Privati**: Pagina dedicata per eventi privati
 - **Galleria**: Album con copertine, viewer slideshow
@@ -60,7 +60,6 @@ Il progetto e stato consolidato come sito hospitality live con pipeline enterpri
 ### Pannello Admin (`/admina`)
 
 - **Sezioni Pagine**: Editing WYSIWYG di tutte le pagine con anteprima iPhone 15 Pro (393x852px) e scaling CSS deterministico.
-- **Admin Control Center**: Sistema di blocco zoom globale per garantire coerenza visuale 1:1 durante l'editing.
 - **Eventi**: CRUD completo con max 10 eventi
 - **Galleria Album**: Gestione album e immagini con controlli ImageContainer
 - **Libreria Media**: Upload, categorizzazione, gestione media

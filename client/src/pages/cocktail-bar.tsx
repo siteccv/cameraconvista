@@ -1,18 +1,25 @@
+import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
+import { BookingDialog } from "@/components/home/BookingDialog";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { PAGE_IDS, COCKTAIL_BAR_DEFAULTS } from "@/lib/page-defaults";
 import type { Cocktail } from "@shared/schema";
 
 export default function CocktailBar() {
   const { t } = useLanguage();
-  const { adminPreview } = useAdmin();
+  const { adminPreview, forceMobileLayout } = useAdmin();
+  const viewportIsMobile = useIsMobile();
+  const isMobile = forceMobileLayout || viewportIsMobile;
+  const [bookingDialogOpen, setBookingDialogOpen] = useState(false);
 
   const {
     getBlock,
@@ -300,6 +307,28 @@ export default function CocktailBar() {
           />
         </div>
       </section>
+
+      <section className="pb-12 md:pb-20">
+        <div className="container mx-auto px-4 flex justify-center">
+          <Button
+            onClick={() => setBookingDialogOpen(true)}
+            className={`${isMobile ? "px-6 py-4 text-[10px] tracking-[0.08em]" : "px-10 py-5 text-xs tracking-[0.1em]"} font-medium text-white rounded-full shadow-lg`}
+            style={{
+              backgroundColor: "#722f37",
+              fontFamily: "Montserrat, sans-serif",
+            }}
+            data-testid="button-book-table-cocktail-bar"
+          >
+            {t("PRENOTA UN TAVOLO", "BOOK A TABLE")}
+          </Button>
+        </div>
+      </section>
+
+      <BookingDialog
+        open={bookingDialogOpen}
+        onOpenChange={setBookingDialogOpen}
+        isMobile={isMobile}
+      />
     </PublicLayout>
   );
 }

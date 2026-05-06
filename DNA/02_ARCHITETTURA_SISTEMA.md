@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
 Architettura confermata: React/Vite client, Express API, storage Supabase/PostgreSQL e layer admin separato. La pipeline Quality ora verifica anche format, audit e coverage prima di ogni pubblicazione.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 

@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 5 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-Audit npm verde con 0 vulnerabilita dopo aggiornamenti mirati. Verificata e corretta manualmente in Supabase la policy pubblica di `site_settings`: ora usa whitelist esplicita e non espone `admin_password`, `admin_password_hash` o `resend_api_key`.
+Audit npm verde con 0 vulnerabilita dopo aggiornamenti mirati. Verificata e corretta manualmente in Supabase la policy pubblica di `site_settings`; inoltre il route Express pubblico `/api/site-settings` e stato riallineato alla stessa whitelist esplicita, cosi non espone `admin_password`, `admin_password_hash`, `resend_api_key` o altre chiavi non pubbliche.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -100,6 +100,7 @@ RLS attiva su **tutte le tabelle critiche**:
 - **Scrittura**: Consentita esclusivamente tramite `service_role` (backend Express)
 - **Tabelle sensibili** (`users`, `admin_sessions`): Nessun accesso `anon`
 - **`site_settings`**: SELECT pubblico consentito solo per whitelist operativa (`footer_settings`, `menu_category_map`, snapshot pubblici, link sito/admin). Chiavi sensibili escluse: `admin_password`, `admin_password_hash`, `resend_api_key`.
+- **Backend Express**: anche l'endpoint pubblico `GET /api/site-settings` applica ora la stessa whitelist esplicita lato applicazione, evitando esposizioni accidentali tramite `service_role`
 
 ### Verifica
 

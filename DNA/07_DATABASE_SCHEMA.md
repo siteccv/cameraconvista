@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
 Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggiornati solo pacchetti Drizzle/Zod compatibili con typecheck verde e audit a zero vulnerabilita.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 

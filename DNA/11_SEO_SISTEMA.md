@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
 SEO server-side e routing canonico non sono stati modificati dall hardening. Gli smoke E2E includono pagine pubbliche principali per intercettare regressioni di render e navigazione.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 

@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-La pagina Menu non mostra piu il titolo hero sovrapposto in admin. Eventi Privati mostra solo Aperitivo ed Evento Privato Esclusivo; la Cena e disattivata via flag ripristinabile.
+La pagina Menu non mostra piu il titolo hero sovrapposto in admin. Menu e Cocktail Bar espongono ora anche un CTA finale "Prenota un tavolo" che riusa il `BookingDialog` condiviso con Home. Eventi Privati mostra solo Aperitivo ed Evento Privato Esclusivo; la Cena e disattivata via flag ripristinabile.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -54,6 +54,8 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Hero + intro
 - Menu items raggruppati per categoria (Antipasti, Primi, Secondi, Dolci)
 - Typography: font-display per titoli, `.price-text` per prezzi con font Spectral
+- CTA finale centrata "Prenota un tavolo" con stesso stile della Home
+- Apertura dello stesso `BookingDialog` condiviso usato in Home e Dove Siamo
 
 ### Carta Vini / Lista Vini (`/lista-vini`)
 
@@ -67,6 +69,8 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Hero + intro
 - Cocktail raggruppati per categoria (Signature, Classici, Analcolici)
 - Stessa typography del menu
+- CTA finale centrata "Prenota un tavolo" con stesso stile della Home/Menu
+- Apertura dello stesso `BookingDialog` condiviso
 
 ### Eventi (`/eventi`)
 
@@ -143,6 +147,12 @@ Tutte le pagine pubbliche seguono questo pattern:
 
 - Pulsante per traduzione automatica IT→EN o EN→IT
 - Usa OpenAI via endpoint `/api/admin/translate`
+
+### BookingDialog (`client/src/components/home/BookingDialog.tsx`)
+
+- Modale condiviso richiamato da Home, Menu, Cocktail Bar e Dove Siamo
+- Copy bilingue gestito via `t(it, en)` in stringhe multilinea
+- **Preservazione a-capo**: il testo viene renderizzato con `split("\n")` e `span.block`, cosi i ritorni a capo restano identici su desktop e mobile
 
 ### GalleryModal
 

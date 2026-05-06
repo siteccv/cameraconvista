@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina Cena degli Eventi Privati quando il flag `PRIVATE_DINNER_ENABLED` e false. La pagina dedicata rimane nel codice per ripristino controllato.
+Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina Cena degli Eventi Privati quando il flag `PRIVATE_DINNER_ENABLED` e false. La pagina dedicata rimane nel codice per ripristino controllato. Il controllo globale di zoom non fa piu parte dell'header admin corrente.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -156,7 +156,6 @@ In modalità admin preview:
 - **Dimensioni**: 393x852px (viewport iPhone 15 Pro reale)
 - **Tecnologia**: CSS `transform: scale()` con `transform-origin: top left` per scaling deterministico senza distorsione dei pixel.
 - **Precisione**: Il contenuto renderizza a risoluzione reale mobile, poi viene scalato visivamente per il desktop.
-- **Zoom Lock**: Controllo globale nell'header admin per forzare la visualizzazione al 100% compensando lo zoom del browser.
 - `forceMobileLayout` forzato per tutti i componenti figli.
 
 ### ImageContainer (Nuovo Sistema)

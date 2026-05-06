@@ -10,6 +10,16 @@ import { requireAuth } from "./helpers";
 
 const FOOTER_SETTINGS_KEY = "footer_settings";
 const SITE_LINKS_KEY = "site_links";
+const PUBLIC_SITE_SETTINGS_KEYS = new Set([
+  FOOTER_SETTINGS_KEY,
+  "menu_category_map",
+  "published_menu_items",
+  "published_wines",
+  "published_cocktails",
+  SITE_LINKS_KEY,
+  "view_admin_url",
+  "view_site_url",
+]);
 
 // ========================================
 // Public Routes
@@ -19,7 +29,7 @@ export const publicSettingsRouter = Router();
 publicSettingsRouter.get("/site-settings", async (req, res) => {
   try {
     const settings = await storage.getSiteSettings();
-    const publicSettings = settings.filter((s) => !s.key.includes("password"));
+    const publicSettings = settings.filter((s) => PUBLIC_SITE_SETTINGS_KEYS.has(s.key));
     res.json(publicSettings);
   } catch (error) {
     console.error("Error fetching site settings:", error);

@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatura `Backup_<giorno>_<Mese>_<HH-MM>.tar` e restare fuori dal runtime applicativo.
+La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatura `Backup_<giorno>_<Mese>_<HH-MM>.tar` e restare fuori dal runtime applicativo. `BookingDialog.tsx` resta il punto unico di verita per il modale condiviso di prenotazione.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -68,7 +68,7 @@ client/
     │   │       ├── ImageZoomModal.tsx  # Zoom/offset immagine singola
     │   │       └── index.ts           # Barrel export
     │   ├── home/              # Componenti home page
-    │   │   ├── BookingDialog.tsx       # Dialog prenotazione
+    │   │   ├── BookingDialog.tsx       # Dialog prenotazione condiviso (Home, Menu, Cocktail Bar)
     │   │   ├── PhilosophySection.tsx   # Sezione filosofia
     │   │   ├── TeaserCard.tsx         # Card teaser
     │   │   ├── TeaserSection.tsx      # Sezione teaser
@@ -100,9 +100,9 @@ client/
     │   └── utils.ts           # cn() e utility generali
     └── pages/
         ├── home.tsx           # Pagina home
-        ├── menu.tsx           # Pagina menu
+        ├── menu.tsx           # Pagina menu + CTA finale prenotazione
         ├── carta-vini.tsx     # Pagina carta vini
-        ├── cocktail-bar.tsx   # Pagina cocktail bar
+        ├── cocktail-bar.tsx   # Pagina cocktail bar + CTA finale prenotazione
         ├── eventi.tsx         # Pagina eventi
         ├── event-detail.tsx   # Dettaglio singolo evento
         ├── eventi-privati.tsx # Pagina eventi privati

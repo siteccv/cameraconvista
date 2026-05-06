@@ -2,11 +2,11 @@
 
 ---
 
-## Aggiornamento Operativo - 4 Maggio 2026
+## Aggiornamento Operativo - 6 Maggio 2026
 
-Le logiche draft/publish, snapshot pubblici e sync restano invariate. Gli smoke E2E validano i flussi read-only critici senza scrivere su database live o attivare sincronizzazioni esterne.
+Le logiche draft/publish e sync restano invariate. Il booking dialog condiviso e i CTA di prenotazione delle pagine lista sono stati riallineati al codice corrente. Gli smoke E2E continuano a validare i flussi read-only critici senza scrivere su database live o attivare sincronizzazioni esterne.
 
-- Backup operativo corrente: `BACKUP/Backup_10_Mar_15-20.tar`
+- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
 - Gate locale richiesto: `npm run check:all`
 - Stato gate: verde al termine dell hardening locale
 
@@ -137,6 +137,23 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 - Upload endpoint: protetto con `requireAuth`
 
 > Dettagli completi sulla sicurezza: vedi `12_SICUREZZA_SITO.md`
+
+## Sistema Prenotazione Tavolo
+
+### BookingDialog condiviso
+
+- Il modale `BookingDialog` e condiviso tra Home, Menu, Cocktail Bar e Dove Siamo
+- I pulsanti "PRENOTA UN TAVOLO" in queste pagine aprono tutti lo stesso dialog e poi inoltrano a `https://cameraconvista.resos.com/booking`
+- Il copy del modale e bilingue IT/EN e viene mantenuto in stringhe multilinea nel componente
+
+### Preservazione a-capo
+
+```typescript
+const bookingNoticeLines = bookingNotice.split("\n");
+```
+
+- Ogni riga viene renderizzata come elemento block separato
+- Questo garantisce identico rispetto di punti e ritorni a capo su desktop e mobile
 
 ## Sistema Eventi
 
@@ -304,12 +321,11 @@ La configurazione è semplificata e memorizzata in `site_settings` con chiave `g
 
 ```
 GET /api/menu-items  → legge da site_settings["published_menu_items"]
-                     → fallback: legge da tabella menu_items
 GET /api/wines       → legge da site_settings["published_wines"]
-                     → fallback: legge da tabella wines
 GET /api/cocktails   → legge da site_settings["published_cocktails"]
-                     → fallback: legge da tabella cocktails
 ```
+
+- Se lo snapshot pubblicato manca o e invalido, le route pubbliche restituiscono array vuoti finche non viene eseguita la pubblicazione dal pannello admin
 
 ### UI Admin
 

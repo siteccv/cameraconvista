@@ -17,6 +17,17 @@ interface BookingDialogProps {
 
 export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogProps) {
   const { t } = useLanguage();
+  const bookingNotice = t(
+    `Consulta il nuovo menù prima di prenotare.
+La nostra cucina cambia ritmo:
+Tapas da condividere, sapori pieni e
+un’esperienza più libera e conviviale.`,
+    `Our kitchen is changing pace:
+small plates to share, full flavours,
+and a freer, more convivial experience.
+Please view our new menu before booking.`,
+  );
+  const bookingNoticeLines = bookingNotice.split("\n");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -27,22 +38,14 @@ export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogPro
           <DialogTitle className="text-center font-display text-xl">
             {t("Prima di prenotare", "Before you book")}
           </DialogTitle>
-          <DialogDescription className="text-center pt-4 space-y-1 text-[13px] sm:text-sm">
-            <p>
-              {t(
-                "Accettiamo prenotazioni esclusivamente per la cena.",
-                "We accept reservations exclusively for dinner.",
-              )}
-            </p>
-            <p>
-              {t(
-                "Verrà richiesta una carta di credito a garanzia,",
-                "A credit card will be required as a guarantee,",
-              )}
-            </p>
-            <p>{t("con addebito della penale SOLO", "and a penalty will be charged ONLY")}</p>
-            <p>{t("in caso di mancata presentazione,", "in the event of a no-show,")}</p>
-            <p>{t("senza preventiva comunicazione.", "without prior notice.")}</p>
+          <DialogDescription className="pt-4 text-center text-[13px] sm:text-sm">
+            <div className="leading-relaxed">
+              {bookingNoticeLines.map((line, index) => (
+                <span key={`${line}-${index}`} className="block">
+                  {line}
+                </span>
+              ))}
+            </div>
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-row justify-center gap-3 sm:justify-center pt-4">
