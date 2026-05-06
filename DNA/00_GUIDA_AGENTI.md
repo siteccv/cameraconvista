@@ -18,6 +18,7 @@ Prima di modificare codice o configurazioni:
 - Preferire interventi chirurgici e reversibili.
 - Non cambiare layout, testi, logiche, routing o flussi se non richiesto esplicitamente.
 - Non scrivere dati nel database live salvo richiesta esplicita.
+- Eccezione tecnica nota: l'avvio del backend puo ripulire automaticamente solo le `admin_sessions` scadute come housekeeping.
 - Non lanciare sync Google Sheets salvo richiesta esplicita.
 - Non inviare email reali salvo richiesta esplicita.
 - Non stampare segreti, token o chiavi in chat/log.
@@ -35,10 +36,10 @@ Prima di modificare codice o configurazioni:
 - Workflow GitHub attivi:
   - `Quality` su push main e pull request.
   - `Supabase Keepalive` schedulato ogni giorno e manuale.
-- Ultimo gate locale completo richiesto: `npm run check:all`.
-- Ultime modifiche locali documentate: aggiornamento copy del `BookingDialog`, CTA "Prenota un tavolo" aggiunto in fondo a Menu e Cocktail Bar, riallineamento whitelist pubblica `site_settings`.
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`.
-- Ultimo refresh backup: 6 Maggio 2026 11:53 Europe/Rome, archivio locale creato dopo aggiornamento DNA, booking flow e hardening `site_settings`.
+- Gate completo raccomandato: `npm run check:all`.
+- Ultime modifiche locali documentate: hardening auth admin, cleanup periodica delle sessioni scadute, logging API sintetico, lazy loading route-level, preload immagini differito, CTA booking su Menu/Cocktail Bar, riallineamento copy `BookingDialog`, gestione piu sicura delle sequence ID Supabase.
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`.
+- Ultimo refresh backup: 6 Maggio 2026 13:10 Europe/Rome, archivio locale creato dopo riallineamento DNA, hardening runtime e verifica locale completa.
 - `BACKUP/` e `*.tar` sono esclusi da Git.
 
 ## Mappa Documentazione DNA
@@ -76,6 +77,8 @@ npm run check:all
 ```
 
 Esegue: typecheck, lint, format check, audit, build, coverage unit e smoke E2E.
+
+Nota operativa: al 6 Maggio 2026 `npm run audit` segnala ancora 2 vulnerabilita moderate transitive (`express-rate-limit` → `ip-address`), quindi il gate resta il riferimento completo ma non chiude completamente verde finche il warning non viene risolto upstream o con aggiornamento dipendenze compatibile.
 
 ### Singoli controlli
 
@@ -265,7 +268,7 @@ Usare solo se richiesto esplicitamente.
 3. Eseguire gate richiesto, preferibilmente `npm run check:all`.
 4. Stagiare solo file pertinenti.
 5. Commit con messaggio chiaro.
-6. `git push github main`.
+6. `git push github main` oppure, in caso di `403`, usare il fallback con `GITHUB_TOKEN` documentato in `GITHUB_PUSH_GUIDE.md`.
 7. Verificare `git ls-remote github refs/heads/main`.
 8. Verificare workflow GitHub Actions.
 
@@ -300,6 +303,7 @@ I backup restano locali e non vengono committati salvo richiesta esplicita contr
 
 - Il sito e live: anche cambi piccoli possono impattare menu o admin.
 - Supabase `service_role` bypassa RLS: mai esporla client-side.
+- L'avvio del backend puo cancellare solo `admin_sessions` scadute; trattarlo come housekeeping previsto, non come modifica contenuti.
 - Google Sheets sync aggiorna tabelle draft e publish salva snapshot pubblici.
 - SEO server-side usa Express e DB: errori possono impattare crawling.
 - Event request invia email reali se chiamato con payload valido.

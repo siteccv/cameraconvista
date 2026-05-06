@@ -110,6 +110,40 @@ export function log(message: string, source = "express") {
   console.log(`${formattedTime} [${source}] ${message}`);
 }
 
+function summarizeJsonResponse(body: unknown): string {
+  if (body == null) return "";
+  if (Array.isArray(body)) {
+    return ` :: [array length=${body.length}]`;
+  }
+  if (typeof body === "object") {
+    const record = body as Record<string, unknown>;
+    const summary: Record<string, unknown> = {};
+
+    for (const key of ["success", "error", "message", "count", "publishedAt", "authenticated"]) {
+      if (key in record) {
+        summary[key] = record[key];
+      }
+    }
+
+    if (Object.keys(summary).length > 0) {
+      return ` :: ${JSON.stringify(summary)}`;
+    }
+
+    return ` :: {keys=${Object.keys(record).slice(0, 8).join(",")}}`;
+  }
+
+  return ` :: ${String(body).slice(0, 120)}`;
+}
+
+async function cleanupExpiredAdminSessions(reason: string) {
+  try {
+    await storage.cleanupExpiredSessions();
+    log(`expired admin sessions cleanup completed (${reason})`, "auth");
+  } catch (error) {
+    console.error("Failed to cleanup expired admin sessions:", error);
+  }
+}
+
 if (process.env.NODE_ENV !== "production") {
   app.use("/api", (_req, res, next) => {
     res.set("Cache-Control", "no-store");
@@ -136,7 +170,7 @@ app.use((req, res, next) => {
     if (path.startsWith("/api")) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
-        logLine += ` :: ${JSON.stringify(capturedJsonResponse)}`;
+        logLine += summarizeJsonResponse(capturedJsonResponse);
       }
 
       log(logLine);
@@ -148,7 +182,16 @@ app.use((req, res, next) => {
 
 (async () => {
   await storage.seedInitialData();
+  await cleanupExpiredAdminSessions("startup");
   await registerRoutes(httpServer, app);
+
+  const cleanupTimer = setInterval(
+    () => {
+      void cleanupExpiredAdminSessions("interval");
+    },
+    15 * 60 * 1000,
+  );
+  cleanupTimer.unref?.();
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;

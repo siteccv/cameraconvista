@@ -4,19 +4,21 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina Cena degli Eventi Privati quando il flag `PRIVATE_DINNER_ENABLED` e false. La pagina dedicata rimane nel codice per ripristino controllato. Il controllo globale di zoom non fa piu parte dell'header admin corrente.
+Il pannello admin mantiene click-to-edit e preview, ma nasconde la sottopagina Cena degli Eventi Privati quando il flag `PRIVATE_DINNER_ENABLED` e false. La pagina dedicata rimane nel codice per ripristino controllato. Il controllo globale di zoom non fa piu parte dell'header admin corrente; l'autenticazione admin non usa piu fallback deboli in produzione.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Accesso
 
 - **URL**: `/admina` (path segreto, non esposto nella navigazione pubblica)
-- **Password default**: `1909` (modificabile da Impostazioni)
+- **Password**: hash bcrypt in `site_settings`; in produzione il login richiede una password configurata, senza fallback hardcoded
 - **Sessione**: Cookie httpOnly, secure in produzione, durata 24 ore, sameSite: lax
 - **Rate limiting**: 5 tentativi di login ogni 15 minuti per IP (HTTP 429 al superamento)
 - **Logout**: Invalida sessione su server + clear cookie
+- **Housekeeping**: le sessioni scadute vengono ripulite automaticamente dal backend a startup e ogni 15 minuti
 
 ## Layout Admin
 
@@ -125,7 +127,7 @@ In modalità admin preview:
 
 - Griglia immagini uploadate
 - Filtro per categoria/cartella
-- Upload nuove immagini (max 20MB)
+- Upload nuove immagini (max 25MB)
 - Dettagli immagine: alt text IT/EN, categoria, dimensioni
 - Gestione cartelle/categorie
 
@@ -183,7 +185,7 @@ In modalità admin preview:
 
 ### Funzionalità
 
-1. **Cambio Password**: Password corrente + nuova password (min 4 caratteri)
+1. **Cambio Password**: Password corrente + nuova password (min 10 caratteri)
 2. **Footer Settings**: Form completo per tutti i contenuti del footer
    - About text IT/EN
    - Contatti (indirizzo, telefono, email)

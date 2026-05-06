@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-SEO server-side e routing canonico non sono stati modificati dall hardening. Gli smoke E2E includono pagine pubbliche principali per intercettare regressioni di render e navigazione.
+SEO server-side e routing canonico non sono stati modificati dall hardening. Il lazy loading route-level introdotto nel client non cambia il comportamento SEO delle richieste dirette, che continuano a dipendere dal middleware Express. Gli smoke E2E includono pagine pubbliche principali per intercettare regressioni di render e navigazione.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Aggiornamento SEO - 5 Maggio 2026
 
@@ -72,7 +73,7 @@ Il sistema SEO è stato progettato per massimizzare la visibilità sui motori di
 
 1. **Richiesta diretta** (es. crawler, primo accesso): Express intercetta `res.send()`, legge `req.originalUrl` per identificare la pagina, recupera i metadati dal database, costruisce i tag SEO e li inietta nell'`<head>` HTML prima di inviare la risposta.
 
-2. **Navigazione client-side** (SPA): `PublicPageRoute` in `App.tsx` aggiorna `document.title` via `useEffect` ad ogni cambio di route, garantendo che il titolo nella tab del browser sia sempre coerente.
+2. **Navigazione client-side** (SPA): `PublicPageRoute` in `App.tsx` aggiorna `document.title` via `useEffect` ad ogni cambio di route, garantendo che il titolo nella tab del browser sia sempre coerente anche per le route lazy-loaded.
 
 ## File Coinvolti
 

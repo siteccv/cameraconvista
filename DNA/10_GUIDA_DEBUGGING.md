@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Per debugging post-hardening, partire da `npm run check:all`, poi verificare `/api/health/email`, pagine pubbliche e smoke E2E. Eventuali fix devono restare chirurgici e validati localmente.
+Per debugging post-hardening, partire dal gate piu adatto al problema, poi verificare `/api/health/email`, pagine pubbliche e smoke E2E. Eventuali fix devono restare chirurgici e validati localmente.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Problemi Comuni e Soluzioni
 
@@ -18,17 +19,14 @@ Per debugging post-hardening, partire da `npm run check:all`, poi verificare `/a
 
 **Causa**: Le sequenze PostgreSQL (`galleries_id_seq`, `gallery_images_id_seq`, etc.) non sono allineate con il MAX(id) nella tabella, tipicamente dopo import dati o manipolazioni manuali.
 
-**Soluzione implementata** (in `supabase-storage.ts`):
+**Soluzione implementata** (in `supabase-storage.ts` + `sequence-maintenance.ts`):
 
 ```typescript
-// Fetch MAX(id) e inserisci con id esplicito
-const { data: maxResult } = await supabaseAdmin
-  .from("table_name")
-  .select("id")
-  .order("id", { ascending: false })
-  .limit(1);
-const nextId = (maxResult?.[0]?.id || 0) + 1;
-// Insert con id: nextId
+// Percorso preferito: lock + setval + nextval via DB diretto
+const reservedId = await reserveNextSerialId("galleries");
+
+// Fallback se il DB diretto non e disponibile:
+const nextId = maxId + 1;
 ```
 
 **Soluzione alternativa SQL**:
@@ -71,6 +69,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
    ```
 4. Controllare `sameSite` e `secure` flags del cookie
 5. In dev: `secure: false`, in prod: `secure: true`
+6. Considerare che il backend pulisce automaticamente le sessioni scadute a startup e ogni 15 minuti
 
 ### 4. Immagini Non Visualizzate
 
@@ -109,7 +108,7 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 
 **Debug steps**:
 
-1. Verificare dimensione file (max 20MB)
+1. Verificare dimensione file (max 25MB)
 2. Controllare che Supabase Storage sia configurato
 3. Verificare log server per errori di upload Supabase
 4. Controllare permessi bucket `media-public`
@@ -226,13 +225,14 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 ### Log Server
 
 - Tutte le API calls sono loggate con timing: `METHOD /path STATUS in Xms`
+- I payload JSON vengono solo sintetizzati, non dumpati integralmente
 - Errori loggati con `console.error`
 - Formato: `HH:MM:SS AM/PM [express] message`
 
 ### Database Queries
 
-- Usare `execute_sql_tool` per query dirette
-- Non usare `psql` da bash (non disponibile)
+- Usare SQL Editor Supabase o una connessione PostgreSQL controllata
+- Evitare query distruttive senza conferma esplicita
 - Query utili:
 
   ```sql
@@ -257,6 +257,11 @@ SELECT setval('galleries_id_seq', (SELECT COALESCE(MAX(id), 0) FROM galleries));
 - Application → Cookies: verificare `ccv_admin_session`
 - Console: errori React Query, rendering issues
 - localStorage: `ccv_language` per lingua corrente
+
+### Playwright
+
+- Se `npm run test:e2e` fallisce per browser assente, eseguire `npx playwright install chromium`
+- Per smoke su build locale, avviare prima il server production-like e poi usare `PLAYWRIGHT_BASE_URL=http://127.0.0.1:<porta> npm run test:e2e`
 
 ## Regole di Sicurezza
 

@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatura `Backup_<giorno>_<Mese>_<HH-MM>.tar` e restare fuori dal runtime applicativo. `BookingDialog.tsx` resta il punto unico di verita per il modale condiviso di prenotazione.
+La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatura `Backup_<giorno>_<Mese>_<HH-MM>.tar` e restare fuori dal runtime applicativo. `BookingDialog.tsx` resta il punto unico di verita per il modale condiviso di prenotazione; `App.tsx` e il punto centrale per routing, provider e lazy loading delle route non critiche.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Root
 
@@ -21,7 +22,7 @@ La cartella documentale canonica e `DNA/`. I backup devono seguire la nomenclatu
 ├── DNA/                       # Documentazione progetto (questa cartella)
 ├── GITHUB_PUSH_GUIDE.md       # Guida persistente per commit/push e export progetto
 ├── .github/workflows/         # GitHub Actions Quality + Supabase Keepalive
-├── attached_assets/           # Asset allegati (logo_ccv.png per @assets alias)
+├── attached_assets/           # Asset allegati; solo una parte e runtime-critical tramite @assets
 ├── e2e/                       # Smoke test Playwright
 ├── tests/                     # Test unit/component Vitest
 ├── script/                    # Build script TypeScript
@@ -50,7 +51,7 @@ client/
 │   └── robots.txt             # Direttive per crawler (blocca /admina, /api/admin/)
 └── src/
     ├── main.tsx               # Entry point React
-    ├── App.tsx                # Router + Context providers
+    ├── App.tsx                # Router + Context providers + route-level lazy loading
     ├── index.css              # Tailwind base + custom CSS + design tokens
     ├── components/
     │   ├── admin/             # Componenti admin
@@ -69,7 +70,7 @@ client/
     │   │       ├── ImageZoomModal.tsx  # Zoom/offset immagine singola
     │   │       └── index.ts           # Barrel export
     │   ├── home/              # Componenti home page
-    │   │   ├── BookingDialog.tsx       # Dialog prenotazione condiviso (Home, Menu, Cocktail Bar)
+    │   │   ├── BookingDialog.tsx       # Dialog prenotazione condiviso (Home, Menu, Cocktail Bar, Dove Siamo, Event Detail)
     │   │   ├── PhilosophySection.tsx   # Sezione filosofia
     │   │   ├── TeaserCard.tsx         # Card teaser
     │   │   ├── TeaserSection.tsx      # Sezione teaser
@@ -88,6 +89,7 @@ client/
     │   ├── AdminContext.tsx    # Auth state, preview mode, device view
     │   └── LanguageContext.tsx # Lingua IT/EN + helper t()
     ├── hooks/
+    │   ├── use-image-preloader.ts # Preload immagini differito e non aggressivo
     │   ├── use-mobile.tsx     # Hook per rilevamento mobile
     │   ├── use-page-blocks.ts # Hook per blocchi pagina (draft/publish aware)
     │   ├── use-toast.ts       # Hook per notifiche toast
@@ -133,6 +135,7 @@ server/
 ├── db.ts                  # Connessione PostgreSQL (Drizzle)
 ├── storage.ts             # IStorage interface + DatabaseStorage + export
 ├── seo.ts                 # SEO middleware + sitemap + JSON-LD (vedi 11_SEO_SISTEMA.md)
+├── sequence-maintenance.ts # Riallineamento/riserva safe degli ID seriali via DB diretto
 ├── supabase.ts            # Client Supabase (admin + public)
 ├── supabase-storage.ts    # SupabaseStorage implementazione
 ├── static.ts              # Serve static files in production

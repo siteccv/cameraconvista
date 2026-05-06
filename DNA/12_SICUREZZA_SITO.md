@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Audit npm verde con 0 vulnerabilita dopo aggiornamenti mirati. Verificata e corretta manualmente in Supabase la policy pubblica di `site_settings`; inoltre il route Express pubblico `/api/site-settings` e stato riallineato alla stessa whitelist esplicita, cosi non espone `admin_password`, `admin_password_hash`, `resend_api_key` o altre chiavi non pubbliche.
+Verificata e corretta manualmente in Supabase la policy pubblica di `site_settings`; inoltre il route Express pubblico `/api/site-settings` e stato riallineato alla stessa whitelist esplicita, cosi non espone `admin_password`, `admin_password_hash`, `resend_api_key` o altre chiavi non pubbliche. Restano 2 vulnerabilita moderate transitive segnalate da `npm audit`, senza evidenza di issue critiche o high nel codice applicativo.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Livello di Protezione
 
@@ -50,7 +51,8 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 
 - Algoritmo: bcrypt
 - Password stored come hash in `site_settings` con key `admin_password_hash`
-- Nessuna password in chiaro nel database
+- In produzione non esiste piu un fallback hardcoded alla password di default
+- Nessuna password in chiaro usata dal runtime corrente
 
 ### Cookie Sessione
 
@@ -59,6 +61,7 @@ Sistema attualmente in stato di sicurezza avanzato (livello production-ready per
 - `sameSite: lax`: Mitigazione parziale CSRF
 - Durata: 24 ore
 - Token: 32 bytes crypto random
+- Cleanup automatico delle sessioni scadute a startup e ogni 15 minuti
 
 ### Nessuna Esposizione Chiavi
 
@@ -142,21 +145,21 @@ Il sistema e adeguatamente protetto contro:
 
 ## 5. Miglioramenti Futuri Opzionali (Non Urgenti)
 
-| Miglioramento                   | Priorita | Note                                              |
-| ------------------------------- | -------- | ------------------------------------------------- |
-| CSP in modalita Report-Only     | P1       | Monitorare senza bloccare risorse legittime       |
-| HSTS definitivo                 | P1       | Attivare dopo conferma HTTPS stabile per 1 mese   |
-| Global API rate limiting        | P1       | ~100 req/min per IP su tutti gli endpoint         |
-| CORS esplicito                  | P1       | Limitare origini ammesse al dominio di produzione |
-| Password policy rafforzata      | P2       | Minimo 8 caratteri con requisiti complessita      |
-| Logging tentativi login falliti | P2       | Con IP per audit trail                            |
+| Miglioramento                   | Priorita | Note                                                              |
+| ------------------------------- | -------- | ----------------------------------------------------------------- |
+| CSP in modalita Report-Only     | P1       | Monitorare senza bloccare risorse legittime                       |
+| HSTS definitivo                 | P1       | Attivare dopo conferma HTTPS stabile per 1 mese                   |
+| Global API rate limiting        | P1       | ~100 req/min per IP su tutti gli endpoint                         |
+| CORS esplicito                  | P1       | Limitare origini ammesse al dominio di produzione                 |
+| Password policy rafforzata      | P2       | Minimo 10 caratteri gia attivo; valutare requisiti di complessita |
+| Logging tentativi login falliti | P2       | Con IP per audit trail                                            |
 
 ---
 
 ## 6. Conclusione
 
 Il sito e attualmente in stato **stabile e sicuro**.
-Non risultano vulnerabilita critiche aperte.
+Non risultano vulnerabilita critiche o high note nel codice applicativo, ma `npm audit` segnala ancora 2 issue moderate transitive da chiudere con aggiornamento dipendenze compatibile.
 
 Il livello di sicurezza implementato e appropriato per un progetto hospitality con:
 

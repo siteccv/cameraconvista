@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Architettura confermata: React/Vite client, Express API, storage Supabase/PostgreSQL e layer admin separato. La pipeline Quality ora verifica anche format, audit e coverage prima di ogni pubblicazione.
+Architettura confermata: React/Vite client, Express API, storage Supabase/PostgreSQL e layer admin separato. Il client ora applica route-level lazy loading sulle pagine secondarie e sull'area admin per alleggerire il bundle iniziale senza alterare il comportamento.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Diagramma Architetturale
 
@@ -75,6 +76,8 @@ QueryClientProvider
 
 **Redirect**: `/carta-vini` → `/lista-vini`, `/contatti` → `/dove-siamo`, `/home` → `/`, `/en/*` → path canonico con `?lang=en`. La route `/eventi-privati/cena` reindirizza a `/eventi-privati` quando `PRIVATE_DINNER_ENABLED=false`.
 
+**Code splitting**: Home, Menu, Carta Vini e Cocktail Bar restano eager; Eventi, Galleria, Dove Siamo, policy, sottopagine eventi privati e tutte le route admin sono lazy-loaded via `React.lazy()` + `Suspense`.
+
 ### State Management
 
 - **Server State**: TanStack React Query v5 (cache, refetch, invalidation)
@@ -92,9 +95,10 @@ QueryClientProvider
 4. `express.json()` — parsing body JSON con rawBody capture
 5. `express.urlencoded()` — parsing form data
 6. **Dev-only**: Disabilitazione ETag e `Cache-Control: no-store` per `/api/*` — evita risposte 304 che possono bloccare il client
-7. Request logger — log delle API calls con timing
+7. Request logger — log delle API calls con timing e sintesi dei payload JSON, senza dump completi delle risposte
 8. **SEO Middleware** (`server/seo.ts`) — wrappa `res.send/res.end` per iniettare meta tags (title, description, canonical, OG, Twitter Card, hreflang, JSON-LD) nell'HTML prima che venga servito. Usa `req.originalUrl` per identificare la pagina. Esclude `/admina` e asset statici. Dettagli completi in `11_SEO_SISTEMA.md`
 9. **SEO Routes** — `/sitemap.xml` (dinamica), `robots.txt` (statico in `client/public/`)
+10. **Session housekeeping** — dopo il seed iniziale il server ripulisce le `admin_sessions` scadute a startup e ogni 15 minuti
 
 ### Authentication Flow
 
@@ -102,7 +106,8 @@ QueryClientProvider
 2. Cookie: `ccv_admin_session`, httpOnly, secure (in produzione), 24h expiry, sameSite: lax
 3. Auth check: `GET /api/admin/check-session` → verifica token in tabella `admin_sessions`
 4. Middleware: `requireAuth` protegge tutte le route admin e upload endpoint
-5. Password: Stored come bcrypt hash in `site_settings` con key `admin_password_hash`
+5. Password: Stored come bcrypt hash in `site_settings` con key `admin_password_hash`; la chiave legacy `admin_password` viene considerata solo se contiene gia un bcrypt hash migrabile
+6. Fallback password: consentito solo in non-production se manca l'hash; in produzione il server fallisce esplicitamente
 
 ### Security Layer
 
@@ -120,6 +125,8 @@ QueryClientProvider
 
 1. **DatabaseStorage**: Usa Drizzle ORM con PostgreSQL diretto
 2. **SupabaseStorage**: Usa Supabase REST API con conversione automatica camelCase↔snake_case
+
+Per `pages`, `galleries` e `gallery_images`, quando esiste una connessione DB diretta (`SUPABASE_DB_URL` oppure `DATABASE_URL`) `SupabaseStorage` usa `server/sequence-maintenance.ts` per riservare il prossimo serial ID con `LOCK TABLE` + `setval` + `nextval`. Solo in assenza di accesso DB diretto resta il fallback conservativo `MAX(id)+1`.
 
 Selezione runtime (fail-fast, deterministica):
 

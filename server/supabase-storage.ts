@@ -28,6 +28,7 @@ import {
   type InsertAdminSession,
 } from "@shared/schema";
 import type { IStorage } from "./storage";
+import { reserveNextSerialId } from "./sequence-maintenance";
 
 function toSnakeCase(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
@@ -51,7 +52,30 @@ function toCamelCaseArray<T>(arr: Record<string, any>[]): T[] {
   return arr.map((item) => toCamelCase(item) as T);
 }
 
+type InsertTableName = "pages" | "galleries" | "gallery_images";
+
 export class SupabaseStorage implements IStorage {
+  private async getFallbackNextId(table: InsertTableName): Promise<number> {
+    const { data } = await supabaseAdmin
+      .from(table)
+      .select("id")
+      .order("id", { ascending: false })
+      .limit(1);
+    return (data && data.length > 0 ? data[0].id : 0) + 1;
+  }
+
+  private async assignSafeInsertId(
+    table: InsertTableName,
+    payload: Record<string, any>,
+  ): Promise<Record<string, any>> {
+    const reservedId = await reserveNextSerialId(table);
+    if (reservedId !== null) {
+      return { ...payload, id: reservedId };
+    }
+
+    return payload;
+  }
+
   async getUser(id: string): Promise<User | undefined> {
     const { data } = await supabaseAdmin.from("users").select("*").eq("id", id).single();
     return data ? (toCamelCase(data) as User) : undefined;
@@ -95,18 +119,14 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createPage(page: InsertPage): Promise<Page> {
-    const snakePage = toSnakeCase(page);
+    let snakePage = await this.assignSafeInsertId("pages", toSnakeCase(page));
     const { data, error } = await supabaseAdmin.from("pages").insert(snakePage).select().single();
     if (error && error.message.includes("duplicate key")) {
-      const { data: allPages } = await supabaseAdmin
-        .from("pages")
-        .select("id")
-        .order("id", { ascending: false })
-        .limit(1);
-      const nextId = (allPages && allPages.length > 0 ? allPages[0].id : 0) + 1;
+      const nextId = await this.getFallbackNextId("pages");
+      snakePage = { ...snakePage, id: nextId };
       const { data: retryData, error: retryError } = await supabaseAdmin
         .from("pages")
-        .insert({ ...snakePage, id: nextId })
+        .insert(snakePage)
         .select()
         .single();
       if (retryError) throw new Error(retryError.message);
@@ -502,22 +522,13 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createGallery(gallery: InsertGallery): Promise<Gallery> {
-    const snaked = toSnakeCase(gallery);
-    delete snaked.id;
+    let snaked = await this.assignSafeInsertId("galleries", toSnakeCase(gallery));
     delete snaked.created_at;
     delete snaked.updated_at;
-    const { data: maxRow } = await supabaseAdmin
-      .from("galleries")
-      .select("id")
-      .order("id", { ascending: false })
-      .limit(1)
-      .single();
-    const nextId = (maxRow?.id ?? 0) + 1;
-    const { data, error } = await supabaseAdmin
-      .from("galleries")
-      .insert({ ...snaked, id: nextId })
-      .select()
-      .single();
+    if (!("id" in snaked)) {
+      snaked = { ...snaked, id: await this.getFallbackNextId("galleries") };
+    }
+    const { data, error } = await supabaseAdmin.from("galleries").insert(snaked).select().single();
     if (error) throw new Error(error.message);
     return toCamelCase(data) as Gallery;
   }
@@ -554,19 +565,14 @@ export class SupabaseStorage implements IStorage {
   }
 
   async createGalleryImage(image: InsertGalleryImage): Promise<GalleryImage> {
-    const snaked = toSnakeCase(image);
-    delete snaked.id;
+    let snaked = await this.assignSafeInsertId("gallery_images", toSnakeCase(image));
     delete snaked.created_at;
-    const { data: maxRow } = await supabaseAdmin
-      .from("gallery_images")
-      .select("id")
-      .order("id", { ascending: false })
-      .limit(1)
-      .single();
-    const nextId = (maxRow?.id ?? 0) + 1;
+    if (!("id" in snaked)) {
+      snaked = { ...snaked, id: await this.getFallbackNextId("gallery_images") };
+    }
     const { data, error } = await supabaseAdmin
       .from("gallery_images")
-      .insert({ ...snaked, id: nextId })
+      .insert(snaked)
       .select()
       .single();
     if (error) throw new Error(error.message);

@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-La pagina Menu non mostra piu il titolo hero sovrapposto in admin. Menu e Cocktail Bar espongono ora anche un CTA finale "Prenota un tavolo" che riusa il `BookingDialog` condiviso con Home. Eventi Privati mostra solo Aperitivo ed Evento Privato Esclusivo; la Cena e disattivata via flag ripristinabile.
+La pagina Menu non mostra piu il titolo hero sovrapposto in admin. Menu e Cocktail Bar espongono ora anche un CTA finale "Prenota un tavolo" che riusa il `BookingDialog` condiviso. Eventi Privati mostra solo Aperitivo ed Evento Privato Esclusivo; la Cena e disattivata via flag ripristinabile.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Pagine Pubbliche
 
@@ -55,7 +56,7 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Menu items raggruppati per categoria (Antipasti, Primi, Secondi, Dolci)
 - Typography: font-display per titoli, `.price-text` per prezzi con font Spectral
 - CTA finale centrata "Prenota un tavolo" con stesso stile della Home
-- Apertura dello stesso `BookingDialog` condiviso usato in Home e Dove Siamo
+- Apertura dello stesso `BookingDialog` condiviso usato in Home, Dove Siamo e Dettaglio Evento
 
 ### Carta Vini / Lista Vini (`/lista-vini`)
 
@@ -85,6 +86,7 @@ Tutte le pagine pubbliche seguono questo pattern:
 - Titolo, data, descrizione, dettagli
 - **Preservazione a-capo**: descrizione e dettagli usano `split(/\r?\n/)` con `<br/>` espliciti per garantire che gli a-capo inseriti dall'admin vengano rispettati nella visualizzazione pubblica (non si usa `whitespace-pre-line` CSS che può essere inaffidabile)
 - Pulsante prenotazione (se abilitato)
+- Se `bookingEnabled=true`, il pulsante apre lo stesso `BookingDialog` condiviso usato nel resto del sito
 - Data in formato "SABATO 14 FEBBRAIO" (uppercase)
 
 ### Eventi Privati (`/eventi-privati`)
@@ -150,7 +152,7 @@ Tutte le pagine pubbliche seguono questo pattern:
 
 ### BookingDialog (`client/src/components/home/BookingDialog.tsx`)
 
-- Modale condiviso richiamato da Home, Menu, Cocktail Bar e Dove Siamo
+- Modale condiviso richiamato da Home, Menu, Cocktail Bar, Dove Siamo e Dettaglio Evento
 - Copy bilingue gestito via `t(it, en)` in stringhe multilinea
 - **Preservazione a-capo**: il testo viene renderizzato con `split("\n")` e `span.block`, cosi i ritorni a capo restano identici su desktop e mobile
 

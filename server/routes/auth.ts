@@ -7,6 +7,7 @@ import {
   setAdminPassword,
   isAuthenticated,
   requireAuth,
+  ADMIN_PASSWORD_MIN_LENGTH,
   SESSION_COOKIE_NAME,
   SESSION_MAX_AGE_MS,
 } from "./helpers";
@@ -73,8 +74,11 @@ router.post("/change-password", requireAuth, async (req, res) => {
       return;
     }
 
-    if (!newPassword || newPassword.length < 4) {
-      res.status(400).json({ success: false, error: "New password must be at least 4 characters" });
+    if (!newPassword || newPassword.length < ADMIN_PASSWORD_MIN_LENGTH) {
+      res.status(400).json({
+        success: false,
+        error: `New password must be at least ${ADMIN_PASSWORD_MIN_LENGTH} characters`,
+      });
       return;
     }
 

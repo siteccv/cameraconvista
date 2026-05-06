@@ -4,17 +4,19 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-La sequenza raccomandata prima di push/deploy e `npm run check:all`, ora comprensiva di check, lint, format, audit, build, coverage e Playwright E2E. La build continua a produrre `dist/` come artefatto runtime.
+La sequenza raccomandata prima di push/deploy resta `npm run check:all`, comprensiva di check, lint, format, audit, build, coverage e Playwright E2E. Operativamente, al 6 Maggio 2026 la validazione completa confermata e composta da `check`, `lint`, `test`, `build` ed `e2e`; `audit` resta il solo punto ancora non verde per 2 vulnerabilita moderate transitive.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Ambienti
 
 ### Sviluppo Locale
 
 - **Comando**: `NODE_ENV=development npm run dev`
+- **Comando consigliato operativo**: `PORT=5001 npm run dev`
 - **Porta codice default**: 5000 se `PORT` non e impostata
 - **Porta operativa corrente**: 5001 (`PORT=5001 npm run dev`)
 - **Env richieste**: `DATABASE_URL` oppure `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY`
@@ -44,11 +46,12 @@ Nota: `SESSION_SECRET` non e usato dal flusso sessione admin corrente. Le sessio
 
 ### Opzionali - Supabase
 
-| Variabile                   | Descrizione                  |
-| --------------------------- | ---------------------------- |
-| `SUPABASE_URL`              | URL progetto Supabase        |
-| `SUPABASE_SERVICE_ROLE_KEY` | Chiave service role Supabase |
-| `SUPABASE_ANON_KEY`         | Chiave anonima Supabase      |
+| Variabile                   | Descrizione                                                           |
+| --------------------------- | --------------------------------------------------------------------- |
+| `SUPABASE_URL`              | URL progetto Supabase                                                 |
+| `SUPABASE_SERVICE_ROLE_KEY` | Chiave service role Supabase                                          |
+| `SUPABASE_ANON_KEY`         | Chiave anonima Supabase                                               |
+| `SUPABASE_DB_URL`           | Connessione DB diretta usata dal maintenance helper per sequence safe |
 
 Se `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono configurate, il backend usa `SupabaseStorage` (priorità). Altrimenti usa `DatabaseStorage` con `DATABASE_URL`. Se nessuno è presente, errore esplicito.
 
@@ -96,6 +99,7 @@ Nota operativa:
 - Due client: `supabaseAdmin` (service role) e `supabasePublic` (anon key)
 - REST API per operazioni CRUD
 - Conversione automatica camelCase ↔ snake_case
+- Se `SUPABASE_DB_URL` e disponibile, il runtime puo riservare ID seriali sicuri per alcune tabelle (`pages`, `galleries`, `gallery_images`) via query SQL diretta di manutenzione
 
 ### Supabase Keepalive Free
 
@@ -182,6 +186,7 @@ Per rendere il flusso commit/push riusabile anche in export progetto:
 - bootstrap remote: `scripts/bootstrap-github-remote.sh`
 - preflight locale: `scripts/preflight-github-push.sh`
 - helper push: `deploy.sh`
+- fallback documentato: push con `GITHUB_TOKEN` via `git -c http.https://github.com/.extraheader=...`
 
 **NOTA**: La "pubblicazione" del contenuto (draft → public) è un'operazione interna dell'app, non da confondere con il deployment dell'applicazione.
 
@@ -193,6 +198,8 @@ Per rendere il flusso commit/push riusabile anche in export progetto:
 - Trigger: `push` su `main` e `pull_request`
 - Step: `npm ci`, check, lint, format check, audit, build, coverage, E2E se le env Supabase sono disponibili
 - Secrets usati: Supabase, Database, OpenAI, Resend e Vite env secondo necessita
+
+Nota locale E2E: se Playwright non trova il browser, installare `npx playwright install chromium` prima di rieseguire `npm run test:e2e`.
 
 ### Supabase Keepalive
 

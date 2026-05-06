@@ -4,7 +4,9 @@ import bcrypt from "bcryptjs";
 import { storage } from "../storage";
 
 export const ADMIN_PASSWORD_KEY = "admin_password_hash";
-export const DEFAULT_PASSWORD = "1909";
+export const LEGACY_ADMIN_PASSWORD_KEY = "admin_password";
+export const ADMIN_PASSWORD_MIN_LENGTH = 10;
+const DEV_DEFAULT_PASSWORD = process.env.ADMIN_DEFAULT_PASSWORD || "1909";
 export const SESSION_COOKIE_NAME = "ccv_admin_session";
 export const SESSION_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 
@@ -12,12 +14,31 @@ export function generateSessionToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+function isBcryptHash(value: string | null | undefined): value is string {
+  return typeof value === "string" && /^\$2[aby]\$/.test(value);
+}
+
 export async function getAdminPasswordHash(): Promise<string> {
   const setting = await storage.getSiteSetting(ADMIN_PASSWORD_KEY);
-  if (setting?.valueIt) {
+  if (isBcryptHash(setting?.valueIt)) {
     return setting.valueIt;
   }
-  const defaultHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
+
+  const legacySetting = await storage.getSiteSetting(LEGACY_ADMIN_PASSWORD_KEY);
+  if (isBcryptHash(legacySetting?.valueIt)) {
+    await storage.upsertSiteSetting({
+      key: ADMIN_PASSWORD_KEY,
+      valueIt: legacySetting.valueIt,
+      valueEn: legacySetting.valueIt,
+    });
+    return legacySetting.valueIt;
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("Admin password hash not configured");
+  }
+
+  const defaultHash = await bcrypt.hash(DEV_DEFAULT_PASSWORD, 10);
   await storage.upsertSiteSetting({
     key: ADMIN_PASSWORD_KEY,
     valueIt: defaultHash,

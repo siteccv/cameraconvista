@@ -50,12 +50,12 @@ export default function AdminSettings() {
       return;
     }
 
-    if (newPassword.length < 4) {
+    if (newPassword.length < 10) {
       toast({
         title: t("Errore", "Error"),
         description: t(
-          "La password deve essere di almeno 4 caratteri",
-          "Password must be at least 4 characters",
+          "La password deve essere di almeno 10 caratteri",
+          "Password must be at least 10 characters",
         ),
         variant: "destructive",
       });

@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggiornati solo pacchetti Drizzle/Zod compatibili con typecheck verde e audit a zero vulnerabilita.
+Schema e tabelle applicative non sono stati alterati in modo distruttivo durante l hardening. Il layer runtime e stato riallineato a una gestione piu sicura di auth, sessioni e sequence Supabase senza cambiare le logiche di business.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Diagramma Relazioni
 
@@ -78,6 +79,8 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 | expires_at | timestamp    | Scadenza (24h)                |
 | created_at | timestamp    | Auto                          |
 
+Nota runtime: il backend esegue cleanup automatico delle sessioni scadute a startup e ogni 15 minuti.
+
 ### `site_settings`
 
 | Colonna    | Tipo          | Note                |
@@ -90,8 +93,8 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 
 **Keys usate**:
 
-- `admin_password_hash` → hash bcrypt della password admin
-- `admin_password` → chiave legacy sensibile, non leggibile pubblicamente
+- `admin_password_hash` → hash bcrypt canonico della password admin
+- `admin_password` → chiave legacy sensibile, non leggibile pubblicamente; il backend la considera solo se contiene gia un bcrypt hash migrabile
 - `footer_settings` → JSON con struttura footer completa
 - `google_sheets_config` → configurazione URL CSV Google Sheets
 - `published_menu_items` → snapshot JSON pubblico menu
@@ -118,6 +121,8 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 | created_at / updated_at                   | timestamp     | Auto                 |
 
 **Pagine seed principali**: home, menu, carta-vini, cocktail-bar, eventi, eventi-privati, galleria, dove-siamo
+
+Nota operativa Supabase: gli insert per `pages` possono riservare esplicitamente l'ID successivo via `server/sequence-maintenance.ts` quando e disponibile un accesso DB diretto, evitando drift tra sequence e dati importati.
 
 **Pagine eventi privati dedicate**: eventi-privati-aperitivo, eventi-privati-cena, eventi-privati-esclusivo. La pagina Cena resta nel DB/codice per ripristino, ma il routing pubblico la reindirizza quando `PRIVATE_DINNER_ENABLED=false`.
 
@@ -224,6 +229,8 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 | sort_order                                   | integer     | Ordine                   |
 | created_at / updated_at                      | timestamp   | Auto                     |
 
+Nota operativa Supabase: gli insert possono usare un ID seriale riservato preventivamente via helper DB diretto per evitare collisioni dopo import manuali.
+
 ### `gallery_images`
 
 | Colonna                                      | Tipo                     | Note                    |
@@ -235,6 +242,8 @@ Schema e tabelle non sono stati modificati durante l hardening enterprise. Aggio
 | alt_it / alt_en                              | text                     | Alt text bilingue       |
 | sort_order                                   | integer                  | Ordine                  |
 | created_at                                   | timestamp                | Auto                    |
+
+Nota operativa Supabase: stesso meccanismo di riserva safe dell'ID usato per `galleries`.
 
 ### `media`
 

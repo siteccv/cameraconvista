@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
@@ -11,31 +11,38 @@ import Home from "@/pages/home";
 import Menu from "@/pages/menu";
 import CartaVini from "@/pages/carta-vini";
 import CocktailBar from "@/pages/cocktail-bar";
-import Eventi from "@/pages/eventi";
-import EventDetail from "@/pages/event-detail";
-import EventiPrivati from "@/pages/eventi-privati";
-import AperitivoPage from "@/pages/eventi-privati/aperitivo";
-import CenaPage from "@/pages/eventi-privati/cena";
-import EsclusivoPage from "@/pages/eventi-privati/esclusivo";
-import Galleria from "@/pages/galleria";
-import DoveSiamo from "@/pages/dove-siamo";
-import PrivacyPolicy from "@/pages/privacy-policy";
-import CookiePolicy from "@/pages/cookie-policy";
-import AdminLogin from "@/pages/admin/login";
-import AdminSettings from "@/pages/admin/settings";
-import AdminSyncGoogle from "@/pages/admin/sync-google";
-import AdminPages from "@/pages/admin/pages";
-import AdminEvents from "@/pages/admin/events";
-import AdminMedia from "@/pages/admin/media";
-import AdminGallery from "@/pages/admin/gallery";
-import AdminSeo from "@/pages/admin/seo";
-import AdminPreview from "@/pages/admin/preview";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { useImagePreloader } from "@/hooks/use-image-preloader";
 import { PRIVATE_DINNER_ENABLED } from "@/lib/private-events-config";
 import type { Page } from "@shared/schema";
 
-function ProtectedAdminRoute({ component: Component }: { component: React.ComponentType }) {
+const Eventi = lazy(() => import("@/pages/eventi"));
+const EventDetail = lazy(() => import("@/pages/event-detail"));
+const EventiPrivati = lazy(() => import("@/pages/eventi-privati"));
+const AperitivoPage = lazy(() => import("@/pages/eventi-privati/aperitivo"));
+const CenaPage = lazy(() => import("@/pages/eventi-privati/cena"));
+const EsclusivoPage = lazy(() => import("@/pages/eventi-privati/esclusivo"));
+const Galleria = lazy(() => import("@/pages/galleria"));
+const DoveSiamo = lazy(() => import("@/pages/dove-siamo"));
+const PrivacyPolicy = lazy(() => import("@/pages/privacy-policy"));
+const CookiePolicy = lazy(() => import("@/pages/cookie-policy"));
+const AdminLogin = lazy(() => import("@/pages/admin/login"));
+const AdminSettings = lazy(() => import("@/pages/admin/settings"));
+const AdminSyncGoogle = lazy(() => import("@/pages/admin/sync-google"));
+const AdminPages = lazy(() => import("@/pages/admin/pages"));
+const AdminEvents = lazy(() => import("@/pages/admin/events"));
+const AdminMedia = lazy(() => import("@/pages/admin/media"));
+const AdminGallery = lazy(() => import("@/pages/admin/gallery"));
+const AdminSeo = lazy(() => import("@/pages/admin/seo"));
+const AdminPreview = lazy(() => import("@/pages/admin/preview"));
+
+type RoutableComponent = React.ComponentType | React.LazyExoticComponent<React.ComponentType<any>>;
+
+function RouteFallback() {
+  return <div className="min-h-screen flex items-center justify-center">Caricamento...</div>;
+}
+
+function ProtectedAdminRoute({ component: Component }: { component: RoutableComponent }) {
   const { isAuthenticated } = useAdmin();
 
   if (!isAuthenticated) {
@@ -98,7 +105,7 @@ function PublicPageRoute({
   component: Component,
   slug,
 }: {
-  component: React.ComponentType;
+  component: RoutableComponent;
   slug: string;
 }) {
   const { language } = useLanguage();
@@ -133,7 +140,7 @@ function StaticPageRoute({
   component: Component,
   slug,
 }: {
-  component: React.ComponentType;
+  component: RoutableComponent;
   slug: string;
 }) {
   const { language } = useLanguage();
@@ -161,79 +168,83 @@ function Router() {
   return (
     <>
       <ScrollToTop />
-      <Switch>
-        <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
-        <Route path="/home">{() => <Redirect to="/" />}</Route>
-        <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
-        <Route path="/lista-vini">
-          {() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}
-        </Route>
-        <Route path="/carta-vini">
-          {() => {
-            window.location.replace("/lista-vini");
-            return null;
-          }}
-        </Route>
-        <Route path="/cocktail-bar">
-          {() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}
-        </Route>
-        <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
-        <Route path="/eventi/:id" component={EventDetail} />
-        <Route path="/eventi-privati">
-          {() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}
-        </Route>
-        <Route path="/eventi-privati/aperitivo">
-          {() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}
-        </Route>
-        <Route path="/eventi-privati/cena">
-          {() =>
-            PRIVATE_DINNER_ENABLED ? (
-              <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />
-            ) : (
-              <Redirect to="/eventi-privati" />
-            )
-          }
-        </Route>
-        <Route path="/eventi-privati/esclusivo">
-          {() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}
-        </Route>
-        <Route path="/galleria">
-          {() => <PublicPageRoute component={Galleria} slug="galleria" />}
-        </Route>
-        <Route path="/dove-siamo">
-          {() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}
-        </Route>
-        <Route path="/privacy">
-          {() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}
-        </Route>
-        <Route path="/cookie">
-          {() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}
-        </Route>
-        <Route path="/contatti">
-          {() => {
-            window.location.replace("/dove-siamo");
-            return null;
-          }}
-        </Route>
-        <Route path="/admina/login" component={AdminLoginRoute} />
-        <Route path="/admina/settings">
-          {() => <ProtectedAdminRoute component={AdminSettings} />}
-        </Route>
-        <Route path="/admina/sync-google">
-          {() => <ProtectedAdminRoute component={AdminSyncGoogle} />}
-        </Route>
-        <Route path="/admina/events">{() => <ProtectedAdminRoute component={AdminEvents} />}</Route>
-        <Route path="/admina/media">{() => <ProtectedAdminRoute component={AdminMedia} />}</Route>
-        <Route path="/admina/gallery">
-          {() => <ProtectedAdminRoute component={AdminGallery} />}
-        </Route>
-        <Route path="/admina/seo">{() => <ProtectedAdminRoute component={AdminSeo} />}</Route>
-        <Route path="/admina/preview">
-          {() => <ProtectedAdminRoute component={AdminPreview} />}
-        </Route>
-        <Route path="/admina">{() => <ProtectedAdminRoute component={AdminPages} />}</Route>
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<RouteFallback />}>
+        <Switch>
+          <Route path="/">{() => <PublicPageRoute component={Home} slug="home" />}</Route>
+          <Route path="/home">{() => <Redirect to="/" />}</Route>
+          <Route path="/menu">{() => <PublicPageRoute component={Menu} slug="menu" />}</Route>
+          <Route path="/lista-vini">
+            {() => <PublicPageRoute component={CartaVini} slug="carta-vini" />}
+          </Route>
+          <Route path="/carta-vini">
+            {() => {
+              window.location.replace("/lista-vini");
+              return null;
+            }}
+          </Route>
+          <Route path="/cocktail-bar">
+            {() => <PublicPageRoute component={CocktailBar} slug="cocktail-bar" />}
+          </Route>
+          <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
+          <Route path="/eventi/:id" component={EventDetail} />
+          <Route path="/eventi-privati">
+            {() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}
+          </Route>
+          <Route path="/eventi-privati/aperitivo">
+            {() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}
+          </Route>
+          <Route path="/eventi-privati/cena">
+            {() =>
+              PRIVATE_DINNER_ENABLED ? (
+                <PublicPageRoute component={CenaPage} slug="eventi-privati-cena" />
+              ) : (
+                <Redirect to="/eventi-privati" />
+              )
+            }
+          </Route>
+          <Route path="/eventi-privati/esclusivo">
+            {() => <PublicPageRoute component={EsclusivoPage} slug="eventi-privati-esclusivo" />}
+          </Route>
+          <Route path="/galleria">
+            {() => <PublicPageRoute component={Galleria} slug="galleria" />}
+          </Route>
+          <Route path="/dove-siamo">
+            {() => <PublicPageRoute component={DoveSiamo} slug="dove-siamo" />}
+          </Route>
+          <Route path="/privacy">
+            {() => <StaticPageRoute component={PrivacyPolicy} slug="privacy" />}
+          </Route>
+          <Route path="/cookie">
+            {() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}
+          </Route>
+          <Route path="/contatti">
+            {() => {
+              window.location.replace("/dove-siamo");
+              return null;
+            }}
+          </Route>
+          <Route path="/admina/login" component={AdminLoginRoute} />
+          <Route path="/admina/settings">
+            {() => <ProtectedAdminRoute component={AdminSettings} />}
+          </Route>
+          <Route path="/admina/sync-google">
+            {() => <ProtectedAdminRoute component={AdminSyncGoogle} />}
+          </Route>
+          <Route path="/admina/events">
+            {() => <ProtectedAdminRoute component={AdminEvents} />}
+          </Route>
+          <Route path="/admina/media">{() => <ProtectedAdminRoute component={AdminMedia} />}</Route>
+          <Route path="/admina/gallery">
+            {() => <ProtectedAdminRoute component={AdminGallery} />}
+          </Route>
+          <Route path="/admina/seo">{() => <ProtectedAdminRoute component={AdminSeo} />}</Route>
+          <Route path="/admina/preview">
+            {() => <ProtectedAdminRoute component={AdminPreview} />}
+          </Route>
+          <Route path="/admina">{() => <ProtectedAdminRoute component={AdminPages} />}</Route>
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </>
   );
 }

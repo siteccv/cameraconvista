@@ -4,18 +4,19 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Il progetto resta un sito hospitality live con pipeline locale verde e documentazione riallineata al codice corrente. Il booking dialog condiviso e ora usato in Home, Menu e Cocktail Bar; il copy del modale e stato aggiornato in IT/EN con a-capo espliciti.
+Il progetto resta un sito hospitality live con documentazione riallineata al codice corrente. Il booking dialog condiviso e usato in Home, Menu, Cocktail Bar, Dove Siamo e Dettaglio Evento; il copy del modale e mantenuto in IT/EN con a-capo espliciti. Il frontend usa route-level lazy loading per le pagine secondarie e per tutta l'area admin.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive e impedisce un verde pieno di `check:all`
 
 ## Identità
 
 **Nome**: Camera con Vista - Tapas Bar & Cocktail Bar
 **Tipo**: Sito web bilingue (IT/EN) per tapas bar elegante, aperitivo, cocktail bar ed eventi privati a Bologna
 **URL Admin**: `/admina` (path segreto)  
-**Password Admin predefinita**: `1909` (modificabile da Impostazioni)
+**Password Admin**: hash bcrypt salvato in `site_settings`. In produzione non esiste piu una password di fallback hardcoded; in sviluppo il fallback puo venire da `ADMIN_DEFAULT_PASSWORD` oppure dal valore storico `1909` solo se l'hash manca.
 
 > Entry point per agenti: leggere sempre `00_GUIDA_AGENTI.md` prima di modificare codice, configurazioni o dati.
 
@@ -102,7 +103,8 @@ Il progetto implementa un livello di sicurezza avanzato (production-ready per pr
 - **X-Powered-By** rimosso (tecnologia server nascosta)
 - **Rate limiting login** attivo: 5 tentativi ogni 15 minuti per IP
 - **Upload endpoint** protetto con autenticazione (`requireAuth`)
-- **Password hash** con bcrypt, sessioni cookie httpOnly + secure in produzione
+- **Password hash** con bcrypt, nessun fallback debole in produzione, sessioni cookie httpOnly + secure in produzione
+- **Housekeeping sessioni** automatico sulle `admin_sessions` scadute all'avvio e a intervalli regolari
 - Nessuna chiave sensibile esposta lato client
 
 ### Database (Supabase)

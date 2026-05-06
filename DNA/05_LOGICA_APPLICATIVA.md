@@ -4,11 +4,12 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Le logiche draft/publish e sync restano invariate. Il booking dialog condiviso e i CTA di prenotazione delle pagine lista sono stati riallineati al codice corrente. Gli smoke E2E continuano a validare i flussi read-only critici senza scrivere su database live o attivare sincronizzazioni esterne.
+Le logiche draft/publish e sync restano invariate. Il booking dialog condiviso, i CTA di prenotazione delle pagine lista e la gestione conservativa delle sessioni/admin sequence sono stati riallineati al codice corrente. Gli smoke E2E continuano a validare i flussi read-only critici senza attivare sincronizzazioni esterne o modifiche contenutistiche.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## Sistema Draft/Publish
 
@@ -123,17 +124,18 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 - Al mount dell'app, `AdminProvider.useEffect` chiama `checkSession()`
 - `GET /api/admin/check-session` → verifica token nel cookie → verifica in tabella `admin_sessions`
 - Se sessione scaduta → cancella e ritorna `false`
+- A livello server, `storage.cleanupExpiredSessions()` gira anche a startup e ogni 15 minuti come housekeeping
 
 ### Cambio Password
 
-- `POST /api/admin/change-password` → verifica password corrente → hash nuova password → salva in `site_settings`
+- `POST /api/admin/change-password` → verifica password corrente → richiede almeno 10 caratteri → hash nuova password → salva in `site_settings`
 
 ### Protezione Sicurezza
 
 - Rate limiting login: `express-rate-limit`, 5 tentativi / 15 min per IP
 - Cookie httpOnly + secure (produzione) + sameSite: lax
 - Token sessione: 32 bytes crypto random
-- Password: hash bcrypt
+- Password: hash bcrypt, nessun fallback debole in produzione
 - Upload endpoint: protetto con `requireAuth`
 
 > Dettagli completi sulla sicurezza: vedi `12_SICUREZZA_SITO.md`
@@ -142,7 +144,7 @@ Il componente `TranslateButton` chiama OpenAI per tradurre automaticamente il te
 
 ### BookingDialog condiviso
 
-- Il modale `BookingDialog` e condiviso tra Home, Menu, Cocktail Bar e Dove Siamo
+- Il modale `BookingDialog` e condiviso tra Home, Menu, Cocktail Bar, Dove Siamo e Dettaglio Evento
 - I pulsanti "PRENOTA UN TAVOLO" in queste pagine aprono tutti lo stesso dialog e poi inoltrano a `https://cameraconvista.resos.com/booking`
 - Il copy del modale e bilingue IT/EN e viene mantenuto in stringhe multilinea nel componente
 
@@ -220,11 +222,11 @@ Gallery (album)
 
 ### Bug Fix: ID Sequenze Supabase
 
-Le sequenze PostgreSQL `galleries_id_seq` e `gallery_images_id_seq` possono andare fuori sync con i dati esistenti. Fix implementato in `SupabaseStorage`:
+Le sequenze PostgreSQL `pages_id_seq`, `galleries_id_seq` e `gallery_images_id_seq` possono andare fuori sync con i dati esistenti. Il fix attuale in `SupabaseStorage` e a doppio livello:
 
-- Prima di inserire, fetch `MAX(id)` dalla tabella
-- Inserisci con `id = maxId + 1` esplicito
-- Escludi `id`, `created_at`, `updated_at` dall'output di `toSnakeCase`
+- percorso preferito: `reserveNextSerialId()` in `server/sequence-maintenance.ts` usa `SUPABASE_DB_URL` o `DATABASE_URL`, esegue `LOCK TABLE`, riallinea la sequence con `setval()` e riserva l'ID successivo con `nextval()` in transazione
+- fallback conservativo: se non esiste accesso DB diretto, il codice legge `MAX(id)` via Supabase REST e inserisce con `id = maxId + 1`
+- `toSnakeCase()` continua a escludere `id`, `created_at`, `updated_at` dall'output automatico, ma gli insert sicuri assegnano esplicitamente l'ID solo quando necessario
 
 ## Sistema Media
 
@@ -254,6 +256,13 @@ La compressione è applicata in due punti:
 - **Rotazione** (`POST /api/admin/media/:id/rotate`): Ri-comprime in WebP dopo rotazione
 
 Il filename salvato su Supabase Storage usa l'estensione `.webp` coerente con il formato effettivo.
+
+## Performance di Navigazione
+
+- `useImagePreloader()` non parte piu in modo aggressivo appena il client monta
+- il preload viene differito in `requestIdleCallback()` con fallback a timeout
+- su connessioni lente o con `saveData=true` il preload aggressivo viene saltato
+- le richieste per blocchi, galleria ed eventi vengono scaglionate per non saturare il critical path iniziale
 
 ### Categorie
 

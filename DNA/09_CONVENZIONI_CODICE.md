@@ -4,12 +4,13 @@
 
 ## Aggiornamento Operativo - 6 Maggio 2026
 
-Prettier e ora baseline obbligatoria del progetto. ESLint resta configurato in modo non invasivo per proteggere il codice senza imporre refactor rischiosi sul sito live.
+Prettier e la baseline obbligatoria del progetto. ESLint resta configurato in modo non invasivo per proteggere il codice senza imporre refactor rischiosi sul sito live. La documentazione operativa deve riflettere il workflow GitHub reale, compreso il fallback push con token locale.
 
-- Backup operativo corrente: `BACKUP/Backup_06_May_11-53.tar`
-- Ultimo refresh backup: 6 Maggio 2026 11:53 Europe/Rome, archivio locale non tracciato da Git
-- Gate locale richiesto: `npm run check:all`
-- Stato gate: verde al termine dell hardening locale
+- Backup operativo corrente: `BACKUP/Backup_06_May_13-10.tar`
+- Ultimo refresh backup: 6 Maggio 2026 13:10 Europe/Rome, archivio locale non tracciato da Git
+- Gate completo raccomandato: `npm run check:all`
+- Ultima validazione locale confermata: `npm run check`, `npm run lint`, `npm run test`, `npm run build`, `npm run test:e2e`
+- Nota gate: `npm run audit` segnala ancora 2 vulnerabilita moderate transitive
 
 ## TypeScript
 
@@ -25,7 +26,7 @@ Prettier e ora baseline obbligatoria del progetto. ESLint resta configurato in m
 - **Variabili e funzioni**: camelCase (`isAuthenticated`, `getPageBlocks`)
 - **Componenti React**: PascalCase (`EditableText`, `MediaPickerModal`)
 - **Tipi e interfacce**: PascalCase (`InsertPage`, `PageBlock`)
-- **Costanti**: UPPER_SNAKE_CASE (`SESSION_COOKIE_NAME`, `DEFAULT_PASSWORD`)
+- **Costanti**: UPPER_SNAKE_CASE (`SESSION_COOKIE_NAME`, `ADMIN_PASSWORD_MIN_LENGTH`)
 - **File componenti**: PascalCase (`EditableText.tsx`, `AdminLayout.tsx`)
 - **File utility/hook**: kebab-case (`use-page-blocks.ts`, `queryClient.ts`)
 - **Colonne DB nel codice**: camelCase (`titleIt`, `sortOrder`)
@@ -257,14 +258,14 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 - I commit devono essere creati intenzionalmente dopo verifica dello stato del progetto
 - Non modificare la storia git manualmente
 - Prima di ogni commit richiesto: `git status -sb --ignored`, `git diff --stat`, gate pertinente
-- Per modifiche codice/dipendenze/config: usare `npm run check:all`
+- Per modifiche codice/dipendenze/config: usare `npm run check:all` come target completo; se `npm run audit` e l'unico punto rosso noto, documentarlo esplicitamente nel report finale
 - Non committare `.env`, `BACKUP/`, `node_modules/`, `dist/`, `coverage/`, `test-results/`
 
 ### Backup
 
 - Comando: "esegui nuovo backup"
 - Formato: `BACKUP/Backup_<giorno>_<Mese>_<HH-MM>.tar`
-- Esclude: `.git`, `node_modules`, `dist`, `BACKUP`, `coverage`, `test-results`, `.env`, `.env.*`
+- Esclude: `.git`, `node_modules`, `dist`, `BACKUP`, `coverage`, `test-results`, `playwright-report`, `.env`, `.env.*`
 - I backup restano locali e non vengono pushati su GitHub salvo richiesta esplicita contraria
 
 ### GitHub Sync
@@ -276,4 +277,5 @@ Ogni implementazione (DatabaseStorage, SupabaseStorage) deve rispettare questa i
 - File persistente da mantenere anche in export: `GITHUB_PUSH_GUIDE.md`
 - Bootstrap remoto: `bash scripts/bootstrap-github-remote.sh`
 - Preflight: `bash scripts/preflight-github-push.sh`
+- In caso di `403` sul push standard, usare il fallback con `GITHUB_TOKEN` documentato in `GITHUB_PUSH_GUIDE.md`
 - Dopo push verificare `git ls-remote github refs/heads/main` e stato GitHub Actions
