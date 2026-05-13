@@ -10,6 +10,7 @@ import {
   fetchColliSnapshotFromSupabaseRest,
   shouldPreferSupabaseColliAdapter,
 } from "../colli-supabase-adapter";
+import { getColliAdminSettings } from "../colli-settings";
 
 interface ColliSectionSummary {
   id: string | number | null;
@@ -27,6 +28,7 @@ interface ColliMenuResponse extends ColliMenuPayload {
     counts: ColliMenuCounts;
     sections: ColliSectionSummary[];
     stale: boolean;
+    englishEnabled: boolean;
     sourceChecksum?: string | null;
     publishedAt?: string | null;
   };
@@ -88,9 +90,17 @@ async function getColliMenu(): Promise<ColliMenuResponse> {
 }
 
 async function fetchColliMenu(): Promise<ColliMenuResponse> {
+  const attachSettings = async (menu: ColliMenuResponse) => ({
+    ...menu,
+    metadata: {
+      ...menu.metadata,
+      englishEnabled: (await getColliAdminSettings()).englishEnabled,
+    },
+  });
+
   if (shouldPreferSupabaseColliAdapter()) {
     const supabaseSnapshot = await fetchColliSnapshotFromSupabaseRest();
-    if (supabaseSnapshot) return supabaseSnapshot;
+    if (supabaseSnapshot) return attachSettings(supabaseSnapshot);
   }
 
   const internalSnapshot = await withTimeout(
@@ -102,9 +112,9 @@ async function fetchColliMenu(): Promise<ColliMenuResponse> {
     return null;
   });
 
-  if (internalSnapshot) return internalSnapshot;
+  if (internalSnapshot) return attachSettings(internalSnapshot);
 
-  return fetchColliMenuFromBridge();
+  return attachSettings(await fetchColliMenuFromBridge());
 }
 
 async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
@@ -197,6 +207,7 @@ function buildMetadata(
     counts: getColliMenuCounts(snapshot),
     sections: snapshot.sections.map(toSectionSummary),
     stale: false,
+    englishEnabled: true,
     sourceChecksum: options.sourceChecksum,
     publishedAt: options.publishedAt,
   };

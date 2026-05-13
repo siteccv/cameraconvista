@@ -77,10 +77,18 @@ export interface ColliMenuPayload {
   wineCategories: ColliWineCategory[];
   wines: ColliWine[];
   allergens: ColliAllergen[];
+  metadata?: {
+    englishEnabled?: boolean;
+    [key: string]: unknown;
+  };
 }
 
 export interface ColliBookingSettings {
   phoneNumber: string;
+}
+
+export interface ColliAdminSettings {
+  englishEnabled: boolean;
 }
 
 export const COLLI_MENU_ARRAY_KEYS = [
@@ -104,6 +112,10 @@ export const EXPECTED_COLLI_MENU_COUNTS: ColliMenuCounts = {
 export const COLLI_BOOKING_SETTINGS_KEY = "colli_booking_settings";
 export const DEFAULT_COLLI_BOOKING_SETTINGS: ColliBookingSettings = {
   phoneNumber: "+393335345751",
+};
+export const COLLI_ENGLISH_ENABLED_SETTINGS_KEY = "english_enabled";
+export const DEFAULT_COLLI_ADMIN_SETTINGS: ColliAdminSettings = {
+  englishEnabled: true,
 };
 export const COLLI_BOOKING_MESSAGE = "Ciao, vorrei prenotare da Camera con Vista Colli.";
 

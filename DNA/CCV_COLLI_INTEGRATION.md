@@ -695,6 +695,12 @@ Campi consigliati:
 - `value`: jsonb nullable;
 - `updated_at`: timestamp.
 
+Chiavi operative:
+
+- `last_import`: riepilogo ultima importazione dati Colli;
+- `admin_password_hash`: hash bcrypt della password/PIN admin Colli;
+- `english_enabled`: booleano opzionale per abilitare/disabilitare la lingua inglese nel menu Colli pubblico e nel pannello admin Colli; se assente il sistema assume `true`.
+
 Possibili chiavi future:
 
 - logo/asset pubblico Colli;
@@ -1132,6 +1138,7 @@ Completato:
   - admin SITE-CCV: `/admina`;
 - creata login page Colli separata;
 - creata sessione Colli separata con cookie `ccv_colli_admin_session`;
+- il cookie Colli deve restare cookie di sessione browser/app, senza `Max-Age`/`Expires`; lato server la sessione conserva comunque una scadenza di sicurezza;
 - password Colli salvata come hash server-side in `colli_settings`;
 - creato endpoint protetto `/api/colli/admin/summary`;
 - creata pagina `/colli/admina/panel` protetta e separata dal pannello SITE-CCV;
@@ -1394,3 +1401,4 @@ Questa decisione resta valida finche non emergono vincoli tecnici nuovi e docume
 - 2026-05-13: fix definitivo runtime Colli senza DB diretto su Render. Aggiunto adapter Supabase REST server-side per menu e admin Colli quando `SUPABASE_DB_URL` non e disponibile: `/api/colli/menu` legge subito lo snapshot interno senza attendere timeout PostgreSQL, `/api/colli/admin/login` autentica senza 500 e il pannello admin legge i record `colli_*`. Verificato su porta 5003 simulando produzione senza `SUPABASE_DB_URL`: login OK, menu snapshot circa 0.46s, Playwright 22/22.
 - 2026-05-14: aggiunti redirect client di compatibilita per accesso admin Colli: `/colli/admin/login` e `/colli/admina/login` portano alla rotta canonica `/colli/admina`. L'endpoint API resta `/api/colli/admin/login`.
 - 2026-05-14: aggiunta install experience dedicata per `/colli/menu`. La rotta serve manifest PWA dedicato `/manifest-colli.json`, `apple-touch-icon` dedicata e icone ottimizzate `colli-home-180.png`, `colli-home-192.png`, `colli-home-512.png`, generate da `attached_assets/colli_home.png`. L'icona globale del sito resta invariata sulle altre pagine.
+- 2026-05-14: consolidata gestione lingua EN Colli. Il toggle EN del pannello `/colli/admina/panel` non usa piu localStorage come fonte dati, ma l'impostazione server-side `colli_settings.english_enabled`; quando EN e disattivato, il menu pubblico `/colli/menu` forza italiano e nasconde i pulsanti `Italiano`/`English` nel menu a tendina, mantenendo visibile l'ingranaggio admin. Il cookie admin Colli e stato reso cookie di sessione browser/app, senza `Max-Age`/`Expires`.

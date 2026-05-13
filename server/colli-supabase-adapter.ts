@@ -82,6 +82,7 @@ export async function fetchColliSnapshotFromSupabaseRest() {
         order: section.order ?? null,
       })),
       stale: false,
+      englishEnabled: true,
       sourceChecksum: data.source_checksum,
       publishedAt: data.published_at ? new Date(data.published_at).toISOString() : null,
     },

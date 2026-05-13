@@ -4,6 +4,7 @@ import { useLocation } from "wouter";
 import { ChevronDown, ChevronUp, Home, Info, Leaf, Pencil, Plus, Trash2, X } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type {
+  ColliAdminSettings,
   ColliAllergen,
   ColliCategory,
   ColliDish,
@@ -28,6 +29,7 @@ const COLORS = {
 };
 
 const ADMIN_MENU_QUERY = ["/api/colli/admin/menu"] as const;
+const ADMIN_SETTINGS_QUERY = ["/api/colli/admin/settings"] as const;
 
 interface ColliAdminSession {
   authenticated: boolean;
@@ -57,9 +59,7 @@ export default function ColliAdminPanel() {
     endpoint: string;
     afterDelete?: () => void;
   } | null>(null);
-  const [englishEnabled, setEnglishEnabled] = useState(() => {
-    return window.localStorage.getItem("colli-admin-english-enabled") !== "false";
-  });
+  const [englishEnabled, setEnglishEnabled] = useState(true);
 
   const { data: session, isLoading: sessionLoading } = useQuery<ColliAdminSession>({
     queryKey: ["/api/colli/admin/check-session"],
@@ -67,6 +67,11 @@ export default function ColliAdminPanel() {
   });
   const { data, isLoading: menuLoading } = useQuery<ColliMenuPayload>({
     queryKey: ADMIN_MENU_QUERY,
+    enabled: !!session?.authenticated,
+    retry: false,
+  });
+  const { data: adminSettings } = useQuery<ColliAdminSettings>({
+    queryKey: ADMIN_SETTINGS_QUERY,
     enabled: !!session?.authenticated,
     retry: false,
   });
@@ -88,8 +93,8 @@ export default function ColliAdminPanel() {
   }, [activeTab, data, sections]);
 
   useEffect(() => {
-    window.localStorage.setItem("colli-admin-english-enabled", String(englishEnabled));
-  }, [englishEnabled]);
+    if (adminSettings) setEnglishEnabled(adminSettings.englishEnabled);
+  }, [adminSettings]);
 
   async function updateMenuFromResponse(response: Response) {
     const nextMenu = (await response.json()) as ColliMenuPayload;
@@ -101,6 +106,24 @@ export default function ColliAdminPanel() {
   async function reorder(endpoint: string, ids: string[]) {
     const response = await apiRequest("PUT", endpoint, { ids });
     await updateMenuFromResponse(response);
+  }
+
+  async function updateEnglishEnabled(nextValue: boolean) {
+    const previousValue = englishEnabled;
+    setEnglishEnabled(nextValue);
+
+    try {
+      const response = await apiRequest("PUT", "/api/colli/admin/settings", {
+        englishEnabled: nextValue,
+      });
+      const settings = (await response.json()) as ColliAdminSettings;
+      setEnglishEnabled(settings.englishEnabled);
+      queryClient.setQueryData(ADMIN_SETTINGS_QUERY, settings);
+      queryClient.invalidateQueries({ queryKey: ["/api/colli/menu"] });
+    } catch (error) {
+      setEnglishEnabled(previousValue);
+      console.error("Failed to update Colli English setting:", error);
+    }
   }
 
   async function saveEdit(target: EditTarget, body: Record<string, unknown>) {
@@ -164,7 +187,7 @@ export default function ColliAdminPanel() {
               type="button"
               role="switch"
               aria-checked={englishEnabled}
-              onClick={() => setEnglishEnabled((enabled) => !enabled)}
+              onClick={() => void updateEnglishEnabled(!englishEnabled)}
               className="relative h-5 w-10 rounded-full transition-colors"
               style={{ backgroundColor: englishEnabled ? COLORS.green : COLORS.border }}
             >

@@ -17,6 +17,7 @@ import {
 import { pool } from "../db";
 import { shouldPreferSupabaseColliAdapter, supabaseColliPool } from "../colli-supabase-adapter";
 import { storage } from "../storage";
+import { getColliAdminSettings, setColliAdminSettings } from "../colli-settings";
 import { invalidateColliMenuCache } from "./colli";
 import { generateSessionToken, isAuthenticated, SESSION_MAX_AGE_MS } from "./helpers";
 
@@ -77,7 +78,6 @@ colliAdminRouter.post(
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: SESSION_MAX_AGE_MS,
       path: "/",
     });
 
@@ -102,6 +102,25 @@ colliAdminRouter.get(
   "/check-session",
   asyncRoute(async (req, res) => {
     res.json({ authenticated: await isColliAdminAuthenticated(req) });
+  }),
+);
+
+colliAdminRouter.get(
+  "/settings",
+  requireColliAdmin,
+  asyncRoute(async (_req, res) => {
+    res.json(await getColliAdminSettings());
+  }),
+);
+
+colliAdminRouter.put(
+  "/settings",
+  requireColliAdmin,
+  asyncRoute(async (req, res) => {
+    const englishEnabled = req.body?.englishEnabled !== false;
+    const settings = await setColliAdminSettings({ englishEnabled });
+    invalidateColliMenuCache();
+    res.json(settings);
   }),
 );
 

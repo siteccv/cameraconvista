@@ -96,7 +96,8 @@ Conteggi finali verificati:
 - `colli_item_allergens`: 28;
 - `colli_wine_categories`: 5;
 - `colli_wines`: 11;
-- `colli_settings`: 2 (`last_import`, `admin_password_hash`);
+- `colli_settings`: almeno 2 (`last_import`, `admin_password_hash`);
+- `colli_settings.english_enabled`: impostazione opzionale creata/aggiornata dal pannello admin Colli quando si modifica il toggle EN; se assente il codice assume EN attivo;
 - `colli_menu_snapshots`: 5 totali dopo test controllato, con 1 solo snapshot `active`.
 
 Sequenze DB verificate:

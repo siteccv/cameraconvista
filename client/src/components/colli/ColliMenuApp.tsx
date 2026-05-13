@@ -41,9 +41,16 @@ export function ColliMenuApp() {
     queryKey: ["/api/colli/menu"],
   });
 
+  const englishEnabled = data?.metadata?.englishEnabled !== false;
   const sections = useMemo(() => sortColliByOrder(data?.sections ?? []), [data?.sections]);
   const activeSection = sections.find((section) => section.id === activeSectionId) ?? null;
   const isWineSection = activeSection?.type === "wine";
+
+  useEffect(() => {
+    if (!englishEnabled && language === "en") {
+      setLanguage("it");
+    }
+  }, [englishEnabled, language, setLanguage]);
 
   useEffect(() => {
     if (!activeSectionId || sections.some((section) => section.id === activeSectionId)) return;
@@ -98,6 +105,7 @@ export function ColliMenuApp() {
           language={language}
           activeSectionId={activeSectionId}
           sections={sections}
+          englishEnabled={englishEnabled}
           onClose={() => setMenuOpen(false)}
           onHome={showSectionList}
           onSectionChange={selectSection}
@@ -234,6 +242,7 @@ function ColliDropdown({
   language,
   activeSectionId,
   sections,
+  englishEnabled,
   onClose,
   onHome,
   onSectionChange,
@@ -243,6 +252,7 @@ function ColliDropdown({
   language: ColliLanguage;
   activeSectionId: string | null;
   sections: ColliSection[];
+  englishEnabled: boolean;
   onClose: () => void;
   onHome: () => void;
   onSectionChange: (sectionId: string) => void;
@@ -297,12 +307,16 @@ function ColliDropdown({
         <div className="h-px" style={{ backgroundColor: COLORS.separator }} />
 
         <div className="flex items-center gap-5 p-4">
-          <LanguageButton active={language === "it"} onClick={() => onLanguageChange("it")}>
-            Italiano
-          </LanguageButton>
-          <LanguageButton active={language === "en"} onClick={() => onLanguageChange("en")}>
-            English
-          </LanguageButton>
+          {englishEnabled && (
+            <>
+              <LanguageButton active={language === "it"} onClick={() => onLanguageChange("it")}>
+                Italiano
+              </LanguageButton>
+              <LanguageButton active={language === "en"} onClick={() => onLanguageChange("en")}>
+                English
+              </LanguageButton>
+            </>
+          )}
           <button
             type="button"
             onClick={onAdmin}

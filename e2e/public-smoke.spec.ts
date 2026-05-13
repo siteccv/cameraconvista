@@ -193,6 +193,35 @@ test("colli menu exposes the dedicated admin gear", async ({ page }) => {
   await expect(page.getByTestId("input-colli-admin-password")).toBeVisible();
 });
 
+test("colli menu hides language buttons when English is disabled", async ({ page }) => {
+  await page.route("**/api/colli/menu", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        sections: [
+          { id: "1", name_it: "Food", name_en: "Food", order: 0, type: "food" },
+          { id: "2", name_it: "Drinks", name_en: "Drinks", order: 1, type: "drinks" },
+          { id: "3", name_it: "Vini", name_en: "Wines", order: 2, type: "wine" },
+        ],
+        categories: [],
+        dishes: [],
+        wineCategories: [],
+        wines: [],
+        allergens: [],
+        metadata: { englishEnabled: false },
+      }),
+    });
+  });
+
+  await page.goto("/colli/menu", { waitUntil: "networkidle" });
+  await page.getByRole("button", { name: /Apri navigazione Colli/i }).click();
+
+  await expect(page.getByRole("button", { name: "Italiano" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "English" })).toHaveCount(0);
+  await expect(page.getByTestId("button-colli-admin-gear")).toBeVisible();
+});
+
 test("legacy colli admin route redirects to canonical admina path", async ({ page }) => {
   await page.goto("/colli/admin", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/colli\/admina$/);
@@ -218,6 +247,21 @@ test("colli admin panel loads the dedicated Supabase records", async ({ page }) 
 
   await page.getByRole("button", { name: "Gestisci allergeni" }).click();
   await expect(page.getByText("14 allergeni EU precaricati")).toBeVisible();
+});
+
+test("colli admin login uses a browser-session cookie", async ({ request }) => {
+  const response = await request.post("/api/colli/admin/login", {
+    data: { password: "1909" },
+  });
+  expect(response.status()).toBe(200);
+
+  const sessionCookie = response
+    .headersArray()
+    .find((header) => header.name.toLowerCase() === "set-cookie")?.value;
+
+  expect(sessionCookie).toContain("ccv_colli_admin_session=");
+  expect(sessionCookie).not.toMatch(/max-age=/i);
+  expect(sessionCookie).not.toMatch(/expires=/i);
 });
 
 test("main navigation exposes the optimized Colli icon", async ({ page }) => {
