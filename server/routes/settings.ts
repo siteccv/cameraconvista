@@ -6,6 +6,12 @@ import {
   footerSettingsSchema,
   defaultFooterSettings,
 } from "@shared/schema";
+import {
+  COLLI_BOOKING_SETTINGS_KEY,
+  DEFAULT_COLLI_BOOKING_SETTINGS,
+  normalizeColliBookingPhone,
+  type ColliBookingSettings,
+} from "@shared/colli";
 import { requireAuth } from "./helpers";
 
 const FOOTER_SETTINGS_KEY = "footer_settings";
@@ -134,6 +140,34 @@ const siteLinksSchema = z.object({
   publicSiteUrl: z.string().default(""),
 });
 
+const colliBookingSettingsSchema = z.object({
+  phoneNumber: z.string().min(5).max(32),
+});
+
+function normalizeColliBookingSettings(input: unknown): ColliBookingSettings {
+  const parsed = colliBookingSettingsSchema.safeParse(input);
+  if (!parsed.success) {
+    throw new Error("Invalid Colli booking settings");
+  }
+
+  const phoneNumber = normalizeColliBookingPhone(parsed.data.phoneNumber);
+  if (!/^\+\d{8,15}$/.test(phoneNumber)) {
+    throw new Error("Invalid WhatsApp phone number");
+  }
+
+  return { phoneNumber };
+}
+
+function readColliBookingSettings(value: string | null | undefined): ColliBookingSettings {
+  if (!value) return DEFAULT_COLLI_BOOKING_SETTINGS;
+
+  try {
+    return normalizeColliBookingSettings(JSON.parse(value));
+  } catch {
+    return DEFAULT_COLLI_BOOKING_SETTINGS;
+  }
+}
+
 adminSettingsRouter.get("/site-links", requireAuth, async (req, res) => {
   try {
     const setting = await storage.getSiteSetting(SITE_LINKS_KEY);
@@ -168,6 +202,46 @@ adminSettingsRouter.put("/site-links", requireAuth, async (req, res) => {
   } catch (error) {
     console.error("Error saving site links:", error);
     res.status(500).json({ error: "Failed to save site links" });
+  }
+});
+
+// ========================================
+// Colli Booking API
+// ========================================
+publicSettingsRouter.get("/colli-booking-settings", async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting(COLLI_BOOKING_SETTINGS_KEY);
+    res.json(readColliBookingSettings(setting?.valueIt));
+  } catch (error) {
+    console.error("Error fetching Colli booking settings:", error);
+    res.json(DEFAULT_COLLI_BOOKING_SETTINGS);
+  }
+});
+
+adminSettingsRouter.get("/colli-booking-settings", requireAuth, async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting(COLLI_BOOKING_SETTINGS_KEY);
+    res.json(readColliBookingSettings(setting?.valueIt));
+  } catch (error) {
+    console.error("Error fetching Colli booking settings:", error);
+    res.json(DEFAULT_COLLI_BOOKING_SETTINGS);
+  }
+});
+
+adminSettingsRouter.put("/colli-booking-settings", requireAuth, async (req, res) => {
+  try {
+    const settings = normalizeColliBookingSettings(req.body);
+    const jsonValue = JSON.stringify(settings);
+    await storage.upsertSiteSetting({
+      key: COLLI_BOOKING_SETTINGS_KEY,
+      valueIt: jsonValue,
+      valueEn: jsonValue,
+    });
+    res.json({ success: true, data: settings });
+  } catch (error) {
+    res.status(400).json({
+      error: error instanceof Error ? error.message : "Failed to save Colli booking settings",
+    });
   }
 });
 

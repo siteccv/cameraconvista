@@ -6,6 +6,7 @@ vite.config.ts.*
 *.tar.gz
 *.tar
 BACKUP/
+ccv-colli-source/
 .env
 .env.*
 !.env.example

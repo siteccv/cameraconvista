@@ -42,6 +42,8 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
   Vincoli, decisioni prese, cosa non duplicare o rifare
 - `DNA/06_SEO.md`
   SEO server-side, sitemap, canonical, hreflang, JSON-LD
+- `DNA/CCV_COLLI_INTEGRATION.md`
+  Scheda tecnica viva per integrazione CCV Colli: vetrina `/colli` e menu QR `/colli/menu`
 
 ## Regole operative per l'agent
 
@@ -68,7 +70,7 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
 - Repo canonico: `https://github.com/siteccv/cameraconvista.git`
 - Porta locale standard: `5001`
 - Build script: `scripts/build.ts`
-- Backup: `BACKUP/Backup_<giorno>_<Mese>_<HH-MM>.tar`
+- Backup operativi locali: `BACKUP/siteccv_enterprise_clean_final_<timestamp>.tar.gz` e relativo snapshot DB JSON finale.
 
 ## Quando aggiornare la documentazione
 

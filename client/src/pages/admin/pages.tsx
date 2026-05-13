@@ -29,6 +29,7 @@ import Eventi from "@/pages/eventi";
 import EventiPrivati from "@/pages/eventi-privati";
 import Galleria from "@/pages/galleria";
 import DoveSiamo from "@/pages/dove-siamo";
+import Colli from "@/pages/colli";
 import AperitivoPage from "@/pages/eventi-privati/aperitivo";
 import CenaPage from "@/pages/eventi-privati/cena";
 import EsclusivoPage from "@/pages/eventi-privati/esclusivo";
@@ -37,7 +38,7 @@ interface PageEntry {
   slug: string;
   labelIt: string;
   labelEn: string;
-  component: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
+  component: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void; pageId?: number }>;
   children?: PageEntry[];
   hidden?: boolean;
 }
@@ -80,6 +81,7 @@ const pageComponents: PageEntry[] = [
       },
     ],
   },
+  { slug: "colli", labelIt: "Colli", labelEn: "Colli", component: Colli },
   { slug: "galleria", labelIt: "Galleria", labelEn: "Gallery", component: Galleria },
   { slug: "dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are", component: DoveSiamo },
 ];
@@ -171,7 +173,10 @@ export default function AdminPages() {
   const effectiveSlug = activeSubPage || activePage;
   const activePageData = dbPages.find((p) => p.slug === effectiveSlug);
 
-  let ActivePageComponent: React.ComponentType<{ onNavigateSubPage?: (slug: string) => void }>;
+  let ActivePageComponent: React.ComponentType<{
+    onNavigateSubPage?: (slug: string) => void;
+    pageId?: number;
+  }>;
   if (activeSubPage && activeParent?.children) {
     const child = activeParent.children.find((c) => c.slug === activeSubPage);
     ActivePageComponent = child?.component || Home;
@@ -387,11 +392,17 @@ export default function AdminPages() {
         >
           {deviceView === "mobile" ? (
             <IPhoneFrame>
-              <ActivePageComponent onNavigateSubPage={handleNavigateSubPage} />
+              <ActivePageComponent
+                onNavigateSubPage={handleNavigateSubPage}
+                pageId={activePageData?.id}
+              />
             </IPhoneFrame>
           ) : (
             <div className="w-full h-[calc(100vh-280px)] min-h-[500px] overflow-auto bg-background rounded-lg border border-border">
-              <ActivePageComponent onNavigateSubPage={handleNavigateSubPage} />
+              <ActivePageComponent
+                onNavigateSubPage={handleNavigateSubPage}
+                pageId={activePageData?.id}
+              />
             </div>
           )}
         </div>

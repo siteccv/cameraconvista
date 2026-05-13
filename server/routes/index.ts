@@ -11,6 +11,8 @@ import pagesRouter, {
   cleanupDuplicatesRouter,
 } from "./pages";
 import { publicMenuRouter, adminMenuRouter } from "./menu";
+import { publicColliRouter } from "./colli";
+import { colliAdminRouter } from "./colli-admin";
 import { publicEventsRouter, adminEventsRouter } from "./events";
 import { publicGalleryRouter, adminGalleryRouter } from "./gallery";
 import {
@@ -51,6 +53,9 @@ export function mountRoutes(app: Express): void {
   app.use("/api/cocktails", publicCache(120));
   app.use("/api", publicMenuRouter);
 
+  // CCV Colli public menu
+  app.use("/api/colli", publicCache(60), publicColliRouter);
+
   // Events
   app.use("/api/events", publicCache(60), publicEventsRouter);
 
@@ -70,6 +75,7 @@ export function mountRoutes(app: Express): void {
 
   // Authentication
   app.use("/api/admin", authRouter);
+  app.use("/api/colli/admin", colliAdminRouter);
 
   // Pages
   app.use("/api/admin/pages", adminPagesRouter);

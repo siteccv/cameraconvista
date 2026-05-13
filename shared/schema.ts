@@ -8,6 +8,9 @@ import {
   timestamp,
   serial,
   jsonb,
+  numeric,
+  index,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -374,6 +377,334 @@ export const insertCocktailSchema = createInsertSchema(cocktails).omit({
 });
 export type InsertCocktail = z.infer<typeof insertCocktailSchema>;
 export type Cocktail = typeof cocktails.$inferSelect;
+
+// ============================================================================
+// CCV COLLI MENU (Dedicated namespace, separate from Google Sheets CCV flows)
+// ============================================================================
+export const colliSections = pgTable(
+  "colli_sections",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    subtitleIt: text("subtitle_it"),
+    subtitleEn: text("subtitle_en"),
+    type: text("type"),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_sections_source_id_idx").on(table.sourceId),
+    index("colli_sections_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliCategories = pgTable(
+  "colli_categories",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    sectionId: integer("section_id")
+      .notNull()
+      .references(() => colliSections.id, { onDelete: "cascade" }),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_categories_source_id_idx").on(table.sourceId),
+    index("colli_categories_section_id_idx").on(table.sectionId),
+    index("colli_categories_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliItems = pgTable(
+  "colli_items",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => colliCategories.id, { onDelete: "cascade" }),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    subtitleIt: text("subtitle_it"),
+    subtitleEn: text("subtitle_en"),
+    descriptionIt: text("description_it"),
+    descriptionEn: text("description_en"),
+    extraInfo: text("extra_info"),
+    price: numeric("price", { precision: 10, scale: 2 }),
+    vegetarian: boolean("vegetarian").notNull().default(false),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isAvailable: boolean("is_available").notNull().default(true),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_items_source_id_idx").on(table.sourceId),
+    index("colli_items_category_id_idx").on(table.categoryId),
+    index("colli_items_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliAllergens = pgTable(
+  "colli_allergens",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_allergens_source_id_idx").on(table.sourceId),
+    index("colli_allergens_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliItemAllergens = pgTable(
+  "colli_item_allergens",
+  {
+    id: serial("id").primaryKey(),
+    itemId: integer("item_id")
+      .notNull()
+      .references(() => colliItems.id, { onDelete: "cascade" }),
+    allergenId: integer("allergen_id")
+      .notNull()
+      .references(() => colliAllergens.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_item_allergens_unique_idx").on(table.itemId, table.allergenId),
+    index("colli_item_allergens_item_id_idx").on(table.itemId),
+    index("colli_item_allergens_allergen_id_idx").on(table.allergenId),
+  ],
+);
+
+export const colliWineCategories = pgTable(
+  "colli_wine_categories",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isActive: boolean("is_active").notNull().default(true),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_wine_categories_source_id_idx").on(table.sourceId),
+    index("colli_wine_categories_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliWines = pgTable(
+  "colli_wines",
+  {
+    id: serial("id").primaryKey(),
+    sourceId: text("source_id"),
+    wineCategoryId: integer("wine_category_id")
+      .notNull()
+      .references(() => colliWineCategories.id, { onDelete: "cascade" }),
+    nameIt: text("name_it").notNull(),
+    nameEn: text("name_en").notNull().default(""),
+    producer: text("producer"),
+    origin: text("origin"),
+    abv: numeric("abv", { precision: 5, scale: 2 }),
+    priceGlass: numeric("price_glass", { precision: 10, scale: 2 }),
+    priceBottle: numeric("price_bottle", { precision: 10, scale: 2 }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    isAvailable: boolean("is_available").notNull().default(true),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    updatedAt: timestamp("updated_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("colli_wines_source_id_idx").on(table.sourceId),
+    index("colli_wines_wine_category_id_idx").on(table.wineCategoryId),
+    index("colli_wines_sort_order_idx").on(table.sortOrder),
+  ],
+);
+
+export const colliSettings = pgTable("colli_settings", {
+  id: serial("id").primaryKey(),
+  key: text("key").notNull().unique(),
+  value: jsonb("value"),
+  updatedAt: timestamp("updated_at")
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+});
+
+export const colliMenuSnapshots = pgTable(
+  "colli_menu_snapshots",
+  {
+    id: serial("id").primaryKey(),
+    status: text("status").notNull().default("active"),
+    snapshot: jsonb("snapshot").notNull(),
+    counts: jsonb("counts"),
+    sourceChecksum: text("source_checksum"),
+    publishedBy: text("published_by"),
+    publishedAt: timestamp("published_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+    createdAt: timestamp("created_at")
+      .default(sql`CURRENT_TIMESTAMP`)
+      .notNull(),
+  },
+  (table) => [
+    index("colli_menu_snapshots_status_idx").on(table.status),
+    index("colli_menu_snapshots_published_at_idx").on(table.publishedAt),
+  ],
+);
+
+export const colliSectionsRelations = relations(colliSections, ({ many }) => ({
+  categories: many(colliCategories),
+}));
+
+export const colliCategoriesRelations = relations(colliCategories, ({ one, many }) => ({
+  section: one(colliSections, {
+    fields: [colliCategories.sectionId],
+    references: [colliSections.id],
+  }),
+  items: many(colliItems),
+}));
+
+export const colliItemsRelations = relations(colliItems, ({ one, many }) => ({
+  category: one(colliCategories, {
+    fields: [colliItems.categoryId],
+    references: [colliCategories.id],
+  }),
+  allergens: many(colliItemAllergens),
+}));
+
+export const colliAllergensRelations = relations(colliAllergens, ({ many }) => ({
+  items: many(colliItemAllergens),
+}));
+
+export const colliItemAllergensRelations = relations(colliItemAllergens, ({ one }) => ({
+  item: one(colliItems, {
+    fields: [colliItemAllergens.itemId],
+    references: [colliItems.id],
+  }),
+  allergen: one(colliAllergens, {
+    fields: [colliItemAllergens.allergenId],
+    references: [colliAllergens.id],
+  }),
+}));
+
+export const colliWineCategoriesRelations = relations(colliWineCategories, ({ many }) => ({
+  wines: many(colliWines),
+}));
+
+export const colliWinesRelations = relations(colliWines, ({ one }) => ({
+  wineCategory: one(colliWineCategories, {
+    fields: [colliWines.wineCategoryId],
+    references: [colliWineCategories.id],
+  }),
+}));
+
+export const insertColliSectionSchema = createInsertSchema(colliSections).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliSection = z.infer<typeof insertColliSectionSchema>;
+export type ColliSection = typeof colliSections.$inferSelect;
+
+export const insertColliCategorySchema = createInsertSchema(colliCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliCategory = z.infer<typeof insertColliCategorySchema>;
+export type ColliCategory = typeof colliCategories.$inferSelect;
+
+export const insertColliItemSchema = createInsertSchema(colliItems).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliItem = z.infer<typeof insertColliItemSchema>;
+export type ColliItem = typeof colliItems.$inferSelect;
+
+export const insertColliAllergenSchema = createInsertSchema(colliAllergens).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliAllergen = z.infer<typeof insertColliAllergenSchema>;
+export type ColliAllergen = typeof colliAllergens.$inferSelect;
+
+export const insertColliItemAllergenSchema = createInsertSchema(colliItemAllergens).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertColliItemAllergen = z.infer<typeof insertColliItemAllergenSchema>;
+export type ColliItemAllergen = typeof colliItemAllergens.$inferSelect;
+
+export const insertColliWineCategorySchema = createInsertSchema(colliWineCategories).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliWineCategory = z.infer<typeof insertColliWineCategorySchema>;
+export type ColliWineCategory = typeof colliWineCategories.$inferSelect;
+
+export const insertColliWineSchema = createInsertSchema(colliWines).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertColliWine = z.infer<typeof insertColliWineSchema>;
+export type ColliWine = typeof colliWines.$inferSelect;
+
+export const insertColliSettingsSchema = createInsertSchema(colliSettings).omit({
+  id: true,
+  updatedAt: true,
+});
+export type InsertColliSettings = z.infer<typeof insertColliSettingsSchema>;
+export type ColliSettings = typeof colliSettings.$inferSelect;
+
+export const insertColliMenuSnapshotSchema = createInsertSchema(colliMenuSnapshots).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertColliMenuSnapshot = z.infer<typeof insertColliMenuSnapshotSchema>;
+export type ColliMenuSnapshot = typeof colliMenuSnapshots.$inferSelect;
 
 // ============================================================================
 // FOOTER SETTINGS (Structured JSON for footer content)

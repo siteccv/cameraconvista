@@ -26,6 +26,10 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
 
 ## Struttura utile
 
+- `.github/`
+  Workflow GitHub Actions per qualita e keepalive Supabase
+- `attached_assets/`
+  Asset importati dal bundle Vite, inclusi logo CCV, logo Colli e icona navbar Colli
 - `client/src/pages/`
   Pagine pubbliche e admin
 - `client/src/components/`
@@ -38,8 +42,56 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
   Route pubbliche e admin
 - `shared/schema.ts`
   Contratto dati condiviso
+- `shared/colli.ts`
+  Contratto dati Colli e helper di validazione/conteggio
 - `scripts/`
   Build e utility operative
+- `migrations/`
+  SQL revisionabili/applicati per integrazione Colli e impostazioni correlate
+- `LOGOS/`
+  Sorgenti/logo storici e operativi. Non e runtime primario, ma alcuni script storici media lo referenziano.
+
+Utility Colli sicure:
+
+- `npm run colli:db:check`
+  Controllo read-only stato CMS `/colli`, tabelle `colli_*` e sorgente Render.
+- `npm run colli:import:dry-run`
+  Piano import Colli senza scritture database.
+- `npm run colli:import`
+  Import controllato nelle sole tabelle `colli_*`; si blocca se trova dati esistenti senza `--replace`.
+
+## Stato operativo aggiornato al 2026-05-13
+
+Il progetto locale contiene l'integrazione Colli dentro SITE-CCV.
+
+Stato pubblico:
+
+- `/colli` e una vetrina pubblica gestita dal CMS SITE-CCV;
+- `/colli/menu` e il menu digitale diretto per QR;
+- il QR definitivo deve puntare a `/colli/menu`, non alla vetrina;
+- la navbar principale mostra Colli tramite asset ottimizzato `attached_assets/colli-nav.webp`.
+
+Stato admin:
+
+- `/admina` resta il pannello globale SITE-CCV;
+- admin SITE-CCV gestisce anche la vetrina `/colli` e il numero WhatsApp del CTA Prenota;
+- `/colli/admina` e il login separato Colli da ingranaggio del menu digitale;
+- `/colli/admina/panel` gestisce solo il menu digitale Colli;
+- `/colli/admin` e `/colli/admin/panel` sono solo redirect di compatibilita verso `/colli/admina`.
+
+Stato dati:
+
+- dati CCV principali restano in flussi separati `menu_items`, `wines`, `cocktails`, eventi, gallery e sync Google;
+- dati Colli vivono in tabelle dedicate `colli_*`;
+- il menu pubblico Colli legge snapshot interno Supabase da `colli_menu_snapshots`;
+- Render Colli resta solo riferimento/fallback, non runtime primario desiderato.
+
+Stato pulizia:
+
+- `ccv-colli-source/` e stata rimossa dal workspace perche non funzionale al runtime SITE-CCV;
+- `BACKUP/` mantiene solo backup finale operativo e snapshot DB finale;
+- rimossi i componenti home non referenziati `PhilosophySection.tsx` e `TeaserCard.tsx`;
+- nessun commit/push e stato eseguito in questa fase.
 
 ## Runtime reale
 
@@ -60,6 +112,8 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
 - `/eventi-privati`
 - `/eventi-privati/aperitivo`
 - `/eventi-privati/esclusivo`
+- `/colli`
+- `/colli/menu`
 - `/galleria`
 - `/dove-siamo`
 - `/privacy`
@@ -105,3 +159,13 @@ Redirect attivi:
 - `GITHUB_PUSH_GUIDE.md`
 
 I file root diversi da questi devono essere eccezioni motivate. Lo storico non operativo va lasciato fuori dal runtime documentale attivo e, se serve, recuperato da Git o dai backup.
+
+## Componenti da non rimuovere per supposizione
+
+Non rimuovere senza una verifica dedicata:
+
+- componenti `client/src/components/ui/*` anche se non tutti sono usati oggi, perche sono parte del kit UI disponibile;
+- `LOGOS/`, perche contiene sorgenti/logo e riferimenti da script storici media;
+- `migrations/`, perche documenta lo stato DB applicato;
+- `.github/`, perche contiene quality gate e keepalive Supabase;
+- script Supabase/media storici, se non sono stati prima classificati e approvati per archiviazione.

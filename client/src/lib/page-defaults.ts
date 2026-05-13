@@ -12,7 +12,17 @@ export const PAGE_IDS = {
   "eventi-privati-aperitivo": 9,
   "eventi-privati-cena": 10,
   "eventi-privati-esclusivo": 11,
+  colli: 12,
 } as const;
+
+const COLLI_HERO_IMAGE =
+  "https://pjrdnfbfpogvztfjuxya.supabase.co/storage/v1/object/public/media-public/public/1771799359563-senza_titolo-1.webp";
+const COLLI_GALLERY_1 =
+  "https://pjrdnfbfpogvztfjuxya.supabase.co/storage/v1/object/public/media-public/public/1771799355180-ChatGPT_Image_30_dic_2025__00_06_13.webp";
+const COLLI_GALLERY_2 =
+  "https://pjrdnfbfpogvztfjuxya.supabase.co/storage/v1/object/public/media-public/public/1777330031871-tapas_ccv.webp";
+const COLLI_GALLERY_3 =
+  "https://pjrdnfbfpogvztfjuxya.supabase.co/storage/v1/object/public/media-public/public/1770393051582-Food1_SilviaPozzati-3.jpg";
 
 export const MENU_DEFAULTS: BlockDefault[] = [
   {
@@ -144,6 +154,91 @@ export const COCKTAIL_BAR_DEFAULTS: BlockDefault[] = [
     bodyFontSize: 16,
     bodyFontSizeMobile: 14,
     sortOrder: 5,
+  },
+];
+
+export const COLLI_DEFAULTS: BlockDefault[] = [
+  {
+    blockType: "hero",
+    imageUrl: COLLI_HERO_IMAGE,
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 0,
+  },
+  {
+    blockType: "intro",
+    titleIt: "Food · Drinks · Vini",
+    titleEn: "Food · Drinks · Wines",
+    titleFontSize: 17,
+    titleFontSizeMobile: 16,
+    bodyIt:
+      "Un giardino urbano dove ordinare direttamente dal menu digitale: food, drinks e vini selezionati per vivere Camera con Vista all'aperto.",
+    bodyEn:
+      "An urban garden where guests order directly from the digital menu: food, drinks and selected wines to enjoy Camera con Vista outdoors.",
+    bodyFontSize: 18,
+    bodyFontSizeMobile: 15,
+    sortOrder: 1,
+  },
+  {
+    blockType: "location",
+    bodyIt: "Via Cavaioni 1, 40136, Bologna\npresso Ca' Shin",
+    bodyEn: "Via Cavaioni 1, 40136, Bologna\nat Ca' Shin",
+    bodyFontSize: 15,
+    bodyFontSizeMobile: 14,
+    sortOrder: 2,
+  },
+  {
+    blockType: "cta",
+    bodyIt: "Scopri il menu",
+    bodyEn: "Discover the menu",
+    bodyFontSize: 14,
+    bodyFontSizeMobile: 13,
+    sortOrder: 3,
+  },
+  {
+    blockType: "booking-cta",
+    bodyIt: "Prenota",
+    bodyEn: "Book",
+    bodyFontSize: 14,
+    bodyFontSizeMobile: 13,
+    sortOrder: 4,
+  },
+  {
+    blockType: "gallery-1",
+    imageUrl: COLLI_GALLERY_1,
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 5,
+  },
+  {
+    blockType: "gallery-2",
+    imageUrl: COLLI_GALLERY_2,
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 6,
+  },
+  {
+    blockType: "gallery-3",
+    imageUrl: COLLI_GALLERY_3,
+    imageScaleDesktop: 100,
+    imageScaleMobile: 100,
+    imageOffsetX: 0,
+    imageOffsetY: 0,
+    imageOffsetXMobile: 0,
+    imageOffsetYMobile: 0,
+    sortOrder: 7,
   },
 ];
 

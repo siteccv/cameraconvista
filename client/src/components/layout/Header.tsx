@@ -7,7 +7,20 @@ import { useState, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryClient } from "@/lib/queryClient";
 import logoImg from "@assets/logo_ccv.png";
+import colliNavImg from "@assets/colli-nav.webp";
 import type { Page, PageBlock } from "@shared/schema";
+
+interface NavItem {
+  slug: string;
+  path: string;
+  labelIt: string;
+  labelEn: string;
+  alwaysVisible?: boolean;
+  accentColor?: string;
+  navIconSrc?: string;
+  navIconAlt?: string;
+  prefetch?: boolean;
+}
 
 const prefetchedSlugs = new Set<string>();
 function prefetchPageData(slug: string) {
@@ -31,7 +44,7 @@ function prefetchPageData(slug: string) {
     });
 }
 
-const allNavItems = [
+const allNavItems: NavItem[] = [
   { slug: "home", path: "/", labelIt: "Home", labelEn: "Home" },
   { slug: "menu", path: "/menu", labelIt: "Menù", labelEn: "Menu" },
   { slug: "carta-vini", path: "/lista-vini", labelIt: "Carta dei Vini", labelEn: "Wine List" },
@@ -42,6 +55,16 @@ const allNavItems = [
     path: "/eventi-privati",
     labelIt: "Eventi Privati",
     labelEn: "Private Events",
+  },
+  {
+    slug: "colli",
+    path: "/colli",
+    labelIt: "Colli",
+    labelEn: "Colli",
+    alwaysVisible: true,
+    navIconSrc: colliNavImg,
+    navIconAlt: "Colli",
+    prefetch: false,
   },
   { slug: "galleria", path: "/galleria", labelIt: "Galleria", labelEn: "Gallery" },
   { slug: "dove-siamo", path: "/dove-siamo", labelIt: "Dove Siamo", labelEn: "Where We Are" },
@@ -70,6 +93,7 @@ export function Header() {
   const isMobile = forceMobileLayout || isMobileView;
 
   const navItems = allNavItems.filter((item) => {
+    if (item.alwaysVisible) return true;
     const dbPage = visiblePages.find((p) => p.slug === item.slug);
     return dbPage !== undefined || visiblePages.length === 0;
   });
@@ -140,20 +164,26 @@ export function Header() {
               <nav className="hidden xl:flex items-center gap-1">
                 {navItems.map((item) => {
                   const isActive = location === item.path;
-                  const navClassName = `px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors whitespace-nowrap ${
-                    isActive
-                      ? "text-[#722f37] underline underline-offset-4"
-                      : "text-muted-foreground"
-                  } ${adminPreview ? "cursor-default pointer-events-none" : "cursor-pointer hover:text-foreground"}`;
+                  const navClassName = item.navIconSrc
+                    ? `inline-flex h-10 min-w-[76px] items-center justify-center border-b-2 px-2 transition-opacity ${
+                        isActive ? "border-[#722f37]" : "border-transparent"
+                      } ${adminPreview ? "cursor-default pointer-events-none" : "cursor-pointer hover:opacity-80"}`
+                    : `px-3 py-2 text-sm font-medium tracking-wide uppercase transition-colors whitespace-nowrap ${
+                        isActive
+                          ? "text-[#722f37] underline underline-offset-4"
+                          : "text-muted-foreground"
+                      } ${adminPreview ? "cursor-default pointer-events-none" : "cursor-pointer hover:text-foreground"}`;
+                  const navStyle = item.accentColor ? { color: item.accentColor } : undefined;
 
                   if (adminPreview) {
                     return (
                       <span
                         key={item.slug}
                         className={navClassName}
+                        style={navStyle}
                         data-testid={`nav-${item.slug || "home"}`}
                       >
-                        {t(item.labelIt, item.labelEn)}
+                        <NavItemContent item={item} label={t(item.labelIt, item.labelEn)} />
                       </span>
                     );
                   }
@@ -162,10 +192,15 @@ export function Header() {
                     <Link key={item.slug} href={item.path}>
                       <span
                         className={navClassName}
+                        style={navStyle}
                         data-testid={`nav-${item.slug || "home"}`}
-                        onMouseEnter={() => prefetchPageData(item.slug)}
+                        onMouseEnter={() => {
+                          if (item.prefetch !== false) {
+                            prefetchPageData(item.slug);
+                          }
+                        }}
                       >
-                        {t(item.labelIt, item.labelEn)}
+                        <NavItemContent item={item} label={t(item.labelIt, item.labelEn)} />
                       </span>
                     </Link>
                   );
@@ -206,16 +241,23 @@ export function Header() {
             <div className="container mx-auto px-4 flex flex-col gap-2">
               {navItems.map((item) => {
                 const isActive = location === item.path;
+                const navStyle = item.accentColor ? { color: item.accentColor } : undefined;
+                const mobileClassName = item.navIconSrc
+                  ? `flex min-h-[52px] items-center px-4 py-3 transition-opacity ${
+                      isActive ? "opacity-100" : "opacity-80 hover:opacity-100"
+                    }`
+                  : `block px-4 py-3 font-display text-lg tracking-wide transition-colors cursor-pointer ${
+                      isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                    }`;
                 return (
                   <Link key={item.slug} href={item.path}>
                     <span
-                      className={`block px-4 py-3 font-display text-lg tracking-wide transition-colors cursor-pointer ${
-                        isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
-                      }`}
+                      className={mobileClassName}
+                      style={navStyle}
                       onClick={() => setMobileMenuOpen(false)}
                       data-testid={`nav-mobile-${item.slug || "home"}`}
                     >
-                      {t(item.labelIt, item.labelEn)}
+                      <NavItemContent item={item} label={t(item.labelIt, item.labelEn)} mobile />
                     </span>
                   </Link>
                 );
@@ -258,5 +300,27 @@ export function Header() {
         )}
       </div>
     </header>
+  );
+}
+
+function NavItemContent({
+  item,
+  label,
+  mobile = false,
+}: {
+  item: NavItem;
+  label: string;
+  mobile?: boolean;
+}) {
+  if (!item.navIconSrc) return <>{label}</>;
+
+  return (
+    <img
+      src={item.navIconSrc}
+      alt={item.navIconAlt || label}
+      className={`${mobile ? "h-[34px]" : "h-[28px]"} w-auto object-contain`}
+      loading="eager"
+      decoding="async"
+    />
   );
 }

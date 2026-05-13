@@ -27,6 +27,24 @@
   pointer-events: none;
 }
 
+.colli-admin-input {
+  width: 100%;
+  border: 1.5px solid #e2d9cf;
+  border-radius: 10px;
+  background: #faf8f5;
+  color: #2c1f14;
+  padding: 11px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  outline: none;
+}
+
+.colli-admin-input:focus {
+  border-color: #722f37;
+  box-shadow: 0 0 0 2px rgba(114, 47, 55, 0.08);
+}
+
 /* Price text - aligned numerals */
 .price-text {
   font-family: "Spectral", Georgia, serif;

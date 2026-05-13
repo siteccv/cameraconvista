@@ -7,6 +7,8 @@ const publicRoutes = [
   { path: "/cocktail-bar", title: /Cocktail|Camera con Vista/i },
   { path: "/eventi", title: /Eventi|Events|Camera con Vista/i },
   { path: "/eventi-privati", title: /Eventi Privati|Private Events|Camera con Vista/i },
+  { path: "/colli", title: /Colli|Camera con Vista/i },
+  { path: "/colli/menu", title: /Menu Colli|Colli Menu|Camera con Vista/i },
 ];
 
 for (const route of publicRoutes) {
@@ -25,8 +27,172 @@ test("menu, wines and cocktails APIs respond with arrays", async ({ request }) =
   }
 });
 
+test("colli menu API exposes the digital menu snapshot", async ({ request }) => {
+  const response = await request.get("/api/colli/menu");
+  expect(response.status()).toBe(200);
+
+  const menu = await response.json();
+  expect(menu.metadata.sections.map((section: { nameIt: string }) => section.nameIt)).toEqual([
+    "Food",
+    "Drinks",
+    "Vini",
+  ]);
+  expect(menu.sections.length).toBeGreaterThanOrEqual(3);
+  expect(menu.categories.length).toBeGreaterThan(0);
+  expect(menu.dishes.length).toBeGreaterThan(0);
+  expect(menu.wineCategories.length).toBeGreaterThan(0);
+  expect(menu.wines.length).toBeGreaterThan(0);
+});
+
+test("colli booking settings API exposes the WhatsApp phone", async ({ request }) => {
+  const response = await request.get("/api/colli-booking-settings");
+  expect(response.status()).toBe(200);
+  expect(await response.json()).toEqual({ phoneNumber: "+393335345751" });
+});
+
+test("colli showcase links to the digital menu", async ({ page }) => {
+  await page.goto("/colli", { waitUntil: "networkidle" });
+
+  await expect(page.getByAltText("Camera con Vista Colli").first()).toBeVisible();
+  await expect(page.getByTestId("colli-hero-image")).toBeVisible();
+  await expect(page.getByTestId("colli-gallery-image-1")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Colli", exact: true })).toHaveCount(0);
+  await expect(page.getByTestId("colli-address")).toContainText("Via Cavaioni 1, 40136, Bologna");
+  await expect(page.getByTestId("colli-address")).toContainText("presso Ca' Shin");
+  await expect(page.getByTestId("colli-instagram-link")).toHaveAttribute(
+    "href",
+    "https://www.instagram.com/cameraconvistacolli/",
+  );
+  await expect(page.locator("footer").getByText("Via Cavaioni 1")).toHaveCount(0);
+
+  const bottomAlignment = await page.evaluate(() => {
+    const hero = document.querySelector('[data-testid="colli-hero-image"]');
+    const location = document.querySelector('[data-testid="colli-location-group"]');
+    if (!hero || !location) return null;
+    return Math.abs(hero.getBoundingClientRect().bottom - location.getBoundingClientRect().bottom);
+  });
+  expect(bottomAlignment).not.toBeNull();
+  expect(bottomAlignment ?? 999).toBeLessThanOrEqual(2);
+
+  await page.getByTestId("colli-address").click();
+  await expect(page.getByTestId("button-colli-apple-maps")).toBeVisible();
+  await expect(page.getByTestId("button-colli-google-maps")).toBeVisible();
+  await page.getByRole("button", { name: /Chiudi|Close/i }).click();
+
+  const menuLink = page.getByTestId("colli-menu-cta");
+  await expect(menuLink).toHaveText(/Scopri il menu|Discover the menu/i);
+  await expect(page.getByTestId("colli-booking-cta")).toHaveAttribute(
+    "href",
+    /https:\/\/wa\.me\/393335345751/,
+  );
+  await menuLink.click();
+  await expect(page).toHaveURL(/\/colli\/menu$/);
+});
+
+test("colli showcase keeps the primary content in the first mobile viewport", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/colli", { waitUntil: "networkidle" });
+
+  await expect(page.getByTestId("colli-hero-image")).toBeVisible();
+  await expect(page.getByAltText("Camera con Vista Colli").first()).toBeVisible();
+  await expect(page.getByTestId("colli-menu-cta")).toBeVisible();
+  await expect(page.getByTestId("colli-booking-cta")).toBeVisible();
+  await expect(page.getByTestId("colli-address")).toBeVisible();
+  await expect(page.getByTestId("colli-instagram-link")).toBeVisible();
+
+  const layout = await page.evaluate(() => {
+    const hero = document.querySelector('[data-testid="colli-hero-image"]');
+    const cta = document.querySelector('[data-testid="colli-menu-cta"]');
+    const booking = document.querySelector('[data-testid="colli-booking-cta"]');
+    const address = document.querySelector('[data-testid="colli-address"]');
+    const instagram = document.querySelector('[data-testid="colli-instagram-link"]');
+    const rect = (el: Element | null) => {
+      if (!el) return null;
+      const box = el.getBoundingClientRect();
+      return { top: box.top, bottom: box.bottom, right: box.right };
+    };
+
+    return {
+      viewportHeight: window.innerHeight,
+      scrollWidth: document.documentElement.scrollWidth,
+      hero: rect(hero),
+      cta: rect(cta),
+      booking: rect(booking),
+      address: rect(address),
+      instagram: rect(instagram),
+    };
+  });
+
+  expect(layout.scrollWidth).toBeLessThanOrEqual(390);
+  expect(layout.hero?.top).toBeGreaterThanOrEqual(0);
+  expect(layout.cta?.bottom).toBeLessThan(layout.viewportHeight);
+  expect(layout.booking?.bottom).toBeLessThan(layout.viewportHeight);
+  expect(layout.address?.bottom).toBeLessThan(layout.viewportHeight);
+  expect(layout.instagram?.bottom).toBeLessThan(layout.viewportHeight);
+});
+
+test("colli menu route opens the digital menu on mobile", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/colli/menu", { waitUntil: "networkidle" });
+
+  await expect(page.getByAltText("Camera con Vista Colli")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Food" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Drinks" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Vini" })).toBeVisible();
+
+  await page.getByRole("button", { name: "Food" }).click();
+  await expect(page.getByRole("heading", { name: /Focacce/i })).toBeVisible();
+});
+
+test("colli menu exposes the dedicated admin gear", async ({ page }) => {
+  await page.goto("/colli/menu", { waitUntil: "networkidle" });
+
+  await page.getByRole("button", { name: /Apri navigazione Colli/i }).click();
+  const gear = page.getByTestId("button-colli-admin-gear");
+  await expect(gear).toBeVisible();
+
+  await gear.click();
+  await expect(page).toHaveURL(/\/colli\/admina$/);
+  await expect(page.getByTestId("input-colli-admin-password")).toBeVisible();
+});
+
+test("legacy colli admin route redirects to canonical admina path", async ({ page }) => {
+  await page.goto("/colli/admin", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/colli\/admina$/);
+});
+
+test("colli admin panel loads the dedicated Supabase records", async ({ page }) => {
+  await page.goto("/colli/admina", { waitUntil: "domcontentloaded" });
+  await page.getByTestId("input-colli-admin-password").fill("1909");
+  await page.getByTestId("button-colli-admin-login").click();
+
+  await expect(page).toHaveURL(/\/colli\/admina\/panel$/);
+  await expect(page.getByRole("button", { name: "Food" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Drinks" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Vini" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Food" })).toBeVisible();
+  await expect(page.getByText("Le nostre Focacce")).toBeVisible();
+
+  await page.getByRole("button", { name: "Gestisci allergeni" }).click();
+  await expect(page.getByText("14 allergeni EU precaricati")).toBeVisible();
+});
+
+test("main navigation exposes the optimized Colli icon", async ({ page }) => {
+  await page.goto("/", { waitUntil: "networkidle" });
+
+  const colliNav = page.getByTestId("nav-colli");
+  await expect(colliNav).toBeVisible();
+  const colliIcon = colliNav.getByRole("img", { name: "Colli" });
+  await expect(colliIcon).toBeVisible();
+  const naturalWidth = await colliIcon.evaluate((img) => (img as HTMLImageElement).naturalWidth);
+  expect(naturalWidth).toBeLessThanOrEqual(240);
+
+  await colliNav.click();
+  await expect(page).toHaveURL(/\/colli$/);
+});
+
 test("private events shows aperitivo and exclusive event without dinner card", async ({ page }) => {
-  await page.goto("/eventi-privati", { waitUntil: "networkidle" });
+  await page.goto("/eventi-privati", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByText("Aperitivo", { exact: true })).toBeVisible();
   await expect(page.getByText("Evento Privato Esclusivo.")).toBeVisible();

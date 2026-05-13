@@ -26,6 +26,10 @@ const Galleria = lazy(() => import("@/pages/galleria"));
 const DoveSiamo = lazy(() => import("@/pages/dove-siamo"));
 const PrivacyPolicy = lazy(() => import("@/pages/privacy-policy"));
 const CookiePolicy = lazy(() => import("@/pages/cookie-policy"));
+const Colli = lazy(() => import("@/pages/colli"));
+const ColliMenu = lazy(() => import("@/pages/colli-menu"));
+const ColliAdminLogin = lazy(() => import("@/pages/colli-admin-login"));
+const ColliAdminPanel = lazy(() => import("@/pages/colli-admin-panel"));
 const AdminLogin = lazy(() => import("@/pages/admin/login"));
 const AdminSettings = lazy(() => import("@/pages/admin/settings"));
 const AdminSyncGoogle = lazy(() => import("@/pages/admin/sync-google"));
@@ -99,6 +103,14 @@ const PAGE_TITLES: Record<string, { it: string; en: string }> = {
   },
   privacy: { it: "Privacy Policy - Camera con Vista", en: "Privacy Policy - Camera con Vista" },
   cookie: { it: "Cookie Policy - Camera con Vista", en: "Cookie Policy - Camera con Vista" },
+  colli: {
+    it: "Camera con Vista Colli",
+    en: "Camera con Vista Colli",
+  },
+  "colli-menu": {
+    it: "Menu Colli - Camera con Vista",
+    en: "Colli Menu - Camera con Vista",
+  },
 };
 
 function PublicPageRoute({
@@ -217,6 +229,14 @@ function Router() {
           <Route path="/cookie">
             {() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}
           </Route>
+          <Route path="/colli">{() => <StaticPageRoute component={Colli} slug="colli" />}</Route>
+          <Route path="/colli/menu">
+            {() => <StaticPageRoute component={ColliMenu} slug="colli-menu" />}
+          </Route>
+          <Route path="/colli/admin">{() => <Redirect to="/colli/admina" />}</Route>
+          <Route path="/colli/admin/panel">{() => <Redirect to="/colli/admina/panel" />}</Route>
+          <Route path="/colli/admina" component={ColliAdminLogin} />
+          <Route path="/colli/admina/panel" component={ColliAdminPanel} />
           <Route path="/contatti">
             {() => {
               window.location.replace("/dove-siamo");

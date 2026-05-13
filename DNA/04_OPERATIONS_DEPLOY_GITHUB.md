@@ -32,8 +32,23 @@ Target completo disponibile:
 
 Nota operativa:
 
-- oggi `npm run audit` puo restare l'unico punto rosso noto per vulnerabilita moderate transitive
-- non dichiarare verde pieno se `audit` non lo e davvero
+- non dichiarare verde pieno se `audit` non lo e davvero;
+- il blocco audit emerso durante il consolidamento Colli e stato risolto il 2026-05-13 aggiornando `express-rate-limit` a `^8.5.1`, che porta `ip-address` a `10.2.0`;
+- il fix e stato applicato senza `--force`.
+
+Ultima suite completa eseguita il 2026-05-13 dopo fix audit e rimozione dei componenti home non usati:
+
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run format:check`: OK
+- `npm test`: OK, 3 file e 7 test
+- `npm run test:coverage`: OK, 3 file e 7 test
+- `npm run build`: OK, con warning PostCSS gia noto
+- `npm run test:e2e`: OK, 22/22
+- `npm run colli:db:check`: OK, read-only, nessuna scrittura
+- `npm run audit`: OK, 0 vulnerabilita
+
+Quindi la pipeline locale richiesta dal progetto risulta verde. Resta solo il warning PostCSS non bloccante gia noto durante build.
 
 ## Playwright
 
@@ -47,11 +62,19 @@ Per smoke su server built locale:
 
 ## Backup
 
-Formato:
+Formato operativo richiesto:
 
-- `BACKUP/Backup_<giorno>_<Mese>_<HH-MM>.tar`
+- archivio sorgente: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>.tar.gz`
+- snapshot DB associato: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>_db_state.json`
 
-Escludere almeno:
+Backup finale corrente:
+
+- `BACKUP/Backup_13 Maggio_21.58.tar.gz`
+- `BACKUP/Backup_13 Maggio_21.58_db_state.json`
+
+Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
+
+Escludere almeno dai backup sorgente:
 
 - `.git`
 - `node_modules`
@@ -60,8 +83,13 @@ Escludere almeno:
 - `coverage`
 - `test-results`
 - `playwright-report`
-- `.env`
-- `.env.*`
+
+Gestione env:
+
+- `.env` e file env operativi non devono essere versionati;
+- `.env` deve restare nella cartella progetto per l'uso locale;
+- nei backup locali operativi puo essere incluso, cosi il progetto resta ripristinabile senza reinserire manualmente le variabili essenziali;
+- non stampare mai segreti, token o chiavi nei report.
 
 I backup restano locali salvo richiesta esplicita contraria.
 
@@ -78,6 +106,14 @@ Workflow persistente:
 - leggere `GITHUB_PUSH_GUIDE.md`
 - usare `scripts/bootstrap-github-remote.sh`
 - usare `scripts/preflight-github-push.sh`
+
+Strategia commit/push:
+
+- usare commit normale delle differenze reali;
+- non sostituire manualmente il progetto remoto;
+- non usare force push;
+- non versionare `.env`, `BACKUP/`, `node_modules`, `dist`, `coverage`, `test-results` o artefatti generati;
+- commit e push solo su autorizzazione esplicita dell'utente.
 
 Se il push standard fallisce con `403`, usare il fallback documentato in `GITHUB_PUSH_GUIDE.md`.
 

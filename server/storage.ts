@@ -590,6 +590,20 @@ export class DatabaseStorage implements IStorage {
         isDraft: false,
         sortOrder: 7,
       },
+      {
+        slug: "colli",
+        titleIt: "Colli",
+        titleEn: "Colli",
+        metaTitleIt: "Camera con Vista Colli",
+        metaTitleEn: "Camera con Vista Colli",
+        metaDescriptionIt:
+          "Camera con Vista Colli: spazio all'aperto con food, drinks e vini. Apri il menu digitale dedicato.",
+        metaDescriptionEn:
+          "Camera con Vista Colli: an outdoor place for food, drinks and wines. Open the dedicated digital menu.",
+        isVisible: true,
+        isDraft: false,
+        sortOrder: 8,
+      },
     ];
 
     for (const page of seedPages) {

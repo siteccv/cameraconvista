@@ -23,6 +23,8 @@ const SLUG_TO_PATH: Record<string, string> = {
   "dove-siamo": "/dove-siamo",
   privacy: "/privacy",
   cookie: "/cookie",
+  colli: "/colli",
+  "colli-menu": "/colli/menu",
 };
 
 const PATH_TO_SLUG: Record<string, string> = {
@@ -47,6 +49,8 @@ const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
   "dove-siamo": "Tapas e Cocktail Bar in Centro a Bologna - Dove Siamo",
   privacy: "Privacy Policy - Camera con Vista",
   cookie: "Cookie Policy - Camera con Vista",
+  colli: "Camera con Vista Colli",
+  "colli-menu": "Menu Colli - Camera con Vista",
 };
 
 const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
@@ -62,6 +66,8 @@ const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
   "dove-siamo": "Tapas and Cocktail Bar in Central Bologna - Where We Are",
   privacy: "Privacy Policy - Camera con Vista",
   cookie: "Cookie Policy - Camera con Vista",
+  colli: "Camera con Vista Colli",
+  "colli-menu": "Colli Menu - Camera con Vista",
 };
 
 const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
@@ -87,6 +93,10 @@ const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
     "Informativa sulla privacy di Camera con Vista. Come trattiamo i tuoi dati personali, basi giuridiche e diritti dell'interessato.",
   cookie:
     "Cookie Policy di Camera con Vista. Dettagli sui cookie utilizzati, categorie e gestione del consenso.",
+  colli:
+    "Camera con Vista Colli: spazio all'aperto con food, drinks e vini. Dal sito puoi aprire il menu digitale dedicato.",
+  "colli-menu":
+    "Menu digitale Camera con Vista Colli: food, drinks e vini consultabili direttamente da smartphone.",
 };
 
 const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
@@ -112,6 +122,20 @@ const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
     "Privacy Policy of Camera con Vista. How we process your personal data, legal bases and your rights.",
   cookie:
     "Cookie Policy of Camera con Vista. Details on cookies used, categories and consent management.",
+  colli:
+    "Camera con Vista Colli: an outdoor place for food, drinks and wines. Open the dedicated digital menu from the site.",
+  "colli-menu":
+    "Camera con Vista Colli digital menu: food, drinks and wines available directly from your smartphone.",
+};
+
+const DEFAULT_PAGE_LABELS_IT: Record<string, string> = {
+  colli: "Colli",
+  "colli-menu": "Menu Colli",
+};
+
+const DEFAULT_PAGE_LABELS_EN: Record<string, string> = {
+  colli: "Colli",
+  "colli-menu": "Colli Menu",
 };
 
 interface SeoData {
@@ -183,7 +207,10 @@ async function buildSeoData(req: Request): Promise<SeoData> {
     }
 
     if (slug !== "home") {
-      const pageName = lang === "it" ? page?.titleIt || slug : page?.titleEn || slug;
+      const fallbackName =
+        (lang === "it" ? DEFAULT_PAGE_LABELS_IT[slug] : DEFAULT_PAGE_LABELS_EN[slug]) || slug;
+      const pageName =
+        lang === "it" ? page?.titleIt || fallbackName : page?.titleEn || fallbackName;
       breadcrumbs.push({ name: pageName, url: baseUrl + pathname });
     }
   } else if (pathname.startsWith("/eventi/")) {
@@ -315,6 +342,22 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       description: lang === "it" ? DEFAULT_PAGE_DESCS_IT.menu : DEFAULT_PAGE_DESCS_EN.menu,
       url: baseUrl + "/menu" + (lang === "en" ? "?lang=en" : ""),
       hasMenuSection: [],
+    });
+  }
+
+  if (slug === "colli-menu") {
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": "Menu",
+      name: "Menu Camera con Vista Colli",
+      description:
+        lang === "it" ? DEFAULT_PAGE_DESCS_IT["colli-menu"] : DEFAULT_PAGE_DESCS_EN["colli-menu"],
+      url: baseUrl + "/colli/menu" + (lang === "en" ? "?lang=en" : ""),
+      provider: {
+        "@type": "Restaurant",
+        name: "Camera con Vista Colli",
+      },
+      hasMenuSection: ["Food", "Drinks", "Vini"],
     });
   }
 
@@ -499,6 +542,24 @@ export function mountSeoRoutes(app: Express): void {
         xml += `    <lastmod>${today}</lastmod>\n`;
         xml += `    <changefreq>${changefreq}</changefreq>\n`;
         xml += `    <priority>${priority}</priority>\n`;
+        xml += `    <xhtml:link rel="alternate" hreflang="it" href="${escapeXml(url)}" />\n`;
+        xml += `    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(url + "?lang=en")}" />\n`;
+        xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(url)}" />\n`;
+        xml += `  </url>\n`;
+      }
+
+      const visiblePaths = new Set(
+        visiblePages.map((page) => SLUG_TO_PATH[page.slug]).filter(Boolean),
+      );
+      for (const extraPath of ["/colli", "/colli/menu"]) {
+        if (visiblePaths.has(extraPath)) continue;
+
+        const url = baseUrl + extraPath;
+        xml += `  <url>\n`;
+        xml += `    <loc>${escapeXml(url)}</loc>\n`;
+        xml += `    <lastmod>${today}</lastmod>\n`;
+        xml += `    <changefreq>${extraPath === "/colli/menu" ? "daily" : "weekly"}</changefreq>\n`;
+        xml += `    <priority>0.7</priority>\n`;
         xml += `    <xhtml:link rel="alternate" hreflang="it" href="${escapeXml(url)}" />\n`;
         xml += `    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(url + "?lang=en")}" />\n`;
         xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(url)}" />\n`;

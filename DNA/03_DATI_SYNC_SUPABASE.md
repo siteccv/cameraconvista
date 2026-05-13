@@ -31,6 +31,79 @@ File chiave:
 - `media_categories`
 - `admin_sessions`
 
+Area Colli migrata su Supabase in tabelle indipendenti:
+
+- `colli_sections`
+- `colli_categories`
+- `colli_items`
+- `colli_allergens`
+- `colli_item_allergens`
+- `colli_wine_categories`
+- `colli_wines`
+- `colli_settings`
+- `colli_menu_snapshots`
+
+Regola: le tabelle Colli devono restare separate da `menu_items`, `wines`, `cocktails` e dalla sync Google Sheets CCV.
+
+## Stato Colli verificato il 2026-05-13
+
+Controllo read-only prima della migrazione eseguito con:
+
+```bash
+npm run colli:db:check
+```
+
+Esito iniziale:
+
+- backend locale collegato a Supabase tramite `DATABASE_URL`;
+- pagina CMS `colli` assente nella tabella `pages`;
+- blocchi CMS della vetrina `/colli` assenti in `page_blocks`;
+- tabelle `colli_*` assenti;
+- sorgente Render Colli raggiungibile;
+- conteggi sorgente confermati: sezioni 3, categorie 14, prodotti 120, categorie vini 5, vini 11, allergeni 14.
+
+Stato consolidato dopo migrazione, pubblicazione CMS e test admin controllato:
+
+- pagina CMS `colli` creata in `pages`;
+- 8 blocchi vetrina creati in `page_blocks`;
+- pagina CMS `colli` pubblicata: `is_visible = true`, `is_draft = false`;
+- blocchi vetrina pubblicati: 0 blocchi in bozza;
+- snapshot CMS dei blocchi salvati in `page_blocks.metadata.__publishedSnapshot`;
+- impostazione `site_settings.colli_booking_settings` creata per il numero WhatsApp del CTA Prenota;
+- tabelle `colli_*` create;
+- dati Colli importati in tabelle indipendenti;
+- snapshot attivo creato in `colli_menu_snapshots`;
+- `/api/colli/menu` legge prima lo snapshot interno Supabase e usa Render solo come fallback;
+- dati CCV esistenti (`menu_items`, `wines`, `cocktails`, `events`, sync Google) non sono stati fusi con Colli.
+- test admin Colli eseguito via backend: modifica temporanea prodotto, verifica pubblica, ripristino valore originale.
+
+Ultima verifica read-only del 2026-05-13:
+
+- host DB Supabase: `aws-1-eu-west-1.pooler.supabase.com`;
+- pagina `colli`: presente, visibile e non in bozza;
+- blocchi CMS Colli: 8;
+- blocchi attesi: `hero`, `intro`, `location`, `cta`, `booking-cta`, `gallery-1`, `gallery-2`, `gallery-3`;
+- impostazione `colli_booking_settings`: presente, telefono `+393335345751`;
+- sorgente Render `https://ccvcolli-ghxg.onrender.com/api/menu/draft`: raggiungibile;
+- scritture eseguite dal check: nessuna.
+
+Conteggi finali verificati:
+
+- `colli_sections`: 3;
+- `colli_categories`: 14;
+- `colli_items`: 120;
+- `colli_allergens`: 14;
+- `colli_item_allergens`: 28;
+- `colli_wine_categories`: 5;
+- `colli_wines`: 11;
+- `colli_settings`: 2 (`last_import`, `admin_password_hash`);
+- `colli_menu_snapshots`: 5 totali dopo test controllato, con 1 solo snapshot `active`.
+
+Sequenze DB verificate:
+
+- le sequenze Colli risultano allineate ai rispettivi `max(id)`;
+- corrette e riallineate anche le sequenze storiche `galleries` e `gallery_images` dopo verifica manuale.
+
 ## Site settings importanti
 
 Chiavi operative note:
@@ -49,10 +122,11 @@ Chiavi operative note:
 
 ## Snapshot pubblici
 
-Esistono due logiche diverse:
+Esistono logiche diverse:
 
-- pagine/blocchi: snapshot in `publishedSnapshot`
+- pagine/blocchi: snapshot in `PageBlock.publishedSnapshot` lato codice; nel Supabase reale il valore e salvato in `page_blocks.metadata.__publishedSnapshot`
 - menu/vini/cocktail: snapshot JSON in `site_settings`
+- menu Colli: snapshot JSON dedicato in `colli_menu_snapshots`
 
 Non confondere i due flussi.
 
@@ -111,3 +185,5 @@ Prima di toccare dati:
 2. capire se il backend attivo e Supabase oppure PostgreSQL diretto
 3. evitare scritture non richieste
 4. non usare note storiche o audit passati per dedurre stato dati corrente
+5. per Colli, eseguire prima `npm run colli:db:check`
+6. per Colli, eseguire poi `npm run colli:import:dry-run` e non fare `db:push` senza revisione

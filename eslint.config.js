@@ -17,6 +17,7 @@ export default [
       "test-results/**",
       "BACKUP/**",
       "attached_assets/**",
+      "ccv-colli-source/**",
       "*.config.js",
       "package-lock.json",
     ],

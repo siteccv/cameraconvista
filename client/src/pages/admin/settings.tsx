@@ -18,10 +18,12 @@ import {
   Link2,
   ShieldCheck,
   Globe,
+  MessageCircle,
 } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
+import { DEFAULT_COLLI_BOOKING_SETTINGS, type ColliBookingSettings } from "@shared/colli";
 
-type SettingsSection = "main" | "password" | "footer" | "site-links";
+type SettingsSection = "main" | "password" | "footer" | "site-links" | "colli-booking";
 
 interface SiteLinks {
   adminSiteUrl: string;
@@ -232,6 +234,10 @@ export default function AdminSettings() {
     return <SiteLinksSection onBack={() => setActiveSection("main")} />;
   }
 
+  if (activeSection === "colli-booking") {
+    return <ColliBookingSection onBack={() => setActiveSection("main")} />;
+  }
+
   return (
     <AdminLayout>
       <div className="p-4 md:p-6 max-w-2xl">
@@ -303,6 +309,27 @@ export default function AdminSettings() {
                 <CardTitle className="text-base mb-0.5">{t("Link Sito", "Site Links")}</CardTitle>
                 <CardDescription className="text-sm">
                   {t("URL del sito admin e sito pubblico", "Admin site and public site URLs")}
+                </CardDescription>
+              </div>
+              <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover-elevate transition-all"
+            onClick={() => setActiveSection("colli-booking")}
+            data-testid="card-colli-booking-section"
+          >
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <MessageCircle className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base mb-0.5">
+                  {t("Prenotazione Colli", "Colli Booking")}
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  {t("Numero WhatsApp del pulsante Prenota", "WhatsApp number for the Book button")}
                 </CardDescription>
               </div>
               <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
@@ -438,6 +465,130 @@ function SiteLinksSection({ onBack }: { onBack: () => void }) {
               >
                 <Save className="mr-2 h-4 w-4" />
                 {isSaving ? t("Salvataggio...", "Saving...") : t("Salva Link", "Save Links")}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
+  );
+}
+
+function ColliBookingSection({ onBack }: { onBack: () => void }) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [phoneNumber, setPhoneNumber] = useState(DEFAULT_COLLI_BOOKING_SETTINGS.phoneNumber);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: settings, isLoading } = useQuery<ColliBookingSettings>({
+    queryKey: ["/api/admin/colli-booking-settings"],
+  });
+
+  useEffect(() => {
+    if (settings) {
+      setPhoneNumber(settings.phoneNumber || DEFAULT_COLLI_BOOKING_SETTINGS.phoneNumber);
+    }
+  }, [settings]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const response = await apiRequest("PUT", "/api/admin/colli-booking-settings", {
+        phoneNumber: phoneNumber.trim(),
+      });
+      const data = await response.json();
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/colli-booking-settings"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/colli-booking-settings"] });
+        setPhoneNumber(data.data.phoneNumber);
+        toast({
+          title: t("Salvato", "Saved"),
+          description: t("Numero prenotazioni Colli aggiornato", "Colli booking number updated"),
+        });
+      }
+    } catch {
+      toast({
+        title: t("Errore", "Error"),
+        description: t(
+          "Inserisci un numero WhatsApp valido, ad esempio +393335345751",
+          "Enter a valid WhatsApp number, for example +393335345751",
+        ),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <div className="p-4 md:p-6 max-w-xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="mb-4 -ml-2"
+          data-testid="button-back-to-settings"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("Indietro", "Back")}
+        </Button>
+
+        <div className="mb-6">
+          <h1 className="font-display text-2xl" data-testid="text-colli-booking-title">
+            {t("Prenotazione Colli", "Colli Booking")}
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {t(
+              "Configura il numero WhatsApp usato dal pulsante Prenota nella pagina Colli",
+              "Configure the WhatsApp number used by the Book button on the Colli page",
+            )}
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("Numero WhatsApp", "WhatsApp Number")}</CardTitle>
+            <CardDescription>
+              {t(
+                "Questa impostazione modifica solo la vetrina /colli. Non cambia il menu digitale o l'admin Colli.",
+                "This setting only changes the /colli showcase. It does not change the digital menu or Colli admin.",
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="colliBookingPhone" className="flex items-center gap-2">
+                  <MessageCircle className="h-4 w-4 text-primary" />
+                  {t("Telefono prenotazioni", "Booking phone")}
+                </Label>
+                <Input
+                  id="colliBookingPhone"
+                  type="tel"
+                  inputMode="tel"
+                  placeholder="+393335345751"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  data-testid="input-colli-booking-phone"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "Il link WhatsApp viene generato automaticamente dal numero salvato.",
+                    "The WhatsApp link is generated automatically from the saved number.",
+                  )}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSaving || isLoading || !phoneNumber.trim()}
+                className="w-full"
+                data-testid="button-save-colli-booking"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? t("Salvataggio...", "Saving...") : t("Salva Numero", "Save Number")}
               </Button>
             </form>
           </CardContent>
