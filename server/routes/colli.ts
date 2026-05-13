@@ -54,6 +54,7 @@ export function invalidateColliMenuCache() {
 publicColliRouter.get("/menu", async (_req, res) => {
   try {
     const menu = await getColliMenu();
+    res.set("Cache-Control", "no-store, max-age=0");
     res.json(menu);
   } catch (error) {
     console.error("[colli] Failed to fetch public menu:", error);

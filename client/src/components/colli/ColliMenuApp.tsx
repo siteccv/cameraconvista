@@ -39,6 +39,9 @@ export function ColliMenuApp() {
 
   const { data, isLoading, isError, refetch } = useQuery<ColliMenuPayload>({
     queryKey: ["/api/colli/menu"],
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    staleTime: 0,
   });
 
   const englishEnabled = data?.metadata?.englishEnabled !== false;
