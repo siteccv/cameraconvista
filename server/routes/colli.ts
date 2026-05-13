@@ -6,6 +6,10 @@ import {
   type ColliMenuPayload,
 } from "@shared/colli";
 import { pool } from "../db";
+import {
+  fetchColliSnapshotFromSupabaseRest,
+  shouldPreferSupabaseColliAdapter,
+} from "../colli-supabase-adapter";
 
 interface ColliSectionSummary {
   id: string | number | null;
@@ -84,6 +88,11 @@ async function getColliMenu(): Promise<ColliMenuResponse> {
 }
 
 async function fetchColliMenu(): Promise<ColliMenuResponse> {
+  if (shouldPreferSupabaseColliAdapter()) {
+    const supabaseSnapshot = await fetchColliSnapshotFromSupabaseRest();
+    if (supabaseSnapshot) return supabaseSnapshot;
+  }
+
   const internalSnapshot = await withTimeout(
     fetchColliMenuFromDatabase(),
     COLLI_MENU_DB_TIMEOUT_MS,

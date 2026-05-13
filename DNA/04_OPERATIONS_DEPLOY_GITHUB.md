@@ -36,7 +36,7 @@ Nota operativa:
 - il blocco audit emerso durante il consolidamento Colli e stato risolto il 2026-05-13 aggiornando `express-rate-limit` a `^8.5.1`, che porta `ip-address` a `10.2.0`;
 - il fix e stato applicato senza `--force`.
 
-Ultima suite completa eseguita il 2026-05-13 dopo fix audit, ottimizzazione Supabase Storage e allineamento mobile Colli:
+Ultima suite completa eseguita il 2026-05-13 dopo fix audit, ottimizzazione Supabase Storage, allineamento mobile Colli e fix runtime Colli REST:
 
 - `npm run check`: OK
 - `npm run lint`: OK
@@ -44,7 +44,7 @@ Ultima suite completa eseguita il 2026-05-13 dopo fix audit, ottimizzazione Supa
 - `npm test`: OK, 3 file e 7 test
 - `npm run test:coverage`: OK, 3 file e 7 test
 - `npm run build`: OK, con warning PostCSS gia noto
-- `npm run test:e2e`: OK, 22/22
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5003 npm run test:e2e`: OK, 22/22, simulando produzione senza `SUPABASE_DB_URL`
 - `npm run colli:db:check`: OK, read-only, nessuna scrittura
 - `npm run audit`: OK, 0 vulnerabilita
 

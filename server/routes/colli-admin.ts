@@ -3,7 +3,7 @@ import { Router } from "express";
 import type { NextFunction, Request, Response } from "express";
 import rateLimit from "express-rate-limit";
 import bcrypt from "bcryptjs";
-import type { PoolClient, QueryResult, QueryResultRow } from "pg";
+import type { QueryResult, QueryResultRow } from "pg";
 import {
   getColliMenuCounts,
   type ColliMenuPayload,
@@ -15,6 +15,7 @@ import {
   type ColliWine,
 } from "@shared/colli";
 import { pool } from "../db";
+import { shouldPreferSupabaseColliAdapter, supabaseColliPool } from "../colli-supabase-adapter";
 import { storage } from "../storage";
 import { invalidateColliMenuCache } from "./colli";
 import { generateSessionToken, isAuthenticated, SESSION_MAX_AGE_MS } from "./helpers";
@@ -27,6 +28,14 @@ type Queryable = {
     queryText: string,
     values?: unknown[],
   ): Promise<QueryResult<T>>;
+};
+
+type ColliClient = Queryable & {
+  release(): void;
+};
+
+type ColliPool = Queryable & {
+  connect(): Promise<ColliClient>;
 };
 
 class HttpError extends Error {
@@ -498,7 +507,7 @@ colliAdminRouter.delete(
 );
 
 async function upsertItem(
-  client: PoolClient,
+  client: Queryable,
   id: number | null,
   body: Record<string, unknown>,
   categoryId?: number,
@@ -558,7 +567,7 @@ async function upsertItem(
   return result.rows[0].id;
 }
 
-async function replaceItemAllergens(client: PoolClient, itemId: number, value: unknown) {
+async function replaceItemAllergens(client: Queryable, itemId: number, value: unknown) {
   const ids = Array.isArray(value) ? value.map(parseId) : [];
   await client.query("delete from colli_item_allergens where item_id = $1", [itemId]);
 
@@ -700,7 +709,7 @@ async function loadColliMenuFromTables(db: Queryable): Promise<ColliMenuPayload>
   };
 }
 
-async function publishColliSnapshot(client: PoolClient): Promise<ColliMenuPayload> {
+async function publishColliSnapshot(client: Queryable): Promise<ColliMenuPayload> {
   const menu = await loadColliMenuFromTables(client);
   const counts = getColliMenuCounts(menu);
   const serialized = JSON.stringify(menu);
@@ -717,7 +726,7 @@ async function publishColliSnapshot(client: PoolClient): Promise<ColliMenuPayloa
   return menu;
 }
 
-async function mutateMenu(res: Response, mutation: (client: PoolClient) => Promise<void>) {
+async function mutateMenu(res: Response, mutation: (client: Queryable) => Promise<void>) {
   const dbPool = requirePool();
   const client = await dbPool.connect();
 
@@ -738,7 +747,7 @@ async function mutateMenu(res: Response, mutation: (client: PoolClient) => Promi
   }
 }
 
-async function reorderByIds(client: PoolClient, table: ReorderTable, ids: number[]) {
+async function reorderByIds(client: Queryable, table: ReorderTable, ids: number[]) {
   for (let index = 0; index < ids.length; index += 1) {
     const id = ids[index];
     await client.query(
@@ -749,7 +758,7 @@ async function reorderByIds(client: PoolClient, table: ReorderTable, ids: number
 }
 
 async function nextSortOrder(
-  client: PoolClient,
+  client: Queryable,
   table: SortableTable,
   parentColumn?: "section_id" | "category_id" | "wine_category_id",
   parentId?: number,
@@ -818,8 +827,9 @@ async function requireColliAdmin(req: Request, res: Response, next: NextFunction
 }
 
 function requirePool() {
+  if (shouldPreferSupabaseColliAdapter()) return supabaseColliPool as ColliPool;
   if (!pool) throw new HttpError(503, "Database unavailable");
-  return pool;
+  return pool as ColliPool;
 }
 
 function asyncRoute(handler: (req: Request, res: Response, next: NextFunction) => Promise<void>) {
