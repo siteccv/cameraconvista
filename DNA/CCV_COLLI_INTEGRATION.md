@@ -1390,3 +1390,4 @@ Questa decisione resta valida finche non emergono vincoli tecnici nuovi e docume
 - 2026-05-13: audit Supabase Free / Storage. Confermato che il rischio principale e egress immagini, non database o keepalive. Rimosso preload globale immagini che caricava asset CMS di pagine non visitate, mantenendo il prefetch solo su interazione utente.
 - 2026-05-13: rifinito layout mobile della vetrina `/colli`: logo, testi, CTA, Instagram e indirizzo centrati solo su mobile; desktop invariato. Aggiunto controllo e2e dedicato sull'allineamento mobile.
 - 2026-05-13: preparato nuovo backup operativo con convenzione `Backup_13 Maggio_22.52` e documentazione riallineata prima del commit/push su `main`.
+- 2026-05-13: hotfix produzione menu Colli. Diagnosticato timeout di `https://www.cameraconvista.it/api/colli/menu`; aggiunti timeout PostgreSQL/Supabase e fallback rapido al bridge Render se la lettura snapshot resta appesa. Testato server production-like su porta 5002.

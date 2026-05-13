@@ -32,6 +32,7 @@ const COLLI_MENU_SOURCE_URL =
   process.env.COLLI_MENU_SOURCE_URL || "https://ccvcolli-ghxg.onrender.com/api/menu/draft";
 
 const COLLI_MENU_CACHE_TTL_MS = 60_000;
+const COLLI_MENU_DB_TIMEOUT_MS = 2_500;
 const COLLI_MENU_FETCH_TIMEOUT_MS = 8_000;
 
 let cachedMenu: ColliMenuResponse | null = null;
@@ -83,10 +84,31 @@ async function getColliMenu(): Promise<ColliMenuResponse> {
 }
 
 async function fetchColliMenu(): Promise<ColliMenuResponse> {
-  const internalSnapshot = await fetchColliMenuFromDatabase();
+  const internalSnapshot = await withTimeout(
+    fetchColliMenuFromDatabase(),
+    COLLI_MENU_DB_TIMEOUT_MS,
+    "Colli DB snapshot read timed out",
+  ).catch((error) => {
+    console.warn("[colli] Falling back to Render bridge after DB timeout:", error);
+    return null;
+  });
+
   if (internalSnapshot) return internalSnapshot;
 
   return fetchColliMenuFromBridge();
+}
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, message: string): Promise<T> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<never>((_resolve, reject) => {
+    timeout = setTimeout(() => reject(new Error(message)), timeoutMs);
+  });
+
+  try {
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }
 
 async function fetchColliMenuFromDatabase(): Promise<ColliMenuResponse | null> {

@@ -151,6 +151,19 @@ File chiave:
 
 - `server/routes/settings.ts`
 - `server/supabase.ts`
+- `server/db.ts`
+
+## Connessione DB diretta per snapshot Colli
+
+Il menu pubblico Colli usa una lettura diretta PostgreSQL solo per lo snapshot attivo in `colli_menu_snapshots`.
+
+Regole consolidate il 2026-05-13:
+
+- `server/db.ts` usa `SUPABASE_DB_URL` con priorita su `DATABASE_URL`;
+- per host Supabase/pooler viene abilitato SSL;
+- la pool PostgreSQL ha timeout di connessione/query/statement;
+- `/api/colli/menu` applica un timeout breve alla lettura DB snapshot e, se la lettura resta appesa, passa al bridge Render;
+- questo evita che `/colli/menu` resti bloccato su `Caricamento menu...` in produzione.
 
 ## Sequence / ID safety
 
