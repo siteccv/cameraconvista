@@ -170,6 +170,12 @@ test("colli menu exposes the dedicated admin gear", async ({ page }) => {
 test("legacy colli admin route redirects to canonical admina path", async ({ page }) => {
   await page.goto("/colli/admin", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/colli\/admina$/);
+
+  await page.goto("/colli/admin/login", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/colli\/admina$/);
+
+  await page.goto("/colli/admina/login", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/colli\/admina$/);
 });
 
 test("colli admin panel loads the dedicated Supabase records", async ({ page }) => {

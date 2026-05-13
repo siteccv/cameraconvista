@@ -233,7 +233,9 @@ function Router() {
             {() => <StaticPageRoute component={ColliMenu} slug="colli-menu" />}
           </Route>
           <Route path="/colli/admin">{() => <Redirect to="/colli/admina" />}</Route>
+          <Route path="/colli/admin/login">{() => <Redirect to="/colli/admina" />}</Route>
           <Route path="/colli/admin/panel">{() => <Redirect to="/colli/admina/panel" />}</Route>
+          <Route path="/colli/admina/login">{() => <Redirect to="/colli/admina" />}</Route>
           <Route path="/colli/admina" component={ColliAdminLogin} />
           <Route path="/colli/admina/panel" component={ColliAdminPanel} />
           <Route path="/contatti">
