@@ -79,7 +79,7 @@ test("colli booking settings API exposes the WhatsApp phone", async ({ request }
 test("colli showcase links to the digital menu", async ({ page }) => {
   await page.goto("/colli", { waitUntil: "networkidle" });
 
-  await expect(page.getByAltText("Camera con Vista Colli").first()).toBeVisible();
+  await expect(page.locator('img[alt="Camera con Vista Colli"]:visible').first()).toBeVisible();
   await expect(page.getByTestId("colli-hero-image")).toBeVisible();
   await expect(page.getByTestId("colli-gallery-image-1")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Colli", exact: true })).toHaveCount(0);
@@ -120,7 +120,7 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
   await page.goto("/colli", { waitUntil: "networkidle" });
 
   await expect(page.getByTestId("colli-hero-image")).toBeVisible();
-  await expect(page.getByAltText("Camera con Vista Colli").first()).toBeVisible();
+  await expect(page.locator('img[alt="Camera con Vista Colli"]:visible').first()).toBeVisible();
   await expect(page.getByTestId("colli-menu-cta")).toBeVisible();
   await expect(page.getByTestId("colli-booking-cta")).toBeVisible();
   await expect(page.getByTestId("colli-address")).toBeVisible();
@@ -128,7 +128,7 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
 
   const layout = await page.evaluate(() => {
     const hero = document.querySelector('[data-testid="colli-hero-image"]');
-    const logo = document.querySelector('img[alt="Camera con Vista Colli"]');
+    const logo = document.querySelector('[data-testid="colli-mobile-logo"]');
     const cta = document.querySelector('[data-testid="colli-menu-cta"]');
     const booking = document.querySelector('[data-testid="colli-booking-cta"]');
     const address = document.querySelector('[data-testid="colli-address"]');
@@ -154,10 +154,12 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
 
   expect(layout.scrollWidth).toBeLessThanOrEqual(390);
   expect(layout.hero?.top).toBeGreaterThanOrEqual(0);
+  expect(layout.logo?.bottom).toBeLessThanOrEqual(layout.hero?.top ?? 0);
   expect(layout.cta?.bottom).toBeLessThan(layout.viewportHeight);
   expect(layout.booking?.bottom).toBeLessThan(layout.viewportHeight);
   expect(layout.address?.bottom).toBeLessThan(layout.viewportHeight);
   expect(layout.instagram?.bottom).toBeLessThan(layout.viewportHeight);
+  expect(layout.instagram?.top).toBeGreaterThanOrEqual(layout.address?.bottom ?? 0);
   const centerOf = (box: { left: number; right: number } | null | undefined) =>
     box ? (box.left + box.right) / 2 : 0;
   const buttonsCenter =
