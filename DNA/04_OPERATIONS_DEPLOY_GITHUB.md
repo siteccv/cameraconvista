@@ -36,16 +36,14 @@ Nota operativa:
 - il blocco audit emerso durante il consolidamento Colli e stato risolto il 2026-05-13 aggiornando `express-rate-limit` a `^8.5.1`, che porta `ip-address` a `10.2.0`;
 - il fix e stato applicato senza `--force`.
 
-Ultima suite completa eseguita il 2026-05-13 dopo fix audit, ottimizzazione Supabase Storage, allineamento mobile Colli e fix runtime Colli REST:
+Ultima suite eseguita il 2026-05-14 dopo install icon dedicata Colli:
 
 - `npm run check`: OK
 - `npm run lint`: OK
 - `npm run format:check`: OK
 - `npm test`: OK, 3 file e 7 test
-- `npm run test:coverage`: OK, 3 file e 7 test
 - `npm run build`: OK, con warning PostCSS gia noto
-- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5003 npm run test:e2e`: OK, 22/22, simulando produzione senza `SUPABASE_DB_URL`
-- `npm run colli:db:check`: OK, read-only, nessuna scrittura
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5001 npm run test:e2e`: OK, 23/23
 - `npm run audit`: OK, 0 vulnerabilita
 
 Quindi la pipeline locale richiesta dal progetto risulta verde. Resta solo il warning PostCSS non bloccante gia noto durante build.

@@ -44,6 +44,32 @@ test("colli menu API exposes the digital menu snapshot", async ({ request }) => 
   expect(menu.wines.length).toBeGreaterThan(0);
 });
 
+test("colli menu exposes dedicated install icon metadata", async ({ page, request }) => {
+  await page.goto("/colli/menu", { waitUntil: "domcontentloaded" });
+
+  await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
+    "href",
+    "/manifest-colli.json",
+  );
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+    "href",
+    "/colli-home-180.png",
+  );
+  await expect(page.locator('meta[name="apple-mobile-web-app-title"]')).toHaveAttribute(
+    "content",
+    "CCV Colli",
+  );
+
+  const manifestResponse = await request.get("/manifest-colli.json");
+  expect(manifestResponse.status()).toBe(200);
+  const manifest = await manifestResponse.json();
+  expect(manifest.start_url).toBe("/colli/menu");
+  expect(manifest.icons.map((icon: { src: string }) => icon.src)).toEqual([
+    "/colli-home-192.png",
+    "/colli-home-512.png",
+  ]);
+});
+
 test("colli booking settings API exposes the WhatsApp phone", async ({ request }) => {
   const response = await request.get("/api/colli-booking-settings");
   expect(response.status()).toBe(200);

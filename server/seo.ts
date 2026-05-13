@@ -139,6 +139,7 @@ const DEFAULT_PAGE_LABELS_EN: Record<string, string> = {
 };
 
 interface SeoData {
+  slug?: string;
   lang: "it" | "en";
   title: string;
   description: string;
@@ -385,6 +386,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
   }
 
   return {
+    slug,
     lang,
     title,
     description,
@@ -435,11 +437,34 @@ function buildMetaTags(seo: SeoData, baseUrl: string): string {
     lines.push(`<meta name="twitter:image" content="${escapeAttr(seo.ogImage)}" />`);
   }
 
+  lines.push(...buildAppInstallTags(seo, baseUrl));
+
   for (const ld of seo.jsonLd) {
     lines.push(`<script type="application/ld+json">${JSON.stringify(ld)}</script>`);
   }
 
   return lines.join("\n    ");
+}
+
+function buildAppInstallTags(seo: SeoData, baseUrl: string): string[] {
+  if (seo.slug === "colli-menu") {
+    return [
+      `<link rel="icon" type="image/png" href="/colli-home-192.png" />`,
+      `<link rel="apple-touch-icon" sizes="180x180" href="/colli-home-180.png" />`,
+      `<link rel="manifest" href="/manifest-colli.json" />`,
+      `<meta name="theme-color" content="#efe8d8" />`,
+      `<meta name="apple-mobile-web-app-title" content="CCV Colli" />`,
+      `<meta property="og:image" content="${escapeAttr(baseUrl + "/colli-home-512.png")}" />`,
+    ];
+  }
+
+  return [
+    `<link rel="icon" type="image/png" href="/favicon.png" />`,
+    `<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />`,
+    `<link rel="manifest" href="/manifest.json" />`,
+    `<meta name="theme-color" content="#1a1a1a" />`,
+    `<meta name="apple-mobile-web-app-title" content="Camera con Vista" />`,
+  ];
 }
 
 function escapeHtml(s: string): string {
@@ -469,6 +494,11 @@ export function injectSeoIntoHtml(html: string, metaTags: string, lang: string =
   cleaned = cleaned.replace(/<link\s+rel="alternate"\s+hreflang=[^>]*\/?\s*>\s*/g, "");
   cleaned = cleaned.replace(/<meta\s+property="og:[^"]*"[^>]*\/?\s*>\s*/g, "");
   cleaned = cleaned.replace(/<meta\s+name="twitter:[^"]*"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<link\s+rel="icon"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<link\s+rel="apple-touch-icon"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<link\s+rel="manifest"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+name="theme-color"[^>]*\/?\s*>\s*/g, "");
+  cleaned = cleaned.replace(/<meta\s+name="apple-mobile-web-app-title"[^>]*\/?\s*>\s*/g, "");
   cleaned = cleaned.replace(/<script\s+type="application\/ld\+json">[^<]*<\/script>\s*/g, "");
   cleaned = cleaned.replace(/<meta\s+name="seo-injected"[^>]*\/?\s*>\s*/g, "");
   return cleaned.replace("</head>", `    ${metaTags}\n  </head>`);
