@@ -36,7 +36,7 @@ Nota operativa:
 - il blocco audit emerso durante il consolidamento Colli e stato risolto il 2026-05-13 aggiornando `express-rate-limit` a `^8.5.1`, che porta `ip-address` a `10.2.0`;
 - il fix e stato applicato senza `--force`.
 
-Ultima suite completa eseguita il 2026-05-13 dopo fix audit e rimozione dei componenti home non usati:
+Ultima suite completa eseguita il 2026-05-13 dopo fix audit, ottimizzazione Supabase Storage e allineamento mobile Colli:
 
 - `npm run check`: OK
 - `npm run lint`: OK
@@ -69,8 +69,8 @@ Formato operativo richiesto:
 
 Backup finale corrente:
 
-- `BACKUP/Backup_13 Maggio_21.58.tar.gz`
-- `BACKUP/Backup_13 Maggio_21.58_db_state.json`
+- `BACKUP/Backup_13 Maggio_22.52.tar.gz`
+- `BACKUP/Backup_13 Maggio_22.52_db_state.json`
 
 Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
 

@@ -102,6 +102,7 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
 
   const layout = await page.evaluate(() => {
     const hero = document.querySelector('[data-testid="colli-hero-image"]');
+    const logo = document.querySelector('img[alt="Camera con Vista Colli"]');
     const cta = document.querySelector('[data-testid="colli-menu-cta"]');
     const booking = document.querySelector('[data-testid="colli-booking-cta"]');
     const address = document.querySelector('[data-testid="colli-address"]');
@@ -109,13 +110,15 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
     const rect = (el: Element | null) => {
       if (!el) return null;
       const box = el.getBoundingClientRect();
-      return { top: box.top, bottom: box.bottom, right: box.right };
+      return { top: box.top, bottom: box.bottom, left: box.left, right: box.right };
     };
 
     return {
       viewportHeight: window.innerHeight,
+      viewportCenter: window.innerWidth / 2,
       scrollWidth: document.documentElement.scrollWidth,
       hero: rect(hero),
+      logo: rect(logo),
       cta: rect(cta),
       booking: rect(booking),
       address: rect(address),
@@ -129,6 +132,14 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
   expect(layout.booking?.bottom).toBeLessThan(layout.viewportHeight);
   expect(layout.address?.bottom).toBeLessThan(layout.viewportHeight);
   expect(layout.instagram?.bottom).toBeLessThan(layout.viewportHeight);
+  const centerOf = (box: { left: number; right: number } | null | undefined) =>
+    box ? (box.left + box.right) / 2 : 0;
+  const buttonsCenter =
+    layout.cta && layout.booking ? (layout.cta.left + layout.booking.right) / 2 : 0;
+  expect(Math.abs(centerOf(layout.logo) - layout.viewportCenter)).toBeLessThan(16);
+  expect(Math.abs(buttonsCenter - layout.viewportCenter)).toBeLessThan(16);
+  expect(Math.abs(centerOf(layout.instagram) - layout.viewportCenter)).toBeLessThan(16);
+  expect(Math.abs(centerOf(layout.address) - layout.viewportCenter)).toBeLessThan(16);
 });
 
 test("colli menu route opens the digital menu on mobile", async ({ page }) => {

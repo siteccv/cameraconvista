@@ -12,7 +12,6 @@ import Menu from "@/pages/menu";
 import CartaVini from "@/pages/carta-vini";
 import CocktailBar from "@/pages/cocktail-bar";
 import { ScrollToTop } from "@/components/ScrollToTop";
-import { useImagePreloader } from "@/hooks/use-image-preloader";
 import { PRIVATE_DINNER_ENABLED } from "@/lib/private-events-config";
 import type { Page } from "@shared/schema";
 
@@ -269,18 +268,12 @@ function Router() {
   );
 }
 
-function ImagePreloaderInit() {
-  useImagePreloader();
-  return null;
-}
-
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <LanguageProvider>
           <AdminProvider>
-            <ImagePreloaderInit />
             <Toaster />
             <Router />
           </AdminProvider>

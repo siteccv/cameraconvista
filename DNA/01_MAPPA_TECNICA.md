@@ -37,7 +37,7 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
 - `client/src/contexts/`
   Auth admin, lingua, stato preview
 - `client/src/hooks/`
-  Hook condivisi, inclusi preload e page blocks
+  Hook condivisi, incluso il flusso page blocks
 - `server/routes/`
   Route pubbliche e admin
 - `shared/schema.ts`
@@ -91,7 +91,7 @@ Stato pulizia:
 - `ccv-colli-source/` e stata rimossa dal workspace perche non funzionale al runtime SITE-CCV;
 - `BACKUP/` mantiene solo backup finale operativo e snapshot DB finale;
 - rimossi i componenti home non referenziati `PhilosophySection.tsx` e `TeaserCard.tsx`;
-- nessun commit/push e stato eseguito in questa fase.
+- il commit principale di integrazione Colli e stato gia pubblicato su `main`; le modifiche successive seguono commit normali su differenze reali.
 
 ## Runtime reale
 
@@ -151,7 +151,7 @@ Redirect attivi:
 - `server/seo.ts`
 - `client/src/App.tsx`
 - `client/src/hooks/use-page-blocks.ts`
-- `client/src/hooks/use-image-preloader.ts`
+- `client/src/components/layout/Header.tsx`
 
 ## File operativi root
 

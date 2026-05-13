@@ -273,7 +273,7 @@ export default function Colli({ pageId }: ColliProps = {}) {
         style={{ color: COLORS.green }}
         aria-hidden="true"
       />
-      <div className="space-y-1 text-left">
+      <div className="space-y-1 text-center md:text-left">
         <p
           className="text-[11px] font-semibold uppercase tracking-[0.22em]"
           style={{ color: COLORS.green }}
@@ -333,8 +333,8 @@ export default function Colli({ pageId }: ColliProps = {}) {
               onSave={handleHeroImageSave}
             />
 
-            <div className="flex flex-col items-start gap-5 lg:h-full lg:min-h-[65vh] lg:justify-between lg:gap-8 lg:pl-4">
-              <div className="flex flex-col items-start gap-4 md:gap-6">
+            <div className="flex flex-col items-center gap-5 text-center md:items-start md:text-left lg:h-full lg:min-h-[65vh] lg:justify-between lg:gap-8 lg:pl-4">
+              <div className="flex flex-col items-center gap-4 md:items-start md:gap-6">
                 <h1 className="sr-only">Camera con Vista Colli</h1>
                 <img
                   src={colliLogo}
@@ -370,7 +370,7 @@ export default function Colli({ pageId }: ColliProps = {}) {
                   />
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                   {adminPreview ? (
                     <div
                       className="inline-flex min-h-12 items-center justify-center rounded-md px-6 py-3 text-white sm:px-7"
@@ -415,12 +415,15 @@ export default function Colli({ pageId }: ColliProps = {}) {
               </div>
 
               <div
-                className="flex w-full max-w-[34rem] flex-col gap-3 border-l pl-4"
+                className="flex w-full max-w-[34rem] flex-col items-center gap-3 border-l-0 pl-0 text-center md:items-start md:border-l md:pl-4 md:text-left"
                 style={{ borderColor: "rgba(91, 122, 78, 0.35)", color: COLORS.muted }}
                 data-testid="colli-location-group"
               >
                 {adminPreview ? (
-                  <div className="flex items-center gap-3" data-testid="colli-instagram-link">
+                  <div
+                    className="flex items-center justify-center gap-3 md:justify-start"
+                    data-testid="colli-instagram-link"
+                  >
                     {instagramContent}
                   </div>
                 ) : (
@@ -428,7 +431,7 @@ export default function Colli({ pageId }: ColliProps = {}) {
                     href={COLLI_INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3 transition-opacity hover:opacity-80"
+                    className="flex items-center justify-center gap-3 transition-opacity hover:opacity-80 md:justify-start"
                     data-testid="colli-instagram-link"
                   >
                     {instagramContent}
@@ -436,13 +439,16 @@ export default function Colli({ pageId }: ColliProps = {}) {
                 )}
 
                 {adminPreview ? (
-                  <div className="flex items-start gap-3" data-testid="colli-address">
+                  <div
+                    className="flex flex-col items-center gap-2 text-center md:flex-row md:items-start md:gap-3 md:text-left"
+                    data-testid="colli-address"
+                  >
                     {addressContent}
                   </div>
                 ) : (
                   <button
                     type="button"
-                    className="flex items-start gap-3 text-left transition-opacity hover:opacity-80"
+                    className="flex flex-col items-center gap-2 text-center transition-opacity hover:opacity-80 md:flex-row md:items-start md:gap-3 md:text-left"
                     data-testid="colli-address"
                     onClick={() => setShowMapsModal(true)}
                   >

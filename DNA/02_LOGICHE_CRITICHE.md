@@ -87,15 +87,15 @@ File chiave:
 
 ## Preload immagini
 
-- Il preload non e piu aggressivo come in passato
-- E differito fuori dal critical path
-- Viene limitato su connessioni lente o `saveData`
+- Non esiste piu un preload globale di tutte le pagine
+- Il prefetch immagini resta legato a interazioni esplicite in navigazione desktop
+- La voce Colli non prefetcha asset pesanti dalla navbar
+- L'obiettivo e contenere Supabase Storage / cached egress
 
 Non reintrodurre preload massivi senza motivazione forte.
 
 File chiave:
 
-- `client/src/hooks/use-image-preloader.ts`
 - `client/src/components/layout/Header.tsx`
 
 ## Cosa non duplicare

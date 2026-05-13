@@ -1387,3 +1387,6 @@ Questa decisione resta valida finche non emergono vincoli tecnici nuovi e docume
 - 2026-05-13: documentazione DNA riallineata per stato enterprise: mappa tecnica, dati/Supabase, operations/GitHub e scheda Colli aggiornate con stato reale, backup previsto, controlli e strategia commit normale senza force push.
 - 2026-05-13: risolto blocco `npm audit` senza `--force`. Aggiornato `express-rate-limit` a `^8.5.1`, con `ip-address` a `10.2.0`; `npm run audit` ora restituisce 0 vulnerabilita.
 - 2026-05-13: suite completa post-fix audit: verdi `check`, `lint`, `format:check`, test unitari, `test:coverage`, build, Playwright e2e 22/22, `colli:db:check` e `audit`. Rimane solo warning PostCSS non bloccante gia noto in build.
+- 2026-05-13: audit Supabase Free / Storage. Confermato che il rischio principale e egress immagini, non database o keepalive. Rimosso preload globale immagini che caricava asset CMS di pagine non visitate, mantenendo il prefetch solo su interazione utente.
+- 2026-05-13: rifinito layout mobile della vetrina `/colli`: logo, testi, CTA, Instagram e indirizzo centrati solo su mobile; desktop invariato. Aggiunto controllo e2e dedicato sull'allineamento mobile.
+- 2026-05-13: preparato nuovo backup operativo con convenzione `Backup_13 Maggio_22.52` e documentazione riallineata prima del commit/push su `main`.

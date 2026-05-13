@@ -164,6 +164,24 @@ File chiave:
 - `server/sequence-maintenance.ts`
 - `server/supabase-storage.ts`
 
+## Supabase Storage / Egress
+
+Il traffico immagini pubblico usa Supabase Storage (`media-public`).
+
+Audit del 2026-05-13:
+
+- quota ciclo Free sotto controllo: database 6%, storage 9%, egress 2%, cached egress 31%;
+- il consumo principale rilevato non era il database ma Storage/cached egress;
+- i file piu richiesti erano immagini pubbliche CMS, incluse immagini della vetrina Colli;
+- il preload globale immagini e stato rimosso per evitare download preventivi di pagine non visitate.
+
+Regole operative:
+
+- non reintrodurre preload globale di tutte le pagine;
+- mantenere eventuali prefetch legati a interazioni esplicite dell'utente;
+- controllare `Observability -> Storage` prima di ottimizzazioni invasive su immagini o CDN;
+- ottimizzare immagini pesanti prima di caricarle in Supabase Storage.
+
 ## Keepalive Supabase
 
 Il keepalive non fa parte del runtime app:
@@ -171,6 +189,16 @@ Il keepalive non fa parte del runtime app:
 - workflow GitHub dedicato
 - script dedicato
 - sola lettura REST leggera
+- nessuna scrittura database
+- lo script carica `.env` solo in locale, mentre su GitHub Actions usa i secrets del workflow
+- target predefinito: tabella `pages`, select `id`, `limit=1`
+- timeout e retry sono gestiti via `curl`
+
+Comando locale:
+
+```bash
+npm run supabase:keepalive
+```
 
 File chiave:
 

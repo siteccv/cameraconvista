@@ -70,7 +70,7 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
 - Repo canonico: `https://github.com/siteccv/cameraconvista.git`
 - Porta locale standard: `5001`
 - Build script: `scripts/build.ts`
-- Backup operativi locali: `BACKUP/siteccv_enterprise_clean_final_<timestamp>.tar.gz` e relativo snapshot DB JSON finale.
+- Backup operativi locali: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>.tar.gz` e relativo `BACKUP/Backup_<giorno> <Mese>_<HH.MM>_db_state.json`.
 
 ## Quando aggiornare la documentazione
 
