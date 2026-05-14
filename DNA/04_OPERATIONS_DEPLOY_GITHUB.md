@@ -119,8 +119,8 @@ Formato operativo richiesto:
 
 Backup finale corrente:
 
-- `BACKUP/Backup_14 Maggio_21.08.tar.gz`
-- `BACKUP/Backup_14 Maggio_21.08_db_state.json`
+- `BACKUP/Backup_14 Maggio_21.56_refactor.tar.gz`
+- `BACKUP/Backup_14 Maggio_21.56_refactor_db_state.json`
 
 Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
 
