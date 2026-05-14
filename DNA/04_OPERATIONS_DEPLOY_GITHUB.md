@@ -71,6 +71,16 @@ Verifica locale aggiuntiva del 2026-05-14 dopo reintroduzione intro splash Colli
 - `PORT=5001 npm run dev`: OK
 - la splash `/colli/menu` dura `4.5s`, usa fade in/out e non blocca il preload dei dati menu
 
+Verifica locale aggiuntiva del 2026-05-14 dopo correzione icona vegetariana menu Colli:
+
+- `PORT=5001 npm run dev`: OK
+- `/colli/menu`: HTTP 200
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run build`: OK, con warning PostCSS gia noto/non bloccante
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5001 npx playwright test e2e/public-smoke.spec.ts -g "colli" --project=chromium`: OK, 15/15 dopo riavvio server per azzerare il rate limit login locale
+- `npx prettier --check client/src/components/colli/ColliMenuApp.tsx e2e/public-smoke.spec.ts DNA/CCV_COLLI_INTEGRATION.md`: OK
+
 Nota operativa per Mac nuovi o workspace trasferiti:
 
 - se `esbuild`, `rollup` o altri binari nativi in `node_modules` vengono bloccati da Gatekeeper con popup malware/non verificato, il problema e locale e non del codice applicativo;
@@ -96,8 +106,8 @@ Formato operativo richiesto:
 
 Backup finale corrente:
 
-- `BACKUP/Backup_14 Maggio_10.57.tar.gz`
-- `BACKUP/Backup_14 Maggio_10.57_db_state.json`
+- `BACKUP/Backup_14 Maggio_21.08.tar.gz`
+- `BACKUP/Backup_14 Maggio_21.08_db_state.json`
 
 Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
 

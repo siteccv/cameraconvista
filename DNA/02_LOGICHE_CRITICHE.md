@@ -115,6 +115,18 @@ File chiave:
 
 - `server/index.ts`
 
+## Menu pubblico Colli
+
+- I prezzi del menu pubblico `/colli/menu` devono restare in grassetto.
+- I prodotti vegetariani devono mostrare sempre l'icona standard `IoLeafSharp` da `react-icons/io5`.
+- L'icona vegetariana deve essere prima del nome prodotto: `foglia + spazio + testo`.
+- Non sostituire questa icona con SVG custom o con icone outline.
+
+File chiave:
+
+- `client/src/components/colli/ColliMenuApp.tsx`
+- `e2e/public-smoke.spec.ts`
+
 ## Intro splash menu Colli
 
 - `/colli/menu` mostra una intro splash con logo Colli e fade in/out elegante
