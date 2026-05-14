@@ -36,15 +36,16 @@ Nota operativa:
 - il blocco audit emerso durante il consolidamento Colli e stato risolto il 2026-05-13 aggiornando `express-rate-limit` a `^8.5.1`, che porta `ip-address` a `10.2.0`;
 - il fix e stato applicato senza `--force`.
 
-Ultima suite eseguita il 2026-05-14 dopo install icon dedicata Colli:
+Ultima suite eseguita il 2026-05-14 dopo pulizia operativa finale:
 
 - `npm run check`: OK
 - `npm run lint`: OK
 - `npm run format:check`: OK
-- `npm test`: OK, 3 file e 7 test
-- `npm run build`: OK, con warning PostCSS gia noto
-- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5001 npm run test:e2e`: OK, 23/23
 - `npm run audit`: OK, 0 vulnerabilita
+- `npm run test`: OK, 3 file e 7 test
+- `npm run build`: OK, con warning PostCSS gia noto
+- `npm run test:e2e`: OK, 25/25
+- `npm run colli:db:check`: OK, sola lettura, nessuna scrittura
 
 Quindi la pipeline locale richiesta dal progetto risulta verde. Resta solo il warning PostCSS non bloccante gia noto durante build.
 
@@ -67,8 +68,8 @@ Formato operativo richiesto:
 
 Backup finale corrente:
 
-- `BACKUP/Backup_13 Maggio_22.52.tar.gz`
-- `BACKUP/Backup_13 Maggio_22.52_db_state.json`
+- `BACKUP/Backup_14 Maggio_01.55.tar.gz`
+- `BACKUP/Backup_14 Maggio_01.55_db_state.json`
 
 Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
 
@@ -81,12 +82,13 @@ Escludere almeno dai backup sorgente:
 - `coverage`
 - `test-results`
 - `playwright-report`
+- cache locali come `node_modules/.vite` e `node_modules/.vite-temp`
 
 Gestione env:
 
 - `.env` e file env operativi non devono essere versionati;
 - `.env` deve restare nella cartella progetto per l'uso locale;
-- nei backup locali operativi puo essere incluso, cosi il progetto resta ripristinabile senza reinserire manualmente le variabili essenziali;
+- nei backup locali operativi deve essere incluso quando presente, cosi il progetto resta ripristinabile senza reinserire manualmente le variabili essenziali;
 - non stampare mai segreti, token o chiavi nei report.
 
 I backup restano locali salvo richiesta esplicita contraria.

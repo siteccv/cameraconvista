@@ -90,6 +90,7 @@ Stato pulizia:
 
 - `ccv-colli-source/` e stata rimossa dal workspace perche non funzionale al runtime SITE-CCV;
 - `BACKUP/` mantiene solo backup finale operativo e snapshot DB finale;
+- artefatti locali rigenerabili (`dist/`, `coverage/`, `test-results/`, `playwright-report/`, cache Vite) non fanno parte dello stato operativo e vanno rimossi dopo controlli/build quando si prepara il workspace;
 - rimossi i componenti home non referenziati `PhilosophySection.tsx` e `TeaserCard.tsx`;
 - il commit principale di integrazione Colli e stato gia pubblicato su `main`; le modifiche successive seguono commit normali su differenze reali.
 
