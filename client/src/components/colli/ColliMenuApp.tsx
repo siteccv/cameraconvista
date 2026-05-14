@@ -574,6 +574,18 @@ function CategoryBlock({ title, children }: { title: string; children: React.Rea
   );
 }
 
+function FilledLeafIcon({ className }: { className: string }) {
+  return (
+    <Leaf
+      className={className}
+      fill="currentColor"
+      strokeWidth={0}
+      style={{ color: COLORS.green }}
+      aria-hidden="true"
+    />
+  );
+}
+
 function DishRow({
   dish,
   language,
@@ -591,13 +603,9 @@ function DishRow({
 
   const content = (
     <>
-      <div className="mb-1 flex items-center gap-2">
-        <span className="text-[18px] leading-[26px]" style={{ color: COLORS.warmBrown }}>
-          {localizedColliText(language, dish.name_it, dish.name_en)}
-        </span>
-        {dish.vegetarian && (
-          <Leaf className="h-3.5 w-3.5 shrink-0" style={{ color: COLORS.green }} />
-        )}
+      <div className="mb-1 text-[18px] leading-[26px]" style={{ color: COLORS.warmBrown }}>
+        {dish.vegetarian && <FilledLeafIcon className="mr-2 inline h-3.5 w-3.5 align-[-0.08em]" />}
+        <span>{localizedColliText(language, dish.name_it, dish.name_en)}</span>
       </div>
 
       {localizedColliText(language, dish.subtitle_it, dish.subtitle_en) && (
@@ -607,7 +615,7 @@ function DishRow({
       )}
 
       {dish.price != null && (
-        <p className="price-text text-[19px]" style={{ color: COLORS.gold }}>
+        <p className="price-text text-[19px] font-bold" style={{ color: COLORS.gold }}>
           {formatPrice(dish.price)}
         </p>
       )}
@@ -649,12 +657,12 @@ function WineRow({ wine, language }: { wine: ColliWine; language: ColliLanguage 
       )}
       <div className="mt-1 flex gap-6">
         {wine.price_glass != null && (
-          <p className="price-text text-[17px]" style={{ color: COLORS.gold }}>
+          <p className="price-text text-[17px] font-bold" style={{ color: COLORS.gold }}>
             {formatPrice(wine.price_glass)}
           </p>
         )}
         {wine.price_bottle != null && (
-          <p className="price-text text-[17px]" style={{ color: COLORS.gold }}>
+          <p className="price-text text-[17px] font-bold" style={{ color: COLORS.gold }}>
             {formatPrice(wine.price_bottle)}
           </p>
         )}
@@ -715,7 +723,7 @@ function ColliDishDialog({
               className="mb-2 flex items-center gap-1 text-[11px] uppercase"
               style={{ color: COLORS.green }}
             >
-              <Leaf className="h-3 w-3" aria-hidden="true" />
+              <FilledLeafIcon className="h-3 w-3 shrink-0" />
               {language === "en" ? "Vegetarian" : "Vegetariano"}
             </div>
           )}
@@ -725,7 +733,7 @@ function ColliDishDialog({
           </h2>
 
           {dish.price != null && (
-            <p className="price-text mt-2 text-[22px]" style={{ color: COLORS.gold }}>
+            <p className="price-text mt-2 text-[22px] font-bold" style={{ color: COLORS.gold }}>
               {formatPrice(dish.price)}
             </p>
           )}

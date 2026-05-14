@@ -194,6 +194,28 @@ test("colli menu route opens the digital menu on mobile", async ({ page }) => {
   await expect(page.getByRole("heading", { name: /Focacce/i })).toBeVisible();
 });
 
+test("colli menu uses filled vegetarian markers before dish names and bold prices", async ({
+  page,
+}) => {
+  await skipColliIntro(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/colli/menu", { waitUntil: "networkidle" });
+
+  await page.getByRole("button", { name: "Food" }).click();
+  const dishName = page.getByText("Margherita", { exact: true }).first();
+  await expect(dishName).toBeVisible();
+
+  const dishLabel = dishName.locator("xpath=parent::*");
+  const childTags = await dishLabel.evaluate((element) =>
+    Array.from(element.children).map((child) => child.tagName.toLowerCase()),
+  );
+
+  expect(childTags.slice(0, 2)).toEqual(["svg", "span"]);
+  await expect(dishLabel.locator("svg").first()).toHaveAttribute("fill", "currentColor");
+  await expect(dishLabel.locator("svg").first()).toHaveAttribute("stroke-width", "0");
+  await expect(page.getByText("€ 5", { exact: true }).first()).toHaveCSS("font-weight", "700");
+});
+
 test("colli menu exposes the dedicated admin gear", async ({ page }) => {
   await skipColliIntro(page);
   await page.goto("/colli/menu", { waitUntil: "networkidle" });
