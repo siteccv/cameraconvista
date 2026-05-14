@@ -29,6 +29,8 @@ const COLORS = {
 };
 
 const HEADER_HEIGHT = 73;
+const COLLI_INTRO_DURATION_MS = 4500;
+const COLLI_INTRO_SESSION_KEY = "ccv_colli_intro_seen";
 
 export function ColliMenuApp() {
   const { language, setLanguage } = useLanguage();
@@ -36,6 +38,10 @@ export function ColliMenuApp() {
   const [activeSectionId, setActiveSectionId] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedDish, setSelectedDish] = useState<ColliDish | null>(null);
+  const [showIntro, setShowIntro] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem(COLLI_INTRO_SESSION_KEY) !== "1";
+  });
 
   const { data, isLoading, isError, refetch } = useQuery<ColliMenuPayload>({
     queryKey: ["/api/colli/menu"],
@@ -60,6 +66,17 @@ export function ColliMenuApp() {
     setActiveSectionId(null);
   }, [activeSectionId, sections]);
 
+  useEffect(() => {
+    if (!showIntro || typeof window === "undefined") return;
+
+    const timer = window.setTimeout(() => {
+      sessionStorage.setItem(COLLI_INTRO_SESSION_KEY, "1");
+      setShowIntro(false);
+    }, COLLI_INTRO_DURATION_MS);
+
+    return () => window.clearTimeout(timer);
+  }, [showIntro]);
+
   const selectSection = (sectionId: string) => {
     setActiveSectionId(sectionId);
     setMenuOpen(false);
@@ -76,6 +93,10 @@ export function ColliMenuApp() {
     setMenuOpen(false);
     setLocation("/colli/admina");
   };
+
+  if (showIntro) {
+    return <ColliIntroScreen />;
+  }
 
   if (isLoading) {
     return <ColliStatus message="Caricamento menu..." />;
@@ -141,6 +162,24 @@ export function ColliMenuApp() {
           onClose={() => setSelectedDish(null)}
         />
       )}
+    </div>
+  );
+}
+
+function ColliIntroScreen() {
+  return (
+    <div
+      className="colli-intro-screen"
+      style={{ backgroundColor: COLORS.cream, color: COLORS.warmBrown }}
+      aria-label="Camera con Vista Colli"
+    >
+      <img
+        src={colliLogo}
+        alt="Camera con Vista Colli"
+        className="colli-intro-logo"
+        fetchPriority="high"
+      />
+      <h1 className="sr-only">Camera con Vista Colli</h1>
     </div>
   );
 }

@@ -1,5 +1,11 @@
 import { expect, test } from "@playwright/test";
 
+async function skipColliIntro(page: { addInitScript: (script: () => void) => Promise<void> }) {
+  await page.addInitScript(() => {
+    window.sessionStorage.setItem("ccv_colli_intro_seen", "1");
+  });
+}
+
 const publicRoutes = [
   { path: "/", title: /Camera con Vista/i },
   { path: "/menu", title: /Menu|Camera con Vista/i },
@@ -13,6 +19,9 @@ const publicRoutes = [
 
 for (const route of publicRoutes) {
   test(`public route ${route.path} renders`, async ({ page }) => {
+    if (route.path === "/colli/menu") {
+      await skipColliIntro(page);
+    }
     const response = await page.goto(route.path, { waitUntil: "domcontentloaded" });
     expect(response?.status()).toBeLessThan(400);
     await expect(page).toHaveTitle(route.title);
@@ -45,6 +54,7 @@ test("colli menu API exposes the digital menu snapshot", async ({ request }) => 
 });
 
 test("colli menu exposes dedicated install icon metadata", async ({ page, request }) => {
+  await skipColliIntro(page);
   await page.goto("/colli/menu", { waitUntil: "domcontentloaded" });
 
   await expect(page.locator('link[rel="manifest"]')).toHaveAttribute(
@@ -171,6 +181,7 @@ test("colli showcase keeps the primary content in the first mobile viewport", as
 });
 
 test("colli menu route opens the digital menu on mobile", async ({ page }) => {
+  await skipColliIntro(page);
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/colli/menu", { waitUntil: "networkidle" });
 
@@ -184,6 +195,7 @@ test("colli menu route opens the digital menu on mobile", async ({ page }) => {
 });
 
 test("colli menu exposes the dedicated admin gear", async ({ page }) => {
+  await skipColliIntro(page);
   await page.goto("/colli/menu", { waitUntil: "networkidle" });
 
   await page.getByRole("button", { name: /Apri navigazione Colli/i }).click();
@@ -196,6 +208,7 @@ test("colli menu exposes the dedicated admin gear", async ({ page }) => {
 });
 
 test("colli menu hides language buttons when English is disabled", async ({ page }) => {
+  await skipColliIntro(page);
   await page.route("**/api/colli/menu", async (route) => {
     await route.fulfill({
       status: 200,

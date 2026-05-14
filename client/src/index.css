@@ -22,6 +22,51 @@
 .animate-subtle-pulse {
   animation: subtle-pulse 2.5s ease-in-out infinite;
 }
+
+@keyframes colli-intro-fade {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0) scale(0.985);
+  }
+  18% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  78% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0, -8px, 0) scale(1.01);
+  }
+}
+
+.colli-intro-screen {
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding:
+    calc(env(safe-area-inset-top) + 40px)
+    32px
+    calc(env(safe-area-inset-bottom) + 40px);
+}
+
+.colli-intro-logo {
+  width: min(78vw, 420px);
+  height: auto;
+  object-fit: contain;
+  animation: colli-intro-fade 4.5s ease-in-out both;
+  will-change: opacity, transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .colli-intro-logo {
+    animation: none;
+  }
+}
+
 .publish-done:disabled {
   opacity: 1 !important;
   pointer-events: none;
