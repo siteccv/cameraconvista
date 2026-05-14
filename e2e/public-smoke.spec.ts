@@ -211,8 +211,8 @@ test("colli menu uses filled vegetarian markers before dish names and bold price
   );
 
   expect(childTags.slice(0, 2)).toEqual(["svg", "span"]);
-  await expect(dishLabel.locator("svg").first()).toHaveAttribute("fill", "currentColor");
-  await expect(dishLabel.locator("svg").first()).toHaveAttribute("stroke-width", "0");
+  await expect(dishLabel.locator("svg path").first()).toHaveAttribute("fill", "currentColor");
+  await expect(dishLabel.locator("svg path").nth(1)).toHaveAttribute("stroke", "#EFE8D8");
   await expect(page.getByText("€ 5", { exact: true }).first()).toHaveCSS("font-weight", "700");
 });
 

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { ChevronLeft, Leaf, Menu as MenuIcon, Settings, X } from "lucide-react";
+import { ChevronLeft, Menu as MenuIcon, Settings, X } from "lucide-react";
 import colliLogo from "@assets/logo_ccv_colli.png";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
@@ -576,13 +576,32 @@ function CategoryBlock({ title, children }: { title: string; children: React.Rea
 
 function FilledLeafIcon({ className }: { className: string }) {
   return (
-    <Leaf
+    <svg
       className={className}
-      fill="currentColor"
-      strokeWidth={0}
+      viewBox="0 0 24 24"
       style={{ color: COLORS.green }}
       aria-hidden="true"
-    />
+      focusable="false"
+    >
+      <path
+        d="M3.25 4.1c6.55.38 13.25 2.47 17.5 7.63 2.12 2.58 2.3 5.88.53 8.01-2.2 2.64-6.8 2.45-10.58.1C6.83 17.43 3.86 13.1 3.25 4.1Z"
+        fill="currentColor"
+      />
+      <path
+        d="M6.72 12.25c3.65 3.08 7.68 5.02 13.38 5.98"
+        fill="none"
+        stroke={COLORS.cream}
+        strokeLinecap="round"
+        strokeWidth="2.55"
+      />
+      <path
+        d="M19.62 18.12c.72.75 1.42 1.14 2.38 1.26"
+        fill="none"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeWidth="1.7"
+      />
+    </svg>
   );
 }
 

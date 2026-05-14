@@ -838,7 +838,7 @@ Requisiti:
 - mobile-first;
 - layout full-screen dedicato per `/colli/menu`, senza header/footer globale del sito principale;
 - fedelta visuale al menu Colli attuale;
-- nel menu pubblico Colli, i prezzi devono essere in grassetto e i prodotti vegetariani devono mostrare una foglia piena sempre prima del nome (`foglia + spazio + testo`), mai a fine testo;
+- nel menu pubblico Colli, i prezzi devono essere in grassetto e i prodotti vegetariani devono mostrare una foglia piena verde con venatura chiara sempre prima del nome (`foglia + spazio + testo`), mai a fine testo;
 - vetrina `/colli` con foto principale, piccola gallery e CTA verso menu.
 - la vetrina `/colli` usa blocchi CMS standard (`ImageContainer`, `EditableText`, `usePageBlocks`) per essere gestibile dall'admin SITE-CCV come le altre pagine.
 - indirizzo Colli integrato nella vetrina come blocco contenuto, non nel footer.
