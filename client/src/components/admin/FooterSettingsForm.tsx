@@ -24,102 +24,17 @@ import {
 } from "@/components/ui/accordion";
 import { Save, Plus, Trash2, Globe, MapPin, Clock, Share2, FileText, Loader2 } from "lucide-react";
 import { TranslateButton } from "./TranslateButton";
+import {
+  DAYS_OF_WEEK,
+  TIME_SLOTS,
+  getSelectedDaysLabel,
+  parseLegacyDayString,
+  parseTimeRange,
+} from "./footerSettingsUtils";
 import type { FooterSettings, FooterHoursEntry, FooterSocialLink } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
 
 const socialTypes = ["instagram", "facebook", "twitter", "linkedin", "youtube", "tiktok"] as const;
-
-const daysOfWeek = [
-  { it: "Lunedì", en: "Monday", index: 0 },
-  { it: "Martedì", en: "Tuesday", index: 1 },
-  { it: "Mercoledì", en: "Wednesday", index: 2 },
-  { it: "Giovedì", en: "Thursday", index: 3 },
-  { it: "Venerdì", en: "Friday", index: 4 },
-  { it: "Sabato", en: "Saturday", index: 5 },
-  { it: "Domenica", en: "Sunday", index: 6 },
-];
-
-// Helper to parse legacy day strings (single days or ranges) into index arrays
-function parseLegacyDayString(dayKeyIt: string): number[] {
-  // Check for exact single day match
-  const singleDayIndex = daysOfWeek.findIndex((d) => d.it === dayKeyIt);
-  if (singleDayIndex >= 0) return [singleDayIndex];
-
-  // Check for "Tutti i giorni" (every day)
-  if (dayKeyIt.toLowerCase().includes("tutti")) return [0, 1, 2, 3, 4, 5, 6];
-
-  // Check for range format "DayA - DayB"
-  const rangeParts = dayKeyIt.split(" - ");
-  if (rangeParts.length === 2) {
-    const startIndex = daysOfWeek.findIndex((d) => d.it === rangeParts[0].trim());
-    const endIndex = daysOfWeek.findIndex((d) => d.it === rangeParts[1].trim());
-    if (startIndex >= 0 && endIndex >= 0) {
-      const result: number[] = [];
-      if (startIndex <= endIndex) {
-        for (let i = startIndex; i <= endIndex; i++) result.push(i);
-      } else {
-        // Wrap around (e.g., "Venerdì - Domenica" = Fri, Sat, Sun)
-        for (let i = startIndex; i <= 6; i++) result.push(i);
-        for (let i = 0; i <= endIndex; i++) result.push(i);
-      }
-      return result;
-    }
-  }
-
-  // Couldn't parse - return empty (will show as empty selection)
-  return [];
-}
-
-const timeSlots = [
-  "00:00",
-  "00:30",
-  "01:00",
-  "01:30",
-  "02:00",
-  "02:30",
-  "03:00",
-  "03:30",
-  "04:00",
-  "04:30",
-  "05:00",
-  "05:30",
-  "06:00",
-  "06:30",
-  "07:00",
-  "07:30",
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-  "22:00",
-  "22:30",
-  "23:00",
-  "23:30",
-];
 
 export function FooterSettingsForm() {
   const { t } = useLanguage();
@@ -233,14 +148,6 @@ export function FooterSettingsForm() {
     }));
   };
 
-  const parseTimeRange = (hours: string): { open: string; close: string; isValid: boolean } => {
-    const parts = hours.split(" - ");
-    const open = parts[0]?.trim() || "";
-    const close = parts[1]?.trim() || "";
-    const isValid = timeSlots.includes(open) && timeSlots.includes(close);
-    return { open: open || "18:00", close: close || "02:00", isValid };
-  };
-
   const addHoursEntry = () => {
     setFormData((prev) => ({
       ...prev,
@@ -294,12 +201,6 @@ export function FooterSettingsForm() {
       </div>
     );
   }
-
-  const getSelectedDaysLabel = (selectedDays: number[]) => {
-    if (selectedDays.length === 0) return t("Nessun giorno", "No days");
-    if (selectedDays.length === 7) return t("Tutti i giorni", "Every day");
-    return selectedDays.map((i) => daysOfWeek[i]?.it.substring(0, 3)).join(", ");
-  };
 
   return (
     <div className="space-y-4">
@@ -416,7 +317,10 @@ export function FooterSettingsForm() {
                 <div key={index} className="p-3 border rounded-lg bg-muted/30 space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-muted-foreground">
-                      {getSelectedDaysLabel(selectedDays)}
+                      {getSelectedDaysLabel(selectedDays, {
+                        noDays: t("Nessun giorno", "No days"),
+                        everyDay: t("Tutti i giorni", "Every day"),
+                      })}
                     </span>
                     <Button
                       variant="outline"
@@ -430,7 +334,7 @@ export function FooterSettingsForm() {
                   </div>
 
                   <div className="flex flex-wrap gap-2">
-                    {daysOfWeek.map((day) => (
+                    {DAYS_OF_WEEK.map((day) => (
                       <label
                         key={day.index}
                         className="flex items-center gap-1.5 text-xs cursor-pointer"
@@ -462,7 +366,7 @@ export function FooterSettingsForm() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {timeSlots.map((time) => (
+                              {TIME_SLOTS.map((time) => (
                                 <SelectItem key={time} value={time} className="text-sm">
                                   {time}
                                 </SelectItem>
@@ -481,7 +385,7 @@ export function FooterSettingsForm() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {timeSlots.map((time) => (
+                              {TIME_SLOTS.map((time) => (
                                 <SelectItem key={time} value={time} className="text-sm">
                                   {time}
                                 </SelectItem>

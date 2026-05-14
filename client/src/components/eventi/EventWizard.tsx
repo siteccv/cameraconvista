@@ -24,48 +24,12 @@ import {
 } from "@/components/ui/select";
 import type { EventType, ExclusiveSubOption, EventRequestData } from "./types";
 import { EVENT_TYPE_LABELS, EXCLUSIVE_SUB_LABELS } from "./types";
+import { getStepLabel, isEventWizardStepValid, TIME_SLOTS } from "./eventWizardUtils";
 
 interface EventWizardProps {
   eventType: EventType;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}
-
-const TIME_SLOTS = [
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
-  "18:30",
-  "19:00",
-  "19:30",
-  "20:00",
-  "20:30",
-  "21:00",
-  "21:30",
-];
-
-function getStepLabel(step: number, t: (it: string, en: string) => string): string {
-  const labels: Record<number, [string, string]> = {
-    1: ["Preferenze", "Preferences"],
-    2: ["Data", "Date"],
-    3: ["Orario", "Time"],
-    4: ["Ospiti", "Guests"],
-    5: ["Note", "Notes"],
-    6: ["Contatti", "Contact Info"],
-    7: ["Riepilogo", "Summary"],
-  };
-  const pair = labels[step];
-  return pair ? t(pair[0], pair[1]) : "";
 }
 
 export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps) {
@@ -126,32 +90,19 @@ export function EventWizard({ eventType, open, onOpenChange }: EventWizardProps)
   );
 
   const isStepValid = useCallback((): boolean => {
-    switch (step) {
-      case 1:
-        if (eventType === "esclusivo") return !!subOption;
-        return true;
-      case 2:
-        return !!date;
-      case 3:
-        return !!time;
-      case 4:
-        return guests > 0;
-      case 5:
-        return true;
-      case 6:
-        return (
-          firstName.trim().length > 0 &&
-          lastName.trim().length > 0 &&
-          email.trim().length > 0 &&
-          /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
-          phoneLocal.trim().length > 0 &&
-          termsAccepted
-        );
-      case 7:
-        return true;
-      default:
-        return false;
-    }
+    return isEventWizardStepValid({
+      step,
+      eventType,
+      subOption,
+      date,
+      time,
+      guests,
+      firstName,
+      lastName,
+      email,
+      phoneLocal,
+      termsAccepted,
+    });
   }, [
     step,
     eventType,

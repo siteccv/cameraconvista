@@ -47,10 +47,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding:
-    calc(env(safe-area-inset-top) + 40px)
-    32px
-    calc(env(safe-area-inset-bottom) + 40px);
+  padding: calc(env(safe-area-inset-top) + 40px) 32px calc(env(safe-area-inset-bottom) + 40px);
 }
 
 .colli-intro-logo {

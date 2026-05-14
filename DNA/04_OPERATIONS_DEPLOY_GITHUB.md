@@ -81,6 +81,19 @@ Verifica locale aggiuntiva del 2026-05-14 dopo correzione icona vegetariana menu
 - `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5001 npx playwright test e2e/public-smoke.spec.ts -g "colli" --project=chromium`: OK, 15/15 dopo riavvio server per azzerare il rate limit login locale
 - `npx prettier --check client/src/components/colli/ColliMenuApp.tsx e2e/public-smoke.spec.ts DNA/CCV_COLLI_INTEGRATION.md`: OK
 
+Verifica locale aggiuntiva del 2026-05-14 dopo refactor controllato Colli/admin:
+
+- `npm test`: OK, 9 file e 30 test
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run format:check`: OK
+- `npm run audit`: OK, 0 vulnerabilita
+- `npm run build`: OK, con warning PostCSS gia noto/non bloccante
+- `PORT=5001 npm run dev`: OK
+- `PLAYWRIGHT_BASE_URL=http://127.0.0.1:5001 npx playwright test --project=chromium`: OK, 26/26
+- `npm run colli:db:check`: OK read-only, `writesPerformed=false`
+- backup locale creato: `BACKUP/Backup_14 Maggio_21.56_refactor.tar.gz`
+
 Nota operativa per Mac nuovi o workspace trasferiti:
 
 - se `esbuild`, `rollup` o altri binari nativi in `node_modules` vengono bloccati da Gatekeeper con popup malware/non verificato, il problema e locale e non del codice applicativo;

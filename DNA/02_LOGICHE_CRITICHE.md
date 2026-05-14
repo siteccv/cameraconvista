@@ -125,6 +125,8 @@ File chiave:
 File chiave:
 
 - `client/src/components/colli/ColliMenuApp.tsx`
+- `client/src/components/colli/ColliMenuPrimitives.tsx`
+- `client/src/lib/colli-menu-format.ts`
 - `e2e/public-smoke.spec.ts`
 
 ## Intro splash menu Colli

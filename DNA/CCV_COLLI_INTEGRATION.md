@@ -825,6 +825,8 @@ File creati nello Step 4:
 - `client/src/pages/colli.tsx`;
 - `client/src/pages/colli-menu.tsx`;
 - `client/src/components/colli/ColliMenuApp.tsx`;
+- `client/src/components/colli/ColliMenuPrimitives.tsx`, primitive visuali del menu pubblico Colli inclusa la foglia piena `IoLeafSharp`;
+- `client/src/lib/colli-menu-format.ts`, formatter prezzi/decimali/produttori del menu pubblico Colli;
 - `attached_assets/logo_ccv_colli.png`, copiato dal logo ufficiale in `ccv-colli-source/assets/images/logo.png`.
 
 File collegati:
@@ -849,6 +851,7 @@ File creati:
 
 - `server/routes/colli.ts`;
 - `server/routes/colli-admin.ts`;
+- `server/routes/colli-admin-utils.ts`, helper di validazione payload/id/password hash per l'admin Colli;
 - montaggio in `server/routes/index.ts`.
 
 Endpoint pubblico:
@@ -932,6 +935,8 @@ Frontend:
 - `client/src/pages/colli-admin-login.tsx`;
 - `client/src/pages/colli-admin-panel.tsx`;
 - `client/src/components/colli/`;
+- `client/src/lib/colli-admin-utils.ts`;
+- `client/src/lib/colli-menu-format.ts`;
 - `client/src/components/layout/Header.tsx`;
 - `client/src/pages/admin/pages.tsx`;
 - `attached_assets/logo_ccv_colli.png`;
@@ -942,6 +947,7 @@ Backend:
 - `server/routes/index.ts`;
 - `server/routes/colli.ts`;
 - `server/routes/colli-admin.ts`;
+- `server/routes/colli-admin-utils.ts`;
 - `server/seo.ts`;
 - `server/storage.ts`;
 - `server/supabase-storage.ts`.
@@ -1432,3 +1438,4 @@ Questa decisione resta valida finche non emergono vincoli tecnici nuovi e docume
 - 2026-05-14: pulizia operativa finale e backup. Rimossi solo artefatti locali rigenerabili (`dist/`, `coverage/`, `test-results/`, `playwright-report`, cache Vite), confermata suite verde (`check`, `lint`, `format:check`, `audit`, test unitari, build, e2e 25/25, `colli:db:check`) e preparato backup operativo `Backup_14 Maggio_01.55` con `.env` incluso nell'archivio locale.
 - 2026-05-14: corretto rendering vegetariano nel menu pubblico Colli. I prezzi sono in grassetto e i prodotti vegetariani usano l'icona standard `IoLeafSharp` da `react-icons/io5`, sempre prima del nome prodotto. Aggiunto controllo Playwright dedicato e verificata suite Colli 15/15 su `PORT=5001`.
 - 2026-05-14: aggiornati DNA collegati alla correzione icona vegetariana Colli e creato backup operativo finale `Backup_14 Maggio_21.08` con snapshot Colli DB JSON valido.
+- 2026-05-14: refactor controllato senza cambio comportamento. Estratte utility e componenti autocontenuti per admin Colli, menu Colli, `EventWizard`, `ImageContainer` e footer settings; aggiunti test unitari dedicati. Verificati `check`, `lint`, `format:check`, `audit`, `npm test` 30/30, build, Playwright Chromium 26/26 su `PORT=5001` e `colli:db:check` read-only. Backup locale creato in `BACKUP/Backup_14 Maggio_21.56_refactor.tar.gz`.

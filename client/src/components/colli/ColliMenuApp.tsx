@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { ChevronLeft, Menu as MenuIcon, Settings, X } from "lucide-react";
-import { IoLeafSharp } from "react-icons/io5";
 import colliLogo from "@assets/logo_ccv_colli.png";
 import { useLanguage } from "@/contexts/LanguageContext";
+import {
+  CategoryBlock,
+  DialogSection,
+  FilledLeafIcon,
+  Separator,
+} from "@/components/colli/ColliMenuPrimitives";
+import { formatDecimal, formatPrice, formatProducer } from "@/lib/colli-menu-format";
 import {
   localizedColliText,
   sortColliByOrder,
@@ -561,31 +567,6 @@ function ColliWinesContent({
   );
 }
 
-function CategoryBlock({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mt-9 mb-2">
-      <h2
-        className="px-6 pb-6 text-center font-display text-[32px] leading-tight"
-        style={{ color: COLORS.maroon }}
-      >
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-}
-
-function FilledLeafIcon({ className }: { className: string }) {
-  return (
-    <IoLeafSharp
-      className={className}
-      style={{ color: COLORS.green }}
-      aria-hidden="true"
-      focusable={false}
-    />
-  );
-}
-
 function DishRow({
   dish,
   language,
@@ -778,34 +759,4 @@ function ColliDishDialog({
       </div>
     </div>
   );
-}
-
-function DialogSection({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <section className="mb-5 border-t pt-5" style={{ borderColor: COLORS.separator }}>
-      <h3 className="mb-3 text-[11px] uppercase" style={{ color: COLORS.secondary }}>
-        {label}
-      </h3>
-      {children}
-    </section>
-  );
-}
-
-function Separator() {
-  return <div className="mx-6 h-px" style={{ backgroundColor: "rgba(226, 217, 207, 0.70)" }} />;
-}
-
-function formatPrice(price: number): string {
-  if (Number.isInteger(price)) return `€ ${price}`;
-  return `€ ${price.toFixed(1).replace(".", ",")}`;
-}
-
-function formatDecimal(value: number): string {
-  if (Number.isInteger(value)) return String(value);
-  return value.toFixed(1).replace(".", ",");
-}
-
-function formatProducer(producer?: string | null): string | null {
-  if (!producer) return null;
-  return producer.charAt(0).toUpperCase() + producer.slice(1).toLowerCase();
 }
