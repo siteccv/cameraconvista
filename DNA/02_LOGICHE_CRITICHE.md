@@ -105,10 +105,29 @@ File chiave:
 - Gli origin autorizzati sono solo `https://www.cashin.coop` e `https://cashin.coop`
 - Il resto del sito continua a rispondere con `X-Frame-Options: SAMEORIGIN`
 - Non aprire CORS o iframe globali per risolvere integrazioni esterne
+- Se il problema CA'SHIN si ripresenta, distinguere sempre:
+  - link normale: non bloccato da `X-Frame-Options`
+  - `iframe`: bloccato o consentito dagli header della pagina HTML
+  - API: endpoint separato, non adatto come pagina cliente finale
+- Prima di riaprire il codice, verificare quale `src` usa davvero l'iframe CA'SHIN: se punta ancora al vecchio Render, il problema non e nel dominio `www.cameraconvista.it`
 
 File chiave:
 
 - `server/index.ts`
+
+## Intro splash menu Colli
+
+- `/colli/menu` mostra una intro splash con logo Colli e fade in/out elegante
+- durata target: `4.5s`
+- la splash viene mostrata una sola volta per sessione browser tramite `sessionStorage`
+- il fetch del menu parte comunque subito, cosi l'ingresso nel menu resta fluido quando la splash termina
+- gli smoke test E2E bypassano la splash impostando la session key, per non rallentare o rendere fragile la suite
+
+File chiave:
+
+- `client/src/components/colli/ColliMenuApp.tsx`
+- `client/src/index.css`
+- `e2e/public-smoke.spec.ts`
 
 ## Cosa non duplicare
 

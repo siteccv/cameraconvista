@@ -38,6 +38,8 @@ Questa scheda documenta lo stato operativo reale dell'integrazione Colli. Ogni m
 - nessuna apertura CORS aggiuntiva e stata introdotta per `/api/colli/menu`;
 - CA'SHIN oggi incorpora ancora il vecchio Render `https://ccvcolli-ghxg.onrender.com/` e dovra aggiornare il `src` dell'iframe verso `https://www.cameraconvista.it/colli/menu` dopo deploy;
 - la rotta `/colli/menu` e valida per browser reali; controlli grezzi senza `Accept: text/html` possono restituire `Cannot GET /colli/menu` per via del fallback SPA e non vanno usati come unica verifica funzionale dell'URL pubblico.
+- il menu digitale `/colli/menu` ha di nuovo una intro splash iniziale stile progetto Colli originale, con logo centrato e fade in/out omogeneo;
+- la splash dura `4.5s`, viene mostrata una sola volta per sessione browser e non ritarda inutilmente il fetch dei dati menu.
 
 ## 3. Obiettivo finale
 
@@ -80,6 +82,15 @@ https://www.cameraconvista.it/colli/menu
 Il servizio Render temporaneo attuale deve restare attivo finche la nuova rotta `/colli/menu` non e verificata anche in produzione dopo deploy.
 
 Dopo deploy del fix embed, Render puo restare fallback tecnico ma non deve piu essere usato come `iframe src` sul sito CA'SHIN.
+
+### Memo diagnostico rapido per futuri problemi CA'SHIN
+
+- un link normale verso `https://www.cameraconvista.it/colli/menu` non viene bloccato dalle policy iframe del sito;
+- il problema gestito nel 2026-05-14 riguardava l'embed in `iframe`, non la navigazione diretta;
+- il fix lato SITE-CCV riguarda solo la pagina HTML `/colli/menu`, non l'API `/api/colli/menu`;
+- se CA'SHIN segnala ancora blocchi, controllare prima il `src` reale pubblicato nella loro pagina:
+  - se e `https://www.cameraconvista.it/colli/menu`, verificare header live `frame-ancestors`;
+  - se e ancora `https://ccvcolli-ghxg.onrender.com/`, il problema e nel loro aggiornamento del contenuto e non nella policy del dominio principale Camera con Vista.
 
 ## 5. Decisione strategica
 

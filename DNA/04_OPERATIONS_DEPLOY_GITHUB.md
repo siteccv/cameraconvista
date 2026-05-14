@@ -61,6 +61,16 @@ Verifica locale aggiuntiva del 2026-05-14 dopo fix embed Colli:
 - `/api/colli/menu`: nessuna apertura CORS aggiuntiva, `X-Frame-Options: SAMEORIGIN`
 - `/colli/menu`: `Content-Security-Policy: frame-ancestors 'self' https://www.cashin.coop https://cashin.coop` e nessun `X-Frame-Options`
 
+Verifica locale aggiuntiva del 2026-05-14 dopo reintroduzione intro splash Colli:
+
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run test`: OK, 3 file e 7 test
+- `npm run build`: OK
+- `npm run test:e2e`: OK, 25/25
+- `PORT=5001 npm run dev`: OK
+- la splash `/colli/menu` dura `4.5s`, usa fade in/out e non blocca il preload dei dati menu
+
 Nota operativa per Mac nuovi o workspace trasferiti:
 
 - se `esbuild`, `rollup` o altri binari nativi in `node_modules` vengono bloccati da Gatekeeper con popup malware/non verificato, il problema e locale e non del codice applicativo;
@@ -86,8 +96,8 @@ Formato operativo richiesto:
 
 Backup finale corrente:
 
-- `BACKUP/Backup_14 Maggio_01.55.tar.gz`
-- `BACKUP/Backup_14 Maggio_01.55_db_state.json`
+- `BACKUP/Backup_14 Maggio_10.57.tar.gz`
+- `BACKUP/Backup_14 Maggio_10.57_db_state.json`
 
 Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
 
