@@ -29,6 +29,16 @@ Questa scheda documenta lo stato operativo reale dell'integrazione Colli. Ogni m
 - Backup locali: consolidati in `BACKUP/` con solo archivio operativo finale e snapshot DB finale.
 - Commit/push: non eseguiti in questa fase.
 
+### Stato aggiornato al 2026-05-14
+
+- il menu Colli puo essere incorporato esternamente solo in modo controllato;
+- il server SITE-CCV autorizza l'embed del solo path `/colli/menu`;
+- origin autorizzati: `https://www.cashin.coop` e `https://cashin.coop`;
+- il resto del sito mantiene `X-Frame-Options: SAMEORIGIN`;
+- nessuna apertura CORS aggiuntiva e stata introdotta per `/api/colli/menu`;
+- CA'SHIN oggi incorpora ancora il vecchio Render `https://ccvcolli-ghxg.onrender.com/` e dovra aggiornare il `src` dell'iframe verso `https://www.cameraconvista.it/colli/menu` dopo deploy;
+- la rotta `/colli/menu` e valida per browser reali; controlli grezzi senza `Accept: text/html` possono restituire `Cannot GET /colli/menu` per via del fallback SPA e non vanno usati come unica verifica funzionale dell'URL pubblico.
+
 ## 3. Obiettivo finale
 
 La destinazione definitiva dei nuovi QR code deve essere:
@@ -44,6 +54,8 @@ https://ccvcolli-ghxg.onrender.com
 ```
 
 La rotta `/colli/menu` deve essere il menu digitale diretto per QR.
+
+La stessa rotta e ora anche l'URL canonico da usare per embed controllati esterni approvati, a partire da CA'SHIN.
 
 La rotta `/colli` deve essere una pagina vetrina Colli con foto principale, piccola gallery e pulsante "Scopri il menu" verso `/colli/menu`.
 
@@ -66,6 +78,8 @@ https://www.cameraconvista.it/colli/menu
 ```
 
 Il servizio Render temporaneo attuale deve restare attivo finche la nuova rotta `/colli/menu` non e verificata anche in produzione dopo deploy.
+
+Dopo deploy del fix embed, Render puo restare fallback tecnico ma non deve piu essere usato come `iframe src` sul sito CA'SHIN.
 
 ## 5. Decisione strategica
 

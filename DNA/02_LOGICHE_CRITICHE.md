@@ -98,6 +98,18 @@ File chiave:
 
 - `client/src/components/layout/Header.tsx`
 
+## Embed esterno menu Colli
+
+- L'incorporamento esterno non e aperto globalmente
+- Solo `/colli/menu` puo essere mostrato in `iframe`
+- Gli origin autorizzati sono solo `https://www.cashin.coop` e `https://cashin.coop`
+- Il resto del sito continua a rispondere con `X-Frame-Options: SAMEORIGIN`
+- Non aprire CORS o iframe globali per risolvere integrazioni esterne
+
+File chiave:
+
+- `server/index.ts`
+
 ## Cosa non duplicare
 
 - Logica BookingDialog

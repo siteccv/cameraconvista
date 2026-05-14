@@ -10,6 +10,11 @@ import { mountSeoRoutes, generateSeoHtml, injectSeoIntoHtml } from "./seo";
 const app = express();
 app.set("trust proxy", 1);
 const httpServer = createServer(app);
+const COLLI_EMBED_ALLOWED_ANCESTORS = [
+  "'self'",
+  "https://www.cashin.coop",
+  "https://cashin.coop",
+].join(" ");
 
 declare module "http" {
   interface IncomingMessage {
@@ -26,13 +31,18 @@ app.use(
     crossOriginResourcePolicy: false,
     xContentTypeOptions: true,
     referrerPolicy: { policy: "strict-origin-when-cross-origin" },
-    frameguard: { action: "sameorigin" },
     permittedCrossDomainPolicies: false,
   }),
 );
 
 app.use((_req, res, next) => {
   res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  if (_req.path === "/colli/menu") {
+    res.removeHeader("X-Frame-Options");
+    res.setHeader("Content-Security-Policy", `frame-ancestors ${COLLI_EMBED_ALLOWED_ANCESTORS}`);
+  } else {
+    res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  }
   next();
 });
 

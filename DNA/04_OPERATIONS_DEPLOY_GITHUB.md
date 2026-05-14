@@ -49,6 +49,24 @@ Ultima suite eseguita il 2026-05-14 dopo pulizia operativa finale:
 
 Quindi la pipeline locale richiesta dal progetto risulta verde. Resta solo il warning PostCSS non bloccante gia noto durante build.
 
+Verifica locale aggiuntiva del 2026-05-14 dopo fix embed Colli:
+
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run test`: OK, 3 file e 7 test
+- `npm run build`: OK
+- avvio production-like locale: OK
+- `/`: header `X-Frame-Options: SAMEORIGIN`
+- `/colli`: header `X-Frame-Options: SAMEORIGIN`
+- `/api/colli/menu`: nessuna apertura CORS aggiuntiva, `X-Frame-Options: SAMEORIGIN`
+- `/colli/menu`: `Content-Security-Policy: frame-ancestors 'self' https://www.cashin.coop https://cashin.coop` e nessun `X-Frame-Options`
+
+Nota operativa per Mac nuovi o workspace trasferiti:
+
+- se `esbuild`, `rollup` o altri binari nativi in `node_modules` vengono bloccati da Gatekeeper con popup malware/non verificato, il problema e locale e non del codice applicativo;
+- procedura di ripristino raccomandata: `rm -rf node_modules && npm ci && xattr -dr com.apple.quarantine node_modules`;
+- non trasferire `node_modules` tra Mac come stato operativo persistente.
+
 ## Playwright
 
 Se manca il browser:
@@ -90,6 +108,11 @@ Gestione env:
 - `.env` deve restare nella cartella progetto per l'uso locale;
 - nei backup locali operativi deve essere incluso quando presente, cosi il progetto resta ripristinabile senza reinserire manualmente le variabili essenziali;
 - non stampare mai segreti, token o chiavi nei report.
+
+Snapshot DB di backup:
+
+- quando disponibile, usare un check read-only coerente col progetto invece di note manuali;
+- per lo stato Colli il riferimento operativo e `npm run colli:db:check`, che genera un JSON leggibile e adatto ad affiancare l'archivio sorgente nel backup locale.
 
 I backup restano locali salvo richiesta esplicita contraria.
 
