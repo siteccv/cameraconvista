@@ -1,8 +1,8 @@
 import pg from "pg";
 import {
   COLLI_BOOKING_SETTINGS_KEY,
+  collectColliCountMismatches,
   DEFAULT_COLLI_BOOKING_SETTINGS,
-  EXPECTED_COLLI_MENU_COUNTS,
   getColliMenuCounts,
   normalizeColliBookingPhone,
   validateColliMenuPayload,
@@ -37,9 +37,10 @@ async function main() {
   const pool = new pg.Pool({ connectionString: databaseUrl });
 
   try {
-    const [cms, colliTables, sourceSnapshot] = await Promise.all([
+    const [cms, colliTables, activeSnapshot, sourceSnapshot] = await Promise.all([
       readCmsStatus(pool),
       readColliTableStatus(pool),
+      readActiveSnapshotStatus(pool),
       readSourceSnapshot(),
     ]);
 
@@ -51,8 +52,9 @@ async function main() {
           database: describeDatabase(databaseUrl),
           cms,
           colliTables,
+          activeSnapshot,
           sourceSnapshot,
-          nextRequiredAction: getNextRequiredAction(cms.pageExists, colliTables),
+          nextRequiredAction: getNextRequiredAction(cms.pageExists, colliTables, activeSnapshot),
         },
         null,
         2,
@@ -145,10 +147,34 @@ async function countRows(pool: pg.Pool, table: string): Promise<number> {
   return result.rows[0]?.count ?? 0;
 }
 
+async function readActiveSnapshotStatus(pool: pg.Pool) {
+  const result = await pool.query<{
+    counts: ColliMenuCounts | null;
+    source_checksum: string | null;
+    published_at: Date | string | null;
+  }>(
+    `select counts, source_checksum, published_at
+     from colli_menu_snapshots
+     where status = 'active'
+     order by published_at desc, id desc
+     limit 1`,
+  );
+
+  const row = result.rows[0];
+  return {
+    exists: Boolean(row),
+    counts: row?.counts ?? null,
+    countWarnings: row?.counts ? collectColliCountMismatches(row.counts) : [],
+    sourceChecksum: row?.source_checksum ?? null,
+    publishedAt: row?.published_at ? new Date(row.published_at).toISOString() : null,
+  };
+}
+
 async function readSourceSnapshot(): Promise<{
   source: string;
   reachable: boolean;
   counts: ColliMenuCounts | null;
+  countWarnings: string[];
   error: string | null;
 }> {
   const source =
@@ -167,6 +193,7 @@ async function readSourceSnapshot(): Promise<{
       source,
       reachable: true,
       counts: getColliMenuCounts(menu),
+      countWarnings: collectColliCountMismatches(getColliMenuCounts(menu)),
       error: null,
     };
   } catch (error) {
@@ -174,6 +201,7 @@ async function readSourceSnapshot(): Promise<{
       source,
       reachable: false,
       counts: null,
+      countWarnings: [],
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -208,6 +236,11 @@ function describeDatabase(databaseUrl: string) {
 function getNextRequiredAction(
   pageExists: boolean,
   tableStatuses: Record<string, TableStatus>,
+  activeSnapshot: {
+    exists: boolean;
+    counts: ColliMenuCounts | null;
+    countWarnings: string[];
+  },
 ): string {
   const missingTables = Object.entries(tableStatuses)
     .filter(([, status]) => !status.exists)
@@ -221,20 +254,25 @@ function getNextRequiredAction(
     return "Apply the reviewed Colli table migration before importing Colli menu data into SITE-CCV Supabase.";
   }
 
-  const hasSnapshot = (tableStatuses.colli_menu_snapshots?.count ?? 0) > 0;
-  const coreCountsMatch =
-    tableStatuses.colli_sections.count === EXPECTED_COLLI_MENU_COUNTS.sections &&
-    tableStatuses.colli_categories.count === EXPECTED_COLLI_MENU_COUNTS.categories &&
-    tableStatuses.colli_items.count === EXPECTED_COLLI_MENU_COUNTS.dishes &&
-    tableStatuses.colli_wine_categories.count === EXPECTED_COLLI_MENU_COUNTS.wineCategories &&
-    tableStatuses.colli_wines.count === EXPECTED_COLLI_MENU_COUNTS.wines &&
-    tableStatuses.colli_allergens.count === EXPECTED_COLLI_MENU_COUNTS.allergens;
-
-  if (!hasSnapshot || !coreCountsMatch) {
-    return "Run a controlled Colli data import and compare counts before switching /api/colli/menu away from the Render bridge.";
+  if (!activeSnapshot.exists || !activeSnapshot.counts) {
+    return "Publish an active Colli snapshot from the dedicated colli_* tables before serving the public Colli menu.";
   }
 
-  return "Colli DB is ready: /api/colli/menu can read the SITE-CCV Supabase snapshot, and Colli admin can operate on dedicated colli_* tables.";
+  const liveCounts: ColliMenuCounts = {
+    sections: tableStatuses.colli_sections.count ?? 0,
+    categories: tableStatuses.colli_categories.count ?? 0,
+    dishes: tableStatuses.colli_items.count ?? 0,
+    wineCategories: tableStatuses.colli_wine_categories.count ?? 0,
+    wines: tableStatuses.colli_wines.count ?? 0,
+    allergens: tableStatuses.colli_allergens.count ?? 0,
+  };
+  const snapshotDrift = collectColliCountMismatches(liveCounts, activeSnapshot.counts);
+
+  if (snapshotDrift.length > 0) {
+    return "Republish the active Colli snapshot: live colli_* tables and the active snapshot counts are diverging.";
+  }
+
+  return "Colli DB is ready: /api/colli/menu can serve the internal active snapshot without depending on the external Render bridge.";
 }
 
 void main().catch((error) => {

@@ -1,10 +1,6 @@
 import type { QueryResult, QueryResultRow } from "pg";
-import {
-  getColliMenuCounts,
-  sanitizeColliMenuDietaryFlags,
-  validateColliMenuPayload,
-} from "@shared/colli";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "./supabase";
+import { buildColliMenuResponse, normalizeColliMenuSnapshot } from "./colli-menu-response";
 
 type QueryValues = unknown[];
 type SupabaseTable =
@@ -70,27 +66,13 @@ export async function fetchColliSnapshotFromSupabaseRest() {
 
   if (!data?.snapshot) return null;
 
-  const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(data.snapshot));
-  return {
-    ...snapshot,
-    metadata: {
-      source: "siteccv-supabase-snapshot" as const,
-      sourceUrl: "colli_menu_snapshots",
-      fetchedAt: new Date().toISOString(),
-      counts: getColliMenuCounts(snapshot),
-      sections: snapshot.sections.map((section) => ({
-        id: section.id,
-        nameIt: section.name_it,
-        nameEn: section.name_en ?? null,
-        slug: null,
-        order: section.order ?? null,
-      })),
-      stale: false,
-      englishEnabled: true,
-      sourceChecksum: data.source_checksum,
-      publishedAt: data.published_at ? new Date(data.published_at).toISOString() : null,
-    },
-  };
+  const snapshot = normalizeColliMenuSnapshot(data.snapshot);
+  return buildColliMenuResponse(snapshot, {
+    source: "siteccv-supabase-snapshot",
+    sourceUrl: "colli_menu_snapshots",
+    sourceChecksum: data.source_checksum,
+    publishedAt: data.published_at ? new Date(data.published_at).toISOString() : null,
+  });
 }
 
 async function executeSupabaseQuery<T extends QueryResultRow = QueryResultRow>(

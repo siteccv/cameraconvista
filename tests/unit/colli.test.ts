@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   buildColliBookingUrl,
+  collectColliCountMismatches,
   EXPECTED_COLLI_MENU_COUNTS,
   getColliMenuCounts,
   getColliBookingWhatsappNumber,
@@ -30,6 +31,19 @@ describe("colli menu helpers", () => {
     expect(Object.keys(getColliMenuCounts(emptyMenu))).toEqual(
       Object.keys(EXPECTED_COLLI_MENU_COUNTS),
     );
+  });
+
+  it("reports count mismatches against the canonical Colli baseline", () => {
+    expect(
+      collectColliCountMismatches({
+        sections: 3,
+        categories: 14,
+        dishes: 120,
+        wineCategories: 5,
+        wines: 11,
+        allergens: 14,
+      }),
+    ).toEqual(["wines: expected 13, found 11"]);
   });
 
   it("falls back to Italian text when English is empty", () => {

@@ -22,9 +22,6 @@ const PUBLIC_SITE_SETTINGS_KEYS = new Set([
   "published_menu_items",
   "published_wines",
   "published_cocktails",
-  SITE_LINKS_KEY,
-  "view_admin_url",
-  "view_site_url",
 ]);
 
 // ========================================

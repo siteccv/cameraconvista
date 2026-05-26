@@ -309,26 +309,26 @@ export function EditDialog({
               />
             </Field>
             {!isDrink && (
-              <Field label="Vegetariano">
-                <BooleanSwitch
-                  checked={vegetarian}
-                  onToggle={() => setVegetarian((value) => !value)}
-                />
-              </Field>
-            )}
-            {!isDrink && (
-              <Field label="Senza glutine">
-                <BooleanSwitch
-                  checked={glutenFree}
-                  onToggle={handleGlutenFreeToggle}
-                  disabled={hasSelectedGlutenAllergen}
-                />
-                {hasSelectedGlutenAllergen && (
-                  <p className="mt-2 text-xs" style={{ color: COLORS.secondary }}>
-                    Rimuovi l&apos;allergene Glutine per attivare questa opzione.
-                  </p>
-                )}
-              </Field>
+              <div className="grid grid-cols-2 gap-4">
+                <Field label="Vegetariano">
+                  <BooleanSwitch
+                    checked={vegetarian}
+                    onToggle={() => setVegetarian((value) => !value)}
+                  />
+                </Field>
+                <Field label="Senza glutine">
+                  <BooleanSwitch
+                    checked={glutenFree}
+                    onToggle={handleGlutenFreeToggle}
+                    disabled={hasSelectedGlutenAllergen}
+                  />
+                  {hasSelectedGlutenAllergen && (
+                    <p className="mt-2 text-xs" style={{ color: COLORS.secondary }}>
+                      Rimuovi l&apos;allergene Glutine per attivare questa opzione.
+                    </p>
+                  )}
+                </Field>
+              </div>
             )}
             {!isDrink && (
               <Field label="Allergeni">

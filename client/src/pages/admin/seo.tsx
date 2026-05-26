@@ -20,9 +20,11 @@ const PAGE_LABELS: Record<string, { it: string; en: string }> = {
   eventi: { it: "Eventi", en: "Events" },
   "eventi-privati": { it: "Eventi Privati", en: "Private Events" },
   "eventi-privati-aperitivo": { it: "Aperitivo Privato", en: "Private Aperitivo" },
+  "eventi-privati-cena": { it: "Cena Privata", en: "Private Dinner" },
   "eventi-privati-esclusivo": { it: "Evento Privato Esclusivo", en: "Exclusive Private Event" },
   galleria: { it: "Galleria", en: "Gallery" },
   "dove-siamo": { it: "Dove Siamo", en: "Where We Are" },
+  colli: { it: "Colli", en: "Colli" },
 };
 
 export default function AdminSeo() {

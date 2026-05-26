@@ -4,6 +4,16 @@
 
 Raccogliere i workflow operativi che l'agent deve conoscere prima di eseguire comandi, backup, build o push.
 
+## Aggiornamento verificato il 2026-05-26
+
+- `npm run audit`: OK, `0` vulnerabilita
+- `npm run test`: OK, `10` file e `34` test
+- `npm run build`: OK, con warning PostCSS non bloccante gia noto
+- `npm run test:e2e`: OK, `27/27`
+- `npm run colli:db:check`: OK, sola lettura
+- il workflow GitHub `Quality` supporta anche `workflow_dispatch` per trigger manuale di recovery
+- il runtime pubblico Colli e verificato su istanza locale separata con sorgente `siteccv-supabase-snapshot` e conteggi `3/14/120/5/13/14`
+
 ## Avvio locale
 
 - Standard operativo: `PORT=5001 npm run dev`
@@ -103,11 +113,20 @@ Verifica locale aggiuntiva del 2026-05-26 dopo consolidamento Colli gluten free:
 - `npm run test:coverage`: OK, 9 file e 31 test
 - `npm run test:e2e`: OK, 27/27 dopo installazione locale di Playwright Chromium
 - `npm run colli:db:check`: OK read-only, `writesPerformed=false`
-- `npm run audit`: FAIL, 3 vulnerabilita moderate correnti su `brace-expansion`, `qs`, `ws`
+- `npm run audit`: OK, 0 vulnerabilita
+
+Verifica locale aggiuntiva del 2026-05-26 dopo consolidamento fallback/runtime Colli:
+
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run test -- tests/unit/colli.test.ts tests/unit/pages-public-routes.test.ts`: OK, 9 test
+- `npm run colli:db:check`: OK read-only, snapshot attivo interno coerente e bridge Render segnalato come disallineato (`11` vini)
+- `PORT=5003 npm run dev`: OK
+- `curl http://127.0.0.1:5003/api/colli/menu`: OK, `metadata.source=siteccv-supabase-snapshot`, `stale=false`, conteggi `3/14/120/5/13/14`
 
 Nota operativa:
 
-- finche `npm run audit` resta rosso non dichiarare il repository pienamente verde per commit/push "sicuri"
+- il repository non va dichiarato verde se `audit` torna rosso in futuro, ma allo stato verificato del 2026-05-26 il controllo e verde
 
 Nota operativa per Mac nuovi o workspace trasferiti:
 
@@ -171,6 +190,7 @@ Workflow persistente:
 - leggere `GITHUB_PUSH_GUIDE.md`
 - usare `scripts/bootstrap-github-remote.sh`
 - usare `scripts/preflight-github-push.sh`
+- il workflow `Quality` e triggerabile anche manualmente con `workflow_dispatch` oltre che su `push` e `pull_request`
 
 Strategia commit/push:
 

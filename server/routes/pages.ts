@@ -55,7 +55,7 @@ const router = Router();
 router.get("/", async (req, res) => {
   try {
     const pages = await storage.getPages();
-    res.json(pages.filter((page) => page.isVisible));
+    res.json(pages.filter((page) => page.isVisible && !page.isDraft));
   } catch (error) {
     console.error("Error fetching pages:", error);
     res.status(500).json({ error: "Failed to fetch pages" });
@@ -65,7 +65,7 @@ router.get("/", async (req, res) => {
 router.get("/slug/:slug/blocks", async (req, res) => {
   try {
     const page = await storage.getPageBySlug(req.params.slug);
-    if (!page || !page.isVisible) {
+    if (!page || !page.isVisible || page.isDraft) {
       res.json([]);
       return;
     }
@@ -81,7 +81,7 @@ router.get("/slug/:slug/blocks", async (req, res) => {
 router.get("/:slug", async (req, res) => {
   try {
     const page = await storage.getPageBySlug(req.params.slug);
-    if (!page || !page.isVisible) {
+    if (!page || !page.isVisible || page.isDraft) {
       res.status(404).json({ error: "Page not found" });
       return;
     }
@@ -95,6 +95,11 @@ router.get("/:slug", async (req, res) => {
 router.get("/:pageId/blocks", async (req, res) => {
   try {
     const pageId = parseId(req.params.pageId);
+    const page = await storage.getPage(pageId);
+    if (!page || !page.isVisible || page.isDraft) {
+      res.json([]);
+      return;
+    }
     const blocks = await storage.getPageBlocks(pageId);
     const publishedBlocks = blocks.map(applyPublishedSnapshot);
     res.json(publishedBlocks);

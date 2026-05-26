@@ -106,7 +106,7 @@ export const EXPECTED_COLLI_MENU_COUNTS: ColliMenuCounts = {
   categories: 14,
   dishes: 120,
   wineCategories: 5,
-  wines: 11,
+  wines: 13,
   allergens: 14,
 };
 
@@ -160,6 +160,16 @@ export function getColliMenuCounts(menu: ColliMenuPayload): ColliMenuCounts {
     wines: menu.wines.length,
     allergens: menu.allergens.length,
   };
+}
+
+export function collectColliCountMismatches(
+  actualCounts: ColliMenuCounts,
+  expectedCounts: ColliMenuCounts = EXPECTED_COLLI_MENU_COUNTS,
+): string[] {
+  return Object.entries(expectedCounts).flatMap(([key, expected]) => {
+    const actual = actualCounts[key as keyof ColliMenuCounts];
+    return actual === expected ? [] : [`${key}: expected ${expected}, found ${actual}`];
+  });
 }
 
 export function sortColliByOrder<T extends { order?: number | null }>(items: T[]): T[] {

@@ -4,6 +4,28 @@
 
 Descrivere i punti dati davvero necessari all'agent: backend dati, tabelle critiche, snapshot, sync e comportamento Supabase.
 
+## Aggiornamento verificato il 2026-05-26
+
+Stato corrente verificato dopo bonifica controllata:
+
+- `page_blocks.published_snapshot` ora esiste anche come colonna reale nel DB;
+- il fallback legacy `page_blocks.metadata.__publishedSnapshot` resta mantenuto per compatibilita;
+- la pagina `eventi` in `pages` e tornata `is_visible = true`, coerente con route, nav e sitemap;
+- le tabelle `colli_*` hanno `RLS enabled`;
+- `/api/colli/menu` serve il menu pubblico dallo snapshot interno attivo e non dipende piu dal bridge Render come fallback automatico;
+- se il canale DB diretto non risponde, il runtime Colli prova il secondo percorso interno via Supabase REST;
+- il bridge Render resta solo sorgente diagnostica/di emergenza esplicita e viene rifiutato se non rispetta il baseline canonico `3/14/120/5/13/14`;
+- i conteggi Colli correnti verificati sono:
+  - `colli_sections`: 3
+  - `colli_categories`: 14
+  - `colli_items`: 120
+  - `colli_allergens`: 14
+  - `colli_item_allergens`: 50
+  - `colli_wine_categories`: 5
+  - `colli_wines`: 13
+  - `colli_menu_snapshots`: 75 totali, `1` attivo
+- la policy pubblica `site_settings` e stata ristretta alle sole chiavi strettamente necessarie lato pubblico.
+
 ## Selezione storage
 
 Il progetto sceglie il backend in modo deterministico:
@@ -47,6 +69,8 @@ Regola: le tabelle Colli devono restare separate da `menu_items`, `wines`, `cock
 
 ## Stato Colli verificato il 2026-05-13
 
+Nota: questa sezione resta storica e descrive il freeze iniziale di integrazione. Per lo stato corrente usare il blocco `Aggiornamento verificato il 2026-05-26`.
+
 Controllo read-only prima della migrazione eseguito con:
 
 ```bash
@@ -73,7 +97,7 @@ Stato consolidato dopo migrazione, pubblicazione CMS e test admin controllato:
 - tabelle `colli_*` create;
 - dati Colli importati in tabelle indipendenti;
 - snapshot attivo creato in `colli_menu_snapshots`;
-- `/api/colli/menu` legge prima lo snapshot interno Supabase e usa Render solo come fallback;
+- `/api/colli/menu` legge lo snapshot interno attivo e il bridge Render non e piu fallback automatico del runtime pubblico;
 - dati CCV esistenti (`menu_items`, `wines`, `cocktails`, `events`, sync Google) non sono stati fusi con Colli.
 - test admin Colli eseguito via backend: modifica temporanea prodotto, verifica pubblica, ripristino valore originale.
 
@@ -93,12 +117,12 @@ Conteggi finali verificati:
 - `colli_categories`: 14;
 - `colli_items`: 120;
 - `colli_allergens`: 14;
-- `colli_item_allergens`: 28;
+- `colli_item_allergens`: 50;
 - `colli_wine_categories`: 5;
-- `colli_wines`: 11;
-- `colli_settings`: almeno 2 (`last_import`, `admin_password_hash`);
+- `colli_wines`: 13;
+- `colli_settings`: almeno 3 (`last_import`, `admin_password_hash`, `english_enabled`);
 - `colli_settings.english_enabled`: impostazione opzionale creata/aggiornata dal pannello admin Colli quando si modifica il toggle EN; se assente il codice assume EN attivo;
-- `colli_menu_snapshots`: 5 totali dopo test controllato, con 1 solo snapshot `active`.
+- `colli_menu_snapshots`: 75 totali, con 1 solo snapshot `active`.
 
 Sequenze DB verificate:
 
@@ -116,16 +140,13 @@ Chiavi operative note:
 - `published_wines`
 - `published_cocktails`
 - `menu_category_map`
-- `site_links`
-- `view_admin_url`
-- `view_site_url`
 - `resend_api_key` solo come fallback legacy server-side
 
 ## Snapshot pubblici
 
 Esistono logiche diverse:
 
-- pagine/blocchi: snapshot in `PageBlock.publishedSnapshot` lato codice; nel Supabase reale il valore e salvato in `page_blocks.metadata.__publishedSnapshot`
+- pagine/blocchi: snapshot in `PageBlock.publishedSnapshot` lato codice; dal 2026-05-26 il valore e materializzato anche nella colonna reale `page_blocks.published_snapshot`, mantenendo il fallback legacy `metadata.__publishedSnapshot`
 - menu/vini/cocktail: snapshot JSON in `site_settings`
 - menu Colli: snapshot JSON dedicato in `colli_menu_snapshots`
 
@@ -147,6 +168,7 @@ File chiave:
 - Le scritture passano dal backend con `service_role`
 - Il client usa solo flussi consentiti pubblici
 - `site_settings` pubblica e filtrata da whitelist, non da blacklist fragile
+- le tabelle `colli_*` hanno `RLS enabled` e policy server-side `service_role only`
 
 File chiave:
 
@@ -164,9 +186,9 @@ Regole consolidate il 2026-05-13:
 - per host Supabase/pooler viene abilitato SSL;
 - la pool PostgreSQL ha timeout di connessione/query/statement;
 - se `SUPABASE_DB_URL` non e presente ma `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` sono presenti, Colli usa Supabase REST server-side;
-- `/api/colli/menu` prova prima lo snapshot Supabase REST in questa configurazione, evitando il timeout PostgreSQL prima del render del menu;
+- `/api/colli/menu` usa DB diretto come primo canale interno e Supabase REST come secondo canale interno quando disponibile;
 - l'admin Colli usa lo stesso adapter REST per login, lettura pannello e CRUD quando la connessione PostgreSQL diretta non e disponibile;
-- il bridge Render resta solo fallback pubblico estremo, non sorgente desiderata.
+- il bridge Render resta solo sorgente diagnostica/esplicita, non fallback pubblico automatico.
 
 Questo evita sia il blocco login admin Colli sia la schermata `Caricamento menu...` prolungata in produzione quando Render non ha `SUPABASE_DB_URL`.
 

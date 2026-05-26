@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
 import pg from "pg";
 import {
   getColliMenuCounts,
@@ -33,8 +34,7 @@ async function main() {
     throw new Error("DATABASE_URL is required for Colli import");
   }
 
-  const source =
-    getCliValue("--source") || process.env.COLLI_IMPORT_SOURCE || DEFAULT_COLLI_SOURCE_URL;
+  const source = await resolveSource();
   const replace = process.argv.includes("--replace");
   const raw = await readSource(source);
   const menu = validateColliMenuPayload(extractMenuPayload(JSON.parse(raw)));
@@ -109,6 +109,18 @@ async function readSource(source: string): Promise<string> {
   return readFile(source, "utf8");
 }
 
+async function resolveSource(): Promise<string> {
+  const cliSource = getCliValue("--source");
+  if (cliSource) return cliSource;
+
+  if (process.env.COLLI_IMPORT_SOURCE) {
+    return process.env.COLLI_IMPORT_SOURCE;
+  }
+
+  const latestBackup = await findLatestFreezeBackup();
+  return latestBackup || DEFAULT_COLLI_SOURCE_URL;
+}
+
 function extractMenuPayload(payload: unknown): unknown {
   if (payload && typeof payload === "object" && "menu" in payload) {
     return (payload as { menu: unknown }).menu;
@@ -125,6 +137,22 @@ function getCliValue(name: string): string | undefined {
   if (index >= 0) return process.argv[index + 1];
 
   return undefined;
+}
+
+async function findLatestFreezeBackup(): Promise<string | null> {
+  const backupDir = path.join(process.cwd(), "BACKUP");
+
+  try {
+    const files = await readdir(backupDir);
+    const backups = files
+      .filter((file) => /^colli_menu_freeze_.*\.json$/.test(file))
+      .sort((a, b) => a.localeCompare(b));
+
+    const latest = backups.at(-1);
+    return latest ? path.join(backupDir, latest) : null;
+  } catch {
+    return null;
+  }
 }
 
 async function readExistingCounts(client: pg.PoolClient): Promise<Record<string, number>> {

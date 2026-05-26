@@ -155,6 +155,9 @@ export class SupabaseStorage implements IStorage {
 
   private enrichBlockWithSnapshot(block: any): any {
     const camelBlock = toCamelCase(block);
+    if (camelBlock.publishedSnapshot !== undefined) {
+      return camelBlock;
+    }
     if (
       camelBlock.metadata &&
       typeof camelBlock.metadata === "object" &&
@@ -183,7 +186,6 @@ export class SupabaseStorage implements IStorage {
 
   async createPageBlock(block: InsertPageBlock): Promise<PageBlock> {
     const snakeData = toSnakeCase(block);
-    delete snakeData.published_snapshot;
     const { data, error } = await supabaseAdmin
       .from("page_blocks")
       .insert(snakeData)
@@ -204,7 +206,6 @@ export class SupabaseStorage implements IStorage {
       delete (blockCopy as any).publishedSnapshot;
     }
     const updateData: any = { ...toSnakeCase(blockCopy), updated_at: new Date().toISOString() };
-    delete updateData.published_snapshot;
 
     if (publishedSnapshot !== undefined) {
       const { data: currentBlock } = await supabaseAdmin
@@ -216,6 +217,7 @@ export class SupabaseStorage implements IStorage {
         currentBlock?.metadata && typeof currentBlock.metadata === "object"
           ? (currentBlock.metadata as Record<string, any>)
           : {};
+      updateData.published_snapshot = publishedSnapshot;
       updateData.metadata = { ...existingMetadata, __publishedSnapshot: publishedSnapshot };
     }
 

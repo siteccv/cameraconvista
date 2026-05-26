@@ -199,7 +199,7 @@ function Router() {
           <Route path="/eventi">{() => <PublicPageRoute component={Eventi} slug="eventi" />}</Route>
           <Route path="/eventi/:id" component={EventDetail} />
           <Route path="/eventi-privati">
-            {() => <StaticPageRoute component={EventiPrivati} slug="eventi-privati" />}
+            {() => <PublicPageRoute component={EventiPrivati} slug="eventi-privati" />}
           </Route>
           <Route path="/eventi-privati/aperitivo">
             {() => <PublicPageRoute component={AperitivoPage} slug="eventi-privati-aperitivo" />}
@@ -228,7 +228,7 @@ function Router() {
           <Route path="/cookie">
             {() => <StaticPageRoute component={CookiePolicy} slug="cookie" />}
           </Route>
-          <Route path="/colli">{() => <StaticPageRoute component={Colli} slug="colli" />}</Route>
+          <Route path="/colli">{() => <PublicPageRoute component={Colli} slug="colli" />}</Route>
           <Route path="/colli/menu">
             {() => <StaticPageRoute component={ColliMenu} slug="colli-menu" />}
           </Route>

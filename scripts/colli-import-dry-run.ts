@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
+  collectColliCountMismatches,
   EXPECTED_COLLI_MENU_COUNTS,
   getColliMenuCounts,
   validateColliMenuPayload,
@@ -135,10 +136,7 @@ async function readSource(source: string): Promise<string> {
 }
 
 function collectCountWarnings(counts: ColliMenuCounts): string[] {
-  return Object.entries(EXPECTED_COLLI_MENU_COUNTS).flatMap(([key, expected]) => {
-    const actual = counts[key as keyof ColliMenuCounts];
-    return actual === expected ? [] : [`${key}: expected ${expected}, found ${actual}`];
-  });
+  return collectColliCountMismatches(counts, EXPECTED_COLLI_MENU_COUNTS);
 }
 
 function collectRelationIssues(menu: ColliMenuPayload): string[] {

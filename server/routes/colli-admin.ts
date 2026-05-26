@@ -30,7 +30,7 @@ import {
   requiredText,
   toNumberOrNull,
 } from "./colli-admin-utils";
-import { generateSessionToken, isAuthenticated, SESSION_MAX_AGE_MS } from "./helpers";
+import { generateSessionToken, SESSION_MAX_AGE_MS } from "./helpers";
 
 const COLLI_ADMIN_COOKIE_NAME = "ccv_colli_admin_session";
 const COLLI_ADMIN_PASSWORD_KEY = "admin_password_hash";
@@ -871,8 +871,6 @@ async function getColliAdminPasswordHash(): Promise<string> {
 }
 
 async function isColliAdminAuthenticated(req: Request): Promise<boolean> {
-  if (await isAuthenticated(req)) return true;
-
   const sessionToken = req.cookies?.[COLLI_ADMIN_COOKIE_NAME];
   if (!sessionToken) return false;
 

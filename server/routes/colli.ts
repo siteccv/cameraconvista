@@ -1,42 +1,23 @@
 import { Router } from "express";
 import {
+  collectColliCountMismatches,
+  EXPECTED_COLLI_MENU_COUNTS,
   getColliMenuCounts,
-  sanitizeColliMenuDietaryFlags,
-  validateColliMenuPayload,
   type ColliMenuCounts,
-  type ColliMenuPayload,
 } from "@shared/colli";
 import { pool } from "../db";
-import {
-  fetchColliSnapshotFromSupabaseRest,
-  shouldPreferSupabaseColliAdapter,
-} from "../colli-supabase-adapter";
+import { fetchColliSnapshotFromSupabaseRest } from "../colli-supabase-adapter";
 import { getColliAdminSettings } from "../colli-settings";
-
-interface ColliSectionSummary {
-  id: string | number | null;
-  nameIt: string | null;
-  nameEn: string | null;
-  slug: string | null;
-  order: number | null;
-}
-
-interface ColliMenuResponse extends ColliMenuPayload {
-  metadata: {
-    source: "siteccv-supabase-snapshot" | "ccv-colli-render-bridge";
-    sourceUrl: string;
-    fetchedAt: string;
-    counts: ColliMenuCounts;
-    sections: ColliSectionSummary[];
-    stale: boolean;
-    englishEnabled: boolean;
-    sourceChecksum?: string | null;
-    publishedAt?: string | null;
-  };
-}
+import { isSupabaseAdminConfigured } from "../supabase";
+import {
+  buildColliMenuResponse,
+  normalizeColliMenuSnapshot,
+  type ColliMenuResponse,
+} from "../colli-menu-response";
 
 const COLLI_MENU_SOURCE_URL =
   process.env.COLLI_MENU_SOURCE_URL || "https://ccvcolli-ghxg.onrender.com/api/menu/draft";
+const COLLI_MENU_ALLOW_BRIDGE_FALLBACK = process.env.COLLI_MENU_ALLOW_BRIDGE_FALLBACK === "true";
 
 const COLLI_MENU_CACHE_TTL_MS = 60_000;
 const COLLI_MENU_DB_TIMEOUT_MS = 2_500;
@@ -100,21 +81,13 @@ async function fetchColliMenu(): Promise<ColliMenuResponse> {
     },
   });
 
-  if (shouldPreferSupabaseColliAdapter()) {
-    const supabaseSnapshot = await fetchColliSnapshotFromSupabaseRest();
-    if (supabaseSnapshot) return attachSettings(supabaseSnapshot);
-  }
-
-  const internalSnapshot = await withTimeout(
-    fetchColliMenuFromDatabase(),
-    COLLI_MENU_DB_TIMEOUT_MS,
-    "Colli DB snapshot read timed out",
-  ).catch((error) => {
-    console.warn("[colli] Falling back to Render bridge after DB timeout:", error);
-    return null;
-  });
+  const internalSnapshot = await fetchColliMenuFromInternalSources();
 
   if (internalSnapshot) return attachSettings(internalSnapshot);
+
+  if (!COLLI_MENU_ALLOW_BRIDGE_FALLBACK) {
+    throw new Error("Colli internal snapshot unavailable and external bridge fallback is disabled");
+  }
 
   return attachSettings(await fetchColliMenuFromBridge());
 }
@@ -151,20 +124,42 @@ async function fetchColliMenuFromDatabase(): Promise<ColliMenuResponse | null> {
     const row = result.rows[0];
     if (!row) return null;
 
-    const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(row.snapshot));
-    return {
-      ...snapshot,
-      metadata: buildMetadata(snapshot, {
-        source: "siteccv-supabase-snapshot",
-        sourceUrl: "colli_menu_snapshots",
-        sourceChecksum: row.source_checksum,
-        publishedAt: row.published_at ? new Date(row.published_at).toISOString() : null,
-      }),
-    };
+    const snapshot = normalizeColliMenuSnapshot(row.snapshot);
+    return buildColliMenuResponse(snapshot, {
+      source: "siteccv-supabase-snapshot",
+      sourceUrl: "colli_menu_snapshots",
+      sourceChecksum: row.source_checksum,
+      publishedAt: row.published_at ? new Date(row.published_at).toISOString() : null,
+    });
   } catch (error) {
-    console.warn("[colli] Falling back to Render bridge after DB snapshot read failed:", error);
+    console.warn("[colli] Internal DB snapshot read failed:", error);
     return null;
   }
+}
+
+async function fetchColliMenuFromInternalSources(): Promise<ColliMenuResponse | null> {
+  const dbSnapshot = await withTimeout(
+    fetchColliMenuFromDatabase(),
+    COLLI_MENU_DB_TIMEOUT_MS,
+    "Colli DB snapshot read timed out",
+  ).catch((error) => {
+    console.warn("[colli] Internal DB snapshot timed out:", error);
+    return null;
+  });
+  if (dbSnapshot) return dbSnapshot;
+
+  if (!isSupabaseAdminConfigured) return null;
+
+  const supabaseSnapshot = await withTimeout(
+    fetchColliSnapshotFromSupabaseRest(),
+    COLLI_MENU_FETCH_TIMEOUT_MS,
+    "Colli Supabase REST snapshot read timed out",
+  ).catch((error) => {
+    console.warn("[colli] Internal Supabase REST snapshot failed:", error);
+    return null;
+  });
+
+  return supabaseSnapshot;
 }
 
 async function fetchColliMenuFromBridge(): Promise<ColliMenuResponse> {
@@ -184,57 +179,20 @@ async function fetchColliMenuFromBridge(): Promise<ColliMenuResponse> {
     }
 
     const payload = await response.json();
-    const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(payload));
-    return {
-      ...snapshot,
-      metadata: buildMetadata(snapshot, {
-        source: "ccv-colli-render-bridge",
-        sourceUrl: COLLI_MENU_SOURCE_URL,
-      }),
-    };
+    const snapshot = normalizeColliMenuSnapshot(payload);
+    const mismatches = collectColliCountMismatches(
+      getColliMenuCounts(snapshot),
+      EXPECTED_COLLI_MENU_COUNTS,
+    );
+    if (mismatches.length > 0) {
+      throw new Error(`Colli bridge snapshot rejected: ${mismatches.join(", ")}`);
+    }
+
+    return buildColliMenuResponse(snapshot, {
+      source: "ccv-colli-render-bridge",
+      sourceUrl: COLLI_MENU_SOURCE_URL,
+    });
   } finally {
     clearTimeout(timeout);
   }
-}
-
-function buildMetadata(
-  snapshot: ColliMenuPayload,
-  options: Pick<ColliMenuResponse["metadata"], "source" | "sourceUrl"> &
-    Partial<Pick<ColliMenuResponse["metadata"], "sourceChecksum" | "publishedAt">>,
-): ColliMenuResponse["metadata"] {
-  return {
-    source: options.source,
-    sourceUrl: options.sourceUrl,
-    fetchedAt: new Date().toISOString(),
-    counts: getColliMenuCounts(snapshot),
-    sections: snapshot.sections.map(toSectionSummary),
-    stale: false,
-    englishEnabled: true,
-    sourceChecksum: options.sourceChecksum,
-    publishedAt: options.publishedAt,
-  };
-}
-
-function toSectionSummary(section: unknown): ColliSectionSummary {
-  const record = section && typeof section === "object" ? (section as Record<string, unknown>) : {};
-
-  return {
-    id: toNullableId(record.id),
-    nameIt: toNullableString(record.name_it ?? record.nameIt ?? record.title),
-    nameEn: toNullableString(record.name_en ?? record.nameEn),
-    slug: toNullableString(record.slug ?? record.key),
-    order: toNullableNumber(record.order ?? record.sort_order ?? record.sortOrder),
-  };
-}
-
-function toNullableId(value: unknown): string | number | null {
-  return typeof value === "string" || typeof value === "number" ? value : null;
-}
-
-function toNullableString(value: unknown): string | null {
-  return typeof value === "string" ? value : null;
-}
-
-function toNullableNumber(value: unknown): number | null {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }

@@ -41,6 +41,16 @@ Questa scheda documenta lo stato operativo reale dell'integrazione Colli. Ogni m
 - il menu digitale `/colli/menu` ha di nuovo una intro splash iniziale stile progetto Colli originale, con logo centrato e fade in/out omogeneo;
 - la splash dura `4.5s`, viene mostrata una sola volta per sessione browser e non ritarda inutilmente il fetch dei dati menu.
 
+### Stato aggiornato al 2026-05-26
+
+- verifica runtime locale completata su route pubbliche `/colli`, `/colli/menu`, `/eventi` ed endpoint principali;
+- i conteggi Colli correnti verificati sono `3/14/120/14/50/5/13` per sezioni/categorie/prodotti/allergeni/item_allergens/categorie_vino/vini;
+- le tabelle `colli_*` hanno `RLS enabled` con policy `service_role only`;
+- `page_blocks.published_snapshot` e stato materializzato come colonna reale nel DB, mantenendo il fallback legacy `metadata.__publishedSnapshot`;
+- `/api/colli/menu` serve ora il menu pubblico dallo snapshot interno attivo e non dipende piu dal bridge Render come fallback automatico;
+- se il canale DB diretto non risponde, il runtime prova il secondo percorso interno via Supabase REST;
+- il bridge Render Colli resta sorgente storica/diagnostica e continua a esporre un dataset vecchio con `11` vini, quindi viene rifiutato dal runtime se non allineato al baseline interno da `13`.
+
 ## 3. Obiettivo finale
 
 La destinazione definitiva dei nuovi QR code deve essere:
@@ -864,7 +874,8 @@ Stato attuale:
 
 - endpoint pubblico read-only;
 - fonte primaria: snapshot Supabase interno `colli_menu_snapshots`;
-- fallback: bridge server-side verso `https://ccvcolli-ghxg.onrender.com/api/menu/draft`;
+- secondo canale interno: Supabase REST server-side quando disponibile;
+- bridge Render esterno solo opzionale/diagnostico, non fallback automatico;
 - cache server breve, 60 secondi, per ridurre carico sulla sorgente Render;
 - payload mantenuto compatibile con la sorgente Colli e arricchito con `metadata` tecnica di controllo.
 
@@ -1130,7 +1141,7 @@ Completato nello Step 5C:
 - importati dati Colli iniziali in tabelle dedicate;
 - creato snapshot attivo in `colli_menu_snapshots`;
 - `/api/colli/menu` ora legge prima da snapshot Supabase interno `siteccv-supabase-snapshot`;
-- fallback Render mantenuto se lo snapshot interno non e disponibile;
+- fallback Render automatico rimosso dal runtime pubblico; bridge esterno solo opzionale e accettato solo se allineato al baseline interno;
 - nessuna modifica a `menu_items`, `wines`, `cocktails`, `events`, `site_settings` fuori dai nuovi oggetti Colli;
 - backup locale pre migrazione CMS creato in `BACKUP/pre_colli_cms_migration_*.json`.
 
