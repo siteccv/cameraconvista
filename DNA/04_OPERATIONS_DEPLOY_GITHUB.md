@@ -94,6 +94,21 @@ Verifica locale aggiuntiva del 2026-05-14 dopo refactor controllato Colli/admin:
 - `npm run colli:db:check`: OK read-only, `writesPerformed=false`
 - backup locale creato: `BACKUP/Backup_14 Maggio_21.56_refactor.tar.gz`
 
+Verifica locale aggiuntiva del 2026-05-26 dopo consolidamento Colli gluten free:
+
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run format:check`: OK
+- `npm run build`: OK, con warning PostCSS gia noto/non bloccante
+- `npm run test:coverage`: OK, 9 file e 31 test
+- `npm run test:e2e`: OK, 27/27 dopo installazione locale di Playwright Chromium
+- `npm run colli:db:check`: OK read-only, `writesPerformed=false`
+- `npm run audit`: FAIL, 3 vulnerabilita moderate correnti su `brace-expansion`, `qs`, `ws`
+
+Nota operativa:
+
+- finche `npm run audit` resta rosso non dichiarare il repository pienamente verde per commit/push "sicuri"
+
 Nota operativa per Mac nuovi o workspace trasferiti:
 
 - se `esbuild`, `rollup` o altri binari nativi in `node_modules` vengono bloccati da Gatekeeper con popup malware/non verificato, il problema e locale e non del codice applicativo;
@@ -114,15 +129,11 @@ Per smoke su server built locale:
 
 Formato operativo richiesto:
 
-- archivio sorgente: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>.tar.gz`
-- snapshot DB associato: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>_db_state.json`
+- file compresso unico: `BACKUP/Backup_<giorno> <Mese>_<HH.MM>`
+- nessuna estensione nel nome del backup
+- il backup deve includere i file utili al ripristino operativo, compreso `.env` locale quando presente
 
-Backup finale corrente:
-
-- `BACKUP/Backup_14 Maggio_21.56_refactor.tar.gz`
-- `BACKUP/Backup_14 Maggio_21.56_refactor_db_state.json`
-
-Regola: mantenere in `BACKUP/` solo l'archivio operativo finale e lo snapshot DB finale piu recenti, salvo richiesta esplicita di conservare storici.
+Regola: mantenere in `BACKUP/` il backup operativo finale piu recente, salvo richiesta esplicita di conservare storici.
 
 Escludere almeno dai backup sorgente:
 
@@ -130,10 +141,13 @@ Escludere almeno dai backup sorgente:
 - `node_modules`
 - `dist`
 - `BACKUP`
+- `build`
+- `.next`
 - `coverage`
 - `test-results`
 - `playwright-report`
 - cache locali come `node_modules/.vite` e `node_modules/.vite-temp`
+- log inutili
 
 Gestione env:
 
@@ -141,11 +155,6 @@ Gestione env:
 - `.env` deve restare nella cartella progetto per l'uso locale;
 - nei backup locali operativi deve essere incluso quando presente, cosi il progetto resta ripristinabile senza reinserire manualmente le variabili essenziali;
 - non stampare mai segreti, token o chiavi nei report.
-
-Snapshot DB di backup:
-
-- quando disponibile, usare un check read-only coerente col progetto invece di note manuali;
-- per lo stato Colli il riferimento operativo e `npm run colli:db:check`, che genera un JSON leggibile e adatto ad affiancare l'archivio sorgente nel backup locale.
 
 I backup restano locali salvo richiesta esplicita contraria.
 

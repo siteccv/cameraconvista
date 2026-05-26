@@ -6,6 +6,7 @@ import {
   getColliBookingWhatsappNumber,
   localizedColliText,
   normalizeColliBookingPhone,
+  sanitizeColliMenuDietaryFlags,
   validateColliMenuPayload,
   type ColliMenuPayload,
 } from "@shared/colli";
@@ -40,5 +41,24 @@ describe("colli menu helpers", () => {
     expect(normalizeColliBookingPhone("+39 333 534 5751")).toBe("+393335345751");
     expect(getColliBookingWhatsappNumber("+39 333 534 5751")).toBe("393335345751");
     expect(buildColliBookingUrl("+39 333 534 5751")).toContain("wa.me/393335345751");
+  });
+
+  it("gives precedence to the gluten allergen over the gluten-free flag", () => {
+    const normalized = sanitizeColliMenuDietaryFlags({
+      ...emptyMenu,
+      allergens: [{ id: "1", name_it: "Glutine", name_en: "Gluten" }],
+      dishes: [
+        {
+          id: "10",
+          category_id: "5",
+          name_it: "Test",
+          gluten_free: true,
+          allergens: ["1"],
+        },
+      ],
+    });
+
+    expect(normalized.dishes[0].gluten_free).toBe(false);
+    expect(normalized.dishes[0].allergens).toEqual(["1"]);
   });
 });

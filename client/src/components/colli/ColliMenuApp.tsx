@@ -8,6 +8,7 @@ import {
   CategoryBlock,
   DialogSection,
   FilledLeafIcon,
+  GlutenFreeIcon,
   Separator,
 } from "@/components/colli/ColliMenuPrimitives";
 import { formatDecimal, formatPrice, formatProducer } from "@/lib/colli-menu-format";
@@ -585,7 +586,12 @@ function DishRow({
   const content = (
     <>
       <div className="mb-1 text-[18px] leading-[26px]" style={{ color: COLORS.warmBrown }}>
-        {dish.vegetarian && <FilledLeafIcon className="mr-2 inline h-3.5 w-3.5 align-[-0.08em]" />}
+        {dish.vegetarian && (
+          <FilledLeafIcon
+            className={`${dish.gluten_free ? "mr-1.5" : "mr-2"} inline h-3.5 w-3.5 align-[-0.08em]`}
+          />
+        )}
+        {dish.gluten_free && <GlutenFreeIcon className="mr-2 inline h-3.5 w-3.5 align-[-0.08em]" />}
         <span>{localizedColliText(language, dish.name_it, dish.name_en)}</span>
       </div>
 
@@ -699,13 +705,23 @@ function ColliDishDialog({
         </div>
 
         <div className="pb-6">
-          {dish.vegetarian && (
+          {(dish.vegetarian || dish.gluten_free) && (
             <div
-              className="mb-2 flex items-center gap-1 text-[11px] uppercase"
+              className="mb-2 flex flex-wrap items-center gap-3 text-[11px] uppercase"
               style={{ color: COLORS.green }}
             >
-              <FilledLeafIcon className="h-3 w-3 shrink-0" />
-              {language === "en" ? "Vegetarian" : "Vegetariano"}
+              {dish.vegetarian && (
+                <div className="flex items-center gap-1">
+                  <FilledLeafIcon className="h-3 w-3 shrink-0" />
+                  {language === "en" ? "Vegetarian" : "Vegetariano"}
+                </div>
+              )}
+              {dish.gluten_free && (
+                <div className="flex items-center gap-1">
+                  <GlutenFreeIcon className="h-3 w-3 shrink-0" />
+                  {language === "en" ? "Gluten free" : "Senza glutine"}
+                </div>
+              )}
             </div>
           )}
 

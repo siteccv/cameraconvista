@@ -1,5 +1,9 @@
 import type { QueryResult, QueryResultRow } from "pg";
-import { getColliMenuCounts, validateColliMenuPayload } from "@shared/colli";
+import {
+  getColliMenuCounts,
+  sanitizeColliMenuDietaryFlags,
+  validateColliMenuPayload,
+} from "@shared/colli";
 import { isSupabaseAdminConfigured, supabaseAdmin } from "./supabase";
 
 type QueryValues = unknown[];
@@ -66,7 +70,7 @@ export async function fetchColliSnapshotFromSupabaseRest() {
 
   if (!data?.snapshot) return null;
 
-  const snapshot = validateColliMenuPayload(data.snapshot);
+  const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(data.snapshot));
   return {
     ...snapshot,
     metadata: {
@@ -169,7 +173,7 @@ async function executeSupabaseQuery<T extends QueryResultRow = QueryResultRow>(
     return result<T>(
       await selectOrdered(
         "colli_items",
-        "id, category_id, name_it, name_en, subtitle_it, subtitle_en, description_it, description_en, extra_info, price, vegetarian, sort_order",
+        "id, category_id, name_it, name_en, subtitle_it, subtitle_en, description_it, description_en, extra_info, price, vegetarian, gluten_free, sort_order",
       ),
     );
   }
@@ -310,6 +314,7 @@ async function executeWriteQuery(
       extra_info: values[7],
       price: values[8],
       vegetarian: values[9],
+      gluten_free: values[10],
       updated_at: now(),
     });
     return [];
@@ -327,7 +332,8 @@ async function executeWriteQuery(
       extra_info: values[7],
       price: values[8],
       vegetarian: values[9],
-      sort_order: values[10],
+      gluten_free: values[10],
+      sort_order: values[11],
       is_available: true,
       updated_at: now(),
     });

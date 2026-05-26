@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   getColliMenuCounts,
+  sanitizeColliMenuDietaryFlags,
   validateColliMenuPayload,
   type ColliMenuCounts,
   type ColliMenuPayload,
@@ -150,7 +151,7 @@ async function fetchColliMenuFromDatabase(): Promise<ColliMenuResponse | null> {
     const row = result.rows[0];
     if (!row) return null;
 
-    const snapshot = validateColliMenuPayload(row.snapshot);
+    const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(row.snapshot));
     return {
       ...snapshot,
       metadata: buildMetadata(snapshot, {
@@ -183,7 +184,7 @@ async function fetchColliMenuFromBridge(): Promise<ColliMenuResponse> {
     }
 
     const payload = await response.json();
-    const snapshot = validateColliMenuPayload(payload);
+    const snapshot = sanitizeColliMenuDietaryFlags(validateColliMenuPayload(payload));
     return {
       ...snapshot,
       metadata: buildMetadata(snapshot, {

@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Home, Info, Leaf, Pencil, Plus, Trash2 } from "lucide-react";
+import { Home, Info, Pencil, Plus, Trash2 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { IconButton, RowButton } from "@/components/colli/ColliAdminControls";
 import { EditDialog, PinConfirmDialog } from "@/components/colli/ColliAdminDialogs";
 import { MoveButtons, MoveList } from "@/components/colli/ColliAdminMoveList";
+import { FilledLeafIcon, GlutenFreeIcon } from "@/components/colli/ColliMenuPrimitives";
 import { MainSectionCard } from "@/components/colli/ColliAdminSectionCard";
 import { SectionManagerDialog } from "@/components/colli/ColliAdminSectionManagerDialog";
 import type { ColliAdminSession, EditTarget } from "@/components/colli/colli-admin-types";
@@ -364,13 +365,8 @@ function SectionBlock({
                     <MoveButtons {...dishMove} />
                     <div className="min-w-0 flex-1">
                       <div className="flex min-w-0 items-center gap-1">
-                        {dish.vegetarian && (
-                          <Leaf
-                            className="h-3 w-3 shrink-0"
-                            style={{ color: COLORS.green }}
-                            aria-hidden="true"
-                          />
-                        )}
+                        {dish.vegetarian && <FilledLeafIcon className="h-3 w-3 shrink-0" />}
+                        {dish.gluten_free && <GlutenFreeIcon className="h-3 w-3 shrink-0" />}
                         <p className="truncate text-sm">{dish.name_it}</p>
                       </div>
                       {dish.subtitle_it && (

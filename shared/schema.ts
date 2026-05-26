@@ -449,6 +449,7 @@ export const colliItems = pgTable(
     extraInfo: text("extra_info"),
     price: numeric("price", { precision: 10, scale: 2 }),
     vegetarian: boolean("vegetarian").notNull().default(false),
+    glutenFree: boolean("gluten_free").notNull().default(false),
     sortOrder: integer("sort_order").notNull().default(0),
     isAvailable: boolean("is_available").notNull().default(true),
     createdAt: timestamp("created_at")

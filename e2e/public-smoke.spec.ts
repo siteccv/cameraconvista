@@ -210,10 +210,62 @@ test("colli menu uses filled vegetarian markers before dish names and bold price
     Array.from(element.children).map((child) => child.tagName.toLowerCase()),
   );
 
-  expect(childTags.slice(0, 2)).toEqual(["svg", "span"]);
+  expect(childTags[0]).toBe("svg");
+  expect(childTags[childTags.length - 1]).toBe("span");
   await expect(dishLabel.locator("svg").first()).toHaveAttribute("viewBox", "0 0 512 512");
   await expect(dishLabel.locator("svg path").first()).toHaveAttribute("d", /^m150\.38 253\.68/);
   await expect(page.getByText("€ 5", { exact: true }).first()).toHaveCSS("font-weight", "700");
+});
+
+test("colli menu shows vegetarian before gluten-free markers when both are enabled", async ({
+  page,
+}) => {
+  await skipColliIntro(page);
+  await page.route("**/api/colli/menu", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        sections: [{ id: "1", name_it: "Food", name_en: "Food", order: 0, type: "food" }],
+        categories: [
+          { id: "10", section_id: "1", name_it: "Focacce", name_en: "Focacce", order: 0 },
+        ],
+        dishes: [
+          {
+            id: "100",
+            category_id: "10",
+            name_it: "Piatto test",
+            name_en: "Test dish",
+            price: 9,
+            vegetarian: true,
+            gluten_free: true,
+            allergens: [],
+            order: 0,
+          },
+        ],
+        wineCategories: [],
+        wines: [],
+        allergens: [{ id: "1", name_it: "Glutine", name_en: "Gluten" }],
+        metadata: { englishEnabled: true },
+      }),
+    });
+  });
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/colli/menu", { waitUntil: "networkidle" });
+
+  await page.getByRole("button", { name: "Food" }).click();
+  const dishName = page.getByText("Piatto test", { exact: true });
+  await expect(dishName).toBeVisible();
+
+  const dishLabel = dishName.locator("xpath=parent::*");
+  const childTags = await dishLabel.evaluate((element) =>
+    Array.from(element.children).map((child) => child.tagName.toLowerCase()),
+  );
+
+  expect(childTags.slice(0, 3)).toEqual(["svg", "svg", "span"]);
+  await expect(dishLabel.locator("svg").first()).toHaveAttribute("viewBox", "0 0 512 512");
+  await expect(dishLabel.locator("svg").nth(1)).toHaveAttribute("viewBox", "0 0 24 24");
 });
 
 test("colli menu exposes the dedicated admin gear", async ({ page }) => {

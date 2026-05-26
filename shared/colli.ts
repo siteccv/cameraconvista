@@ -39,6 +39,7 @@ export interface ColliDish {
   description_en?: string | null;
   price?: number | null;
   vegetarian?: boolean | null;
+  gluten_free?: boolean | null;
   allergens?: string[] | null;
   extra_info?: string | null;
   order?: number | null;
@@ -163,6 +164,45 @@ export function getColliMenuCounts(menu: ColliMenuPayload): ColliMenuCounts {
 
 export function sortColliByOrder<T extends { order?: number | null }>(items: T[]): T[] {
   return [...items].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+interface ColliAllergenLike {
+  id: string | number;
+  name_it: string;
+  name_en?: string | null;
+}
+
+export function isColliGlutenAllergen(
+  allergen: Pick<ColliAllergenLike, "name_it" | "name_en">,
+): boolean {
+  const normalized = `${allergen.name_it} ${allergen.name_en ?? ""}`.toLowerCase();
+  return normalized.includes("glutine") || normalized.includes("gluten");
+}
+
+export function getColliGlutenAllergenIds(allergens: readonly ColliAllergenLike[]): string[] {
+  return allergens.filter(isColliGlutenAllergen).map((allergen) => String(allergen.id));
+}
+
+export function sanitizeColliMenuDietaryFlags(menu: ColliMenuPayload): ColliMenuPayload {
+  const glutenAllergenIds = new Set(getColliGlutenAllergenIds(menu.allergens));
+  if (glutenAllergenIds.size === 0) return menu;
+
+  return {
+    ...menu,
+    dishes: menu.dishes.map((dish) => {
+      if (!dish.gluten_free || !dish.allergens?.length) return dish;
+
+      const hasGlutenAllergen = dish.allergens.some((allergenId) =>
+        glutenAllergenIds.has(String(allergenId)),
+      );
+      if (!hasGlutenAllergen) return dish;
+
+      return {
+        ...dish,
+        gluten_free: false,
+      };
+    }),
+  };
 }
 
 export function localizedColliText(

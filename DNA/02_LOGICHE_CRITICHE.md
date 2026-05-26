@@ -119,7 +119,12 @@ File chiave:
 
 - I prezzi del menu pubblico `/colli/menu` devono restare in grassetto.
 - I prodotti vegetariani devono mostrare sempre l'icona standard `IoLeafSharp` da `react-icons/io5`.
+- I prodotti gluten free devono mostrare sempre l'icona standard `LuWheatOff` da `react-icons/lu`.
 - L'icona vegetariana deve essere prima del nome prodotto: `foglia + spazio + testo`.
+- Se sono presenti entrambe, l'ordine deve restare `foglia vegetariano`, poi `icona senza glutine`, poi testo.
+- Il flag gluten free e dedicato e non va dedotto dall'assenza dell'allergene Glutine.
+- Se tra gli allergeni di una voce e presente `Glutine`, il toggle gluten free non deve essere attivabile.
+- Se arriva comunque uno stato incoerente, `Glutine` ha priorita e il backend deve forzare `gluten_free=false`.
 - Non sostituire questa icona con SVG custom o con icone outline.
 
 File chiave:

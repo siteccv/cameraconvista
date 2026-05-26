@@ -7,7 +7,7 @@ import {
   parsePrice,
   sanitizePrice,
 } from "@/lib/colli-admin-utils";
-import type { ColliMenuPayload } from "@shared/colli";
+import { getColliGlutenAllergenIds, type ColliMenuPayload } from "@shared/colli";
 
 const COLORS = {
   cream: "#EFE8D8",
@@ -18,6 +18,42 @@ const COLORS = {
   green: "#5B7A4E",
   danger: "#C0392B",
 };
+
+function BooleanSwitch({
+  checked,
+  onToggle,
+  disabled = false,
+}: {
+  checked: boolean;
+  onToggle: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-disabled={disabled}
+      disabled={disabled}
+      onClick={onToggle}
+      className="flex items-center gap-3 text-sm disabled:cursor-not-allowed disabled:opacity-55"
+    >
+      <span
+        className="relative h-6 w-11 rounded-full"
+        style={{ backgroundColor: checked ? COLORS.green : COLORS.border }}
+      >
+        <span
+          className="absolute top-1 h-4 w-4 rounded-full bg-white transition-transform"
+          style={{
+            left: "4px",
+            transform: checked ? "translateX(20px)" : "translateX(0)",
+          }}
+        />
+      </span>
+      {checked ? "Si" : "No"}
+    </button>
+  );
+}
 
 export function EditDialog({
   target,
@@ -36,6 +72,12 @@ export function EditDialog({
   const sectionItem = target.type === "section" ? target.item : undefined;
   const dishItem = target.type === "item" ? target.item : undefined;
   const wineItem = target.type === "wine" ? target.item : undefined;
+  const glutenAllergenIds = getColliGlutenAllergenIds(data.allergens);
+  const glutenAllergenIdSet = new Set(glutenAllergenIds);
+  const initialSelectedAllergens = dishItem?.allergens ?? [];
+  const hasInitialGlutenAllergen = initialSelectedAllergens.some((allergenId) =>
+    glutenAllergenIdSet.has(allergenId),
+  );
   const [nameIt, setNameIt] = useState(item?.name_it ?? "");
   const [nameEn, setNameEn] = useState(item?.name_en ?? "");
   const [subtitleIt, setSubtitleIt] = useState(
@@ -48,7 +90,10 @@ export function EditDialog({
   const [descriptionEn, setDescriptionEn] = useState(dishItem?.description_en ?? "");
   const [price, setPrice] = useState(formatInputPrice(dishItem?.price));
   const [vegetarian, setVegetarian] = useState(!!dishItem?.vegetarian);
-  const [selectedAllergens, setSelectedAllergens] = useState<string[]>(dishItem?.allergens ?? []);
+  const [glutenFree, setGlutenFree] = useState(
+    !!dishItem?.gluten_free && !hasInitialGlutenAllergen,
+  );
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>(initialSelectedAllergens);
   const [producer, setProducer] = useState(wineItem?.producer ?? "");
   const [origin, setOrigin] = useState(wineItem?.origin ?? "");
   const [abv, setAbv] = useState(formatInputPrice(wineItem?.abv));
@@ -66,6 +111,22 @@ export function EditDialog({
     (target.sectionType === "drink" ||
       target.sectionNameEn?.toLowerCase().includes("drink") ||
       target.sectionNameEn?.toLowerCase().includes("drinks"));
+  const hasSelectedGlutenAllergen = selectedAllergens.some((allergenId) =>
+    glutenAllergenIdSet.has(allergenId),
+  );
+
+  function handleGlutenFreeToggle() {
+    if (hasSelectedGlutenAllergen) return;
+
+    const nextValue = !glutenFree;
+    setGlutenFree(nextValue);
+
+    if (nextValue && glutenAllergenIds.length > 0) {
+      setSelectedAllergens((current) =>
+        current.filter((allergenId) => !glutenAllergenIdSet.has(allergenId)),
+      );
+    }
+  }
 
   async function handleSave() {
     if (!nameIt.trim()) {
@@ -95,6 +156,7 @@ export function EditDialog({
       body.description_en = descriptionEn.trim();
       body.price = parsePrice(price);
       body.vegetarian = vegetarian;
+      body.gluten_free = glutenFree;
       body.allergens = selectedAllergens;
     }
 
@@ -248,27 +310,24 @@ export function EditDialog({
             </Field>
             {!isDrink && (
               <Field label="Vegetariano">
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={vegetarian}
-                  onClick={() => setVegetarian((value) => !value)}
-                  className="flex items-center gap-3 text-sm"
-                >
-                  <span
-                    className="relative h-6 w-11 rounded-full"
-                    style={{ backgroundColor: vegetarian ? COLORS.green : COLORS.border }}
-                  >
-                    <span
-                      className="absolute top-1 h-4 w-4 rounded-full bg-white transition-transform"
-                      style={{
-                        left: "4px",
-                        transform: vegetarian ? "translateX(20px)" : "translateX(0)",
-                      }}
-                    />
-                  </span>
-                  {vegetarian ? "Si" : "No"}
-                </button>
+                <BooleanSwitch
+                  checked={vegetarian}
+                  onToggle={() => setVegetarian((value) => !value)}
+                />
+              </Field>
+            )}
+            {!isDrink && (
+              <Field label="Senza glutine">
+                <BooleanSwitch
+                  checked={glutenFree}
+                  onToggle={handleGlutenFreeToggle}
+                  disabled={hasSelectedGlutenAllergen}
+                />
+                {hasSelectedGlutenAllergen && (
+                  <p className="mt-2 text-xs" style={{ color: COLORS.secondary }}>
+                    Rimuovi l&apos;allergene Glutine per attivare questa opzione.
+                  </p>
+                )}
               </Field>
             )}
             {!isDrink && (
@@ -276,10 +335,12 @@ export function EditDialog({
                 <div className="flex flex-wrap gap-2">
                   {data.allergens.map((allergen) => {
                     const active = selectedAllergens.includes(allergen.id);
+                    const disabled = glutenFree && glutenAllergenIdSet.has(allergen.id);
                     return (
                       <button
                         key={allergen.id}
                         type="button"
+                        disabled={disabled}
                         onClick={() =>
                           setSelectedAllergens((current) =>
                             active
@@ -292,6 +353,8 @@ export function EditDialog({
                           borderColor: active ? COLORS.green : COLORS.border,
                           backgroundColor: active ? "#E8F0E2" : COLORS.card,
                           color: active ? COLORS.green : COLORS.secondary,
+                          opacity: disabled ? 0.55 : 1,
+                          cursor: disabled ? "not-allowed" : "pointer",
                         }}
                       >
                         {allergen.name_it}

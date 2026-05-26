@@ -5,7 +5,9 @@ import rateLimit from "express-rate-limit";
 import bcrypt from "bcryptjs";
 import type { QueryResult, QueryResultRow } from "pg";
 import {
+  getColliGlutenAllergenIds,
   getColliMenuCounts,
+  sanitizeColliMenuDietaryFlags,
   type ColliMenuPayload,
   type ColliSection,
   type ColliCategory,
@@ -312,10 +314,11 @@ colliAdminRouter.post(
   requireColliAdmin,
   asyncRoute(async (req, res) => {
     await mutateMenu(res, async (client) => {
+      const normalizedBody = await normalizeColliItemBody(client, req.body ?? {});
       const categoryId = parseId(req.body?.category_id);
       const nextOrder = await nextSortOrder(client, "colli_items", "category_id", categoryId);
-      const itemId = await upsertItem(client, null, req.body, categoryId, nextOrder);
-      await replaceItemAllergens(client, itemId, req.body?.allergens);
+      const itemId = await upsertItem(client, null, normalizedBody, categoryId, nextOrder);
+      await replaceItemAllergens(client, itemId, normalizedBody.allergens);
     });
   }),
 );
@@ -325,9 +328,10 @@ colliAdminRouter.put(
   requireColliAdmin,
   asyncRoute(async (req, res) => {
     await mutateMenu(res, async (client) => {
+      const normalizedBody = await normalizeColliItemBody(client, req.body ?? {});
       const itemId = parseId(req.params.id);
-      await upsertItem(client, itemId, req.body);
-      await replaceItemAllergens(client, itemId, req.body?.allergens);
+      await upsertItem(client, itemId, normalizedBody);
+      await replaceItemAllergens(client, itemId, normalizedBody.allergens);
     });
   }),
 );
@@ -534,38 +538,34 @@ async function upsertItem(
 ): Promise<number> {
   const nameIt = requiredText(body?.name_it, "name_it");
   const nameEn = optionalText(body?.name_en) || nameIt;
-  const values = [
-    categoryId,
-    nameIt,
-    nameEn,
-    optionalText(body?.subtitle_it),
-    optionalText(body?.subtitle_en),
-    optionalText(body?.description_it),
-    optionalText(body?.description_en),
-    optionalText(body?.extra_info),
-    toNumberOrNull(body?.price),
-    Boolean(body?.vegetarian),
-    sortOrder,
-  ];
+  const subtitleIt = optionalText(body?.subtitle_it);
+  const subtitleEn = optionalText(body?.subtitle_en);
+  const descriptionIt = optionalText(body?.description_it);
+  const descriptionEn = optionalText(body?.description_en);
+  const extraInfo = optionalText(body?.extra_info);
+  const price = toNumberOrNull(body?.price);
+  const vegetarian = Boolean(body?.vegetarian);
+  const glutenFree = Boolean(body?.gluten_free);
 
   if (id) {
     await client.query(
       `update colli_items
        set name_it = $2, name_en = $3, subtitle_it = $4, subtitle_en = $5,
            description_it = $6, description_en = $7, extra_info = $8,
-           price = $9, vegetarian = $10, updated_at = CURRENT_TIMESTAMP
+           price = $9, vegetarian = $10, gluten_free = $11, updated_at = CURRENT_TIMESTAMP
        where id = $1`,
       [
         id,
-        values[1],
-        values[2],
-        values[3],
-        values[4],
-        values[5],
-        values[6],
-        values[7],
-        values[8],
-        values[9],
+        nameIt,
+        nameEn,
+        subtitleIt,
+        subtitleEn,
+        descriptionIt,
+        descriptionEn,
+        extraInfo,
+        price,
+        vegetarian,
+        glutenFree,
       ],
     );
     return id;
@@ -578,12 +578,54 @@ async function upsertItem(
   const result = await client.query<{ id: number }>(
     `insert into colli_items (
       category_id, name_it, name_en, subtitle_it, subtitle_en, description_it, description_en,
-      extra_info, price, vegetarian, sort_order, is_available, updated_at
-    ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, true, CURRENT_TIMESTAMP)
+      extra_info, price, vegetarian, gluten_free, sort_order, is_available, updated_at
+    ) values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, true, CURRENT_TIMESTAMP)
     returning id`,
-    values,
+    [
+      categoryId,
+      nameIt,
+      nameEn,
+      subtitleIt,
+      subtitleEn,
+      descriptionIt,
+      descriptionEn,
+      extraInfo,
+      price,
+      vegetarian,
+      glutenFree,
+      sortOrder,
+    ],
   );
   return result.rows[0].id;
+}
+
+async function normalizeColliItemBody(client: Queryable, body: Record<string, unknown>) {
+  const selectedIds = Array.isArray(body?.allergens) ? body.allergens.map(parseId) : [];
+  const uniqueSelectedIds = Array.from(new Set(selectedIds));
+
+  if (uniqueSelectedIds.length === 0) {
+    return {
+      ...body,
+      gluten_free: Boolean(body?.gluten_free),
+      allergens: [],
+    };
+  }
+
+  const allergensResult = await client.query<ColliAllergenRow>(
+    `select id, name_it, name_en, sort_order
+     from colli_allergens
+     order by sort_order, id`,
+  );
+  const glutenAllergenIds = new Set(getColliGlutenAllergenIds(allergensResult.rows));
+  const hasSelectedGlutenAllergen = uniqueSelectedIds.some((allergenId) =>
+    glutenAllergenIds.has(String(allergenId)),
+  );
+
+  return {
+    ...body,
+    gluten_free: Boolean(body?.gluten_free) && !hasSelectedGlutenAllergen,
+    allergens: uniqueSelectedIds,
+  };
 }
 
 async function replaceItemAllergens(client: Queryable, itemId: number, value: unknown) {
@@ -624,7 +666,7 @@ async function loadColliMenuFromTables(db: Queryable): Promise<ColliMenuPayload>
     ),
     db.query<ColliItemRow>(
       `select id, category_id, name_it, name_en, subtitle_it, subtitle_en, description_it,
-              description_en, extra_info, price, vegetarian, sort_order
+              description_en, extra_info, price, vegetarian, gluten_free, sort_order
        from colli_items
        order by sort_order, id`,
     ),
@@ -658,7 +700,7 @@ async function loadColliMenuFromTables(db: Queryable): Promise<ColliMenuPayload>
     itemAllergens.set(row.item_id, next);
   }
 
-  return {
+  return sanitizeColliMenuDietaryFlags({
     sections: sectionsResult.rows.map(
       (row): ColliSection => ({
         id: String(row.id),
@@ -692,6 +734,7 @@ async function loadColliMenuFromTables(db: Queryable): Promise<ColliMenuPayload>
         extra_info: row.extra_info,
         price: toNumberOrNull(row.price),
         vegetarian: row.vegetarian,
+        gluten_free: row.gluten_free,
         allergens: itemAllergens.get(row.id) ?? [],
         order: row.sort_order,
       }),
@@ -725,7 +768,7 @@ async function loadColliMenuFromTables(db: Queryable): Promise<ColliMenuPayload>
         name_en: row.name_en,
       }),
     ),
-  };
+  });
 }
 
 async function publishColliSnapshot(client: Queryable): Promise<ColliMenuPayload> {
@@ -911,6 +954,7 @@ interface ColliItemRow {
   extra_info: string | null;
   price: string | number | null;
   vegetarian: boolean;
+  gluten_free: boolean;
   sort_order: number;
 }
 

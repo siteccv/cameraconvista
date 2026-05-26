@@ -272,6 +272,8 @@ Elementi visuali/funzionali da replicare:
 - categorie;
 - prodotti;
 - prezzi;
+- marker vegetariano con `IoLeafSharp`;
+- marker gluten free con `LuWheatOff`, sempre dopo il vegetariano quando presenti entrambi;
 - dettagli prodotto dove presenti;
 - allergeni;
 - vini con categorie e prezzi calice/bottiglia;
