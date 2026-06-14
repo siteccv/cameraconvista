@@ -296,6 +296,8 @@ export const menuItems = pgTable("menu_items", {
   descriptionIt: text("description_it"),
   descriptionEn: text("description_en"),
   price: text("price"),
+  vegetarian: boolean("vegetarian").notNull().default(false),
+  glutenFree: boolean("gluten_free").notNull().default(false),
   isAvailable: boolean("is_available").notNull().default(true),
   sortOrder: integer("sort_order").notNull().default(0),
   sheetRowIndex: integer("sheet_row_index"),

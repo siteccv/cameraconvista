@@ -190,6 +190,26 @@ function parseCSV(csvText: string): string[][] {
   return rows;
 }
 
+function normalizeHeader(header: string): string {
+  return header
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function parseBooleanFlag(value: string | undefined): boolean {
+  const normalized = (value || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  return ["1", "si", "s", "yes", "y", "true", "x", "ok"].includes(normalized);
+}
+
 async function fetchCsvFromUrl(url: string): Promise<string[][]> {
   const response = await fetch(url, { redirect: "follow" });
   if (!response.ok) {
@@ -209,6 +229,7 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
     }
 
     const headers = rows[0].map((h) => h.toLowerCase().trim());
+    const normalizedHeaders = rows[0].map(normalizeHeader);
     const categoryIdx = headers.findIndex(
       (h) => h === "categoria" || (h.includes("categoria") && !h.includes("en")),
     );
@@ -227,6 +248,21 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
     );
     const descEnIdx = headers.findIndex((h) => h === "descrizione_en" || h.includes("desc_en"));
     const priceIdx = headers.findIndex((h) => h.includes("prezzo") || h.includes("price"));
+    const vegetarianIdx = normalizedHeaders.findIndex((h) =>
+      ["vegetariano", "vegetarian", "veg", "icona_vegetariano", "icona_vegetarian"].includes(h),
+    );
+    const glutenFreeIdx = normalizedHeaders.findIndex((h) =>
+      [
+        "senza_glutine",
+        "gluten_free",
+        "glutenfree",
+        "celiaco",
+        "celiachia",
+        "senza_glutine_icona",
+        "icona_senza_glutine",
+        "icona_celiaco",
+      ].includes(h),
+    );
 
     const items: InsertMenuItem[] = [];
     const categoryMap: Record<string, string> = {};
@@ -251,6 +287,8 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
         descriptionIt: descItIdx >= 0 ? row[descItIdx] || null : null,
         descriptionEn: descEnIdx >= 0 ? row[descEnIdx] || null : null,
         price: priceIdx >= 0 ? row[priceIdx] || null : null,
+        vegetarian: vegetarianIdx >= 0 ? parseBooleanFlag(row[vegetarianIdx]) : false,
+        glutenFree: glutenFreeIdx >= 0 ? parseBooleanFlag(row[glutenFreeIdx]) : false,
         sortOrder: i,
         sheetRowIndex: i,
         isAvailable: true,

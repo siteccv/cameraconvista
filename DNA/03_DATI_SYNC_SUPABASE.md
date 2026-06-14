@@ -152,6 +152,13 @@ Esistono logiche diverse:
 
 Non confondere i due flussi.
 
+Nota menu CCV:
+
+- `menu_items` include i flag booleani `vegetarian` e `gluten_free`;
+- il sync Google Sheet menu li legge da colonne opzionali dedicate, se presenti;
+- il publish menu li propaga nello snapshot `published_menu_items`;
+- non esiste logica automatica di deduzione dagli allergeni: decide il foglio/admin operativo.
+
 ## Sync Google Sheets
 
 - Config in `site_settings.google_sheets_config`

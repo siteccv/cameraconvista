@@ -12,6 +12,7 @@ import { BookingDialog } from "@/components/home/BookingDialog";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { PAGE_IDS, MENU_DEFAULTS } from "@/lib/page-defaults";
+import { FilledLeafIcon, GlutenFreeIcon } from "@/components/colli/ColliMenuPrimitives";
 import type { MenuItem } from "@shared/schema";
 
 export default function Menu() {
@@ -182,6 +183,7 @@ export default function Menu() {
                   </div>
                 </div>
               ))}
+              <MenuLegend />
             </div>
           )}
         </div>
@@ -212,6 +214,26 @@ export default function Menu() {
   );
 }
 
+function MenuLegend() {
+  const { t } = useLanguage();
+
+  return (
+    <div
+      className="mx-auto flex max-w-xl flex-col items-center justify-center gap-3 px-4 py-4 text-center text-sm text-muted-foreground sm:flex-row sm:gap-6 sm:px-6"
+      aria-label={t("Legenda icone menu", "Menu icon legend")}
+    >
+      <div className="flex items-center gap-2">
+        <FilledLeafIcon className="h-4 w-4 shrink-0" />
+        <span>{t("Vegetariano", "Vegetarian")}</span>
+      </div>
+      <div className="flex items-center gap-2">
+        <GlutenFreeIcon className="h-4 w-4 shrink-0" />
+        <span>{t("Senza glutine", "Gluten free")}</span>
+      </div>
+    </div>
+  );
+}
+
 function MenuItemCard({ item }: { item: MenuItem }) {
   const { t } = useLanguage();
 
@@ -223,6 +245,14 @@ function MenuItemCard({ item }: { item: MenuItem }) {
       <div className="space-y-1">
         <div className="md:flex md:items-center md:justify-between md:gap-4">
           <h3 className="text-lg md:text-xl leading-tight" style={{ color: "#2f2b2a" }}>
+            {item.vegetarian && (
+              <FilledLeafIcon
+                className={`${item.glutenFree ? "mr-1.5" : "mr-2"} inline h-3.5 w-3.5 align-[-0.08em]`}
+              />
+            )}
+            {item.glutenFree && (
+              <GlutenFreeIcon className="mr-2 inline h-3.5 w-3.5 align-[-0.08em]" />
+            )}
             {t(item.nameIt, item.nameEn)}
           </h3>
           {item.price && (

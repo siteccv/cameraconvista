@@ -124,6 +124,19 @@ Verifica locale aggiuntiva del 2026-05-26 dopo consolidamento fallback/runtime C
 - `PORT=5003 npm run dev`: OK
 - `curl http://127.0.0.1:5003/api/colli/menu`: OK, `metadata.source=siteccv-supabase-snapshot`, `stale=false`, conteggi `3/14/120/5/13/14`
 
+Verifica locale aggiuntiva del 2026-06-14 dopo introduzione icone dietetiche menu CCV:
+
+- aggiunte colonne DB `menu_items.vegetarian` e `menu_items.gluten_free` con default `false`
+- il Google Sheet menu esporta le nuove colonne `VEGETARIANO` e `SENZA_GLUTINE` come checkbox `TRUE/FALSE`
+- il sync menu legge i flag se presenti e il publish li propaga nello snapshot `published_menu_items`
+- il menu pubblico mostra le stesse icone di Colli prima del nome piatto e una legenda bilingue senza cornice
+- `npm run check`: OK
+- `npm run lint`: OK
+- `npm run build`: OK, con warning PostCSS gia noto/non bloccante
+- `PORT=5001 npm run dev`: OK
+- `/menu`: HTTP 200
+- backup locale creato: `BACKUP/Backup_14 Giugno_23.52`
+
 Nota operativa:
 
 - il repository non va dichiarato verde se `audit` torna rosso in futuro, ma allo stato verificato del 2026-05-26 il controllo e verde

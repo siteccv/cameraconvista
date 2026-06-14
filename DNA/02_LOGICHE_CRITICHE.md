@@ -24,6 +24,9 @@ Il pubblico non legge le tabelle draft direttamente.
 - Le tabelle operative sono `menu_items`, `wines`, `cocktails`
 - Il pubblico usa gli snapshot JSON pubblicati in `site_settings`
 - L'admin vede e modifica i dati correnti
+- Il menu CCV puo mostrare icone dietetiche per piatto tramite flag `vegetarian` e `gluten_free`
+  importati dal Google Sheet menu; le icone sono le stesse di Colli e vengono renderizzate prima
+  del nome piatto
 
 Questo flusso e separato dal publish delle pagine.
 
