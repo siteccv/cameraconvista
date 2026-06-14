@@ -288,15 +288,7 @@ export function Footer() {
           className={`mt-8 pt-6 border-t border-background/10 text-xs text-background/50 ${isMobile ? "flex flex-col items-center gap-3 text-center" : "flex flex-col md:flex-row items-center md:justify-between gap-3"}`}
         >
           <div className="text-center text-sm md:text-xs opacity-80 leading-relaxed">
-            <div className="md:hidden">
-              <p>© {new Date().getFullYear()} Camera con Vista bistrot</p>
-              <p>CAMERA CON VISTA S.A.S.</p>
-              <p>P.IVA 03488971205</p>
-            </div>
-            <div className="hidden md:block">
-              <p>© {new Date().getFullYear()} Camera con Vista bistrot — CAMERA CON VISTA S.A.S.</p>
-              <p>P.IVA 03488971205</p>
-            </div>
+            <p>© 2017 CAMERA CON VISTA s.a.s. - P.Iva 03488971205</p>
           </div>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
