@@ -8,6 +8,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useQuery } from "@tanstack/react-query";
+import { type BookingSettings, defaultBookingSettings } from "@shared/schema";
 
 interface BookingDialogProps {
   open: boolean;
@@ -17,6 +19,11 @@ interface BookingDialogProps {
 
 export function BookingDialog({ open, onOpenChange, isMobile }: BookingDialogProps) {
   const { t } = useLanguage();
+  const { data: bookingSettings } = useQuery<BookingSettings>({
+    queryKey: ["/api/booking-settings"],
+    staleTime: 1000 * 60 * 5,
+  });
+  const bookingUrl = bookingSettings?.bookingUrl || defaultBookingSettings.bookingUrl;
   const bookingNotice = t(
     `Consulta il nuovo menù prima di prenotare.
 La nostra cucina cambia ritmo:
@@ -60,7 +67,7 @@ Please view our new menu before booking.`,
           <Button
             onClick={() => {
               onOpenChange(false);
-              window.open("https://cameraconvista.resos.com/booking", "_blank");
+              window.open(bookingUrl, "_blank");
             }}
             style={{ backgroundColor: "#722f37" }}
             className="text-white rounded-full px-6"

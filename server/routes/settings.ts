@@ -5,6 +5,9 @@ import {
   insertSiteSettingsSchema,
   footerSettingsSchema,
   defaultFooterSettings,
+  bookingSettingsSchema,
+  defaultBookingSettings,
+  BOOKING_SETTINGS_KEY,
 } from "@shared/schema";
 import {
   COLLI_BOOKING_SETTINGS_KEY,
@@ -54,6 +57,23 @@ publicSettingsRouter.get("/footer-settings", async (req, res) => {
   } catch (error) {
     console.error("Error fetching footer settings:", error);
     res.json(defaultFooterSettings);
+  }
+});
+
+publicSettingsRouter.get("/booking-settings", async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting(BOOKING_SETTINGS_KEY);
+    if (setting?.valueIt) {
+      const parsed = bookingSettingsSchema.safeParse(JSON.parse(setting.valueIt));
+      if (parsed.success) {
+        res.json(parsed.data);
+        return;
+      }
+    }
+    res.json(defaultBookingSettings);
+  } catch (error) {
+    console.error("Error fetching booking settings:", error);
+    res.json(defaultBookingSettings);
   }
 });
 
@@ -199,6 +219,46 @@ adminSettingsRouter.put("/site-links", requireAuth, async (req, res) => {
   } catch (error) {
     console.error("Error saving site links:", error);
     res.status(500).json({ error: "Failed to save site links" });
+  }
+});
+
+// ========================================
+// Booking Settings API (pulsante "Prenota un tavolo", sito CCV escluso Colli)
+// ========================================
+adminSettingsRouter.get("/booking-settings", requireAuth, async (req, res) => {
+  try {
+    const setting = await storage.getSiteSetting(BOOKING_SETTINGS_KEY);
+    if (setting?.valueIt) {
+      const parsed = bookingSettingsSchema.safeParse(JSON.parse(setting.valueIt));
+      if (parsed.success) {
+        res.json(parsed.data);
+        return;
+      }
+    }
+    res.json(defaultBookingSettings);
+  } catch (error) {
+    console.error("Error fetching booking settings:", error);
+    res.json(defaultBookingSettings);
+  }
+});
+
+adminSettingsRouter.put("/booking-settings", requireAuth, async (req, res) => {
+  try {
+    const parsed = bookingSettingsSchema.safeParse(req.body);
+    if (!parsed.success) {
+      res.status(400).json({ error: "Invalid data", details: parsed.error.flatten() });
+      return;
+    }
+    const jsonValue = JSON.stringify(parsed.data);
+    await storage.upsertSiteSetting({
+      key: BOOKING_SETTINGS_KEY,
+      valueIt: jsonValue,
+      valueEn: jsonValue,
+    });
+    res.json({ success: true, data: parsed.data });
+  } catch (error) {
+    console.error("Error saving booking settings:", error);
+    res.status(500).json({ error: "Failed to save booking settings" });
   }
 });
 

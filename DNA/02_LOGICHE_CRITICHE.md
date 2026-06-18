@@ -63,9 +63,18 @@ Uso corrente:
 
 Il testo multilinea viene renderizzato preservando i ritorni a capo.
 
+Il link aperto dal pulsante "Prenota un tavolo" e configurabile da admin
+(`Impostazioni -> Prenota un Tavolo`): vive in `site_settings.booking_settings`
+e vale per tutto il sito CCV. NON riguarda la sezione Colli, che ha il suo
+`colli_booking_settings` (WhatsApp) separato. Se la chiave manca, vale il default
+`https://rsvp-p91d.onrender.com`. Il `bookingUrl` per-evento in `events` resta una
+cosa distinta e indipendente.
+
 File chiave:
 
 - `client/src/components/home/BookingDialog.tsx`
+- `server/routes/settings.ts`
+- `client/src/pages/admin/settings.tsx`
 
 ## Eventi privati
 

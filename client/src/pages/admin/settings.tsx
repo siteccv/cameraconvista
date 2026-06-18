@@ -19,11 +19,13 @@ import {
   ShieldCheck,
   Globe,
   MessageCircle,
+  CalendarCheck,
 } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 import { DEFAULT_COLLI_BOOKING_SETTINGS, type ColliBookingSettings } from "@shared/colli";
+import { defaultBookingSettings, type BookingSettings } from "@shared/schema";
 
-type SettingsSection = "main" | "password" | "footer" | "site-links" | "colli-booking";
+type SettingsSection = "main" | "password" | "footer" | "site-links" | "colli-booking" | "booking";
 
 interface SiteLinks {
   adminSiteUrl: string;
@@ -238,6 +240,10 @@ export default function AdminSettings() {
     return <ColliBookingSection onBack={() => setActiveSection("main")} />;
   }
 
+  if (activeSection === "booking") {
+    return <BookingSection onBack={() => setActiveSection("main")} />;
+  }
+
   return (
     <AdminLayout>
       <div className="p-4 md:p-6 max-w-2xl">
@@ -289,6 +295,30 @@ export default function AdminSettings() {
                   {t(
                     "Descrizione, contatti, orari, social e link",
                     "Description, contacts, hours, social and links",
+                  )}
+                </CardDescription>
+              </div>
+              <ChevronLeft className="h-5 w-5 text-muted-foreground rotate-180 flex-shrink-0" />
+            </CardContent>
+          </Card>
+
+          <Card
+            className="cursor-pointer hover-elevate transition-all"
+            onClick={() => setActiveSection("booking")}
+            data-testid="card-booking-section"
+          >
+            <CardContent className="p-4 flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <CalendarCheck className="h-6 w-6 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base mb-0.5">
+                  {t("Prenota un Tavolo", "Book a Table")}
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  {t(
+                    "Link del pulsante Prenota un tavolo del sito",
+                    "Link for the site's Book a table button",
                   )}
                 </CardDescription>
               </div>
@@ -589,6 +619,130 @@ function ColliBookingSection({ onBack }: { onBack: () => void }) {
               >
                 <Save className="mr-2 h-4 w-4" />
                 {isSaving ? t("Salvataggio...", "Saving...") : t("Salva Numero", "Save Number")}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    </AdminLayout>
+  );
+}
+
+function BookingSection({ onBack }: { onBack: () => void }) {
+  const { t } = useLanguage();
+  const { toast } = useToast();
+  const [bookingUrl, setBookingUrl] = useState(defaultBookingSettings.bookingUrl);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const { data: settings, isLoading } = useQuery<BookingSettings>({
+    queryKey: ["/api/admin/booking-settings"],
+  });
+
+  useEffect(() => {
+    if (settings) {
+      setBookingUrl(settings.bookingUrl || defaultBookingSettings.bookingUrl);
+    }
+  }, [settings]);
+
+  const handleSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const response = await apiRequest("PUT", "/api/admin/booking-settings", {
+        bookingUrl: bookingUrl.trim(),
+      });
+      const data = await response.json();
+      if (data.success) {
+        queryClient.invalidateQueries({ queryKey: ["/api/admin/booking-settings"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/booking-settings"] });
+        setBookingUrl(data.data.bookingUrl);
+        toast({
+          title: t("Salvato", "Saved"),
+          description: t("Link prenotazione aggiornato", "Booking link updated"),
+        });
+      }
+    } catch {
+      toast({
+        title: t("Errore", "Error"),
+        description: t(
+          "Inserisci un URL valido, ad esempio https://rsvp-p91d.onrender.com",
+          "Enter a valid URL, for example https://rsvp-p91d.onrender.com",
+        ),
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <AdminLayout>
+      <div className="p-4 md:p-6 max-w-xl">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={onBack}
+          className="mb-4 -ml-2"
+          data-testid="button-back-to-settings"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" />
+          {t("Indietro", "Back")}
+        </Button>
+
+        <div className="mb-6">
+          <h1 className="font-display text-2xl" data-testid="text-booking-title">
+            {t("Prenota un Tavolo", "Book a Table")}
+          </h1>
+          <p className="text-muted-foreground text-sm mt-1">
+            {t(
+              "Configura il link aperto dal pulsante Prenota un tavolo in tutto il sito",
+              "Configure the link opened by the Book a table button across the site",
+            )}
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">{t("Link prenotazione", "Booking link")}</CardTitle>
+            <CardDescription>
+              {t(
+                "Questo link vale per tutto il sito Camera con Vista. Non riguarda la sezione Colli, che ha la sua impostazione dedicata.",
+                "This link applies to the whole Camera con Vista site. It does not affect the Colli section, which has its own dedicated setting.",
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSave} className="space-y-5">
+              <div className="space-y-2">
+                <Label htmlFor="bookingUrl" className="flex items-center gap-2">
+                  <CalendarCheck className="h-4 w-4 text-primary" />
+                  {t("URL Prenotazione", "Booking URL")}
+                </Label>
+                <Input
+                  id="bookingUrl"
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://rsvp-p91d.onrender.com"
+                  value={bookingUrl}
+                  onChange={(e) => setBookingUrl(e.target.value)}
+                  data-testid="input-booking-url"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t(
+                    "Il pulsante Prenota un tavolo aprirà questo indirizzo in una nuova scheda.",
+                    "The Book a table button will open this address in a new tab.",
+                  )}
+                </p>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSaving || isLoading || !bookingUrl.trim()}
+                className="w-full"
+                data-testid="button-save-booking"
+              >
+                <Save className="mr-2 h-4 w-4" />
+                {isSaving ? t("Salvataggio...", "Saving...") : t("Salva Link", "Save Link")}
               </Button>
             </form>
           </CardContent>

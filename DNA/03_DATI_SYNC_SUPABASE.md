@@ -140,6 +140,8 @@ Chiavi operative note:
 - `published_wines`
 - `published_cocktails`
 - `menu_category_map`
+- `site_links`
+- `booking_settings` URL del pulsante "Prenota un tavolo" del sito CCV; default `https://rsvp-p91d.onrender.com` se assente; non riguarda Colli
 - `resend_api_key` solo come fallback legacy server-side
 
 ## Snapshot pubblici

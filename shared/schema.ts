@@ -843,3 +843,16 @@ export const defaultFooterSettings: FooterSettings = {
     cookieLabelEn: "Cookie Policy",
   },
 };
+
+// Booking settings: URL del pulsante "Prenota un tavolo" (sito CCV, esclusa la sezione Colli)
+export const BOOKING_SETTINGS_KEY = "booking_settings";
+
+export const bookingSettingsSchema = z.object({
+  bookingUrl: z.string().url(),
+});
+
+export type BookingSettings = z.infer<typeof bookingSettingsSchema>;
+
+export const defaultBookingSettings: BookingSettings = {
+  bookingUrl: "https://rsvp-p91d.onrender.com",
+};

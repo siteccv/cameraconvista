@@ -13,3 +13,6 @@ ccv-colli-source/
 coverage
 playwright-report
 test-results
+.claude/
+.mcp.json
+.agent/
