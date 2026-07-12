@@ -27,6 +27,8 @@ Se documentazione e codice divergono, vale il codice. La documentazione va poi r
   Workflow Git/GitHub persistente anche in export
 - `DNA/`
   Contesto operativo canonico e sintetico
+- `DNA/storico/`
+  Documenti datati (audit, handoff): riferimento storico, NON stato attuale
 
 ## File DNA da usare
 

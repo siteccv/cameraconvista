@@ -263,3 +263,19 @@ Lo schema Drizzle in `shared/schema.ts` + `shared/colli.ts` definisce 14 `pgTabl
 
 ### Tool/runtime richiesti
 Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker richiesto dal progetto. `.env` completo; le variabili opzionali assenti (`VITE_GA_MEASUREMENT_ID`, `VITE_FB_PIXEL_ID`, `RESEND_SENDER_DOMAIN`, `PLAYWRIGHT_BASE_URL`, `SUPABASE_KEEPALIVE_TABLE`, `NODE_ENV`) non sono critiche.
+
+## Email transazionali (Resend) — config produzione
+
+Resend è usato **solo** per il form "Richiesta Evento privato" (`server/routes/event-request.ts`): invia i dati a `info@cameraconvista.it` (`replyTo`=cliente). La richiesta **non è salvata su DB**: se l'email fallisce → 500 e richiesta persa. Miglioramento futuro opzionale (solo su richiesta): salvare le richieste su DB + admin "Richieste".
+
+- In produzione (Render) **non** sono settate `RESEND_API_KEY`/`RESEND_SENDER_DOMAIN`/`EVENT_REQUEST_EMAIL`: la chiave usata è quella nel **DB** `site_settings.resend_api_key` (tipo *sending-only*), mittente `onboarding@resend.dev`, destinatario default `info@cameraconvista.it`.
+- Account Resend corretto: **`info@cameraconvista.it`**, workspace `cameraconvista` (accesso via Google/Gmail). API key `site-ccv-backend-prod` con permesso *Sending access*.
+- **Trappola diagnostica:** le chiavi sono *sending-only* → `GET /domains` risponde **401 `restricted_api_key`**: è NORMALE, la chiave è VALIDA. Non diagnosticare "chiave rotta" da quel 401. Anche "No domains yet" è normale (spedisce da `onboarding@resend.dev`). Mai stampare la chiave completa.
+
+## Guard sito-live (hook locale, non tracciato in git)
+
+In `.claude/` (cartella untracked, non su GitHub) c'è un guard Bash che applica il vincolo sito-live:
+- `.claude/guard-bash.sh` — hook PreToolUse: **DENY** su push force/delete, `filter-branch`, `rm -rf` di path critici, `DROP/TRUNCATE`; **ASK** su ogni `git push`, drizzle push, `DELETE FROM`, sync/upload Supabase, `resend`, overwrite `.env`.
+- `.claude/settings.json` — registra l'hook + backstop `permissions.deny`/`ask`.
+
+Se il progetto è clonato da GitHub questi file NON ci sono (untracked) e vanno ricreati; se copiato da cartella/BACKUP restano.
