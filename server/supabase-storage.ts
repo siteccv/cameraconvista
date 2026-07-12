@@ -661,4 +661,3 @@ export class SupabaseStorage implements IStorage {
   }
 }
 
-export const supabaseStorage = new SupabaseStorage();
