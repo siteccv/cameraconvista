@@ -2,6 +2,20 @@ import { type InsertMenuItem, type InsertWine, type InsertCocktail } from "@shar
 
 const HAS_SUPABASE = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
 
+/**
+ * Freno di sicurezza anti-wipe: la sync foglio→DB cancella la tabella e la
+ * ricarica. Se il foglio è vuoto/irraggiungibile/con struttura cambiata, la
+ * lista raccolta può risultare vuota: in quel caso NON si deve cancellare nulla,
+ * altrimenti si perderebbero i dati esistenti senza rimpiazzarli.
+ * Restituisce un messaggio d'errore se la sync va abortita, altrimenti null.
+ */
+export function guardSyncNotEmpty(label: string, rowsCollected: number): string | null {
+  if (rowsCollected <= 0) {
+    return `Sync ${label} annullata: nessuna riga valida letta dal foglio Google. La tabella NON è stata modificata (protezione anti-perdita dati). Verifica che il foglio sia raggiungibile e con la struttura corretta.`;
+  }
+  return null;
+}
+
 function toSnakeCase(obj: Record<string, any>): Record<string, any> {
   const result: Record<string, any> = {};
   for (const key in obj) {
@@ -295,6 +309,9 @@ export async function syncMenuFromSheets(): Promise<{ count: number; error?: str
       });
     }
 
+    const menuGuard = guardSyncNotEmpty("menu", items.length);
+    if (menuGuard) return { count: 0, error: menuGuard };
+
     await client.deleteAll("menu_items");
     await client.insertMany("menu_items", items);
 
@@ -382,6 +399,9 @@ export async function syncWinesFromSheets(): Promise<{ count: number; error?: st
       }
     }
 
+    const winesGuard = guardSyncNotEmpty("vini", allWines.length);
+    if (winesGuard) return { count: 0, error: winesGuard };
+
     await client.deleteAll("wines");
     await client.insertMany("wines", allWines);
 
@@ -440,6 +460,9 @@ export async function syncCocktailsFromSheets(): Promise<{ count: number; error?
         isAvailable: true,
       });
     }
+
+    const cocktailsGuard = guardSyncNotEmpty("cocktail", items.length);
+    if (cocktailsGuard) return { count: 0, error: cocktailsGuard };
 
     await client.deleteAll("cocktails");
     await client.insertMany("cocktails", items);
