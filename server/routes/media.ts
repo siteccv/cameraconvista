@@ -10,11 +10,28 @@ import { requireAuth, parseId } from "./helpers";
 import multer from "multer";
 import sharp from "sharp";
 
+// Solo immagini possono essere caricate: le mutazioni admin ri-processano tutto
+// in webp con sharp, quindi un file non-immagine sarebbe comunque invalido.
+const ALLOWED_UPLOAD_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "image/avif",
+]);
+
 // Configure multer for memory storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 26 * 1024 * 1024, // 26MB max (supports 25MB uploads with overhead)
+  },
+  fileFilter: (_req, file, cb) => {
+    if (ALLOWED_UPLOAD_MIME_TYPES.has(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Formato file non supportato: sono ammesse solo immagini."));
+    }
   },
 });
 

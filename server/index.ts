@@ -22,10 +22,18 @@ declare module "http" {
   }
 }
 
+const isProduction = process.env.NODE_ENV === "production";
+
 app.use(
   helmet({
     contentSecurityPolicy: false,
-    strictTransportSecurity: false,
+    // HSTS: istruisce il browser a usare sempre HTTPS su cameraconvista.it.
+    // Attivo solo in produzione (Render termina TLS ed è già solo-HTTPS); in
+    // locale resta disattivato per non forzare HTTPS su http://localhost.
+    // Senza `preload` di proposito: il preload è di fatto irreversibile.
+    strictTransportSecurity: isProduction
+      ? { maxAge: 15552000, includeSubDomains: true } // 180 giorni
+      : false,
     crossOriginEmbedderPolicy: false,
     crossOriginOpenerPolicy: false,
     crossOriginResourcePolicy: false,
