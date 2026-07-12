@@ -264,3 +264,17 @@ Prima di toccare dati:
 4. non usare note storiche o audit passati per dedurre stato dati corrente
 5. per Colli, eseguire prima `npm run colli:db:check`
 6. per Colli, eseguire poi `npm run colli:import:dry-run` e non fare `db:push` senza revisione
+
+## Relitti noti (non sono bug — non indagare)
+
+- **Tabella `menu_items_published`**: vuota (0 righe), non referenziata da alcun
+  codice (grep vuoto), con 2 policy RLS residue. Era parte di un vecchio sistema
+  di pubblicazione poi abbandonato: oggi lo snapshot del menu pubblico vive in
+  `site_settings` (`published_menu_items`/`published_wines`/`published_cocktails`).
+  Decisione owner: **lasciarla dov'e** (rimuoverla sarebbe un DROP irreversibile su
+  produzione, senza beneficio reale). Se un audit la segnala, ignorare.
+- **`formatPrice` in due file** (`client/src/lib/colli-menu-format.ts` col simbolo
+  `€`, per il menu pubblico; `client/src/lib/colli-admin-utils.ts` senza `€`, per il
+  pannello admin e i campi input): stesso nome ma scopi diversi e corretti. NON
+  unificare: cambierebbe la resa dei prezzi e potrebbe rompere i campi di modifica
+  admin.
