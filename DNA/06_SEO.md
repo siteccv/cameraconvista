@@ -53,8 +53,16 @@ Redirect canonici rilevanti:
 
 - `/home` -> `/`
 - `/carta-vini` -> `/lista-vini`
+- `/carta-dei-vini` -> `/lista-vini` (legacy Soft 404)
+- `/orari-prenotazioni` -> `/dove-siamo` (legacy Soft 404)
+- `/qrmenu_home` -> `/menu` (legacy Soft 404)
 - `/contatti` -> `/dove-siamo`
 - `/en/*` -> path canonico con `?lang=en`
+- Redirect apex->www e www stesso: gestiti da Render (`redirectForName`) e dal middleware in `server/index.ts`. Il dominio nudo `cameraconvista.it` ha record A verso l'IP apex di Render (216.24.57.8).
+
+## Noindex pagine nascoste
+
+Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots" content="noindex, nofollow">` iniettato server-side (`server/seo.ts`, campo `noindex` in `SeoData`). Evita che pagine nascoste (es. `/eventi`) vengano marcate Soft 404 da Google. Le pagine visibili non sono toccate.
 
 ## Admin SEO
 
