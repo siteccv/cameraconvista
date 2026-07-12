@@ -23,7 +23,7 @@ Questa scheda documenta lo stato operativo reale dell'integrazione Colli. Ogni m
 - `/colli/admina`: admin Colli separato, accessibile da ingranaggio nel menu Colli.
 - DB: dati Colli migrati in tabelle indipendenti `colli_*`.
 - CMS: pagina `colli` pubblicata, visibile e senza blocchi in bozza.
-- Menu Colli: 1 snapshot attivo in `colli_menu_snapshots`; snapshot precedenti archiviati.
+- Menu Colli: 1 snapshot attivo in `colli_menu_snapshots`; i precedenti sono archiviati e sottoposti a retention automatica (si conservano gli ultimi `COLLI_SNAPSHOT_RETENTION`=30 archiviati, prune nella stessa transazione del publish — helper `pruneColliSnapshots`).
 - Render Colli: mantenuto solo come fallback/riferimento fino a verifica produzione.
 - Cartella `ccv-colli-source`: rimossa dalla workspace finale; non e parte del runtime, della build o del deploy.
 - Backup locali: consolidati in `BACKUP/` con solo archivio operativo finale e snapshot DB finale.

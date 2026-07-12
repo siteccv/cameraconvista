@@ -70,6 +70,8 @@ Verifica locale aggiuntiva del 2026-05-14 dopo fix embed Colli:
 - `/colli`: header `X-Frame-Options: SAMEORIGIN`
 - `/api/colli/menu`: nessuna apertura CORS aggiuntiva, `X-Frame-Options: SAMEORIGIN`
 - `/colli/menu`: `Content-Security-Policy: frame-ancestors 'self' https://www.cashin.coop https://cashin.coop` e nessun `X-Frame-Options`
+- HSTS (`Strict-Transport-Security`, 180g + includeSubDomains, senza preload) attivo SOLO in produzione (`NODE_ENV=production`); assente in locale di proposito. Config in `server/index.ts` (helmet).
+- Upload media (`server/routes/media.ts`): `multer` con `fileFilter` che accetta solo MIME immagine (jpeg/png/webp/gif/avif). CSP globale ancora `false` di proposito (da introdurre con test dedicati per non rompere l'embed Colli/analytics).
 
 Verifica locale aggiuntiva del 2026-05-14 dopo reintroduzione intro splash Colli:
 
