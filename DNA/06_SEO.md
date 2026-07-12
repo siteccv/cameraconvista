@@ -64,7 +64,7 @@ Redirect canonici rilevanti:
 
 ## Noindex pagine nascoste
 
-Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots" content="noindex, nofollow">` iniettato server-side (`server/seo.ts`, campo `noindex` in `SeoData`). Evita che pagine nascoste (es. `/eventi`) vengano marcate Soft 404 da Google. Le pagine visibili non sono toccate.
+Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots" content="noindex, nofollow">` iniettato server-side (`server/seo.ts`, campo `noindex` in `SeoData`). Evita che pagine nascoste (es. `/eventi`) vengano marcate Soft 404 da Google. Le pagine visibili non sono toccate. Stessa regola per le pagine evento `/eventi/:id`: se l'evento è inattivo (`active=false`) o inesistente, la pagina è noindex; gli eventi attivi restano indicizzabili.
 
 ## Admin SEO
 
