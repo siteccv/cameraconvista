@@ -39,6 +39,11 @@ export function mountRoutes(app: Express): void {
   // URL Redirects (301)
   // ========================================
   app.get("/carta-vini", (_req, res) => res.redirect(301, "/lista-vini"));
+  // Vecchi URL ancora presenti nell'indice Google (Soft 404): li mandiamo alla
+  // pagina attuale corrispondente per recuperare il valore SEO dei link storici.
+  app.get("/carta-dei-vini", (_req, res) => res.redirect(301, "/lista-vini"));
+  app.get("/orari-prenotazioni", (_req, res) => res.redirect(301, "/dove-siamo"));
+  app.get("/qrmenu_home", (_req, res) => res.redirect(301, "/menu"));
 
   // ========================================
   // Public API Routes (with production caching)

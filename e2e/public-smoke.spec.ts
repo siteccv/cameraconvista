@@ -381,6 +381,17 @@ test("private dinner direct route redirects to private events", async ({ page })
   await expect(page).toHaveURL(/\/eventi-privati$/);
 });
 
+test("legacy SEO URLs redirect to their current page", async ({ page }) => {
+  await page.goto("/carta-dei-vini", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/lista-vini$/);
+
+  await page.goto("/orari-prenotazioni", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/dove-siamo$/);
+
+  await page.goto("/qrmenu_home", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/menu$/);
+});
+
 test("email health endpoint is reachable", async ({ request }) => {
   const response = await request.get("/api/health/email");
   expect(response.status()).toBe(200);
