@@ -325,7 +325,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       description: DEFAULT_DESC_IT,
       url: lang === "en" ? hreflangEn : hreflangIt,
       telephone: footerData.phone || "+39 051 267889",
-      email: footerData.email || "info@cameraconvistabologna.it",
+      email: footerData.email || "info@cameraconvista.it",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Via Santo Stefano 14/2a",
