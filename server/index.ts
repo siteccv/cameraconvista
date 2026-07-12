@@ -88,19 +88,24 @@ app.use((req, res, next) => {
 
   const canonicalHost = "www.cameraconvista.it";
   const host = req.hostname;
-  const needsWww =
+  // Porta al dominio canonico sia il dominio nudo/sottodomini .cameraconvista.it
+  // sia il dominio tecnico *.onrender.com: quest'ultimo, se lasciato accessibile,
+  // Google lo indicizza come sito duplicato (canonical verso se stesso).
+  const needsCanonicalHost =
     process.env.NODE_ENV === "production" &&
     host !== canonicalHost &&
-    (host === "cameraconvista.it" || host.endsWith(".cameraconvista.it"));
+    (host === "cameraconvista.it" ||
+      host.endsWith(".cameraconvista.it") ||
+      host.endsWith(".onrender.com"));
   const needsSlashStrip = req.path !== "/" && req.path.endsWith("/");
 
-  if (needsWww || needsSlashStrip) {
-    const targetHost = needsWww ? canonicalHost : host;
+  if (needsCanonicalHost || needsSlashStrip) {
+    const targetHost = needsCanonicalHost ? canonicalHost : host;
     const targetPath = needsSlashStrip ? req.path.replace(/\/+$/, "") : req.path;
     const query = req.originalUrl.includes("?")
       ? req.originalUrl.slice(req.originalUrl.indexOf("?"))
       : "";
-    const targetUrl = needsWww
+    const targetUrl = needsCanonicalHost
       ? `https://${targetHost}${targetPath}${query}`
       : `${targetPath}${query}`;
     return res.redirect(301, targetUrl);
