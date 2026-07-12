@@ -44,6 +44,14 @@ export function mountRoutes(app: Express): void {
   app.get("/carta-dei-vini", (_req, res) => res.redirect(301, "/lista-vini"));
   app.get("/orari-prenotazioni", (_req, res) => res.redirect(301, "/dove-siamo"));
   app.get("/qrmenu_home", (_req, res) => res.redirect(301, "/menu"));
+  // Vecchi permalink WordPress (EN e blog) ancora indicizzati.
+  app.get("/wine-list", (_req, res) => res.redirect(301, "/lista-vini"));
+  app.get("/restaurant-menu", (_req, res) => res.redirect(301, "/menu"));
+  app.get("/address-map", (_req, res) => res.redirect(301, "/dove-siamo"));
+  app.get("/chi-siamo", (_req, res) => res.redirect(301, "/dove-siamo"));
+  app.get("/category/eventi", (_req, res) => res.redirect(301, "/"));
+  app.get("/author/filiberto", (_req, res) => res.redirect(301, "/"));
+  app.get("/2020/san-valentino", (_req, res) => res.redirect(301, "/"));
 
   // ========================================
   // Public API Routes (with production caching)

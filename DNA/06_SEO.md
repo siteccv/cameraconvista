@@ -55,7 +55,9 @@ Redirect canonici rilevanti:
 - `/carta-vini` -> `/lista-vini`
 - `/carta-dei-vini` -> `/lista-vini` (legacy Soft 404)
 - `/orari-prenotazioni` -> `/dove-siamo` (legacy Soft 404)
-- `/qrmenu_home` -> `/menu` (legacy Soft 404)
+- `/qrmenu_home` -> `/menu` (legacy Soft 404; il QR nuovo usa gia' il link corretto, questo e' solo rete di sicurezza per menu vecchi)
+- `/wine-list` -> `/lista-vini`, `/restaurant-menu` -> `/menu`, `/address-map` -> `/dove-siamo`, `/chi-siamo` -> `/dove-siamo` (vecchi permalink WordPress)
+- `/category/eventi`, `/author/filiberto`, `/2020/san-valentino` -> `/` (residui blog WordPress)
 - `/contatti` -> `/dove-siamo`
 - `/en/*` -> path canonico con `?lang=en`
 - Redirect apex->www e www stesso: gestiti da Render (`redirectForName`) e dal middleware in `server/index.ts`. Il dominio nudo `cameraconvista.it` ha record A verso l'IP apex di Render (216.24.57.8).

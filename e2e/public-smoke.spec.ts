@@ -390,6 +390,18 @@ test("legacy SEO URLs redirect to their current page", async ({ page }) => {
 
   await page.goto("/qrmenu_home", { waitUntil: "domcontentloaded" });
   await expect(page).toHaveURL(/\/menu$/);
+
+  await page.goto("/wine-list", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/lista-vini$/);
+
+  await page.goto("/restaurant-menu", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/menu$/);
+
+  await page.goto("/address-map", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/dove-siamo$/);
+
+  await page.goto("/chi-siamo", { waitUntil: "domcontentloaded" });
+  await expect(page).toHaveURL(/\/dove-siamo$/);
 });
 
 test("hidden page is noindex, visible pages are indexable", async ({ request }) => {
