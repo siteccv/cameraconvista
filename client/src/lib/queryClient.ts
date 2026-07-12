@@ -39,6 +39,14 @@ export const getQueryFn: <T>(options: { on401: UnauthorizedBehavior }) => QueryF
     return await res.json();
   };
 
+// Contenuti pubblici che l'admin aggiorna dal foglio Google (vini, menu,
+// cocktail). Vengono da uno snapshot già pronto: una lettura leggerissima, quindi
+// possiamo ricontrollarli spesso senza pesare sul free tier Supabase. Servono a
+// far aggiornare il sito ~ogni 5 min anche quando è aperto dalla home del telefono
+// (dove i default globali `staleTime: Infinity` lo terrebbero fermo per sempre).
+export const PUBLISHED_CONTENT_STALE_TIME_MS = 5 * 60 * 1000; // 5 minuti
+export const PUBLISHED_CONTENT_REFETCH_MS = 5 * 60 * 1000; // 5 minuti
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

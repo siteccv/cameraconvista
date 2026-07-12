@@ -5,6 +5,10 @@ import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import {
+  PUBLISHED_CONTENT_REFETCH_MS,
+  PUBLISHED_CONTENT_STALE_TIME_MS,
+} from "@/lib/queryClient";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
@@ -24,6 +28,9 @@ export default function Menu() {
 
   const { data: categoryMap = {} } = useQuery<Record<string, string>>({
     queryKey: ["/api/menu-category-map"],
+    staleTime: PUBLISHED_CONTENT_STALE_TIME_MS,
+    refetchInterval: PUBLISHED_CONTENT_REFETCH_MS,
+    refetchOnWindowFocus: true,
   });
 
   const {
@@ -44,6 +51,9 @@ export default function Menu() {
   const menuEndpoint = adminPreview ? "/api/admin/menu-items" : "/api/menu-items";
   const { data: menuItems, isLoading: menuLoading } = useQuery<MenuItem[]>({
     queryKey: [menuEndpoint],
+    staleTime: PUBLISHED_CONTENT_STALE_TIME_MS,
+    refetchInterval: PUBLISHED_CONTENT_REFETCH_MS,
+    refetchOnWindowFocus: true,
   });
 
   const categorizedItems =

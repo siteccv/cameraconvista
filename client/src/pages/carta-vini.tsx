@@ -3,6 +3,10 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
+import {
+  PUBLISHED_CONTENT_REFETCH_MS,
+  PUBLISHED_CONTENT_STALE_TIME_MS,
+} from "@/lib/queryClient";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
@@ -32,6 +36,13 @@ export default function CartaVini() {
   const winesEndpoint = adminPreview ? "/api/admin/wines" : "/api/wines";
   const { data: wines, isLoading: winesLoading } = useQuery<Wine[]>({
     queryKey: [winesEndpoint],
+    // I vini cambiano quando l'admin pubblica dal foglio Google: override dei
+    // default globali (staleTime: Infinity) così la lista si aggiorna da sola
+    // entro pochi minuti anche con il sito aperto dalla home del telefono.
+    // Lettura leggera (1 snapshot) → nessun impatto sul free tier Supabase.
+    staleTime: PUBLISHED_CONTENT_STALE_TIME_MS,
+    refetchInterval: PUBLISHED_CONTENT_REFETCH_MS,
+    refetchOnWindowFocus: true,
   });
 
   const CATEGORY_ORDER = [
