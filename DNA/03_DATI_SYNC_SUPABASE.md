@@ -67,6 +67,8 @@ Area Colli migrata su Supabase in tabelle indipendenti:
 
 Regola: le tabelle Colli devono restare separate da `menu_items`, `wines`, `cocktails` e dalla sync Google Sheets CCV.
 
+Sync foglio→DB (`server/sheets-sync.ts`): pattern delete-then-insert. Protetta da `guardSyncNotEmpty()`: se dal foglio non arrivano righe valide (foglio vuoto/irraggiungibile/colonne rinominate) la sync di menu/vini/cocktail viene abortita PRIMA del `deleteAll` e ritorna errore — la tabella NON viene svuotata (protezione anti-perdita dati). NB: la sync resta non transazionale via REST Supabase e senza validazione Zod (miglioramenti futuri possibili, vedi analisi sync).
+
 ## Stato Colli verificato il 2026-05-13
 
 Nota: questa sezione resta storica e descrive il freeze iniziale di integrazione. Per lo stato corrente usare il blocco `Aggiornamento verificato il 2026-05-26`.

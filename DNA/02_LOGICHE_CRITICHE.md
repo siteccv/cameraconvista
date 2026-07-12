@@ -23,6 +23,10 @@ Il pubblico non legge le tabelle draft direttamente.
 
 - Le tabelle operative sono `menu_items`, `wines`, `cocktails`
 - Il pubblico usa gli snapshot JSON pubblicati in `site_settings`
+- Le pagine pubbliche vini/menu/cocktail ripescano lo snapshot ~ogni 5 min e al focus finestra
+  (`PUBLISHED_CONTENT_*` in `client/src/lib/queryClient.ts`), così il sito aperto dalla home del
+  telefono si aggiorna da solo dopo un publish (override dei default globali `staleTime: Infinity`).
+  NB: propaga un publish già fatto, non rigenera lo snapshot dalle tabelle.
 - L'admin vede e modifica i dati correnti
 - Il menu CCV puo mostrare icone dietetiche per piatto tramite flag `vegetarian` e `gluten_free`
   importati dal Google Sheet menu; le icone sono le stesse di Colli e vengono renderizzate prima
