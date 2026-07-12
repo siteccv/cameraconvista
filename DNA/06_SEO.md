@@ -1,5 +1,7 @@
 # 06 - SEO
 
+> Diagnosi dai dati reali (Search Console/Analytics) e piano di miglioramento: vedi `07_SEO_ANALISI.md`.
+
 ## Scopo
 
 Documentare solo la parte SEO che e abbastanza delicata da meritare un file separato.
