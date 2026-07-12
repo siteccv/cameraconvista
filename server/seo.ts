@@ -230,6 +230,13 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       event = events.find((e) => e.id === eventId);
     } catch {}
 
+    // Un evento inattivo o inesistente non deve essere indicizzato: la pagina
+    // esiste ancora (per link diretti) ma è contenuto scaduto → altrimenti Google
+    // la marca Soft 404.
+    if (!event || event.active === false) {
+      noindex = true;
+    }
+
     if (event) {
       const eventTitle = lang === "it" ? event.titleIt : event.titleEn;
       title = `${eventTitle} - ${SITE_NAME}`;

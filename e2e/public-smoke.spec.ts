@@ -414,6 +414,10 @@ test("hidden page is noindex, visible pages are indexable", async ({ request }) 
     const html = await (await request.get(path)).text();
     expect(html, path).not.toMatch(/name="robots" content="noindex/);
   }
+
+  // Un evento inattivo/inesistente deve essere noindex (contenuto scaduto).
+  const staleEvent = await (await request.get("/eventi/3")).text();
+  expect(staleEvent).toMatch(/<meta name="robots" content="noindex, nofollow"/);
 });
 
 test("email health endpoint is reachable", async ({ request }) => {
