@@ -150,6 +150,7 @@ interface SeoData {
   hreflangEn: string;
   jsonLd: object[];
   breadcrumbs: { name: string; url: string }[];
+  noindex: boolean;
 }
 
 function getBaseUrl(req: Request): string {
@@ -175,6 +176,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
   let description: string;
   let ogType = "website";
   let ogImage: string | undefined;
+  let noindex = false;
   const jsonLd: object[] = [];
 
   const breadcrumbs: { name: string; url: string }[] = [{ name: "Home", url: baseUrl + "/" }];
@@ -185,6 +187,12 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       const pages = await storage.getPages();
       page = pages.find((p) => p.slug === slug);
     } catch {}
+
+    // Una pagina nascosta o in bozza non deve finire nell'indice di Google:
+    // altrimenti risponde 200 con poco contenuto e Google la marca Soft 404.
+    if (page && (page.isVisible === false || page.isDraft === true)) {
+      noindex = true;
+    }
 
     if (page) {
       const metaTitle = lang === "it" ? page.metaTitleIt : page.metaTitleEn;
@@ -397,6 +405,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
     hreflangEn,
     jsonLd,
     breadcrumbs,
+    noindex,
   };
 }
 
@@ -405,6 +414,10 @@ function buildMetaTags(seo: SeoData, baseUrl: string): string {
 
   lines.push(`<title>${escapeHtml(seo.title)}</title>`);
   lines.push(`<meta name="description" content="${escapeAttr(seo.description)}" />`);
+
+  if (seo.noindex) {
+    lines.push(`<meta name="robots" content="noindex, nofollow" />`);
+  }
 
   lines.push(`<link rel="canonical" href="${escapeAttr(seo.canonicalUrl)}" />`);
 

@@ -392,6 +392,18 @@ test("legacy SEO URLs redirect to their current page", async ({ page }) => {
   await expect(page).toHaveURL(/\/menu$/);
 });
 
+test("hidden page is noindex, visible pages are indexable", async ({ request }) => {
+  // /eventi è nascosta (is_visible=false): deve dichiarare noindex a Google.
+  const hidden = await (await request.get("/eventi")).text();
+  expect(hidden).toMatch(/<meta name="robots" content="noindex, nofollow"/);
+
+  // Le pagine pubbliche non devono MAI avere noindex.
+  for (const path of ["/", "/menu", "/lista-vini", "/colli"]) {
+    const html = await (await request.get(path)).text();
+    expect(html, path).not.toMatch(/name="robots" content="noindex/);
+  }
+});
+
 test("email health endpoint is reachable", async ({ request }) => {
   const response = await request.get("/api/health/email");
   expect(response.status()).toBe(200);
