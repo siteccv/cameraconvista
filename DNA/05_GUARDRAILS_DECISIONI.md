@@ -4,6 +4,18 @@
 
 Raccogliere le regole non negoziabili e le decisioni gia prese che l'agent non deve ignorare.
 
+## Pulizia arretrata (da fare in branch dedicato, NON di fretta)
+
+Audit completo del 2026-07-12 (4 agenti, sola lettura): progetto sano, 0 vulnerabilita, RLS ON su tutte le 23 tabelle, parita admin/user integra, nessun dato di catalogo hardcoded, nessun segreto committato. Gia corretti (commit `c4f0976`): email fallback SEO sbagliata + `nanoid` dichiarata. Restano, a bassa priorita, da fare solo in branch separato con build/test verdi:
+
+- **~24 file UI orfani** (`client/src/components/ui/*` mai importati: alert, aspect-ratio, avatar, breadcrumb, carousel, chart, collapsible, command, context-menu, drawer, dropdown-menu, form, hover-card, input-otp, menubar, navigation-menu, pagination, progress, resizable, table, toggle, toggle-group) + `client/src/lib/supabase.ts` (client browser mai usato, l'app passa dal server) + asset `attached_assets/colli_home.png` + riga singleton morta `server/supabase-storage.ts` `export const supabaseStorage`. Rimuovendoli si possono togliere ~17 dipendenze UI da package.json (recharts, embla-carousel-react, cmdk, vaul, react-resizable-panels, input-otp, react-hook-form, e vari @radix-ui/*). CERTO ma da fare incrementale, con build/test ad ogni passo.
+- **Duplicazioni minori** (solo manutenibilita, non bug): `parseLegacyDayString`/label-giorni tra `Footer.tsx` e `footerSettingsUtils.ts`; `isBcryptHash` tra `helpers.ts` e `colli-admin-utils.ts`; `formatDate` inline in 4 pagine invece di `lib/formatters.ts`.
+- **NON toccare:** feature-flag `PRIVATE_DINNER_ENABLED=false` (+ `cena.tsx`) e' voluto/riattivabile, non morto.
+
+## Azione owner (fuori dal codice)
+
+- **Chiave Google Maps** in `client/src/pages/dove-siamo.tsx`: e' client-side (deve stare nel codice per far funzionare la mappa embed). Metterla in sicurezza = restringerla per referrer/dominio nel pannello Google Cloud Console, non nel repo.
+
 ## Guardrails forti
 
 - Il sito e live
