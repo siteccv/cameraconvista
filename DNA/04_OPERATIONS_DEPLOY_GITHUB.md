@@ -242,3 +242,22 @@ Il publish interno aggiorna i contenuti pubblici ma non sostituisce il deploy de
 1. Prima di commit o push: `git status -sb --ignored` e `git diff --stat`
 2. Prima di toccare workflow: verificare riferimenti reali in `package.json`, `scripts/` e `.github/workflows/`
 3. Non eseguire sync, publish o email reali senza richiesta esplicita
+
+## Stato connessioni verificato — 2026-07-12
+
+Verifica reale (con prova) eseguita in questa data:
+
+- **Supabase (progetto `pjrdnfbfpogvztfjuxya`)**
+  - LETTURA: provata via `psql "$DATABASE_URL"` → `information_schema.tables` = **23 tabelle** public. Esito OK.
+  - SCRITTURA: **verificata transazionale (rollback)** via `psql`: `BEGIN; CREATE TEMP TABLE _probe_write; INSERT 3 righe; ROLLBACK;` → output `rollbackOnly`, temp assente dopo, 23 tabelle invariate (zero drift, nessuna persistenza). Credenziale usata: `DATABASE_URL` (utente `postgres`, service role).
+- **Render (servizio `cameraconvista`, `srv-d61pes7gi27c73espbcg`)**
+  - LETTURA: `GET /owners` e `GET /services/{id}/env-vars` → 200 (key con accesso pieno, non solo pubblico).
+  - SCRITTURA: **non testata di proposito** — una scrittura Render = deploy/restart/modifica env = azione in produzione. Key capace, ma prova non eseguita per sicurezza.
+  - Deploy: ultimo **riuscito e live** = commit `acc9d11` = `main` locale. Autodeploy attivo su `main`.
+- **GitHub (`siteccv/cameraconvista`)**: `gh` autenticato, `main` allineato al remoto (0/0). CI attive: `quality.yml` e `supabase-keepalive.yml` (keepalive verde giornaliero).
+
+### Nota architetturale schema (non è un drift)
+Lo schema Drizzle in `shared/schema.ts` + `shared/colli.ts` definisce 14 `pgTable`. Il DB reale ha 23 tabelle: le 9 extra (`colli_categories`, `colli_items`, `colli_sections`, `colli_wines`, `colli_allergens`, `colli_item_allergens`, `colli_wine_categories`, `colli_menu_snapshots`, `menu_items_published`) sono gestite via **SQL migrations manuali** in `migrations/`, non via Drizzle. Divergenza voluta, non accidentale. NON allineare con `drizzle-kit push`.
+
+### Tool/runtime richiesti
+Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker richiesto dal progetto. `.env` completo; le variabili opzionali assenti (`VITE_GA_MEASUREMENT_ID`, `VITE_FB_PIXEL_ID`, `RESEND_SENDER_DOMAIN`, `PLAYWRIGHT_BASE_URL`, `SUPABASE_KEEPALIVE_TABLE`, `NODE_ENV`) non sono critiche.
