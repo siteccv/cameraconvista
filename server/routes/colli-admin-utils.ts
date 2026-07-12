@@ -47,3 +47,31 @@ export function toNumberOrNull(value: unknown): number | null {
 export function isBcryptHash(value: string): boolean {
   return /^\$2[aby]\$/.test(value);
 }
+
+type SnapshotPruneClient = {
+  query(queryText: string, values?: unknown[]): Promise<unknown>;
+};
+
+/**
+ * Elimina le fotografie ARCHIVIATE del menu Colli più vecchie, conservando solo
+ * le `retention` più recenti. Non tocca mai lo snapshot 'active'. Va invocata
+ * dentro la transazione del publish, così un rollback non perde nulla.
+ * `retention` viene forzata a un intero >= 1 per sicurezza.
+ */
+export async function pruneColliSnapshots(
+  client: SnapshotPruneClient,
+  retention: number,
+): Promise<void> {
+  const keep = Math.max(1, Math.trunc(retention));
+  await client.query(
+    `delete from colli_menu_snapshots
+      where status = 'archived'
+        and id not in (
+          select id from colli_menu_snapshots
+          where status = 'archived'
+          order by created_at desc, id desc
+          limit $1
+        )`,
+    [keep],
+  );
+}

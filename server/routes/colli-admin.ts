@@ -27,6 +27,7 @@ import {
   optionalText,
   parseId,
   parseIds,
+  pruneColliSnapshots,
   requiredText,
   toNumberOrNull,
 } from "./colli-admin-utils";
@@ -34,6 +35,12 @@ import { generateSessionToken, SESSION_MAX_AGE_MS } from "./helpers";
 
 const COLLI_ADMIN_COOKIE_NAME = "ccv_colli_admin_session";
 const COLLI_ADMIN_PASSWORD_KEY = "admin_password_hash";
+
+// Quante fotografie archiviate del menu Colli conservare. Le più vecchie oltre
+// questa soglia vengono eliminate automaticamente a ogni pubblicazione, così la
+// tabella colli_menu_snapshots non cresce all'infinito. Lo snapshot 'active' non
+// è mai coinvolto.
+const COLLI_SNAPSHOT_RETENTION = 30;
 
 type Queryable = {
   query<T extends QueryResultRow = QueryResultRow>(
@@ -784,6 +791,12 @@ async function publishColliSnapshot(client: Queryable): Promise<ColliMenuPayload
     ) values ('active', $1, $2, $3, 'colli-admin')`,
     [serialized, JSON.stringify(counts), checksum],
   );
+
+  // Retention: conserva solo le ultime COLLI_SNAPSHOT_RETENTION fotografie
+  // archiviate ed elimina le più vecchie. Tocca esclusivamente status='archived',
+  // mai la 'active'. Eseguito nella stessa transazione del publish: se il commit
+  // fallisce, nessuna riga viene persa (rollback totale).
+  await pruneColliSnapshots(client, COLLI_SNAPSHOT_RETENTION);
 
   return menu;
 }
