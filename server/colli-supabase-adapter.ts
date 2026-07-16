@@ -465,6 +465,18 @@ async function executeWriteQuery(
     return [];
   }
 
+  // Retention delle fotografie archiviate (chiamata da pruneColliSnapshots al
+  // termine di ogni publish). Traduce la DELETE ... NOT IN (subquery LIMIT) in
+  // chiamate Supabase REST. Agisce ESCLUSIVAMENTE su status='archived': non
+  // tocca mai lo snapshot 'active' servito al menu pubblico.
+  if (
+    query.startsWith("delete from colli_menu_snapshots") &&
+    query.includes("status = 'archived'")
+  ) {
+    await pruneArchivedSnapshots(values[0]);
+    return [];
+  }
+
   return null;
 }
 
@@ -521,6 +533,34 @@ async function updateById(table: SupabaseTable, id: unknown, row: Record<string,
 async function deleteById(table: SupabaseTable, id: unknown) {
   const { error } = await supabaseAdmin.from(table).delete().eq("id", id);
   if (error) throw new Error(error.message);
+}
+
+// Conserva le `keep` fotografie archiviate più recenti ed elimina le più vecchie,
+// replicando la semantica SQL `... NOT IN (SELECT id ... ORDER BY created_at DESC,
+// id DESC LIMIT keep)`. Tocca SOLO status='archived', mai lo snapshot 'active'.
+async function pruneArchivedSnapshots(rawKeep: unknown) {
+  const keep = Math.max(1, Math.trunc(Number(rawKeep)) || 1);
+
+  const { data, error } = await supabaseAdmin
+    .from("colli_menu_snapshots")
+    .select("id")
+    .eq("status", "archived")
+    .order("created_at", { ascending: false })
+    .order("id", { ascending: false })
+    .limit(keep);
+  if (error) throw new Error(error.message);
+
+  const keepIds = (data ?? []).map((row) => (row as { id: number }).id);
+  // Meno di `keep` archiviate: non esiste nulla di più vecchio da eliminare.
+  // (Copre anche il caso 0 archiviate, evitando ogni DELETE non filtrata.)
+  if (keepIds.length < keep) return;
+
+  const { error: deleteError } = await supabaseAdmin
+    .from("colli_menu_snapshots")
+    .delete()
+    .eq("status", "archived")
+    .not("id", "in", `(${keepIds.join(",")})`);
+  if (deleteError) throw new Error(deleteError.message);
 }
 
 function extractTableName(query: string): SupabaseTable {
