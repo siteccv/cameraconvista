@@ -45,11 +45,10 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### MEDIO
 
-1. **SPF della posta incompleto.** Il record SPF (`v=spf1 ip4:86.107.36.176 +a +mx ~all`) autorizza
-   solo il vecchio server Serverplan. Non include Google (che gestisce davvero la posta) né Resend.
-   Le email inviate dal dominio rischiano la cartella spam dei destinatari.
-   *File coinvolti: nessuno (solo DNS). Rischio fix: medio — un errore blocca la posta in uscita; va
-   fatto con calma e da solo.*
+1. ~~SPF della posta incompleto~~ **RISOLTO 16/09/2026:** il record è ora
+   `v=spf1 include:_spf.google.com ip4:86.107.36.176 ~all` — include Google (la posta vera),
+   mantiene il server Serverplan, toglie le autorizzazioni inutili (`+a`/`+mx`). Resend resta
+   coperto dal suo SPF dedicato su `send.cameraconvista.it`. Verificato su ns1 e ns2.
 2. **Pagine inesistenti rispondono 200 invece di 404** (soft-404). `server/static.ts` serve la SPA
    con stato 200 per qualsiasi percorso HTML sconosciuto. Google lo segnala già ("Scansionata, ma
    attualmente non indicizzata"). Spreca budget di scansione e sporca l'indice.
@@ -134,7 +133,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | # | Proposta | Rischio | File/dove |
 |---|---|---|---|
 | 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 16/09/2026** (env Render + deploy verificato) | — | Render env |
-| 2 | **Correggere SPF** in un record unico che includa Google + Resend | Medio (posta) | DNS via cPanel |
+| 2 | ~~Correggere SPF~~ ✅ **FATTO 16/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
 | 3 | **Fix soft-404**: rispondere 404 per percorsi fuori dall'elenco pagine note | Basso-medio | `server/static.ts`, `server/seo.ts` |
 | 4 | **Titoli/description orientati alle query generiche** ("aperitivo bologna", "cocktail bar bologna", "rooftop") su home, `/cocktail-bar`, `/menu` — è il margine SEO più grande | Basso | `server/seo.ts` / admin SEO |
 | 5 | **JSON-LD LocalBusiness+Menu per Colli** | Basso | `server/seo.ts` |
@@ -142,6 +141,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
 | 9 | **Decidere il destino del branch `replit-agent`** (tenere come archivio o eliminare) | Nullo/Basso | git |
+| 10 | **Salvare le richieste evento su Supabase** (proposta owner 16/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin |
 
 ## Consolidamento fatto in questa sessione (già attivo)
 
