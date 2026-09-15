@@ -82,6 +82,20 @@ cambiano solo cosa legge Google. Da fare una alla volta, con conferma.
 NB: verificare sempre se l'admin ha già un meta personalizzato per la pagina
 (`page.metaTitleIt`) prima di cambiare il default nel codice: se c'è, vince quello.
 
+## Piano ATTUATO il 16/09/2026 (owner-approved, sessione autonoma)
+
+Tutti i 4 step del piano (+ altri) sono stati implementati scrivendo i meta nel **DB**
+(`pages.meta_title_*`/`meta_description_*` — che vince sui default del codice), IT+EN,
+verificati subito sull'HTML live. Pagine toccate: home, menu, cocktail-bar, dove-siamo,
+carta-vini, eventi-privati, eventi-privati-cena (prima senza meta né slug), colli.
+Valori precedenti in `BACKUP/pages-meta-backup-20260916.json`. Lasciate invariate perché
+già buone o vincenti: colli-menu (CTR 14,8% — non toccare), eventi, galleria,
+eventi-privati-aperitivo/esclusivo. La parola **"rooftop" NON è stata usata** (non
+verificabile che il locale sia un rooftop: chiedere all'owner prima di usarla).
+Contestualmente (stesso giorno, via push): fix soft-404 e JSON-LD LocalBusiness per
+`/colli`. **Ricontrollare CTR in GSC tra 2-4 settimane** sulla proprietà Dominio
+(`sc-domain:cameraconvista.it`, backfill atteso dal 17-18/09).
+
 ## Da capire ancora (aperto)
 
 - Durata media sessione ~28s (Analytics): capire se è normale per sito-vetrina di

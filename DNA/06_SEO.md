@@ -77,6 +77,8 @@ I percorsi HTML fuori dall'elenco pagine note rispondono **HTTP 404** servendo c
 - I meta tag pagina sono gestiti dalla sezione admin SEO
 - Le modifiche SEO non sono soggette al draft/publish delle pagine
 - Il backend le usa direttamente alla richiesta successiva
+- **Precedenza:** DB (`pages.meta_*`) vince sui default in `server/seo.ts`; i default sono solo fallback
+- 16/09/2026: meta ottimizzati sulle query GSC scritti nel DB per 8 pagine (IT+EN, vedi `07_SEO_ANALISI.md`); `eventi-privati-cena` aggiunto a `SLUG_TO_PATH` (meta DB + sitemap attivi); JSON-LD LocalBusiness aggiunto a `/colli`
 
 ## Regola pratica per l'agent
 

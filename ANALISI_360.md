@@ -96,13 +96,22 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
   correttamente "pagina con reindirizzamento")
 - ✅ Sitemap dinamica valida con hreflang; robots.txt corretto (blocca `/admina` e `/api/admin`)
 - ✅ JSON-LD presente (menu, indirizzo, geo, breadcrumb); GTM + GA4 attivi con consenso cookie
-- ⚠ Soft-404 (problema n. 2)
+- ✅ Soft-404 risolto e in produzione dal 16/09/2026 (problema n. 2)
 - 📊 Dati (12 mesi, da DNA/07): ~5.700 clic, ~110k impressioni, posizione media 5,6. Brand
-  dominante (pos. ~1, CTR 23-36%). **Margine vero**: query generiche ("aperitivo bologna" 2.843
-  impressioni/CTR 0,5%, "cocktail bar bologna", "rooftop bologna") — si appare ma non si viene
-  cliccati. Mobile domina (75% dei clic).
-- 🆕 Oggi creata la **proprietà Dominio** su Search Console (copre tutto): dati completi tra 1-2
-  giorni, leggibili da me via service account.
+  dominante (pos. ~1, CTR 23-36%). Mobile domina (75% dei clic).
+- 🆕 Creata la **proprietà Dominio** su Search Console (copre tutto): al 16/09 il backfill non è
+  ancora arrivato (query vuote) — ricontrollare tra 1-2 giorni via service account.
+
+**Query con margine (la base dello step 4, da monitorare in GSC tra 2-4 settimane):**
+
+| Query | Impressioni | Posizione | CTR oggi | Pagina che deve intercettarla |
+|---|---|---|---|---|
+| aperitivo bologna | 2.843 | 4,3 | 0,49% | home ("Aperitivo a Bologna in Centro con Vista") |
+| cocktail bar bologna | 1.232 | 7,6 | 0,97% | /cocktail-bar ("Cocktail Bar in Centro a Bologna") |
+| aperitivo bologna centro | 1.084 | 4,6 | 0,65% | home (parola "Centro" ora nel title) |
+| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (⚠ "rooftop" NON usato nei title: da confermare con l'owner se il locale può definirsi rooftop) |
+| best restaurants with view | 584 | 12,3 | 0% | home EN ("Aperitivo & Tapas with a View") |
+| ricerche locali "santo stefano" | — | — | — | /dove-siamo (title con "Piazza Santo Stefano") |
 
 ### Camera Colli (/colli e /colli/menu)
 **Stato: BUONO, con potenziale.**
@@ -110,7 +119,8 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 - ✅ `/colli/menu` è la **pagina più vista del sito** (2.979 viste/28gg, più della home) e ha il
   miglior CTR da Google (14,8%)
 - ⚠ Il menu QR vive sotto il dominio CCV: giusto così finché Colli non ha un dominio proprio
-- ⚠ JSON-LD dei Colli più povero (solo breadcrumb): manca un blocco LocalBusiness/Menu dedicato
+- ✅ JSON-LD LocalBusiness (BarOrPub/Restaurant, Via Cavaioni 1, link al menu) aggiunto a `/colli`
+  il 16/09/2026; title/description Colli ora orientati ad "aperitivo sui colli di Bologna"
 
 ## Automatismi attivi
 
@@ -136,8 +146,8 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 16/09/2026** (env Render + deploy verificato) | — | Render env |
 | 2 | ~~Correggere SPF~~ ✅ **FATTO 16/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
 | 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 16/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
-| 4 | **Titoli/description orientati alle query generiche** ("aperitivo bologna", "cocktail bar bologna", "rooftop") su home, `/cocktail-bar`, `/menu` — è il margine SEO più grande | Basso | `server/seo.ts` / admin SEO |
-| 5 | **JSON-LD LocalBusiness+Menu per Colli** | Basso | `server/seo.ts` |
+| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 16/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `BACKUP/pages-meta-backup-20260916.json` | — | DB via admin SEO |
+| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 16/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
 | 6 | **Pulizia email legacy** — (a) record Brevo ✅ FATTO 15/09 e (c) DMARC ✅ FATTO 15/09; resta solo (b): conferma casella `reservations@` inutile → via casella + record cPanel | Basso (dopo conferma) | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
