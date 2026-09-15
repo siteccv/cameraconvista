@@ -126,7 +126,7 @@ niente riferimenti nel codice. Restano:
 | rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (owner 15/09: NON siamo un rooftop — parola esclusa) |
 | best restaurants with view | 584 | 12,3 | 0% | home EN ("Aperitivo & Tapas with a View") |
 | ricerche locali "santo stefano" | — | — | — | /dove-siamo (title con "Piazza Santo Stefano") |
-| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — dal 15/09 description con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) |
+| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — "terrazza"/"terrace"/"rooftop" VIETATE (è un dehors): testi con "tavoli all'aperto/dehors" (IT) e "outdoor tables/dehors" (EN) |
 | aperitivo (in) terrazza bologna | 66 (3,5 mesi) | 1,7-1,9 | ~1% | idem — pos. già top ma la parola non compariva nei testi |
 
 **🆕 Backfill proprietà Dominio ARRIVATO il 15/09 pomeriggio**: le query sopra su "terrazza" vengono dai dati
@@ -169,7 +169,8 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
 | 2 | ~~Correggere SPF~~ ✅ **FATTO 15/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
 | 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 15/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
 | 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `~/Documents/SITE-CCV-ARCHIVIO/pages-meta-backup-20260916.json` | — | DB via admin SEO |
-| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
+| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** (nota: `/eventi-privati/cena` poi ri-nascosta la sera stessa — card spenta per scelta owner, pagina noindex e fuori sitemap) | — | `server/seo.ts` |
+| 5b | ~~Schema "tre momenti" (aperitivo/cena/dopocena)~~ ✅ **FATTO 15/09/2026 sera** (owner-approved): meta home/menu/cocktail-bar/dove-siamo/eventi-privati + intro cocktail-bar e eventi-privati + CTA preventivo su `/eventi-privati` (risposta entro 2 giorni). Cucina 18.00–22.30, locale fino all'1. Card Cena/Party restano spente | — | DB (`pages`, `page_blocks` + snapshot), `eventi-privati.tsx` |
 | 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 15/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |

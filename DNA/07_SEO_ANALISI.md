@@ -99,10 +99,20 @@ Contestualmente (stesso giorno, via push): fix soft-404 e JSON-LD LocalBusiness 
 **Aggiornamento 15/09 pomeriggio — backfill Dominio arrivato.** Scoperta chiave (giu-set 2026):
 posizione 1,3-1,9 su "ristorante con terrazza bologna" (55 impr), "aperitivo (in) terrazza
 bologna" (66 impr) con **0-1 clic**: la parola non compariva nei testi. Owner: NON siamo rooftop
-(parola vietata), abbiamo un dehors; "terrace" ok in EN. Fatto: description home e cocktail-bar
-aggiornate nel DB con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) — title non toccati.
-"dehors" non viene cercato (0 query). Aperto: se l'owner conferma che il dehors può dirsi
-"terrazza", si può usare la parola esatta in IT (impatto potenziale maggiore).
+(parola vietata), abbiamo un dehors = tavoli in strada; "terrazza" VIETATA anche in IT, e
+"terrace" rimossa anche in EN (sostituita con "outdoor tables"). "dehors" non viene cercato (0 query).
+
+**Aggiornamento 15/09 sera — schema "tre momenti" ATTUATO (owner-approved).** Il locale è
+aperto 17.30–01.00 (cucina 18.00–22.30) con tre momenti: aperitivo, cena, dopocena. Dati:
+bucket CENA = miglior CTR (2,6-2,9% su ~3.750 impr) mai coperto dai testi; DOPOCENA quasi
+invisibile ("dopocena bologna"/"dove bere la sera": mai comparsi; "dove bere a bologna" pos 4,1).
+Fatto nel DB (meta + `published_snapshot` dei blocchi): description home/menu/dove-siamo/
+eventi-privati, title+description menu e cocktail-bar ("Drink fino all'1"), intro cocktail-bar
+e eventi-privati (formule reali: tavolo conviviale, Jazz Club, ~80 ospiti max, risposta entro
+2 giorni), EN "outdoor terrace"→"dehors". Nel codice: CTA preventivo renderizzata in fondo a
+`/eventi-privati`. Card Cena e Party: SPENTE per scelta owner; pagina cena nascosta (noindex).
+Focus invariati: bistrot + cocktail bar famoso; aperitivo non toccato dove vince.
+Stima: +200-350 clic/anno. Ricontrollo CTR in GSC tra 2-4 settimane.
 
 ## Da capire ancora (aperto)
 

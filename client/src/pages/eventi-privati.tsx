@@ -413,6 +413,44 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
           </div>
         </div>
       </section>
+
+      <section className="py-10 md:py-16">
+        <div className="container mx-auto px-4 text-center">
+          <EditableText
+            textIt={ctaBlock?.titleIt || ctaDef.titleIt || ""}
+            textEn={ctaBlock?.titleEn || ctaDef.titleEn || ""}
+            fontSizeDesktop={ctaBlock?.titleFontSize || ctaDef.titleFontSize || 32}
+            fontSizeMobile={ctaBlock?.titleFontSizeMobile || ctaDef.titleFontSizeMobile || 24}
+            as="h2"
+            className="font-display mb-4"
+            applyFontSize
+            onSave={makeTextSave(ctaBlock, "title")}
+          />
+          <EditableText
+            textIt={ctaBlock?.bodyIt || ctaDef.bodyIt || ""}
+            textEn={ctaBlock?.bodyEn || ctaDef.bodyEn || ""}
+            fontSizeDesktop={ctaBlock?.bodyFontSize || ctaDef.bodyFontSize || 16}
+            fontSizeMobile={ctaBlock?.bodyFontSizeMobile || ctaDef.bodyFontSizeMobile || 14}
+            as="p"
+            className="text-muted-foreground max-w-2xl mx-auto mb-6"
+            multiline
+            applyFontSize
+            onSave={makeTextSave(ctaBlock, "body")}
+          />
+          <div className="flex flex-col sm:flex-row justify-center gap-3" data-testid="cta-buttons">
+            <Link href="/eventi-privati/aperitivo">
+              <Button size="lg" data-testid="button-cta-aperitivo">
+                {t("Aperitivo Privato", "Private Aperitivo")}
+              </Button>
+            </Link>
+            <Link href="/eventi-privati/esclusivo">
+              <Button size="lg" variant="outline" data-testid="button-cta-esclusivo">
+                {t("Evento Esclusivo", "Exclusive Event")}
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
     </PublicLayout>
   );
 }
