@@ -94,7 +94,15 @@ eventi-privati-aperitivo/esclusivo. La parola **"rooftop" NON è stata usata** (
 verificabile che il locale sia un rooftop: chiedere all'owner prima di usarla).
 Contestualmente (stesso giorno, via push): fix soft-404 e JSON-LD LocalBusiness per
 `/colli`. **Ricontrollare CTR in GSC tra 2-4 settimane** sulla proprietà Dominio
-(`sc-domain:cameraconvista.it`, backfill atteso dal 17-18/09).
+(`sc-domain:cameraconvista.it`).
+
+**Aggiornamento 16/09 pomeriggio — backfill Dominio arrivato.** Scoperta chiave (giu-set 2026):
+posizione 1,3-1,9 su "ristorante con terrazza bologna" (55 impr), "aperitivo (in) terrazza
+bologna" (66 impr) con **0-1 clic**: la parola non compariva nei testi. Owner: NON siamo rooftop
+(parola vietata), abbiamo un dehors; "terrace" ok in EN. Fatto: description home e cocktail-bar
+aggiornate nel DB con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) — title non toccati.
+"dehors" non viene cercato (0 query). Aperto: se l'owner conferma che il dehors può dirsi
+"terrazza", si può usare la parola esatta in IT (impatto potenziale maggiore).
 
 ## Da capire ancora (aperto)
 

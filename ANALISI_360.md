@@ -62,11 +62,13 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 4. ~~DMARC con report verso Brevo~~ **RISOLTO 15/09/2026:** DMARC ora è `v=DMARC1; p=none;` senza
    riferimenti a Brevo. Politica invariata, solo tolto l'indirizzo di report abbandonato.
-5. **Casella email legacy su cPanel** `reservations@cameraconvista.it` (81k messaggi): non riceve
-   più nulla dall'esterno (la posta va su Google). Da confermare che nessuno la usi, poi rimuovere
-   casella + record DNS collegati (`webdisk`, `cpcalendars`, `_caldav*`, ecc.).
-6. **Branch `replit-agent`** fermo ad aprile 2026, 592 commit dietro `main`: quasi certamente
-   morto, ma contiene commit unici → non eliminato, da decidere.
+5. ~~Casella email legacy su cPanel~~ **RISOLTO 16/09/2026** (conferma owner): casella
+   `reservations@` eliminata (pesava solo 79 KB — il vecchio dato "81k" era un'altra metrica) e
+   rimossi 22 record DNS legati alla posta cPanel (`mail`, `webmail`, `webdisk`, `autodiscover`,
+   `autoconfig`, `cpcalendars`, `cpcontacts`, `_caldav*`, `_carddav*`, `_autodiscover._tcp`).
+   Zona DNS ora minimale; MX Google, sito e Resend verificati intatti.
+6. ~~Branch `replit-agent`~~ **RISOLTO 16/09/2026** (conferma owner): eliminato; la sua storia
+   resta recuperabile dal bundle `BACKUP/pre-push-404fix-20260916.bundle`.
 7. **Residui legacy nel worktree** (tutti già in `.gitignore`, nessun danno): `BACKUP/`,
    `coverage/`, `dist/`, `test-results/`, `attached_assets/` (⚠ NON è un residuo: usato dal codice
    via alias `@assets`), `LOGOS/`, file untracked `PROMPT_DEROARTS_CCV_IMMAGINI.md`.
@@ -84,6 +86,18 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 - **Rimossi il 15/09 (test concluso al 100%):** token cPanel `claude-dns` (irrecuperabile), remote
   git `gitsafe-backup` (host inesistente, era di Replit), variabile doppione `GITHUB_REPO_URL` nel
   `.env` (non usata dal codice).
+
+### Residui Replit — analisi del 16/09/2026 (PROPOSTA, nulla eliminato)
+
+Il progetto è quasi pulito: niente file `.replit`/`replit.nix`, niente dipendenze `@replit/*`,
+niente riferimenti nel codice. Restano:
+
+| Residuo | Cosa è | Proposta |
+|---|---|---|
+| ref git `refs/replit/agent-ledger` | segnaposto interno di Replit che tiene in vita la storia del vecchio branch (già nel bundle di BACKUP) | eliminabile in sicurezza |
+| `coverage/` (444K) + `test-results/` (4K) | output di test rigenerabili con un comando, già in `.gitignore` | eliminabili in sicurezza |
+| `LOGOS/` (848K) | file grafici dei loghi, non usati dal codice | ⚠ decisione owner: potrebbero essere gli originali — tenere o spostare in BACKUP |
+| `dist/` (4,9M) | output di build normale, rigenerato a ogni build | NON eliminare (non è un residuo) |
 
 ## SEO e indicizzazione
 
@@ -109,9 +123,14 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | aperitivo bologna | 2.843 | 4,3 | 0,49% | home ("Aperitivo a Bologna in Centro con Vista") |
 | cocktail bar bologna | 1.232 | 7,6 | 0,97% | /cocktail-bar ("Cocktail Bar in Centro a Bologna") |
 | aperitivo bologna centro | 1.084 | 4,6 | 0,65% | home (parola "Centro" ora nel title) |
-| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (⚠ "rooftop" NON usato nei title: da confermare con l'owner se il locale può definirsi rooftop) |
+| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (owner 16/09: NON siamo un rooftop — parola esclusa) |
 | best restaurants with view | 584 | 12,3 | 0% | home EN ("Aperitivo & Tapas with a View") |
 | ricerche locali "santo stefano" | — | — | — | /dove-siamo (title con "Piazza Santo Stefano") |
+| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — dal 16/09 description con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) |
+| aperitivo (in) terrazza bologna | 66 (3,5 mesi) | 1,7-1,9 | ~1% | idem — pos. già top ma la parola non compariva nei testi |
+
+**🆕 Backfill proprietà Dominio ARRIVATO il 16/09**: le query sopra su "terrazza" vengono dai dati
+freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo come parola descrittiva.
 
 ### Camera Colli (/colli e /colli/menu)
 **Stato: BUONO, con potenziale.**
@@ -148,10 +167,10 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 16/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
 | 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 16/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `BACKUP/pages-meta-backup-20260916.json` | — | DB via admin SEO |
 | 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 16/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
-| 6 | **Pulizia email legacy** — (a) record Brevo ✅ FATTO 15/09 e (c) DMARC ✅ FATTO 15/09; resta solo (b): conferma casella `reservations@` inutile → via casella + record cPanel | Basso (dopo conferma) | DNS + cPanel |
+| 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 16/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
-| 9 | **Decidere il destino del branch `replit-agent`** (tenere come archivio o eliminare) | Nullo/Basso | git |
+| 9 | ~~Branch `replit-agent`~~ ✅ **ELIMINATO 16/09/2026** (storia nel bundle in `BACKUP/`) | — | git |
 | 10 | **Salvare le richieste evento su Supabase** (proposta owner 16/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin |
 
 ## Consolidamento fatto in questa sessione (già attivo)
