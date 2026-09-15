@@ -269,6 +269,18 @@ export function Footer() {
               })}
             </div>
 
+            <Link href="/colli" className="block group mb-8" data-testid="link-colli">
+              <h4 className="font-medium uppercase tracking-wider text-sm mb-1 group-hover:text-background/90 transition-colors">
+                Camera con Vista Colli
+              </h4>
+              <p className="text-xs text-background/70 group-hover:text-background/90 transition-colors">
+                {t(
+                  "La sede estiva sui colli — aperta da aprile a inizio ottobre",
+                  "Our summer venue on the hills — open April to early October",
+                )}
+              </p>
+            </Link>
+
             <a
               href="mailto:staff.ccv@gmail.com"
               className="block group"

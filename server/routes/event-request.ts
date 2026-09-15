@@ -75,6 +75,29 @@ const LOCATION_LABELS: Record<string, string> = {
   dehors: "All'aperto — Dehors",
 };
 
+const GA4_MEASUREMENT_ID = process.env.GA4_MEASUREMENT_ID || "G-C2445988JV";
+
+// Measurement Protocol: attivo solo se GA4_API_SECRET e' configurato (senza, non fa nulla).
+// Il client_id viene dal cookie _ga del visitatore quando presente, cosi' l'evento
+// si aggancia alla sua sessione; altrimenti se ne genera uno anonimo.
+async function sendGa4ConversionEvent(req: Request, eventType: string): Promise<void> {
+  const apiSecret = process.env.GA4_API_SECRET;
+  if (!apiSecret) return;
+  const gaCookie = req.headers.cookie?.match(/_ga=GA\d+\.\d+\.(\d+\.\d+)/)?.[1];
+  const clientId =
+    gaCookie || `${Math.floor(Math.random() * 1e9)}.${Math.floor(Date.now() / 1000)}`;
+  await fetch(
+    `https://www.google-analytics.com/mp/collect?measurement_id=${GA4_MEASUREMENT_ID}&api_secret=${apiSecret}`,
+    {
+      method: "POST",
+      body: JSON.stringify({
+        client_id: clientId,
+        events: [{ name: "richiesta_evento", params: { event_type: eventType } }],
+      }),
+    },
+  );
+}
+
 const eventRequestSchema = z.object({
   eventType: z.enum(["aperitivo", "cena", "esclusivo"]),
   subOption: z.enum(["convivialis", "riserva-ccv", "riserva-jazz"]).optional(),
@@ -265,6 +288,9 @@ router.post("/", async (req: Request, res: Response) => {
     }
 
     console.log("[event-request] Email sent successfully, id:", result.data?.id);
+    sendGa4ConversionEvent(req, data.eventType).catch((err) =>
+      console.error("[event-request] GA4 event failed:", err instanceof Error ? err.message : err),
+    );
     res.status(200).json({ success: true });
   } catch (err) {
     console.error(
