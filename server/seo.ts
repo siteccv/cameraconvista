@@ -36,6 +36,22 @@ for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
   }
 }
 
+// Must mirror the routes in client/src/App.tsx that are not in SLUG_TO_PATH
+const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini", "/contatti", "/eventi-privati/cena"]);
+
+const ADMIN_PATH_PREFIXES = ["/admina", "/colli/admin", "/colli/admina"];
+
+export function isKnownPath(rawPath: string): boolean {
+  const pathname = rawPath.split("?")[0].replace(/\/$/, "") || "/";
+  if (PATH_TO_SLUG[pathname] !== undefined || EXTRA_CLIENT_PATHS.has(pathname)) {
+    return true;
+  }
+  if (/^\/eventi\/\d+$/.test(pathname)) {
+    return true;
+  }
+  return ADMIN_PATH_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
 const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
   home: "Camera con Vista - Tapas Bar e Cocktail Bar Bologna",
   menu: "Tapas e Aperitivo - Camera con Vista Bologna",

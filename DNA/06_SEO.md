@@ -60,13 +60,17 @@ Redirect canonici rilevanti:
 - `/qrmenu_home` -> `/menu` (legacy Soft 404; il QR nuovo usa gia' il link corretto, questo e' solo rete di sicurezza per menu vecchi)
 - `/wine-list` -> `/lista-vini`, `/restaurant-menu` -> `/menu`, `/address-map` -> `/dove-siamo`, `/chi-siamo` -> `/dove-siamo` (vecchi permalink WordPress)
 - `/category/eventi`, `/author/filiberto`, `/2020/san-valentino` -> `/` (residui blog WordPress)
-- `/contatti` -> `/dove-siamo`
 - `/en/*` -> path canonico con `?lang=en`
+- (`/contatti` NON è un redirect: è una pagina reale del router client)
 - Redirect apex->www e www stesso: gestiti da Render (`redirectForName`) e dal middleware in `server/index.ts`. Il dominio nudo `cameraconvista.it` ha record A verso l'IP apex di Render (216.24.57.8).
 
 ## Noindex pagine nascoste
 
 Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots" content="noindex, nofollow">` iniettato server-side (`server/seo.ts`, campo `noindex` in `SeoData`). Evita che pagine nascoste (es. `/eventi`) vengano marcate Soft 404 da Google. Le pagine visibili non sono toccate. Stessa regola per le pagine evento `/eventi/:id`: se l'evento è inattivo (`active=false`) o inesistente, la pagina è noindex; gli eventi attivi restano indicizzabili.
+
+## Hard 404 per percorsi sconosciuti (16/09/2026)
+
+I percorsi HTML fuori dall'elenco pagine note rispondono **HTTP 404** servendo comunque la shell SPA (il client mostra la pagina NotFound). L'elenco è `isKnownPath()` in `server/seo.ts`: SLUG_TO_PATH + EXTRA_CLIENT_PATHS + `/eventi/<id numerico>` + prefissi admin — **va tenuto allineato alle route di `client/src/App.tsx`** quando si aggiunge una pagina. Applicato in `server/static.ts` (prod) e `server/vite.ts` (dev, dove il path reale è `req.originalUrl`). Sitemap/robots e redirect legacy non passano di qui.
 
 ## Admin SEO
 

@@ -49,10 +49,11 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
    `v=spf1 include:_spf.google.com ip4:86.107.36.176 ~all` — include Google (la posta vera),
    mantiene il server Serverplan, toglie le autorizzazioni inutili (`+a`/`+mx`). Resend resta
    coperto dal suo SPF dedicato su `send.cameraconvista.it`. Verificato su ns1 e ns2.
-2. **Pagine inesistenti rispondono 200 invece di 404** (soft-404). `server/static.ts` serve la SPA
-   con stato 200 per qualsiasi percorso HTML sconosciuto. Google lo segnala già ("Scansionata, ma
-   attualmente non indicizzata"). Spreca budget di scansione e sporca l'indice.
-   *File: `server/static.ts`, `server/seo.ts` (elenco pagine note). Rischio fix: basso-medio.*
+2. ~~Pagine inesistenti rispondono 200 invece di 404~~ **RISOLTO NEL CODICE 16/09/2026** (in
+   attesa di push): i percorsi sconosciuti ora rispondono 404 (mostrando comunque la pagina
+   "non trovato" del sito). Elenco pagine valide in `isKnownPath()` (`server/seo.ts`), applicato in
+   produzione (`server/static.ts`) e sviluppo (`server/vite.ts`). Verificato in locale su build di
+   produzione: pagine vere 200, inventate 404, redirect legacy e sitemap/robots intatti.
 3. ~~Mittente email ancora `onboarding@resend.dev`~~ **RISOLTO 16/09/2026:** aggiunta
    `RESEND_SENDER_DOMAIN=cameraconvista.it` alle env di Render, deploy completato e sito
    verificato. Le prossime email di richiesta evento partono da `noreply@cameraconvista.it`.
@@ -134,7 +135,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 |---|---|---|---|
 | 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 16/09/2026** (env Render + deploy verificato) | — | Render env |
 | 2 | ~~Correggere SPF~~ ✅ **FATTO 16/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
-| 3 | **Fix soft-404**: rispondere 404 per percorsi fuori dall'elenco pagine note | Basso-medio | `server/static.ts`, `server/seo.ts` |
+| 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 16/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
 | 4 | **Titoli/description orientati alle query generiche** ("aperitivo bologna", "cocktail bar bologna", "rooftop") su home, `/cocktail-bar`, `/menu` — è il margine SEO più grande | Basso | `server/seo.ts` / admin SEO |
 | 5 | **JSON-LD LocalBusiness+Menu per Colli** | Basso | `server/seo.ts` |
 | 6 | **Pulizia email legacy** — (a) record Brevo ✅ FATTO 15/09 e (c) DMARC ✅ FATTO 15/09; resta solo (b): conferma casella `reservations@` inutile → via casella + record cPanel | Basso (dopo conferma) | DNS + cPanel |

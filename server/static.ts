@@ -1,18 +1,23 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { generateSeoHtml, injectSeoIntoHtml } from "./seo";
+import { generateSeoHtml, injectSeoIntoHtml, isKnownPath } from "./seo";
 
-async function serveHtmlWithSeo(distPath: string, req: express.Request, res: express.Response) {
+async function serveHtmlWithSeo(
+  distPath: string,
+  req: express.Request,
+  res: express.Response,
+  status = 200,
+) {
   try {
     const htmlPath = path.resolve(distPath, "index.html");
     let html = await fs.promises.readFile(htmlPath, "utf-8");
     const { metaTags, lang } = await generateSeoHtml(req);
     html = injectSeoIntoHtml(html, metaTags, lang);
-    res.status(200).set({ "Content-Type": "text/html" }).send(html);
+    res.status(status).set({ "Content-Type": "text/html" }).send(html);
   } catch (err) {
     console.error("Error serving HTML with SEO:", err);
-    res.sendFile(path.resolve(distPath, "index.html"));
+    res.status(status).sendFile(path.resolve(distPath, "index.html"));
   }
 }
 
@@ -36,10 +41,11 @@ export function serveStatic(app: Express) {
       return next();
     }
 
-    // Only serve HTML fallback if the client accepts text/html
+    // Only serve HTML fallback if the client accepts text/html.
+    // Unknown paths get the SPA shell with a 404 status so search engines drop them.
     const accept = req.headers.accept || "";
     if (accept.includes("text/html")) {
-      return serveHtmlWithSeo(distPath, req, res);
+      return serveHtmlWithSeo(distPath, req, res, isKnownPath(req.path) ? 200 : 404);
     }
 
     next();
