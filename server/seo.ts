@@ -18,6 +18,7 @@ const SLUG_TO_PATH: Record<string, string> = {
   eventi: "/eventi",
   "eventi-privati": "/eventi-privati",
   "eventi-privati-aperitivo": "/eventi-privati/aperitivo",
+  "eventi-privati-cena": "/eventi-privati/cena",
   "eventi-privati-esclusivo": "/eventi-privati/esclusivo",
   galleria: "/galleria",
   "dove-siamo": "/dove-siamo",
@@ -37,7 +38,7 @@ for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
 }
 
 // Must mirror the routes in client/src/App.tsx that are not in SLUG_TO_PATH
-const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini", "/contatti", "/eventi-privati/cena"]);
+const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini", "/contatti"]);
 
 const ADMIN_PATH_PREFIXES = ["/admina", "/colli/admin", "/colli/admina"];
 
@@ -60,6 +61,7 @@ const DEFAULT_PAGE_TITLES_IT: Record<string, string> = {
   eventi: "Eventi - Camera con Vista | Events Bologna",
   "eventi-privati": "Eventi Privati e Aperitivi a Bologna - Camera con Vista",
   "eventi-privati-aperitivo": "Aperitivo Privato a Bologna - Camera con Vista",
+  "eventi-privati-cena": "Cena Privata a Bologna - Camera con Vista",
   "eventi-privati-esclusivo": "Evento Privato Esclusivo a Bologna - Camera con Vista",
   galleria: "Galleria - Camera con Vista | Photo Gallery Bologna",
   "dove-siamo": "Tapas e Cocktail Bar in Centro a Bologna - Dove Siamo",
@@ -77,6 +79,7 @@ const DEFAULT_PAGE_TITLES_EN: Record<string, string> = {
   eventi: "Events - Camera con Vista | Events Bologna",
   "eventi-privati": "Private Events and Aperitivo in Bologna - Camera con Vista",
   "eventi-privati-aperitivo": "Private Aperitivo in Bologna - Camera con Vista",
+  "eventi-privati-cena": "Private Dinner in Bologna - Camera con Vista",
   "eventi-privati-esclusivo": "Exclusive Private Event in Bologna - Camera con Vista",
   galleria: "Gallery - Camera con Vista | Photo Gallery Bologna",
   "dove-siamo": "Tapas and Cocktail Bar in Central Bologna - Where We Are",
@@ -99,6 +102,8 @@ const DEFAULT_PAGE_DESCS_IT: Record<string, string> = {
     "Organizza aperitivi privati, feste aziendali ed eventi esclusivi a Bologna con cocktail bar dedicato, tapas e formule su misura.",
   "eventi-privati-aperitivo":
     "Aperitivo privato a Bologna con cocktail, tapas e finger food selezionati in uno spazio elegante e riservato.",
+  "eventi-privati-cena":
+    "Organizza una cena privata a Bologna: spazio riservato, menu su misura, vini e cocktail d'autore nel centro storico.",
   "eventi-privati-esclusivo":
     "Evento privato esclusivo a Bologna con cocktail bar, tapas e formule personalizzate per gruppi e occasioni speciali.",
   galleria:
@@ -128,6 +133,8 @@ const DEFAULT_PAGE_DESCS_EN: Record<string, string> = {
     "Plan private aperitifs, corporate parties and exclusive events in Bologna with dedicated cocktail bar, tapas and tailored formulas.",
   "eventi-privati-aperitivo":
     "Private aperitivo in Bologna with cocktails, tapas and selected finger food in an elegant reserved space.",
+  "eventi-privati-cena":
+    "Host a private dinner in Bologna: reserved space, tailored menu, wines and signature cocktails in the historic center.",
   "eventi-privati-esclusivo":
     "Exclusive private event in Bologna with cocktail bar, tapas and tailored formulas for groups and special occasions.",
   galleria:
@@ -374,6 +381,34 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       description: lang === "it" ? DEFAULT_PAGE_DESCS_IT.menu : DEFAULT_PAGE_DESCS_EN.menu,
       url: baseUrl + "/menu" + (lang === "en" ? "?lang=en" : ""),
       hasMenuSection: [],
+    });
+  }
+
+  if (slug === "colli") {
+    jsonLd.push({
+      "@context": "https://schema.org",
+      "@type": ["BarOrPub", "Restaurant"],
+      name: "Camera con Vista Colli",
+      description,
+      url: baseUrl + "/colli" + (lang === "en" ? "?lang=en" : ""),
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "Via Cavaioni 1",
+        addressLocality: "Bologna",
+        addressRegion: "BO",
+        postalCode: "40136",
+        addressCountry: "IT",
+      },
+      servesCuisine: ["Aperitivo", "Cocktails", "Wine"],
+      parentOrganization: {
+        "@type": "Organization",
+        name: "Camera con Vista",
+        url: baseUrl,
+      },
+      hasMenu: {
+        "@type": "Menu",
+        url: baseUrl + "/colli/menu" + (lang === "en" ? "?lang=en" : ""),
+      },
     });
   }
 
