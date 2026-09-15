@@ -54,9 +54,9 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
    con stato 200 per qualsiasi percorso HTML sconosciuto. Google lo segnala già ("Scansionata, ma
    attualmente non indicizzata"). Spreca budget di scansione e sporca l'indice.
    *File: `server/static.ts`, `server/seo.ts` (elenco pagine note). Rischio fix: basso-medio.*
-3. **Mittente email ancora `onboarding@resend.dev`.** Il dominio è ora verificato su Resend, ma in
-   produzione manca la variabile che attiva `noreply@cameraconvista.it` (proposta 1).
-   *Rischio: riavvio del servizio (~1 min).*
+3. ~~Mittente email ancora `onboarding@resend.dev`~~ **RISOLTO 16/09/2026:** aggiunta
+   `RESEND_SENDER_DOMAIN=cameraconvista.it` alle env di Render, deploy completato e sito
+   verificato. Le prossime email di richiesta evento partono da `noreply@cameraconvista.it`.
 
 ### BASSO
 
@@ -133,7 +133,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 | # | Proposta | Rischio | File/dove |
 |---|---|---|---|
-| 1 | **Attivare mittente `noreply@cameraconvista.it`**: aggiungere `RESEND_SENDER_DOMAIN=cameraconvista.it` alle env di Render (riavvio ~1 min) | Basso | Render env |
+| 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 16/09/2026** (env Render + deploy verificato) | — | Render env |
 | 2 | **Correggere SPF** in un record unico che includa Google + Resend | Medio (posta) | DNS via cPanel |
 | 3 | **Fix soft-404**: rispondere 404 per percorsi fuori dall'elenco pagine note | Basso-medio | `server/static.ts`, `server/seo.ts` |
 | 4 | **Titoli/description orientati alle query generiche** ("aperitivo bologna", "cocktail bar bologna", "rooftop") su home, `/cocktail-bar`, `/menu` — è il margine SEO più grande | Basso | `server/seo.ts` / admin SEO |
