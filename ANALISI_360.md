@@ -68,7 +68,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
    `autoconfig`, `cpcalendars`, `cpcontacts`, `_caldav*`, `_carddav*`, `_autodiscover._tcp`).
    Zona DNS ora minimale; MX Google, sito e Resend verificati intatti.
 6. ~~Branch `replit-agent`~~ **RISOLTO 15/09/2026** (conferma owner): eliminato; la sua storia
-   resta recuperabile dal bundle `BACKUP/pre-push-404fix-20260916.bundle`.
+   resta recuperabile dal bundle `Documents/SITE-CCV-ARCHIVIO/pre-push-404fix-20260916.bundle`.
 7. **Residui legacy nel worktree** (tutti già in `.gitignore`, nessun danno): `BACKUP/`,
    `coverage/`, `dist/`, `test-results/`, `attached_assets/` (⚠ NON è un residuo: usato dal codice
    via alias `@assets`), `LOGOS/`, file untracked `PROMPT_DEROARTS_CCV_IMMAGINI.md`.
@@ -168,7 +168,7 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
 | 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 15/09/2026** (env Render + deploy verificato) | — | Render env |
 | 2 | ~~Correggere SPF~~ ✅ **FATTO 15/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
 | 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 15/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
-| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `BACKUP/pages-meta-backup-20260916.json` | — | DB via admin SEO |
+| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `~/Documents/SITE-CCV-ARCHIVIO/pages-meta-backup-20260916.json` | — | DB via admin SEO |
 | 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
 | 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 15/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |

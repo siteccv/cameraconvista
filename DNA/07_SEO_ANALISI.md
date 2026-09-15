@@ -88,7 +88,7 @@ Tutti i 4 step del piano (+ altri) sono stati implementati scrivendo i meta nel 
 (`pages.meta_title_*`/`meta_description_*` — che vince sui default del codice), IT+EN,
 verificati subito sull'HTML live. Pagine toccate: home, menu, cocktail-bar, dove-siamo,
 carta-vini, eventi-privati, eventi-privati-cena (prima senza meta né slug), colli.
-Valori precedenti in `BACKUP/pages-meta-backup-20260916.json`. Lasciate invariate perché
+Valori precedenti in `~/Documents/SITE-CCV-ARCHIVIO/pages-meta-backup-20260916.json`. Lasciate invariate perché
 già buone o vincenti: colli-menu (CTR 14,8% — non toccare), eventi, galleria,
 eventi-privati-aperitivo/esclusivo. La parola **"rooftop" NON è stata usata** (non
 verificabile che il locale sia un rooftop: chiedere all'owner prima di usarla).
