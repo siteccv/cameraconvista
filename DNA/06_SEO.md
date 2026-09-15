@@ -61,7 +61,7 @@ Redirect canonici rilevanti:
 - `/wine-list` -> `/lista-vini`, `/restaurant-menu` -> `/menu`, `/address-map` -> `/dove-siamo`, `/chi-siamo` -> `/dove-siamo` (vecchi permalink WordPress)
 - `/category/eventi`, `/author/filiberto`, `/2020/san-valentino` -> `/` (residui blog WordPress)
 - `/en/*` -> path canonico con `?lang=en`
-- (`/contatti` NON è un redirect: è una pagina reale del router client)
+- `/contatti` -> `/dove-siamo` (301 server, dal 15/09/2026 — prima era un salto JavaScript client che Google vedeva come pagina vuota)
 - Redirect apex->www e www stesso: gestiti da Render (`redirectForName`) e dal middleware in `server/index.ts`. Il dominio nudo `cameraconvista.it` ha record A verso l'IP apex di Render (216.24.57.8).
 
 ## Noindex pagine nascoste

@@ -38,7 +38,7 @@ for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
 }
 
 // Must mirror the routes in client/src/App.tsx that are not in SLUG_TO_PATH
-const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini", "/contatti"]);
+const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini"]);
 
 const ADMIN_PATH_PREFIXES = ["/admina", "/colli/admin", "/colli/admina"];
 

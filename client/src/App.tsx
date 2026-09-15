@@ -238,12 +238,6 @@ function Router() {
           <Route path="/colli/admina/login">{() => <Redirect to="/colli/admina" />}</Route>
           <Route path="/colli/admina" component={ColliAdminLogin} />
           <Route path="/colli/admina/panel" component={ColliAdminPanel} />
-          <Route path="/contatti">
-            {() => {
-              window.location.replace("/dove-siamo");
-              return null;
-            }}
-          </Route>
           <Route path="/admina/login" component={AdminLoginRoute} />
           <Route path="/admina/settings">
             {() => <ProtectedAdminRoute component={AdminSettings} />}

@@ -49,6 +49,7 @@ export function mountRoutes(app: Express): void {
   app.get("/restaurant-menu", (_req, res) => res.redirect(301, "/menu"));
   app.get("/address-map", (_req, res) => res.redirect(301, "/dove-siamo"));
   app.get("/chi-siamo", (_req, res) => res.redirect(301, "/dove-siamo"));
+  app.get("/contatti", (_req, res) => res.redirect(301, "/dove-siamo"));
   app.get("/category/eventi", (_req, res) => res.redirect(301, "/"));
   app.get("/author/filiberto", (_req, res) => res.redirect(301, "/"));
   app.get("/2020/san-valentino", (_req, res) => res.redirect(301, "/"));
