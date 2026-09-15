@@ -36,7 +36,7 @@ dentro anche il sito di **Camera con Vista Colli** (`/colli` e menu QR `/colli/m
 | OpenAI | traduzioni | solo da codice (su richiesta owner) | — |
 | Unsplash | immagini di default hardcoded | solo da codice (su richiesta owner) | — |
 | Google Workspace | posta del dominio (MX) | non richiesto | — |
-| Brevo | **solo record DNS**, mai nel codice | non richiesto | da chiarire (vedi Residui) |
+| Brevo | **solo record DNS**, mai nel codice | non richiesto | ✅ residuo confermato dall'owner → record DNS rimossi il 15/09/2026 |
 
 ## Problemi trovati
 
@@ -46,8 +46,8 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 ### MEDIO
 
 1. **SPF della posta incompleto.** Il record SPF (`v=spf1 ip4:86.107.36.176 +a +mx ~all`) autorizza
-   solo il vecchio server Serverplan. Non include Google (che gestisce davvero la posta), né Resend,
-   né Brevo. Le email inviate dal dominio rischiano la cartella spam dei destinatari.
+   solo il vecchio server Serverplan. Non include Google (che gestisce davvero la posta) né Resend.
+   Le email inviate dal dominio rischiano la cartella spam dei destinatari.
    *File coinvolti: nessuno (solo DNS). Rischio fix: medio — un errore blocca la posta in uscita; va
    fatto con calma e da solo.*
 2. **Pagine inesistenti rispondono 200 invece di 404** (soft-404). `server/static.ts` serve la SPA
@@ -60,8 +60,8 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### BASSO
 
-4. **DMARC `p=none` con report verso Brevo** (`rua@dmarc.brevo.com`): il monitoraggio va a un
-   servizio probabilmente abbandonato. Da sistemare insieme all'SPF.
+4. ~~DMARC con report verso Brevo~~ **RISOLTO 15/09/2026:** DMARC ora è `v=DMARC1; p=none;` senza
+   riferimenti a Brevo. Politica invariata, solo tolto l'indirizzo di report abbandonato.
 5. **Casella email legacy su cPanel** `reservations@cameraconvista.it` (81k messaggi): non riceve
    più nulla dall'esterno (la posta va su Google). Da confermare che nessuno la usi, poi rimuovere
    casella + record DNS collegati (`webdisk`, `cpcalendars`, `_caldav*`, ecc.).
@@ -76,11 +76,14 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
    `homeDefaults.ts`: dipendenza esterna evitabile; esiste già lo script di migrazione su Supabase.
 
 ### Residui chiariti in questa sessione
-- **Brevo = residuo quasi certo.** Configurato a livello DNS (6 record + DMARC) ma assente dal
-  codice e dalle variabili. Ipotesi: tentativo passato di newsletter/email. **Serve tua conferma
-  che nessuno lo usi** (es. newsletter manuali), poi si rimuovono i record.
-- **Rimossi oggi (test concluso al 100%):** token cPanel `claude-dns` (irrecuperabile), remote git
-  `gitsafe-backup` (host inesistente, era di Replit).
+
+- **Brevo = residuo CONFERMATO dall'owner il 15/09/2026 e rimosso.** Eliminati gli 8 record DNS
+  Brevo/Sendinblue (brevo-code su apex e `inbound`, 4 CNAME DKIM, 2 MX `inbound`) e ripulito il
+  DMARC. Verificato dopo la rimozione: MX Google, CNAME `www`, SPF, record Resend e verifica
+  Google tutti intatti.
+- **Rimossi il 15/09 (test concluso al 100%):** token cPanel `claude-dns` (irrecuperabile), remote
+  git `gitsafe-backup` (host inesistente, era di Replit), variabile doppione `GITHUB_REPO_URL` nel
+  `.env` (non usata dal codice).
 
 ## SEO e indicizzazione
 
@@ -131,11 +134,11 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 | # | Proposta | Rischio | File/dove |
 |---|---|---|---|
 | 1 | **Attivare mittente `noreply@cameraconvista.it`**: aggiungere `RESEND_SENDER_DOMAIN=cameraconvista.it` alle env di Render (riavvio ~1 min) | Basso | Render env |
-| 2 | **Correggere SPF** in un record unico che includa Google + Resend (e Brevo solo se usato) | Medio (posta) | DNS via cPanel |
+| 2 | **Correggere SPF** in un record unico che includa Google + Resend | Medio (posta) | DNS via cPanel |
 | 3 | **Fix soft-404**: rispondere 404 per percorsi fuori dall'elenco pagine note | Basso-medio | `server/static.ts`, `server/seo.ts` |
 | 4 | **Titoli/description orientati alle query generiche** ("aperitivo bologna", "cocktail bar bologna", "rooftop") su home, `/cocktail-bar`, `/menu` — è il margine SEO più grande | Basso | `server/seo.ts` / admin SEO |
 | 5 | **JSON-LD LocalBusiness+Menu per Colli** | Basso | `server/seo.ts` |
-| 6 | **Pulizia email legacy**: (a) conferma Brevo inutilizzato → via i 6 record DNS; (b) conferma casella `reservations@` inutile → via casella + record cPanel; (c) DMARC senza Brevo | Basso (dopo conferme) | DNS + cPanel |
+| 6 | **Pulizia email legacy** — (a) record Brevo ✅ FATTO 15/09 e (c) DMARC ✅ FATTO 15/09; resta solo (b): conferma casella `reservations@` inutile → via casella + record cPanel | Basso (dopo conferma) | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
 | 9 | **Decidere il destino del branch `replit-agent`** (tenere come archivio o eliminare) | Nullo/Basso | git |

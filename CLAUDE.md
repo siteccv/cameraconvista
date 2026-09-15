@@ -14,6 +14,34 @@ Esegui questi controlli **una sola volta a inizio sessione**, in ordine, poi **f
 
 **Condizione di stop globale:** completati i 5 punti, il protocollo e CHIUSO per la sessione. Non rilanciarlo, non ri-verificare in loop. Se un passo e gia a posto, dillo in una riga e prosegui.
 
+## 0bis · Stile e formato delle risposte (vincolante, sempre attivo)
+
+Questa regola vale su **ogni messaggio**, non solo a inizio sessione. Non e una preferenza estetica: risposte lunghe fanno perdere tempo all'utente e bruciano crediti.
+
+**Principio guida:** scrivi il **minimo necessario perche l'utente capisca e possa decidere**. La lunghezza la detta il contenuto, non l'abitudine: una domanda semplice merita due righe, una decisione architetturale merita lo spazio che serve. Quando sei in dubbio, **taglia**: l'utente puo sempre chiedere di approfondire, ma non puo recuperare il tempo perso a leggere.
+
+**Linguaggio.** L'utente **non e tecnico**: usa parole comuni, frasi corte, zero gergo non indispensabile. Se un termine tecnico serve davvero, spiegalo in mezza riga la prima volta. Niente inglesismi quando esiste la parola italiana.
+
+**Struttura di default.** Prima la risposta diretta, poi (solo se serve) il perche, poi il prossimo passo. Mai il contrario: l'utente non deve leggere tre paragrafi per arrivare al punto.
+
+**Cosa NON scrivere mai:**
+- riepiloghi e recap a fine risposta ("in sintesi…", "riassumendo…");
+- ripetere con parole tue quello che l'utente ha appena scritto;
+- raccontare quello che hai appena fatto passo per passo, se ha funzionato;
+- elenchi di file toccati, comandi eseguiti o dettagli di processo non richiesti;
+- preamboli ("ottima domanda", "certamente", "procedo con…") e chiusure di cortesia;
+- disclaimer, cautele generiche, moralizzazioni.
+
+**Domande.** **Una alla volta**, mai liste. Se la scelta e tra alternative, proponile come **opzioni A/B/C** con una riga ciascuna, non come domanda aperta.
+
+**Report, audit e analisi.** Elenca **solo cio che richiede una decisione o un'azione**. Cio che e a posto si chiude in una riga ("resto ok"). Se i problemi sono tanti, dai i primi in ordine di gravita e di': "ce ne sono altri N minori, te li elenco se vuoi".
+
+**Codice.** Mostra solo le righe cambiate o il concetto, non interi file, salvo richiesta esplicita.
+
+**Approfondimento a richiesta.** Il dettaglio lo dai quando l'utente lo chiede ("approfondisci", "dettagli", "spiegami meglio") oppure quando **omettere un dettaglio comporta un rischio reale** (perdita dati, downtime, segreti esposti, costi): in quel caso il rischio va detto **subito e in una riga**, non nascosto in fondo.
+
+**Autocontrollo prima di inviare:** rileggi e togli tutto cio che non cambia la decisione dell'utente. Se una frase si puo eliminare senza perdere informazione, **eliminala**.
+
 ## 1bis · Quando ri-sincronizzare (gate eventi, non a ogni messaggio)
 Ri-esegui la **riconciliazione** (§1: variabili + due link) **solo dopo un evento concreto**, non di continuo:
 - hai **creato/cambiato una variabile o un segreto** nel `.env` -> caricala in App Control;
@@ -32,7 +60,7 @@ App Control e la **cassaforte centrale** delle variabili di ogni progetto (suo S
   - **AGENT:** `GITHUB_URL` (crei tu il repo con `gh`), `GITHUB_TOKEN` e tutti i segreti generati. I due link di deploy li **legge** soltanto (per il `.env` se servono): **non li scrive ne li sovrascrive** in `project_env_variables`. Se sono vuoti e conosci i link reali dal deploy, segnalali all'utente perche li inserisca a mano, senza scriverli tu.
 - **Nomi:** usa i nomi **canonici** (non rinominare). Le `VITE_*` non si archiviano: le generi solo nel `.env` per i frontend Vite (stesso valore).
 
-**Regola comunicazione (fondamentale).** Prima di ogni modifica o sviluppo, **comunica SEMPRE in modo chiaro tutti gli step necessari** per sincronizzare App Control, separando **"cosa faccio io"** e **"cosa devi fare tu"** — perche l'utente potrebbe dimenticare i passaggi. Una sola azione alla volta:
+**Regola comunicazione (fondamentale).** Prima di ogni modifica o sviluppo, **comunica SEMPRE in modo chiaro tutti gli step necessari** per sincronizzare App Control, separando **"cosa faccio io"** e **"cosa devi fare tu"** — perche l'utente potrebbe dimenticare i passaggi. Elenco secco, senza spiegazioni superflue (§0bis). Una sola azione alla volta:
 `AZIONE ORA: <azione>. Poi rispondi "fatto".`
 
 ## 2 · Governance non negoziabile
@@ -51,6 +79,7 @@ Le regole sopra NON sono suggerimenti: trattale come un **pre-commit hook mental
 - File oltre il limite di righe -> **dividilo PRIMA** di continuare, non "dopo".
 - "Non duplicare logiche" -> **cerca prima** se esiste gia; non scrivere codice nuovo senza aver verificato.
 - "Aggiorna la doc" -> **nello stesso intervento**, non in un commit successivo.
+- Risposta lunga o piena di dettagli non richiesti -> **riscrivila prima di inviarla** (§0bis), non giustificarla dopo.
 - Se scopri di aver violato una regola durante l'esecuzione -> **correggi subito**, non segnalarla come "da fare dopo".
 Chi viola una regola produce debito tecnico che un altro operatore dovra correggere.
 
@@ -67,10 +96,10 @@ Accessorie: se il prompt e ambiguo ma il rischio e alto -> chiedi upgrade; se il
 
 ## 3 · Flusso modifiche
 1. Riformula in una riga **cosa fai e cosa non tocchi**.
-2. Se tocca **DB, auth, deploy, architettura** o **elimina dati** -> **fermati e chiedi conferma** (piano).
+2. Se tocca **DB, auth, deploy, architettura** o **elimina dati** -> **fermati e chiedi conferma** (piano). Il piano e sintetico: cosa cambia, cosa rischia, cosa serve dall'utente.
 3. Implementa il **minimo necessario**; riusa l'esistente; non toccare aree non dichiarate. DURANTE la scrittura verifica che ogni file rispetti i limiti di governance (dimensione, modularita, naming): se un file supera il limite, dividilo subito.
 4. Verifica con gli script del progetto (typecheck/lint/build). **Non dichiarare test passati senza eseguirli.**
-5. Chiudi **aggiornando doc/DNA nello stesso intervento**; registra le decisioni tecniche rilevanti nel **decision-log** (`DNA/06_DECISION_LOG.md`). Poi **committa in automatico** il lavoro verificato (§2 · Git).
+5. Chiudi **aggiornando doc/DNA nello stesso intervento**; registra le decisioni tecniche rilevanti nel **decision-log** (`DNA/06_DECISION_LOG.md`). Poi **committa in automatico** il lavoro verificato (§2 · Git). Comunica la chiusura in poche righe: cosa e cambiato e cosa succede ora.
 
 Fix piccoli (un testo, un colore): esegui diretto. Bug: **riproducilo e isola la causa radice** prima di pianificare.
 
@@ -83,7 +112,7 @@ Fix piccoli (un testo, un colore): esegui diretto. Bug: **riproducilo e isola la
 ## 5 · Efficienza e crediti
 - Effort **sobrio** di default; alzalo **solo** per rischio reale (DB/sicurezza/architettura/refactor/bug complesso).
 - **Subagent** solo se realmente necessari.
-- Comunica **una azione alla volta**, sintetico, linguaggio semplice.
+- **Formato e lunghezza delle risposte: vedi §0bis (vincolante).** Una azione alla volta, linguaggio semplice, niente testo superfluo.
 
 ## 6 · Skill on-demand (vivono in App Control, NON qui)
 Non appesantire questo file: queste operazioni si invocano **solo su richiesta**. Quando l'utente le chiede, **recupera il prompt corrispondente da App Control ed eseguilo**:
