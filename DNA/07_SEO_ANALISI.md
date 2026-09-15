@@ -82,7 +82,7 @@ cambiano solo cosa legge Google. Da fare una alla volta, con conferma.
 NB: verificare sempre se l'admin ha già un meta personalizzato per la pagina
 (`page.metaTitleIt`) prima di cambiare il default nel codice: se c'è, vince quello.
 
-## Piano ATTUATO il 16/09/2026 (owner-approved, sessione autonoma)
+## Piano ATTUATO il 15/09/2026 (owner-approved, sessione autonoma)
 
 Tutti i 4 step del piano (+ altri) sono stati implementati scrivendo i meta nel **DB**
 (`pages.meta_title_*`/`meta_description_*` — che vince sui default del codice), IT+EN,
@@ -96,7 +96,7 @@ Contestualmente (stesso giorno, via push): fix soft-404 e JSON-LD LocalBusiness 
 `/colli`. **Ricontrollare CTR in GSC tra 2-4 settimane** sulla proprietà Dominio
 (`sc-domain:cameraconvista.it`).
 
-**Aggiornamento 16/09 pomeriggio — backfill Dominio arrivato.** Scoperta chiave (giu-set 2026):
+**Aggiornamento 15/09 pomeriggio — backfill Dominio arrivato.** Scoperta chiave (giu-set 2026):
 posizione 1,3-1,9 su "ristorante con terrazza bologna" (55 impr), "aperitivo (in) terrazza
 bologna" (66 impr) con **0-1 clic**: la parola non compariva nei testi. Owner: NON siamo rooftop
 (parola vietata), abbiamo un dehors; "terrace" ok in EN. Fatto: description home e cocktail-bar

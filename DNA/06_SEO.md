@@ -68,7 +68,7 @@ Redirect canonici rilevanti:
 
 Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots" content="noindex, nofollow">` iniettato server-side (`server/seo.ts`, campo `noindex` in `SeoData`). Evita che pagine nascoste (es. `/eventi`) vengano marcate Soft 404 da Google. Le pagine visibili non sono toccate. Stessa regola per le pagine evento `/eventi/:id`: se l'evento è inattivo (`active=false`) o inesistente, la pagina è noindex; gli eventi attivi restano indicizzabili.
 
-## Hard 404 per percorsi sconosciuti (16/09/2026)
+## Hard 404 per percorsi sconosciuti (15/09/2026)
 
 I percorsi HTML fuori dall'elenco pagine note rispondono **HTTP 404** servendo comunque la shell SPA (il client mostra la pagina NotFound). L'elenco è `isKnownPath()` in `server/seo.ts`: SLUG_TO_PATH + EXTRA_CLIENT_PATHS + `/eventi/<id numerico>` + prefissi admin — **va tenuto allineato alle route di `client/src/App.tsx`** quando si aggiunge una pagina. Applicato in `server/static.ts` (prod) e `server/vite.ts` (dev, dove il path reale è `req.originalUrl`). Sitemap/robots e redirect legacy non passano di qui.
 
@@ -78,7 +78,9 @@ I percorsi HTML fuori dall'elenco pagine note rispondono **HTTP 404** servendo c
 - Le modifiche SEO non sono soggette al draft/publish delle pagine
 - Il backend le usa direttamente alla richiesta successiva
 - **Precedenza:** DB (`pages.meta_*`) vince sui default in `server/seo.ts`; i default sono solo fallback
-- 16/09/2026: meta ottimizzati sulle query GSC scritti nel DB per 8 pagine (IT+EN, vedi `07_SEO_ANALISI.md`); `eventi-privati-cena` aggiunto a `SLUG_TO_PATH` (meta DB + sitemap attivi); JSON-LD LocalBusiness aggiunto a `/colli`
+- 15/09/2026: meta ottimizzati sulle query GSC scritti nel DB per 8 pagine (IT+EN, vedi `07_SEO_ANALISI.md`); `eventi-privati-cena` aggiunto a `SLUG_TO_PATH` (meta DB + sitemap attivi); JSON-LD LocalBusiness aggiunto a `/colli`
+- 15/09/2026: `/colli` era pagina orfana (mai scansionata da Google) → ora linkata dal footer di tutto il sito principale (`Footer.tsx`, testo stagionale "aprile–inizio ottobre"); description colli con stagionalità nel DB
+- 15/09/2026: conversioni GA4 attive — evento `richiesta_evento` inviato dal server a invio modulo (`server/routes/event-request.ts`, Measurement Protocol, richiede `GA4_API_SECRET`+`GA4_MEASUREMENT_ID` in env) e `prenota_whatsapp` derivato dai click su wa.me (regola nel data stream GA4); entrambi marcati eventi chiave nella proprietà 524837076
 
 ## Regola pratica per l'agent
 

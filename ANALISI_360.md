@@ -45,16 +45,16 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### MEDIO
 
-1. ~~SPF della posta incompleto~~ **RISOLTO 16/09/2026:** il record è ora
+1. ~~SPF della posta incompleto~~ **RISOLTO 15/09/2026:** il record è ora
    `v=spf1 include:_spf.google.com ip4:86.107.36.176 ~all` — include Google (la posta vera),
    mantiene il server Serverplan, toglie le autorizzazioni inutili (`+a`/`+mx`). Resend resta
    coperto dal suo SPF dedicato su `send.cameraconvista.it`. Verificato su ns1 e ns2.
-2. ~~Pagine inesistenti rispondono 200 invece di 404~~ **RISOLTO NEL CODICE 16/09/2026** (in
+2. ~~Pagine inesistenti rispondono 200 invece di 404~~ **RISOLTO NEL CODICE 15/09/2026** (in
    attesa di push): i percorsi sconosciuti ora rispondono 404 (mostrando comunque la pagina
    "non trovato" del sito). Elenco pagine valide in `isKnownPath()` (`server/seo.ts`), applicato in
    produzione (`server/static.ts`) e sviluppo (`server/vite.ts`). Verificato in locale su build di
    produzione: pagine vere 200, inventate 404, redirect legacy e sitemap/robots intatti.
-3. ~~Mittente email ancora `onboarding@resend.dev`~~ **RISOLTO 16/09/2026:** aggiunta
+3. ~~Mittente email ancora `onboarding@resend.dev`~~ **RISOLTO 15/09/2026:** aggiunta
    `RESEND_SENDER_DOMAIN=cameraconvista.it` alle env di Render, deploy completato e sito
    verificato. Le prossime email di richiesta evento partono da `noreply@cameraconvista.it`.
 
@@ -62,12 +62,12 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 4. ~~DMARC con report verso Brevo~~ **RISOLTO 15/09/2026:** DMARC ora è `v=DMARC1; p=none;` senza
    riferimenti a Brevo. Politica invariata, solo tolto l'indirizzo di report abbandonato.
-5. ~~Casella email legacy su cPanel~~ **RISOLTO 16/09/2026** (conferma owner): casella
+5. ~~Casella email legacy su cPanel~~ **RISOLTO 15/09/2026** (conferma owner): casella
    `reservations@` eliminata (pesava solo 79 KB — il vecchio dato "81k" era un'altra metrica) e
    rimossi 22 record DNS legati alla posta cPanel (`mail`, `webmail`, `webdisk`, `autodiscover`,
    `autoconfig`, `cpcalendars`, `cpcontacts`, `_caldav*`, `_carddav*`, `_autodiscover._tcp`).
    Zona DNS ora minimale; MX Google, sito e Resend verificati intatti.
-6. ~~Branch `replit-agent`~~ **RISOLTO 16/09/2026** (conferma owner): eliminato; la sua storia
+6. ~~Branch `replit-agent`~~ **RISOLTO 15/09/2026** (conferma owner): eliminato; la sua storia
    resta recuperabile dal bundle `BACKUP/pre-push-404fix-20260916.bundle`.
 7. **Residui legacy nel worktree** (tutti già in `.gitignore`, nessun danno): `BACKUP/`,
    `coverage/`, `dist/`, `test-results/`, `attached_assets/` (⚠ NON è un residuo: usato dal codice
@@ -87,7 +87,7 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
   git `gitsafe-backup` (host inesistente, era di Replit), variabile doppione `GITHUB_REPO_URL` nel
   `.env` (non usata dal codice).
 
-### Residui Replit — analisi del 16/09/2026 (PROPOSTA, nulla eliminato)
+### Residui Replit — analisi del 15/09/2026 (PROPOSTA, nulla eliminato)
 
 Il progetto è quasi pulito: niente file `.replit`/`replit.nix`, niente dipendenze `@replit/*`,
 niente riferimenti nel codice. Restano:
@@ -110,10 +110,10 @@ niente riferimenti nel codice. Restano:
   correttamente "pagina con reindirizzamento")
 - ✅ Sitemap dinamica valida con hreflang; robots.txt corretto (blocca `/admina` e `/api/admin`)
 - ✅ JSON-LD presente (menu, indirizzo, geo, breadcrumb); GTM + GA4 attivi con consenso cookie
-- ✅ Soft-404 risolto e in produzione dal 16/09/2026 (problema n. 2)
+- ✅ Soft-404 risolto e in produzione dal 15/09/2026 (problema n. 2)
 - 📊 Dati (12 mesi, da DNA/07): ~5.700 clic, ~110k impressioni, posizione media 5,6. Brand
   dominante (pos. ~1, CTR 23-36%). Mobile domina (75% dei clic).
-- 🆕 Creata la **proprietà Dominio** su Search Console (copre tutto): al 16/09 il backfill non è
+- 🆕 Creata la **proprietà Dominio** su Search Console (copre tutto): al 15/09 il backfill non è
   ancora arrivato (query vuote) — ricontrollare tra 1-2 giorni via service account.
 
 **Query con margine (la base dello step 4, da monitorare in GSC tra 2-4 settimane):**
@@ -123,13 +123,13 @@ niente riferimenti nel codice. Restano:
 | aperitivo bologna | 2.843 | 4,3 | 0,49% | home ("Aperitivo a Bologna in Centro con Vista") |
 | cocktail bar bologna | 1.232 | 7,6 | 0,97% | /cocktail-bar ("Cocktail Bar in Centro a Bologna") |
 | aperitivo bologna centro | 1.084 | 4,6 | 0,65% | home (parola "Centro" ora nel title) |
-| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (owner 16/09: NON siamo un rooftop — parola esclusa) |
+| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (owner 15/09: NON siamo un rooftop — parola esclusa) |
 | best restaurants with view | 584 | 12,3 | 0% | home EN ("Aperitivo & Tapas with a View") |
 | ricerche locali "santo stefano" | — | — | — | /dove-siamo (title con "Piazza Santo Stefano") |
-| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — dal 16/09 description con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) |
+| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — dal 15/09 description con "tavoli all'aperto/dehors" (IT) e "terrace" (EN) |
 | aperitivo (in) terrazza bologna | 66 (3,5 mesi) | 1,7-1,9 | ~1% | idem — pos. già top ma la parola non compariva nei testi |
 
-**🆕 Backfill proprietà Dominio ARRIVATO il 16/09**: le query sopra su "terrazza" vengono dai dati
+**🆕 Backfill proprietà Dominio ARRIVATO il 15/09 pomeriggio**: le query sopra su "terrazza" vengono dai dati
 freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo come parola descrittiva.
 
 ### Camera Colli (/colli e /colli/menu)
@@ -139,7 +139,10 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
   miglior CTR da Google (14,8%)
 - ⚠ Il menu QR vive sotto il dominio CCV: giusto così finché Colli non ha un dominio proprio
 - ✅ JSON-LD LocalBusiness (BarOrPub/Restaurant, Via Cavaioni 1, link al menu) aggiunto a `/colli`
-  il 16/09/2026; title/description Colli ora orientati ad "aperitivo sui colli di Bologna"
+  il 15/09/2026; title/description Colli ora orientati ad "aperitivo sui colli di Bologna"
+- ✅ 15/09/2026: `/colli` non più orfana — link nel footer di tutto il sito (era "sconosciuta a
+  Google": mai scansionata); description con stagionalità aprile–inizio ottobre. Conversioni GA4
+  attive: `richiesta_evento` (server-side, verificato in tempo reale) e `prenota_whatsapp`
 
 ## Automatismi attivi
 
@@ -162,16 +165,16 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
 
 | # | Proposta | Rischio | File/dove |
 |---|---|---|---|
-| 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 16/09/2026** (env Render + deploy verificato) | — | Render env |
-| 2 | ~~Correggere SPF~~ ✅ **FATTO 16/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
-| 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 16/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
-| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 16/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `BACKUP/pages-meta-backup-20260916.json` | — | DB via admin SEO |
-| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 16/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
-| 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 16/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
+| 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 15/09/2026** (env Render + deploy verificato) | — | Render env |
+| 2 | ~~Correggere SPF~~ ✅ **FATTO 15/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
+| 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 15/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
+| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `BACKUP/pages-meta-backup-20260916.json` | — | DB via admin SEO |
+| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** + collegata la pagina `/eventi-privati/cena` a meta e sitemap | — | `server/seo.ts` |
+| 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 15/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
 | 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
 | 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
-| 9 | ~~Branch `replit-agent`~~ ✅ **ELIMINATO 16/09/2026** (storia nel bundle in `BACKUP/`) | — | git |
-| 10 | **Salvare le richieste evento su Supabase** (proposta owner 16/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin |
+| 9 | ~~Branch `replit-agent`~~ ✅ **ELIMINATO 15/09/2026** (storia nel bundle in `BACKUP/`) | — | git |
+| 10 | **Salvare le richieste evento su Supabase** (proposta owner 15/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin |
 
 ## Consolidamento fatto in questa sessione (già attivo)
 
