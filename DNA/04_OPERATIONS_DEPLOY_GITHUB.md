@@ -24,6 +24,8 @@ Raccogliere i workflow operativi che l'agent deve conoscere prima di eseguire co
 - Build: `npm run build`
 - Il build usa `scripts/build.ts`
 - Start production-like: `PORT=5002 npm run start` oppure porta desiderata
+- **Obbligatorio dopo ogni modifica alle dipendenze del server: avviare davvero il bundle** (`PORT=5005 NODE_ENV=production node --env-file-if-exists=.env dist/index.cjs`). `npm run dev` esegue i sorgenti TypeScript e non carica mai `dist/index.cjs`, quindi non intercetta gli errori di bundling: il 17/09/2026 l'aggiornamento di `sharp` e passato da tutti i controlli locali ed e uscito con exit 1 solo su Render
+- L'`allowlist` in `scripts/build.ts` decide cosa finisce dentro il bundle: un pacchetto che usa `import.meta.url` o `createRequire` non puo starci, va lasciato esterno
 
 ## Check e test
 

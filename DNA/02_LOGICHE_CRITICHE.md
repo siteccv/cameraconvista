@@ -95,6 +95,7 @@ File chiave:
 
 - Upload e rotazioni passano dal backend
 - Il backend converte/comprime in WebP con `sharp` (qualita 80, lato massimo 1920, `fit: inside` senza ingrandire). Versione `^0.35.4` dal 17/09/2026: l'output e stato confrontato con la 0.34.5 su logo PNG e foto reale ed e risultato identico byte per byte. Nota: dalla 0.35 `sharp` non espone piu `./package.json` ne `lib/index.js`, quindi va importata per nome
+- **`sharp` NON va rimesso nell'`allowlist` di `scripts/build.ts`**: dalla 0.35 usa `createRequire(import.meta.url)`, che nel bundle CJS diventa `undefined` e fa uscire il server con exit 1 all'avvio (deploy `b2357d1`, 17/09/2026). Deve restare esterno e risolto da `node_modules` a runtime
 - Non creare upload diretti client-side fuori dai flussi esistenti
 
 File chiave:
