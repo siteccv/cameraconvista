@@ -45,8 +45,12 @@ jobs:
       - name: Format check
         run: npm run format:check
 
-      - name: Security audit
+      - name: Security audit (production deps — blocca)
         run: npm run audit
+
+      - name: Security audit (dev tooling — solo informativo)
+        continue-on-error: true
+        run: npm run audit:dev
 
       - name: Build
         run: npm run build

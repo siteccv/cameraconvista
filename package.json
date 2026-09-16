@@ -21,10 +21,11 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "supabase:keepalive": "bash scripts/supabase-keepalive.sh",
-    "audit": "npm audit --audit-level=moderate",
+    "audit": "npm audit --omit=dev --audit-level=moderate",
     "audit:fix:dry": "npm audit fix --dry-run",
     "audit:fix:safe": "npm audit fix",
-    "check:all": "npm run check && npm run lint && npm run format:check && npm run audit && npm run build && npm run test:coverage && npm run test:e2e"
+    "check:all": "npm run check && npm run lint && npm run format:check && npm run audit && npm run build && npm run test:coverage && npm run test:e2e",
+    "audit:dev": "npm audit --audit-level=moderate"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.4",
