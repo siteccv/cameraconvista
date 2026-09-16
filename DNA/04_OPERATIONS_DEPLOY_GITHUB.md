@@ -35,6 +35,8 @@ Controlli principali:
 - `npm run test`
 - `npm run build`
 - `npm run test:e2e`
+- `npm run audit` — dal 17/09/2026 e limitato alle dipendenze di produzione (`--omit=dev`): e il controllo che blocca la CI, perche riguarda cio che finisce davvero online
+- `npm run audit:dev` — audit completo (dev incluse); in CI gira come passo `continue-on-error`, informativo, non blocca
 
 Target completo disponibile:
 
@@ -199,6 +201,7 @@ Fatti operativi:
 - Repo: `https://github.com/siteccv/cameraconvista.git`
 - Remote atteso: `github`
 - Branch atteso: `main`
+- Identita commit: impostata a livello di progetto il 17/09/2026 su `siteccv <247690669+siteccv@users.noreply.github.com>`. Prima non c'era e i commit ereditavano l'identita globale del Mac (`camerajazzclub`, di un altro progetto). Verificare `git config --local user.name` prima di committare; non toccare mai la configurazione globale.
 
 Workflow persistente:
 

@@ -94,7 +94,7 @@ File chiave:
 ## Media e immagini
 
 - Upload e rotazioni passano dal backend
-- Il backend converte/comprime in WebP con `sharp`
+- Il backend converte/comprime in WebP con `sharp` (qualita 80, lato massimo 1920, `fit: inside` senza ingrandire). Versione `^0.35.4` dal 17/09/2026: l'output e stato confrontato con la 0.34.5 su logo PNG e foto reale ed e risultato identico byte per byte. Nota: dalla 0.35 `sharp` non espone piu `./package.json` ne `lib/index.js`, quindi va importata per nome
 - Non creare upload diretti client-side fuori dai flussi esistenti
 
 File chiave:
