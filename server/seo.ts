@@ -42,6 +42,47 @@ const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini"]);
 
 const ADMIN_PATH_PREFIXES = ["/admina", "/colli/admin", "/colli/admina"];
 
+// Giorni schema.org indicizzati come in `client/src/components/layout/Footer.tsx`:
+// 0 = lunedi. Gli orari veri vivono in `site_settings.footer_settings`, quindi li
+// rileggiamo da li' invece di scriverli a mano: cosi' quello che diamo a Google
+// resta sempre uguale a quello che il sito mostra in pagina.
+const SCHEMA_DAYS = [
+  "https://schema.org/Monday",
+  "https://schema.org/Tuesday",
+  "https://schema.org/Wednesday",
+  "https://schema.org/Thursday",
+  "https://schema.org/Friday",
+  "https://schema.org/Saturday",
+  "https://schema.org/Sunday",
+];
+
+function buildOpeningHoursSpecification(footerData: any): object[] {
+  const entries = Array.isArray(footerData?.hours) ? footerData.hours : [];
+  const spec: object[] = [];
+
+  for (const entry of entries) {
+    if (!entry || entry.isClosed) continue;
+
+    const days = (Array.isArray(entry.selectedDays) ? entry.selectedDays : [])
+      .filter((d: unknown) => Number.isInteger(d) && (d as number) >= 0 && (d as number) <= 6)
+      .map((d: number) => SCHEMA_DAYS[d]);
+
+    const range = /^(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})$/.exec(
+      String(entry.hours ?? "").trim(),
+    );
+    if (!days.length || !range) continue;
+
+    spec.push({
+      "@type": "OpeningHoursSpecification",
+      dayOfWeek: days,
+      opens: `${range[1].padStart(2, "0")}:${range[2]}`,
+      closes: `${range[3].padStart(2, "0")}:${range[4]}`,
+    });
+  }
+
+  return spec;
+}
+
 export function isKnownPath(rawPath: string): boolean {
   const pathname = rawPath.split("?")[0].replace(/\/$/, "") || "/";
   if (PATH_TO_SLUG[pathname] !== undefined || EXTRA_CLIENT_PATHS.has(pathname)) {
@@ -340,6 +381,8 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       }
     } catch {}
 
+    const openingHours = buildOpeningHoursSpecification(footerData);
+
     jsonLd.push({
       "@context": "https://schema.org",
       "@type": ["BarOrPub", "Restaurant"],
@@ -364,6 +407,7 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       },
       servesCuisine: ["Tapas", "Cocktails", "Italian", "Wine"],
       priceRange: "€€-€€€",
+      ...(openingHours.length > 0 ? { openingHoursSpecification: openingHours } : {}),
       image: baseUrl + "/favicon.png",
       sameAs: [footerData.instagramUrl, footerData.facebookUrl].filter(Boolean),
       hasMenu: {

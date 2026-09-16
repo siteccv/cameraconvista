@@ -145,6 +145,15 @@ Cause in ordine di impatto:
 
 **Fix 404 sull'header `Accept`** — vedi `06_SEO.md`. Era la causa del rifiuto della richiesta di indicizzazione su `/cocktail-bar` e molto probabilmente dei Soft 404 in massa.
 
-### Prossimo passo proposto (non ancora fatto)
+Aggiunto `openingHoursSpecification` al JSON-LD della home, **derivato da `site_settings.footer_settings`** (`buildOpeningHoursSpecification()` in `server/seo.ts`) e non scritto a mano: se l'owner cambia gli orari dall'admin, cambiano anche i dati dati a Google. Oggi risulta 18:00-01:00 tutti i giorni. Il JSON-LD di Colli non e' toccato: e' un'altra sede con orari suoi.
 
-Far servire dal server il testo vero delle pagine (causa 2), partendo da `/cocktail-bar`, che risolve anche la 3. Da valutare insieme ai 54 Soft 404 segnalati in Search Console con convalida fallita.
+**Incoerenza da chiarire:** il footer dice `18:00`, diverse meta description dicono "aperti dalle 17.30". Una delle due e' sbagliata. Non risolta il 17/09/2026 perche' l'orario vero va confermato dall'owner.
+
+### Da fare nella prossima sessione (circa una settimana dopo il 17/09/2026)
+
+L'ordine conta: le tre leve accese il 17/09 (scheda Google, titolo home, fix 404) hanno bisogno di settimane per produrre effetti. Aggiungere subito altro impedisce di capire cosa ha funzionato.
+
+1. **Rileggere i Soft 404.** Erano 54 con convalida fallita, ma il rapporto Search Console guardato il 17/09 era fermo al 14/09 e il fix sull'header `Accept` e' arrivato dopo: molti potrebbero essere spariti da soli. L'elenco degli URL **non e' esposto dall'API**, va esportato a mano dal rapporto "Indicizzazione delle pagine".
+2. **Misurare l'effetto.** Confrontare con la base del 17/06-16/09: 2393 clic, 38767 impressioni, posizione 5,4, 94% di clic brand. Guardare in particolare la posizione su "cocktail bar bologna" (era 6,6 per la home e 10,7 per `/cocktail-bar`) e le impressioni su bistrot (erano 37) dopo l'aggiunta delle categorie.
+3. **Solo a quel punto decidere** se serve davvero far servire dal server il testo vero delle pagine (causa 2), partendo da `/cocktail-bar`, che risolverebbe anche la 3. Potrebbe non servire piu'.
+4. Chiarire l'orario vero (17.30 o 18.00) e allineare footer e meta description.
