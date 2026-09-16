@@ -118,3 +118,33 @@ Stima: +200-350 clic/anno. Ricontrollo CTR in GSC tra 2-4 settimane.
 
 - Durata media sessione ~28s (Analytics): capire se è normale per sito-vetrina di
   locale o segnale di problema. Serve il report "Pagine e schermate" di GA4.
+
+## Analisi 17/09/2026 — perche' non usciamo sulle ricerche generiche
+
+Dati Search Console 17/06-16/09/2026: 2393 clic, 38767 impressioni, posizione media 5,4.
+**Il 94% dei clic arriva da chi cerca gia' il nome** (1689 clic brand contro 100 clic su 475 query generiche): chi ci conosce ci trova, chi non ci conosce quasi mai.
+
+Impressioni per tema: aperitivo 3878 (pos. 6,6) · terrazza/vista 950 (6,2) · cocktail bar 764 (6,5) · ristorante/cena 685 (5,6) · bistrot 37 (12,1) · vini 4 (14,2) · dopocena ed eventi privati 0.
+
+Cause in ordine di impatto:
+
+1. **Sulle ricerche generiche di categoria Google mostra la mappa, non i siti.** La leva e' la scheda Google Business, non il codice. Confronto verificato con Guero (sempre nei primi risultati su "cocktail bar bologna"): 170 parole servite, 3 heading, **nessuna** meta description, **nessun** dato strutturato — un sito piu' debole del nostro. Non vince col sito.
+2. **La home servita a Googlebot contiene 11 parole** (`<div id="root"></div>`, zero heading). Meta, canonical, hreflang e JSON-LD ci sono, il corpo no: Google deve fare un secondo passaggio di rendering. Frena tutte le ricerche a testo.
+3. **Home e `/cocktail-bar` competono sulla stessa query.** Su "cocktail bar bologna" la home e' in 6,6 e `/cocktail-bar` in 10,7: Google non sceglie e non spinge nessuna delle due.
+4. **Tempo di risposta** 0,20-0,50s contro 0,06-0,15s di Guero (piano free Render).
+5. Temi scoperti: bistrot, vini, dopocena, eventi privati.
+6. `openingHoursSpecification` assente dal JSON-LD.
+
+**Ipotesi smentita:** non ci sono URL indicizzati rotti. Controllo URL Inspection su `/`, `/dove-siamo`, `/menu`: tutte "Submitted and indexed", `pageFetchState: SUCCESSFUL`.
+
+### Interventi fatti il 17/09/2026
+
+**Scheda Google Business** (leva 1): rimosso l'attributo "Prenotazione obbligatoria" (falso, si entra anche senza prenotare); riscritta la descrizione mettendo cocktail bar e bistrot davanti all'aperitivo; categorie portate a "Locale specializzato in cocktail" (principale) + Tapas, Ristorante, Bistro'. Scartata "Enoteca": 55 etichette in carta non sono un'enoteca e sui vini ci sono 4 impressioni in 3 mesi. La fascia di prezzo (10-60 €, "segnalato da 159 persone") non e' modificabile dal pannello: la determinano le risposte dei clienti.
+
+**Titolo home** (`pages.meta_title_it`): da "Aperitivo a Bologna in Centro con Vista" a **"Cocktail Bar e Aperitivo a Bologna - Camera con Vista"**. Tenuta "aperitivo" di proposito: e' la parola con cinque volte le impressioni di "cocktail bar", toglierla costerebbe.
+
+**Fix 404 sull'header `Accept`** — vedi `06_SEO.md`. Era la causa del rifiuto della richiesta di indicizzazione su `/cocktail-bar` e molto probabilmente dei Soft 404 in massa.
+
+### Prossimo passo proposto (non ancora fatto)
+
+Far servire dal server il testo vero delle pagine (causa 2), partendo da `/cocktail-bar`, che risolve anche la 3. Da valutare insieme ai 54 Soft 404 segnalati in Search Console con convalida fallita.
