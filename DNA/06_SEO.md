@@ -72,6 +72,12 @@ Le pagine con `is_visible=false` o `is_draft=true` ricevono `<meta name="robots"
 
 I percorsi HTML fuori dall'elenco pagine note rispondono **HTTP 404** servendo comunque la shell SPA (il client mostra la pagina NotFound). L'elenco è `isKnownPath()` in `server/seo.ts`: SLUG_TO_PATH + EXTRA_CLIENT_PATHS + `/eventi/<id numerico>` + prefissi admin — **va tenuto allineato alle route di `client/src/App.tsx`** quando si aggiunge una pagina. Applicato in `server/static.ts` (prod) e `server/vite.ts` (dev, dove il path reale è `req.originalUrl`). Sitemap/robots e redirect legacy non passano di qui.
 
+### Le pagine note NON devono dipendere dall'header `Accept` (17/09/2026)
+
+In produzione il fallback SPA serviva HTML **solo** se `Accept` conteneva `text/html`, altrimenti cadeva nel 404 di Express. Risultato: lo strumento di ispezione di Search Console, che chiede con `Accept: */*`, riceveva **404 su `/cocktail-bar`** e rifiutava la richiesta di indicizzazione ("Recupero pagina: Operazione non riuscita: Non trovata (404)", 17/09/2026). La home non era colpita perche' `/` e' servita dallo static middleware prima del fallback.
+
+Da `server/static.ts`: se `isKnownPath()` e' true la pagina viene servita **sempre**, qualunque sia l'`Accept`. Il vincolo su `text/html` resta solo per i percorsi sconosciuti, che continuano a rispondere 404. Non reintrodurre il filtro sull'`Accept` per le pagine note: e' la causa verificata dei Soft 404 in massa su Search Console.
+
 ## Admin SEO
 
 - I meta tag pagina sono gestiti dalla sezione admin SEO

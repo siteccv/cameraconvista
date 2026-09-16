@@ -37,7 +37,7 @@ Questa scheda documenta lo stato operativo reale dell'integrazione Colli. Ogni m
 - il resto del sito mantiene `X-Frame-Options: SAMEORIGIN`;
 - nessuna apertura CORS aggiuntiva e stata introdotta per `/api/colli/menu`;
 - CA'SHIN oggi incorpora ancora il vecchio Render `https://ccvcolli-ghxg.onrender.com/` e dovra aggiornare il `src` dell'iframe verso `https://www.cameraconvista.it/colli/menu` dopo deploy;
-- la rotta `/colli/menu` e valida per browser reali; controlli grezzi senza `Accept: text/html` possono restituire `Cannot GET /colli/menu` per via del fallback SPA e non vanno usati come unica verifica funzionale dell'URL pubblico.
+- la rotta `/colli/menu` risponde 200 anche senza `Accept: text/html` (corretto il 17/09/2026, vedi `DNA/06_SEO.md`). Prima del fix un controllo grezzo restituiva `Cannot GET /colli/menu`: se ricompare, il filtro sull'`Accept` e' stato reintrodotto in `server/static.ts`.
 - il menu digitale `/colli/menu` ha di nuovo una intro splash iniziale stile progetto Colli originale, con logo centrato e fade in/out omogeneo;
 - la splash dura `4.5s`, viene mostrata una sola volta per sessione browser e non ritarda inutilmente il fetch dei dati menu.
 

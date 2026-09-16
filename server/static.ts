@@ -41,11 +41,15 @@ export function serveStatic(app: Express) {
       return next();
     }
 
-    // Only serve HTML fallback if the client accepts text/html.
-    // Unknown paths get the SPA shell with a 404 status so search engines drop them.
+    // Una pagina vera del sito va servita sempre, anche se il client non dichiara
+    // di accettare text/html: lo strumento di ispezione di Google chiede con
+    // "Accept: */*" e altrimenti riceve un 404 (verificato 17/09/2026 su /cocktail-bar).
+    // Gli indirizzi sconosciuti restano come prima: shell SPA con 404 solo per chi
+    // chiede HTML, cosi i motori di ricerca li lasciano cadere.
     const accept = req.headers.accept || "";
-    if (accept.includes("text/html")) {
-      return serveHtmlWithSeo(distPath, req, res, isKnownPath(req.path) ? 200 : 404);
+    const known = isKnownPath(req.path);
+    if (known || accept.includes("text/html")) {
+      return serveHtmlWithSeo(distPath, req, res, known ? 200 : 404);
     }
 
     next();
