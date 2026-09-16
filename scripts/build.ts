@@ -18,7 +18,8 @@ const allowlist = [
   "openai",
   "pg",
   "resend",
-  "sharp",
+  // sharp resta esterno: dalla 0.35 usa createRequire(import.meta.url),
+  // che nel bundle CJS diventa undefined e fa uscire il server all'avvio
   "zod",
 ];
 
