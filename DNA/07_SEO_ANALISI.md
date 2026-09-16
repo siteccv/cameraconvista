@@ -15,26 +15,26 @@
 
 Ricerche "di marca" (chi cerca il nome del locale): dominio assoluto.
 
-| Query | Posizione | CTR |
-|---|---|---|
-| camera con vista bologna | 1,09 | 25% |
-| camera con vista colli | 1,39 | 23% |
-| camera con vista bistrot | 1,73 | 24% |
-| ristorante camera con vista bologna | 1,07 | 36% |
+| Query                               | Posizione | CTR |
+| ----------------------------------- | --------- | --- |
+| camera con vista bologna            | 1,09      | 25% |
+| camera con vista colli              | 1,39      | 23% |
+| camera con vista bistrot            | 1,73      | 24% |
+| ristorante camera con vista bologna | 1,07      | 36% |
 
 Pagina Colli menu: CTR **14,8%** (ottimo). La home prende il grosso del traffico
 (~4.000 clic / ~105k impressioni).
 
 ## Traffico per pagina (12 mesi)
 
-| Pagina | Clic | Impressioni | CTR |
-|---|---|---|---|
-| / (home) | 4.082 | 105.667 | 3,86% |
-| /colli/menu | 852 | 5.747 | 14,83% |
-| /menu | 788 | 21.084 | 3,74% |
-| /cocktail-bar | 78 | 12.243 | 0,64% |
-| /dove-siamo | 46 | 9.323 | 0,49% |
-| /eventi-privati | 30 | 5.624 | 0,53% |
+| Pagina          | Clic  | Impressioni | CTR    |
+| --------------- | ----- | ----------- | ------ |
+| / (home)        | 4.082 | 105.667     | 3,86%  |
+| /colli/menu     | 852   | 5.747       | 14,83% |
+| /menu           | 788   | 21.084      | 3,74%  |
+| /cocktail-bar   | 78    | 12.243      | 0,64%  |
+| /dove-siamo     | 46    | 9.323       | 0,49%  |
+| /eventi-privati | 30    | 5.624       | 0,53%  |
 
 ## Dispositivi
 
@@ -45,14 +45,14 @@ prioritizzato. Il desktop è più debole in posizione ma converte meglio in CTR.
 
 Appare tanto ma pochi clic — qui c'è il potenziale non sfruttato:
 
-| Query | Impressioni | Posizione | CTR | Clic |
-|---|---|---|---|---|
-| aperitivo bologna | 2.843 | 4,33 | 0,49% | 14 |
-| cocktail bar bologna | 1.232 | 7,62 | 0,97% | 12 |
-| aperitivo bologna centro | 1.084 | 4,64 | 0,65% | 7 |
-| bar (generico) | 701 | 12,6 | — | 2 |
-| rooftop bologna | 511 | 5,46 | 0,20% | 1 |
-| best restaurants with view | 584 | 12,3 | 0% | 0 |
+| Query                      | Impressioni | Posizione | CTR   | Clic |
+| -------------------------- | ----------- | --------- | ----- | ---- |
+| aperitivo bologna          | 2.843       | 4,33      | 0,49% | 14   |
+| cocktail bar bologna       | 1.232       | 7,62      | 0,97% | 12   |
+| aperitivo bologna centro   | 1.084       | 4,64      | 0,65% | 7    |
+| bar (generico)             | 701         | 12,6      | —     | 2    |
+| rooftop bologna            | 511         | 5,46      | 0,20% | 1    |
+| best restaurants with view | 584         | 12,3      | 0%    | 0    |
 
 Migliaia di impressioni su ricerche calde (aperitivo/cocktail/rooftop/vista) che
 NON diventano clic: Google ci mostra, ma l'utente clicca il concorrente col titolo

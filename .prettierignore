@@ -9,3 +9,8 @@ attached_assets
 package-lock.json
 .env
 .env.*
+
+# CLAUDE.md arriva da App Control: riformattarlo lo farebbe divergere dal prompt remoto
+CLAUDE.md
+# file di lavoro locale, non fa parte del repo
+PROMPT_DEROARTS_CCV_IMMAGINI.md

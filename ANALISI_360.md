@@ -19,28 +19,29 @@ dentro anche il sito di **Camera con Vista Colli** (`/colli` e menu QR `/colli/m
 
 ## Mappa piattaforme esterne
 
-| Piattaforma | Dove è usata | Accesso | Cosa manca |
-|---|---|---|---|
-| GitHub (`siteccv/cameraconvista`) | repo del codice, CI | ✅ lettura+scrittura (gh CLI + token) | — |
-| Render (`cameraconvista`) | hosting, deploy unico, autoDeploy su `main` | ✅ lettura+scrittura (API key) | — |
-| Supabase (`pjrdnfbfpogvztfjuxya`) | DB (23 tabelle) + Storage (2 bucket) | ✅ anon, service role, Postgres diretto | — |
-| Serverplan / cPanel (`cms042.cmshigh.com`) | dominio, DNS, 1 casella email legacy | ✅ lettura+scrittura (API token `claude-audit`) | — |
-| Google Search Console | indicizzazione | ✅ via service account (proprietà Dominio, creata oggi) | dati in ripopolamento 1-2 giorni |
-| Google Analytics (GA4 `properties/524837076`) | statistiche traffico | ✅ via service account (Lettore) | — |
-| Resend (account `cameraconvista`) | email richieste eventi | ✅ chiave full-access `claude-audit` | attivare mittente proprio su Render (proposta 1) |
-| Google Tag Manager `GTM-M7MXXDG3` | carica GA4 `G-C2445988JV` | solo da codice (su richiesta owner) | — |
-| Google Sheets | sync menu/vini/cocktail via CSV pubblici | solo da codice (su richiesta owner) | — |
-| resOS | prenotazioni (link esterni) | solo da codice (su richiesta owner) | — |
-| App RSVP (`rsvp-p91d.onrender.com`) | inviti eventi (progetto separato, attivo) | solo da codice (su richiesta owner) | — |
-| Bridge Colli (`ccvcolli-ghxg.onrender.com`) | fonte menu Colli (fallback, oggi 404 su `/`) | solo da codice (su richiesta owner) | — |
-| OpenAI | traduzioni | solo da codice (su richiesta owner) | — |
-| Unsplash | immagini di default hardcoded | solo da codice (su richiesta owner) | — |
-| Google Workspace | posta del dominio (MX) | non richiesto | — |
-| Brevo | **solo record DNS**, mai nel codice | non richiesto | ✅ residuo confermato dall'owner → record DNS rimossi il 15/09/2026 |
+| Piattaforma                                   | Dove è usata                                                                                             | Accesso                                                         | Cosa manca                                                                      |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| GitHub (`siteccv/cameraconvista`)             | repo del codice, CI                                                                                      | ✅ lettura+scrittura (gh CLI + token)                           | —                                                                               |
+| Render (`cameraconvista`)                     | hosting, deploy unico, autoDeploy su `main`                                                              | ✅ lettura+scrittura (API key)                                  | —                                                                               |
+| Supabase (`pjrdnfbfpogvztfjuxya`)             | DB (23 tabelle) + Storage (2 bucket)                                                                     | ✅ anon, service role, Postgres diretto                         | —                                                                               |
+| Serverplan / cPanel (`cms042.cmshigh.com`)    | dominio, DNS, 1 casella email legacy                                                                     | ✅ lettura+scrittura (API token `claude-audit`)                 | —                                                                               |
+| Google Search Console                         | indicizzazione                                                                                           | ✅ via service account (proprietà Dominio, creata oggi)         | dati in ripopolamento 1-2 giorni                                                |
+| Google Analytics (GA4 `properties/524837076`) | statistiche traffico                                                                                     | ✅ via service account (Lettore)                                | —                                                                               |
+| Resend (account `cameraconvista`)             | email richieste eventi                                                                                   | ✅ chiave full-access `claude-audit`                            | attivare mittente proprio su Render (proposta 1)                                |
+| Google Tag Manager `GTM-M7MXXDG3`             | carica GA4 `G-C2445988JV`                                                                                | solo da codice (su richiesta owner)                             | —                                                                               |
+| Google Sheets                                 | sync menu/vini/cocktail via CSV pubblici                                                                 | solo da codice (su richiesta owner)                             | —                                                                               |
+| resOS                                         | prenotazioni (link esterni)                                                                              | solo da codice (su richiesta owner)                             | —                                                                               |
+| App RSVP (`rsvp-p91d.onrender.com`)           | inviti eventi (progetto separato, attivo)                                                                | solo da codice (su richiesta owner)                             | —                                                                               |
+| Bridge Colli (`ccvcolli-ghxg.onrender.com`)   | fonte menu Colli (fallback, oggi 404 su `/`)                                                             | solo da codice (su richiesta owner)                             | —                                                                               |
+| OpenAI                                        | traduzioni                                                                                               | solo da codice (su richiesta owner)                             | —                                                                               |
+| Unsplash                                      | immagini di default hardcoded                                                                            | solo da codice (su richiesta owner)                             | —                                                                               |
+| Google Workspace                              | posta del dominio (MX)                                                                                   | non richiesto                                                   | —                                                                               |
+| Brevo (account `booking.ccv@gmail.com`)       | **piattaforma email dell'app RSVP**: invio prenotazioni + inbound parsing su `inbound.cameraconvista.it` | chiave API nelle env di RSVP su Render (non in questo progetto) | ⚠️ NON è un residuo: i suoi record DNS vivono nella zona di `cameraconvista.it` |
 
 ## Problemi trovati
 
 ### CRITICO
+
 Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### MEDIO
@@ -60,13 +61,16 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### BASSO
 
-4. ~~DMARC con report verso Brevo~~ **RISOLTO 15/09/2026:** DMARC ora è `v=DMARC1; p=none;` senza
-   riferimenti a Brevo. Politica invariata, solo tolto l'indirizzo di report abbandonato.
-5. ~~Casella email legacy su cPanel~~ **RISOLTO 15/09/2026** (conferma owner): casella
-   `reservations@` eliminata (pesava solo 79 KB — il vecchio dato "81k" era un'altra metrica) e
-   rimossi 22 record DNS legati alla posta cPanel (`mail`, `webmail`, `webdisk`, `autodiscover`,
-   `autoconfig`, `cpcalendars`, `cpcontacts`, `_caldav*`, `_carddav*`, `_autodiscover._tcp`).
-   Zona DNS ora minimale; MX Google, sito e Resend verificati intatti.
+4. ~~DMARC con report verso Brevo~~ **ANNULLATO 17/09/2026:** il `rua` verso Brevo non era
+   abbandonato, serve all'account Brevo di RSVP. Record riportato a
+   `v=DMARC1; p=none; rua=mailto:rua@dmarc.brevo.com`.
+5. ~~Casella email legacy su cPanel~~ **ANNULLATO 17/09/2026:** la casella
+   `reservations@cameraconvista.it` era usata come account di posta dell'owner (client iOS
+   "RSVP"); la sua eliminazione ha causato la richiesta continua di password su iPhone. Casella
+   ricreata, password nuova salvata in App Control come `RESERVATIONS_MAILBOX_PASSWORD`.
+   Restano rimossi i 22 record DNS della posta cPanel (`mail`, `webmail`, `webdisk`,
+   `autodiscover`, `autoconfig`, `cpcalendars`, `cpcontacts`, `_caldav*`, `_carddav*`,
+   `_autodiscover._tcp`): non servivano, la posta del dominio passa da Google.
 6. ~~Branch `replit-agent`~~ **RISOLTO 15/09/2026** (conferma owner): eliminato; la sua storia
    resta recuperabile dal bundle `Documents/SITE-CCV-ARCHIVIO/pre-push-404fix-20260916.bundle`.
 7. **Residui legacy nel worktree** (tutti già in `.gitignore`, nessun danno): `BACKUP/`,
@@ -79,10 +83,21 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 
 ### Residui chiariti in questa sessione
 
-- **Brevo = residuo CONFERMATO dall'owner il 15/09/2026 e rimosso.** Eliminati gli 8 record DNS
-  Brevo/Sendinblue (brevo-code su apex e `inbound`, 4 CNAME DKIM, 2 MX `inbound`) e ripulito il
-  DMARC. Verificato dopo la rimozione: MX Google, CNAME `www`, SPF, record Resend e verifica
-  Google tutti intatti.
+- **Brevo NON era un residuo — correzione del 17/09/2026.** Il 15/09 gli 8 record DNS
+  Brevo/Sendinblue erano stati rimossi come residui: sbagliato. Brevo è la piattaforma email
+  dell'app **RSVP** (progetto separato, account Render e Supabase propri): manda le conferme di
+  prenotazione e riceve le risposte dei clienti via inbound parsing su
+  `inbound.cameraconvista.it`, che le inoltra al webhook `rsvp-p91d.onrender.com/api/inbound/brevo`.
+  Senza quei record le risposte dei clienti non venivano più consegnate (interruzione dal 15/09
+  al 16/09/2026). Tutti i record sono stati ripristinati il 16-17/09 con i valori forniti
+  dall'API Brevo, più il DMARC del sottodominio che prima mancava.
+  **Verifica end-to-end 17/09/2026, 00:11:** mail di prova a `reservations@inbound.cameraconvista.it`
+  → ricevuta da Brevo → webhook chiamato → l'app RSVP risponde e la scarta correttamente.
+  Ne consegue che per l'inbound bastano gli MX: l'autenticazione del dominio su Brevo (che risulta
+  ancora "non autenticato") riguarda solo il mittente delle mail in uscita ed è di competenza del
+  progetto RSVP.
+  **Da NON aggiungere mai:** i record di personalizzazione Brevo `send`, `r.send`, `img.send`.
+  `send.cameraconvista.it` è di Resend e serve alle email del sito.
 - **Rimossi il 15/09 (test concluso al 100%):** token cPanel `claude-dns` (irrecuperabile), remote
   git `gitsafe-backup` (host inesistente, era di Replit), variabile doppione `GITHUB_REPO_URL` nel
   `.env` (non usata dal codice).
@@ -92,17 +107,19 @@ Nessuno. Il sito funziona, è indicizzato e le email arrivano.
 Il progetto è quasi pulito: niente file `.replit`/`replit.nix`, niente dipendenze `@replit/*`,
 niente riferimenti nel codice. Restano:
 
-| Residuo | Cosa è | Proposta |
-|---|---|---|
-| ref git `refs/replit/agent-ledger` | segnaposto interno di Replit che tiene in vita la storia del vecchio branch (già nel bundle di BACKUP) | eliminabile in sicurezza |
-| `coverage/` (444K) + `test-results/` (4K) | output di test rigenerabili con un comando, già in `.gitignore` | eliminabili in sicurezza |
-| `LOGOS/` (848K) | file grafici dei loghi, non usati dal codice | ⚠ decisione owner: potrebbero essere gli originali — tenere o spostare in BACKUP |
-| `dist/` (4,9M) | output di build normale, rigenerato a ogni build | NON eliminare (non è un residuo) |
+| Residuo                                   | Cosa è                                                                                                 | Proposta                                                                         |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
+| ref git `refs/replit/agent-ledger`        | segnaposto interno di Replit che tiene in vita la storia del vecchio branch (già nel bundle di BACKUP) | eliminabile in sicurezza                                                         |
+| `coverage/` (444K) + `test-results/` (4K) | output di test rigenerabili con un comando, già in `.gitignore`                                        | eliminabili in sicurezza                                                         |
+| `LOGOS/` (848K)                           | file grafici dei loghi, non usati dal codice                                                           | ⚠ decisione owner: potrebbero essere gli originali — tenere o spostare in BACKUP |
+| `dist/` (4,9M)                            | output di build normale, rigenerato a ogni build                                                       | NON eliminare (non è un residuo)                                                 |
 
 ## SEO e indicizzazione
 
 ### Camera con Vista (www.cameraconvista.it)
+
 **Stato: BUONO.** Verificato in produzione:
+
 - ✅ Title e description unici e sensati per pagina, generati server-side
 - ✅ Canonical corretto su ogni pagina; hreflang IT/EN/x-default funzionante (EN traduce davvero)
 - ✅ Redirect tutti giusti: apex→www 301, http→https 301, `onrender.com`→www 301 (nessun
@@ -118,22 +135,24 @@ niente riferimenti nel codice. Restano:
 
 **Query con margine (la base dello step 4, da monitorare in GSC tra 2-4 settimane):**
 
-| Query | Impressioni | Posizione | CTR oggi | Pagina che deve intercettarla |
-|---|---|---|---|---|
-| aperitivo bologna | 2.843 | 4,3 | 0,49% | home ("Aperitivo a Bologna in Centro con Vista") |
-| cocktail bar bologna | 1.232 | 7,6 | 0,97% | /cocktail-bar ("Cocktail Bar in Centro a Bologna") |
-| aperitivo bologna centro | 1.084 | 4,6 | 0,65% | home (parola "Centro" ora nel title) |
-| rooftop bologna | 511 | 5,5 | 0,20% | home/EN "with a View" (owner 15/09: NON siamo un rooftop — parola esclusa) |
-| best restaurants with view | 584 | 12,3 | 0% | home EN ("Aperitivo & Tapas with a View") |
-| ricerche locali "santo stefano" | — | — | — | /dove-siamo (title con "Piazza Santo Stefano") |
-| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3 | 0% | home/cocktail-bar — "terrazza"/"terrace"/"rooftop" VIETATE (è un dehors): testi con "tavoli all'aperto/dehors" (IT) e "outdoor tables/dehors" (EN) |
-| aperitivo (in) terrazza bologna | 66 (3,5 mesi) | 1,7-1,9 | ~1% | idem — pos. già top ma la parola non compariva nei testi |
+| Query                           | Impressioni   | Posizione | CTR oggi | Pagina che deve intercettarla                                                                                                                      |
+| ------------------------------- | ------------- | --------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| aperitivo bologna               | 2.843         | 4,3       | 0,49%    | home ("Aperitivo a Bologna in Centro con Vista")                                                                                                   |
+| cocktail bar bologna            | 1.232         | 7,6       | 0,97%    | /cocktail-bar ("Cocktail Bar in Centro a Bologna")                                                                                                 |
+| aperitivo bologna centro        | 1.084         | 4,6       | 0,65%    | home (parola "Centro" ora nel title)                                                                                                               |
+| rooftop bologna                 | 511           | 5,5       | 0,20%    | home/EN "with a View" (owner 15/09: NON siamo un rooftop — parola esclusa)                                                                         |
+| best restaurants with view      | 584           | 12,3      | 0%       | home EN ("Aperitivo & Tapas with a View")                                                                                                          |
+| ricerche locali "santo stefano" | —             | —         | —        | /dove-siamo (title con "Piazza Santo Stefano")                                                                                                     |
+| ristorante con terrazza bologna | 55 (3,5 mesi) | 1,3       | 0%       | home/cocktail-bar — "terrazza"/"terrace"/"rooftop" VIETATE (è un dehors): testi con "tavoli all'aperto/dehors" (IT) e "outdoor tables/dehors" (EN) |
+| aperitivo (in) terrazza bologna | 66 (3,5 mesi) | 1,7-1,9   | ~1%      | idem — pos. già top ma la parola non compariva nei testi                                                                                           |
 
 **🆕 Backfill proprietà Dominio ARRIVATO il 15/09 pomeriggio**: le query sopra su "terrazza" vengono dai dati
 freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo come parola descrittiva.
 
 ### Camera Colli (/colli e /colli/menu)
+
 **Stato: BUONO, con potenziale.**
+
 - ✅ `/colli` e `/colli/menu` indicizzabili, title/canonical propri, manifest PWA dedicato
 - ✅ `/colli/menu` è la **pagina più vista del sito** (2.979 viste/28gg, più della home) e ha il
   miglior CTR da Google (14,8%)
@@ -146,13 +165,13 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
 
 ## Automatismi attivi
 
-| Automatismo | Dove | Quando |
-|---|---|---|
-| CI qualità (typecheck, lint, audit, build, test, e2e) | GitHub Actions `quality.yml` | ogni push su `main` e ogni PR |
-| Keepalive Supabase | GitHub Actions `supabase-keepalive.yml` | ogni notte 03:20 |
-| **autoDeploy Render** | push su `main` → **produzione** | sempre — push = deploy |
-| Pulizia sessioni admin scadute | `server/index.ts` | all'avvio + ogni 15 min |
-| Cache menu Colli (60s) + fallback bridge | `server/routes/colli.ts` | runtime |
+| Automatismo                                           | Dove                                    | Quando                        |
+| ----------------------------------------------------- | --------------------------------------- | ----------------------------- |
+| CI qualità (typecheck, lint, audit, build, test, e2e) | GitHub Actions `quality.yml`            | ogni push su `main` e ogni PR |
+| Keepalive Supabase                                    | GitHub Actions `supabase-keepalive.yml` | ogni notte 03:20              |
+| **autoDeploy Render**                                 | push su `main` → **produzione**         | sempre — push = deploy        |
+| Pulizia sessioni admin scadute                        | `server/index.ts`                       | all'avvio + ogni 15 min       |
+| Cache menu Colli (60s) + fallback bridge              | `server/routes/colli.ts`                | runtime                       |
 
 ## Divergenze doc ↔ codice ↔ DB
 
@@ -163,19 +182,19 @@ freschi (giu-set 2026). "dehors" non viene cercato (0 risultati): usato solo com
 
 ## Proposte di intervento (in ordine di valore)
 
-| # | Proposta | Rischio | File/dove |
-|---|---|---|---|
-| 1 | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 15/09/2026** (env Render + deploy verificato) | — | Render env |
-| 2 | ~~Correggere SPF~~ ✅ **FATTO 15/09/2026** (Google incluso; Resend già coperto su `send.`) | — | DNS via cPanel |
-| 3 | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 15/09/2026** — online al prossimo push | — | `server/static.ts`, `server/seo.ts`, `server/vite.ts` |
-| 4 | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `~/Documents/SITE-CCV-ARCHIVIO/pages-meta-backup-20260916.json` | — | DB via admin SEO |
-| 5 | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** (nota: `/eventi-privati/cena` poi ri-nascosta la sera stessa — card spenta per scelta owner, pagina noindex e fuori sitemap) | — | `server/seo.ts` |
-| 5b | ~~Schema "tre momenti" (aperitivo/cena/dopocena)~~ ✅ **FATTO 15/09/2026 sera** (owner-approved): meta home/menu/cocktail-bar/dove-siamo/eventi-privati + intro cocktail-bar e eventi-privati + CTA preventivo su `/eventi-privati` (risposta entro 2 giorni). Cucina 18.00–22.30, locale fino all'1. Card Cena/Party restano spente | — | DB (`pages`, `page_blocks` + snapshot), `eventi-privati.tsx` |
-| 6 | ~~Pulizia email legacy~~ ✅ **COMPLETATA 15/09/2026**: record Brevo, DMARC, casella `reservations@` e 22 record DNS posta cPanel | — | DNS + cPanel |
-| 7 | **Consolidamento DNA**: creare `DNA/00` indice | Nullo | `DNA/` |
-| 8 | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente | Basso | `scripts/migrate-all-images-to-supabase.ts` |
-| 9 | ~~Branch `replit-agent`~~ ✅ **ELIMINATO 15/09/2026** (storia nel bundle in `BACKUP/`) | — | git |
-| 10 | **Salvare le richieste evento su Supabase** (proposta owner 15/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin |
+| #   | Proposta                                                                                                                                                                                                                                                                                                                             | Rischio          | File/dove                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- | ------------------------------------------------------------ |
+| 1   | ~~Attivare mittente `noreply@cameraconvista.it`~~ ✅ **FATTO 15/09/2026** (env Render + deploy verificato)                                                                                                                                                                                                                           | —                | Render env                                                   |
+| 2   | ~~Correggere SPF~~ ✅ **FATTO 15/09/2026** (Google incluso; Resend già coperto su `send.`)                                                                                                                                                                                                                                           | —                | DNS via cPanel                                               |
+| 3   | ~~Fix soft-404~~ ✅ **FATTO NEL CODICE 15/09/2026** — online al prossimo push                                                                                                                                                                                                                                                        | —                | `server/static.ts`, `server/seo.ts`, `server/vite.ts`        |
+| 4   | ~~Titoli/description orientati alle query generiche~~ ✅ **FATTO 15/09/2026**: 8 pagine ottimizzate nel DB (IT+EN), attive subito e verificate sull'HTML live; valori precedenti salvati in `~/Documents/SITE-CCV-ARCHIVIO/pages-meta-backup-20260916.json`                                                                          | —                | DB via admin SEO                                             |
+| 5   | ~~JSON-LD LocalBusiness+Menu per Colli~~ ✅ **FATTO 15/09/2026** (nota: `/eventi-privati/cena` poi ri-nascosta la sera stessa — card spenta per scelta owner, pagina noindex e fuori sitemap)                                                                                                                                        | —                | `server/seo.ts`                                              |
+| 5b  | ~~Schema "tre momenti" (aperitivo/cena/dopocena)~~ ✅ **FATTO 15/09/2026 sera** (owner-approved): meta home/menu/cocktail-bar/dove-siamo/eventi-privati + intro cocktail-bar e eventi-privati + CTA preventivo su `/eventi-privati` (risposta entro 2 giorni). Cucina 18.00–22.30, locale fino all'1. Card Cena/Party restano spente | —                | DB (`pages`, `page_blocks` + snapshot), `eventi-privati.tsx` |
+| 6   | ~~Pulizia email legacy~~ ⚠️ **PARZIALMENTE ANNULLATA 17/09/2026**: restano rimossi solo i 22 record DNS della posta cPanel (inutili, la posta passa da Google). Record Brevo, DMARC e casella `reservations@` sono stati **ripristinati**: servivano all'app RSVP e all'account di posta dell'owner                                  | —                | DNS + cPanel                                                 |
+| 7   | **Consolidamento DNA**: creare `DNA/00` indice                                                                                                                                                                                                                                                                                       | Nullo            | `DNA/`                                                       |
+| 8   | **Migrare le immagini Unsplash di default su Supabase** con lo script esistente                                                                                                                                                                                                                                                      | Basso            | `scripts/migrate-all-images-to-supabase.ts`                  |
+| 9   | ~~Branch `replit-agent`~~ ✅ **ELIMINATO 15/09/2026** (storia nel bundle in `BACKUP/`)                                                                                                                                                                                                                                               | —                | git                                                          |
+| 10  | **Salvare le richieste evento su Supabase** (proposta owner 15/09): oggi esistono SOLO come email — se un'email va persa, la richiesta è persa. Nuova tabella + elenco in area admin                                                                                                                                                 | Basso (additivo) | `server/routes/event-request.ts`, nuova migrazione, admin    |
 
 ## Consolidamento fatto in questa sessione (già attivo)
 

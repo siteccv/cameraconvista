@@ -3,10 +3,7 @@ import { useAdmin } from "@/contexts/AdminContext";
 import { PublicLayout } from "@/components/layout/PublicLayout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from "@tanstack/react-query";
-import {
-  PUBLISHED_CONTENT_REFETCH_MS,
-  PUBLISHED_CONTENT_STALE_TIME_MS,
-} from "@/lib/queryClient";
+import { PUBLISHED_CONTENT_REFETCH_MS, PUBLISHED_CONTENT_STALE_TIME_MS } from "@/lib/queryClient";
 import { EditableText } from "@/components/admin/EditableText";
 import { ImageContainer } from "@/components/admin/ImageContainer";
 import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";

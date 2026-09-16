@@ -239,11 +239,46 @@ Il publish interno aggiorna i contenuti pubblici ma non sostituisce il deploy de
 - `PLAYWRIGHT_BASE_URL`
 - `GITHUB_TOKEN`
 
+### Render: il Postgres diretto non è raggiungibile (verificato 16-17/09/2026)
+
+Dal servizio Render (Frankfurt, free) la connessione diretta al Postgres Supabase non si
+stabilisce: `Connection terminated due to connection timeout`, sia sul pooler `:5432` sia sul
+`:6543`. Dallo stesso `DATABASE_URL` in locale `psql` risponde in 0,4s. La connessione diretta
+`db.<ref>.supabase.co` ha solo IPv6, quindi non è un'alternativa. In produzione tutto passa da
+Supabase REST (`SUPABASE_URL` + service role) ed è per questo che il sito funziona: su Render
+`SUPABASE_DB_URL` non è impostata, quindi `shouldPreferSupabaseColliAdapter()` è vera e anche
+l'admin Colli usa REST. L'unico punto che tenta ancora il DB è `fetchColliMenuFromDatabase()`
+in `server/routes/colli.ts`: attende il timeout di 2,5s e ripiega, quindi `/api/colli/menu` costa
+~2,8s a ogni scadenza cache (60s). Gli errori sono presenti nei log almeno dal 09/09/2026.
+**Non ritentare il ciclo "cambio variabile + riavvio": non è un problema di configurazione.**
+
+Corretto il 16/09/2026 su Render: `DATABASE_URL` e `SUPABASE_ANON_KEY` contenevano entrambe
+l'URL di Supabase al posto del valore giusto. `SESSION_SECRET` (presente solo su Render) è stata
+archiviata in App Control.
+
+### Zona DNS di `cameraconvista.it`: è condivisa con l'app RSVP
+
+La zona (cPanel/Serverplan) contiene record di **tre** servizi diversi. Prima di rimuovere
+qualsiasi record di posta, verificare a chi serve — anche fuori da questo repo:
+
+| Record                                                                                                                                                       | A chi serve                                       |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| `MX` apex → `smtp.google.com`                                                                                                                                | posta del dominio (Google Workspace)              |
+| `send` (MX + SPF), `resend._domainkey`                                                                                                                       | **Resend**, email richieste evento di questo sito |
+| `brevo-code` (apex e `inbound`), `brevo1/2._domainkey` (apex e `.inbound`), `MX inbound` → `inbound1/2.sendinblue.com`, `_dmarc` con `rua=…@dmarc.brevo.com` | **Brevo**, app RSVP (progetto separato)           |
+
+I record Brevo erano stati rimossi il 15/09/2026 credendoli residui: ha interrotto la ricezione
+delle risposte dei clienti alle prenotazioni RSVP. Ripristinati il 16-17/09 e verificati
+end-to-end. **Non aggiungere mai** i record di personalizzazione Brevo `send`, `r.send`,
+`img.send`: `send.cameraconvista.it` appartiene a Resend e un CNAME lì romperebbe le email del
+sito.
+
 ## Regole pratiche per l'agent
 
 1. Prima di commit o push: `git status -sb --ignored` e `git diff --stat`
 2. Prima di toccare workflow: verificare riferimenti reali in `package.json`, `scripts/` e `.github/workflows/`
 3. Non eseguire sync, publish o email reali senza richiesta esplicita
+4. Prima di rimuovere record DNS o caselle email: verificare a chi servono anche **fuori** da questo progetto (RSVP usa la stessa zona)
 
 ## Stato connessioni verificato — 2026-07-12
 
@@ -257,24 +292,28 @@ Verifica reale (con prova) eseguita in questa data:
   - SCRITTURA: **non testata di proposito** — una scrittura Render = deploy/restart/modifica env = azione in produzione. Key capace, ma prova non eseguita per sicurezza.
   - Deploy: ultimo **riuscito e live** = commit `acc9d11` = `main` locale. Autodeploy attivo su `main`.
 - **GitHub (`siteccv/cameraconvista`)**: `gh` autenticato, `main` allineato al remoto (0/0). CI attive: `quality.yml` e `supabase-keepalive.yml` (keepalive verde giornaliero).
+  - 17/09/2026: `supabase-keepalive.yml` era passato a `disabled_inactivity` (GitHub lo spegne da solo dopo un periodo senza attività) e non girava dal 15/09. Riattivato via API ed eseguito a mano con esito positivo. **Controllarne lo stato, non solo l'ultimo esito: un workflow spento non lascia run falliti.**
 
 ### Nota architetturale schema (non è un drift)
+
 Lo schema Drizzle in `shared/schema.ts` + `shared/colli.ts` definisce 14 `pgTable`. Il DB reale ha 23 tabelle: le 9 extra (`colli_categories`, `colli_items`, `colli_sections`, `colli_wines`, `colli_allergens`, `colli_item_allergens`, `colli_wine_categories`, `colli_menu_snapshots`, `menu_items_published`) sono gestite via **SQL migrations manuali** in `migrations/`, non via Drizzle. Divergenza voluta, non accidentale. NON allineare con `drizzle-kit push`.
 
 ### Tool/runtime richiesti
+
 Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker richiesto dal progetto. `.env` completo; le variabili opzionali assenti (`VITE_GA_MEASUREMENT_ID`, `VITE_FB_PIXEL_ID`, `RESEND_SENDER_DOMAIN`, `PLAYWRIGHT_BASE_URL`, `SUPABASE_KEEPALIVE_TABLE`, `NODE_ENV`) non sono critiche.
 
 ## Email transazionali (Resend) — config produzione
 
 Resend è usato **solo** per il form "Richiesta Evento privato" (`server/routes/event-request.ts`): invia i dati a `info@cameraconvista.it` (`replyTo`=cliente). La richiesta **non è salvata su DB**: se l'email fallisce → 500 e richiesta persa. Miglioramento futuro opzionale (solo su richiesta): salvare le richieste su DB + admin "Richieste".
 
-- In produzione (Render) **non** sono settate `RESEND_API_KEY`/`RESEND_SENDER_DOMAIN`/`EVENT_REQUEST_EMAIL`: la chiave usata è quella nel **DB** `site_settings.resend_api_key` (tipo *sending-only*), mittente `onboarding@resend.dev`, destinatario default `info@cameraconvista.it`.
-- Account Resend corretto: **`info@cameraconvista.it`**, workspace `cameraconvista` (accesso via Google/Gmail). API key `site-ccv-backend-prod` con permesso *Sending access*.
-- **Trappola diagnostica:** le chiavi sono *sending-only* → `GET /domains` risponde **401 `restricted_api_key`**: è NORMALE, la chiave è VALIDA. Non diagnosticare "chiave rotta" da quel 401. Anche "No domains yet" è normale (spedisce da `onboarding@resend.dev`). Mai stampare la chiave completa.
+- In produzione (Render) **non** sono settate `RESEND_API_KEY`/`RESEND_SENDER_DOMAIN`/`EVENT_REQUEST_EMAIL`: la chiave usata è quella nel **DB** `site_settings.resend_api_key` (tipo _sending-only_), mittente `onboarding@resend.dev`, destinatario default `info@cameraconvista.it`.
+- Account Resend corretto: **`info@cameraconvista.it`**, workspace `cameraconvista` (accesso via Google/Gmail). API key `site-ccv-backend-prod` con permesso _Sending access_.
+- **Trappola diagnostica:** le chiavi sono _sending-only_ → `GET /domains` risponde **401 `restricted_api_key`**: è NORMALE, la chiave è VALIDA. Non diagnosticare "chiave rotta" da quel 401. Anche "No domains yet" è normale (spedisce da `onboarding@resend.dev`). Mai stampare la chiave completa.
 
 ## Guard sito-live (hook locale, non tracciato in git)
 
 In `.claude/` (cartella untracked, non su GitHub) c'è un guard Bash che applica il vincolo sito-live:
+
 - `.claude/guard-bash.sh` — hook PreToolUse: **DENY** su push force/delete, `filter-branch`, `rm -rf` di path critici, `DROP/TRUNCATE`; **ASK** su ogni `git push`, drizzle push, `DELETE FROM`, sync/upload Supabase, `resend`, overwrite `.env`.
 - `.claude/settings.json` — registra l'hook + backstop `permissions.deny`/`ask`.
 

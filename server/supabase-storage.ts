@@ -660,4 +660,3 @@ export class SupabaseStorage implements IStorage {
     console.log("Supabase database connected - data already migrated");
   }
 }
-
