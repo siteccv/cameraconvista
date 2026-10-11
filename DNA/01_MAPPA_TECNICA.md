@@ -166,7 +166,7 @@ I file root diversi da questi devono essere eccezioni motivate. Lo storico non o
 Non rimuovere senza una verifica dedicata:
 
 - componenti `client/src/components/ui/*` anche se non tutti sono usati oggi, perche sono parte del kit UI disponibile;
-- `LOGOS/`, perche contiene sorgenti/logo e riferimenti da script storici media;
+- `LOGOS/`, perche contiene i file originali dei loghi e del font Adelia;
 - `migrations/`, perche documenta lo stato DB applicato;
 - `.github/`, perche contiene quality gate e keepalive Supabase;
-- script Supabase/media storici, se non sono stati prima classificati e approvati per archiviazione.
+- gli script in `scripts/`: il 12/10/2026 sono stati tolti i tre di migrazione immagini dell'epoca Replit (`cleanup-duplicate-storage.ts`, `migrate-all-images-to-supabase.ts`, `upload-images-to-supabase.ts`), recuperabili dalla storia Git.
