@@ -54,10 +54,11 @@ App Control e la **cassaforte centrale** delle variabili di ogni progetto (suo S
 
 - **Bootstrap:** file `.agent/app-control.json` nella root (in `.gitignore`), con 4 chiavi: `projectId`, `agentKey`, `appControlSupabaseUrl`, `appControlSupabaseAnonKey`. Lo leggi a inizio sessione.
 - **Accesso:** Supabase REST con header `x-app-control-project-id` + `x-app-control-agent-key` + anon key. **Lettura e scrittura**, limitate al **solo** progetto della chiave.
-- **Flusso:** leggi le variabili da App Control -> **generi tu il `.env`** (l'utente non scrive mai a mano nel `.env`). **Riconciliazione (ogni sync):** confronta le chiavi del `.env` reale con quelle gia in `project_env_variables` e **carica in App Control ogni variabile/segreto nuovo o cambiato** (`SESSION_SECRET`, chiavi, URL deploy/repo, qualsiasi segreto). **Escludi** solo le 9 manuali dell'utente (incluse `LINK_DEPLOY` e `LINK_DEPLOY ADMIN`) e le derivate `VITE_*`/`SUPABASE_DB_URL`. **Colonne valore:** ogni variabile ha `value_text` (NON sensibili) e `value_ciphertext` (sensibili, `is_sensitive=true`) — MAI `value`; in LETTURA prendi il campo giusto in base a `is_sensitive` (altrimenti le sensibili escono vuote e rompi il `.env`); in SCRITTURA includi `project_id` (UUID dalla SELECT su `projects`, non lo slug, o la RLS nega) e metti il valore in `value_ciphertext`+`is_sensitive=true` se segreto, altrimenti `value_text`+`is_sensitive=false`. Se non ci sono variabili nuove, non scrivere nulla. Le nuove appaiono in App Control sotto **"Gestite da Agent"**.
+- **Flusso:** leggi le variabili da App Control -> **generi tu il `.env`** (l'utente non scrive mai a mano nel `.env`). **Riconciliazione (ogni sync):** confronta le chiavi del `.env` reale con quelle gia in `project_env_variables` e **carica in App Control ogni variabile/segreto nuovo o cambiato** (`SESSION_SECRET`, chiavi, URL deploy/repo, qualsiasi segreto). **Escludi** solo le **7 chiavi che inserisce l'utente** (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `RENDER_API_KEY`, `LINK_DEPLOY`, `LINK_DEPLOY ADMIN`) e le derivate `VITE_*`/`SUPABASE_DB_URL`. `GITHUB_URL` sta nello stesso box ma lo scrivi tu: il box decide dove la variabile si vede, non chi la scrive. **Colonne valore:** ogni variabile ha `value_text` (NON sensibili) e `value_ciphertext` (sensibili, `is_sensitive=true`) — MAI `value`; in LETTURA prendi il campo giusto in base a `is_sensitive` (altrimenti le sensibili escono vuote e rompi il `.env`); in SCRITTURA includi `project_id` (UUID dalla SELECT su `projects`, non lo slug, o la RLS nega) e metti il valore in `value_ciphertext`+`is_sensitive=true` se segreto, altrimenti `value_text`+`is_sensitive=false`. Se non ci sono variabili nuove, non scrivere nulla. Le nuove appaiono in App Control sotto **"Gestite da Agent"**.
 - **Chi inserisce cosa:**
   - **UTENTE** (manuale): `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `DATABASE_URL`, `RENDER_API_KEY`, e i **due link di deploy** `LINK_DEPLOY` (URL pubblico/user) e `LINK_DEPLOY ADMIN` (URL area admin/gestione del progetto): li inserisce a mano nel box "Da inserire manualmente" della sezione Variabili e si mostrano come link sotto al titolo.
-  - **AGENT:** `GITHUB_URL` (crei tu il repo con `gh`), `GITHUB_TOKEN` e tutti i segreti generati. I due link di deploy li **legge** soltanto (per il `.env` se servono): **non li scrive ne li sovrascrive** in `project_env_variables`. Se sono vuoti e conosci i link reali dal deploy, segnalali all'utente perche li inserisca a mano, senza scriverli tu.
+  - **AGENT:** `GITHUB_URL` (crei tu il repo con `gh`) e tutti i segreti generati. **`GITHUB_TOKEN` non esiste piu**: GitHub si autentica con la CLI `gh` (vedi §2), nessun token archiviato in App Control. I due link di deploy li **legge** soltanto (per il `.env` se servono): **non li scrive ne li sovrascrive** in `project_env_variables`. Se sono vuoti e conosci i link reali dal deploy, segnalali all'utente perche li inserisca a mano, senza scriverli tu.
+- **Cosa puoi toccare col canale agent:** leggi tutto il progetto (dati, campi aggiunti a mano dall'utente, variabili, immagini, la tua chiave) piu la libreria `prompts`; **scrivi solo `project_env_variables`**. Tentare di scrivere altrove viene respinto dalla RLS, non e un errore da aggirare.
 - **Nomi:** usa i nomi **canonici** (non rinominare). Le `VITE_*` non si archiviano: le generi solo nel `.env` per i frontend Vite (stesso valore).
 
 **Regola comunicazione (fondamentale).** Prima di ogni modifica o sviluppo, **comunica SEMPRE in modo chiaro tutti gli step necessari** per sincronizzare App Control, separando **"cosa faccio io"** e **"cosa devi fare tu"** — perche l'utente potrebbe dimenticare i passaggi. Elenco secco, senza spiegazioni superflue (§0bis). Una sola azione alla volta:
@@ -68,6 +69,7 @@ Le regole sono **vincoli, non suggerimenti**: confrontale **prima** di agire; se
 - **Codice = unica fonte di verita.** Doc/DNA divergente -> vale il codice, riallinea la doc.
 - **DB = unica fonte dei dati.** Niente dati hardcoded/mock/locali nel runtime. **Parita admin/user**: ogni entita gestita da admin e letta lato user dalla stessa fonte DB.
 - **DB mai distruttivo.** Schema solo come **migrazioni versionate additive**; mai `db push`/`--force`/sync diretti su produzione. **RLS attive** su ogni tabella con dati utente.
+- **GitHub (autenticazione):** solo via CLI `gh`, mai token archiviati o scritti nel remote. Prima di committare o pushare verifica che l'account `gh` attivo sia quello del repo del progetto; se non lo e, fermati e chiedi all'utente di eseguire Auth Github. Il `.mcp.json` prende il token da `gh auth token` al momento della generazione.
 - **Segreti:** `.env` sempre in `.gitignore`; **mai stampare** token/password/chiavi/URL con credenziali. Service role solo lato backend, mai nel frontend.
 - **Git (commit automatici, push manuale):** `git status` prima di toccare/committare; **mai committare** `.env`, backup, cache, file generati. **COMMIT = automatico**: dopo ogni blocco di lavoro completato e verificato (typecheck/lint/build/test passati) committa da solo, senza chiedere conferma — il commit e un salvataggio locale sicuro e reversibile, e non committare rischia di perdere lavoro. **PUSH = solo su richiesta esplicita** dell'utente ("push"/"pubblica"/"manda online"): mai in automatico.
 - **Push = alto rischio.** Autodeploy su un branch = **deploy in produzione**: mai pushare senza **ok esplicito**, anche se chiesto genericamente di "committare e pushare" (in quel caso committa, ma per il push attendi conferma).
@@ -80,6 +82,7 @@ Le regole sopra NON sono suggerimenti: trattale come un **pre-commit hook mental
 - "Non duplicare logiche" -> **cerca prima** se esiste gia; non scrivere codice nuovo senza aver verificato.
 - "Aggiorna la doc" -> **nello stesso intervento**, non in un commit successivo.
 - Risposta lunga o piena di dettagli non richiesti -> **riscrivila prima di inviarla** (§0bis), non giustificarla dopo.
+- **Controllo obbligatorio prima di ogni invio:** rileggi la risposta e togli ogni frase che non riguarda **una decisione o un'azione dell'utente**. Un riepilogo di chiusura, se serve, sta in **una o due righe**. La risposta puo essere piu lunga **solo** se c'e un problema serio da spiegare (rischio dati, sicurezza, costi, scelta architetturale): in quel caso il motivo della lunghezza va detto nella prima riga. Fuori da questo caso, una risposta lunga e una violazione, non uno zelo.
 - Se scopri di aver violato una regola durante l'esecuzione -> **correggi subito**, non segnalarla come "da fare dopo".
 Chi viola una regola produce debito tecnico che un altro operatore dovra correggere.
 
@@ -99,15 +102,33 @@ Accessorie: se il prompt e ambiguo ma il rischio e alto -> chiedi upgrade; se il
 2. Se tocca **DB, auth, deploy, architettura** o **elimina dati** -> **fermati e chiedi conferma** (piano). Il piano e sintetico: cosa cambia, cosa rischia, cosa serve dall'utente.
 3. Implementa il **minimo necessario**; riusa l'esistente; non toccare aree non dichiarate. DURANTE la scrittura verifica che ogni file rispetti i limiti di governance (dimensione, modularita, naming): se un file supera il limite, dividilo subito.
 4. Verifica con gli script del progetto (typecheck/lint/build). **Non dichiarare test passati senza eseguirli.**
-5. Chiudi **aggiornando doc/DNA nello stesso intervento**; registra le decisioni tecniche rilevanti nel **decision-log** (`DNA/06_DECISION_LOG.md`). Poi **committa in automatico** il lavoro verificato (§2 · Git). Comunica la chiusura in poche righe: cosa e cambiato e cosa succede ora.
+5. Chiudi **aggiornando doc/DNA nello stesso intervento**; registra le decisioni tecniche rilevanti nel **decision-log** dentro `DNA/` (primo numero libero, es. `DNA/07_DECISION_LOG.md`). Poi **committa in automatico** il lavoro verificato (§2 · Git). Comunica la chiusura in poche righe: cosa e cambiato e cosa succede ora.
 
 Fix piccoli (un testo, un colore): esegui diretto. Bug: **riproducilo e isola la causa radice** prima di pianificare.
 
 ## 4 · Struttura progetto (standard)
 - Stack base: **React + Vite + TypeScript**, **Supabase** (dati), **Render** (deploy unico), **GitHub**.
 - **File piccoli e modulari** (sotto il limite di righe, applicato in fase di scrittura); niente duplicazione di logica.
-- **`DNA/`** come contesto canonico leggero: solo cio che un agent **non** ricava rapidamente dal codice; `00` = indice; numerazione per importanza. Tieni un **decision-log** in `DNA/06_DECISION_LOG.md`.
+- **`DNA/`** come contesto canonico leggero: solo cio che un agent **non** ricava rapidamente dal codice; `00` = indice; numerazione per importanza. Tieni un **decision-log** in `DNA/`, sul primo numero libero.
 - App avviabile in locale e verificabile (porta **5001** quando previsto).
+
+## 4bis · Leggibilita dei testi brevi in evidenza (sempre attiva)
+Vale per i testi corti e molto visibili — titolo hero, sottotitolo, claim, pulsante, titolo di sezione, testo di una card — cioe quelli che stanno in due o tre righe e si leggono d'un fiato. **Non** vale per i paragrafi lunghi, le liste, le tabelle e i testi legali: li il comportamento naturale va bene.
+
+Obiettivo: **ogni riga deve finire in un punto che ha senso per chi legge.**
+- La riga finisce su una pausa naturale della lettura, non a meta di un'idea.
+- Nessuna riga finisce lasciando l'occhio sospeso su una parola che da sola non significa nulla.
+- Niente righe con una o due parole isolate.
+- Il risultato regge a **tutte** le larghezze di schermo, dal telefono al desktop: non vogliamo un testo curato su desktop e sgangherato su mobile.
+
+Come lavorarci:
+- Valuta **caso per caso** in base al contenuto e allo spazio disponibile, e verifica l'esito **reale** alle varie larghezze, non in teoria.
+- Se un testo si spezza gia bene da solo, **lascialo com'e**: non forzare interventi a tappeto.
+- Se un intervento peggiora una larghezza, rimuovilo: il comportamento di default e sempre preferibile a un taglio sbagliato.
+- Non introdurre strumenti o dipendenze non gia presenti nel progetto.
+- Se su qualche schermo il testo e **troppo lungo** perche un taglio decente sia possibile, la soluzione non e il taglio: e **accorciare il testo**. Proponilo all'utente.
+
+Metro di giudizio: leggi la riga ad alta voce fino in fondo. Se la voce resta sospesa, il punto di taglio e sbagliato.
 
 ## 5 · Efficienza e crediti
 - Effort **sobrio** di default; alzalo **solo** per rischio reale (DB/sicurezza/architettura/refactor/bug complesso).
@@ -116,4 +137,4 @@ Fix piccoli (un testo, un colore): esegui diretto. Bug: **riproducilo e isola la
 
 ## 6 · Skill on-demand (vivono in App Control, NON qui)
 Non appesantire questo file: queste operazioni si invocano **solo su richiesta**. Quando l'utente le chiede, **recupera il prompt corrispondente da App Control ed eseguilo**:
-Governance (crea/riallinea regole) · Pulizia e ottimizzazione · Analisi completa (sola diagnosi) · DNA (crea/riallinea) · Aggiorna DNA+Backup+Git · Ottimizzazione navigazione · Responsive mobile nativo · Qualita progetto adattiva · Keepalive Supabase · Testing visivo automatizzato · Fix complesso controllato · Crea/aggiorna `.env` · Refactoring (ripensamento progetto).
+Governance (crea/riallinea regole) · Pulizia e ottimizzazione · Analisi completa (sola diagnosi) · DNA (crea/riallinea) · Aggiorna DNA+Backup+Git · Ottimizzazione navigazione · Responsive mobile nativo · Qualita progetto adattiva · Keepalive Supabase · Testing visivo automatizzato · Fix complesso controllato · Crea/aggiorna `.env` · Refactoring (ripensamento progetto) · Leggibilita testi (passata sistematica su tutti i testi brevi del progetto secondo §4bis).
