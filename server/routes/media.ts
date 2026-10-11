@@ -8,7 +8,7 @@ import {
 } from "@shared/schema";
 import { requireAuth, parseId } from "./helpers";
 import multer from "multer";
-import sharp from "sharp";
+import { MEDIA_CACHE_CONTROL, optimizeToWebp } from "../image-optimize";
 
 // Solo immagini possono essere caricate: le mutazioni admin ri-processano tutto
 // in webp con sharp, quindi un file non-immagine sarebbe comunque invalido.
@@ -152,12 +152,8 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
     }
     const imageBuffer = Buffer.from(await imageResponse.arrayBuffer());
 
-    const rotatedBuffer = await sharp(imageBuffer)
-      .rotate(angle)
-      .resize(1920, 1920, { fit: "inside", withoutEnlargement: true })
-      .webp({ quality: 80 })
-      .toBuffer();
-    const rotatedMeta = await sharp(rotatedBuffer).metadata();
+    const rotated = await optimizeToWebp(imageBuffer, { rotate: angle });
+    const rotatedBuffer = rotated.buffer;
 
     const { supabaseAdmin } = await import("../supabase");
 
@@ -171,6 +167,7 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
       .from("media-public")
       .upload(storagePath, rotatedBuffer, {
         contentType: "image/webp",
+        cacheControl: MEDIA_CACHE_CONTROL,
         upsert: false,
       });
 
@@ -186,8 +183,8 @@ adminMediaRouter.post("/:id/rotate", requireAuth, async (req, res) => {
     const updated = await storage.updateMedia(id, {
       url: urlData.publicUrl,
       size: rotatedBuffer.length,
-      width: rotatedMeta.width || null,
-      height: rotatedMeta.height || null,
+      width: rotated.width,
+      height: rotated.height,
       mimeType: "image/webp",
       filename: newFilename,
     });
@@ -266,22 +263,8 @@ adminUploadsRouter.post(
       // Optimize images (JPEG/PNG/WebP)
       if (isImage && ["image/jpeg", "image/png", "image/webp"].includes(file.mimetype)) {
         try {
-          const sharpInstance = sharp(buffer);
-          const metadata = await sharpInstance.metadata();
-
-          // Max resolution 1920px for better performance/storage
-          const maxDimension = 1920;
-          if (metadata.width && metadata.height) {
-            if (metadata.width > maxDimension || metadata.height > maxDimension) {
-              sharpInstance.resize(maxDimension, maxDimension, {
-                fit: "inside",
-                withoutEnlargement: true,
-              });
-            }
-          }
-
-          // Convert all to WebP for maximum efficiency
-          buffer = await sharpInstance.webp({ quality: 80 }).toBuffer();
+          // WebP max 1920px e sotto MAX_IMAGE_BYTES (vedi image-optimize.ts)
+          buffer = (await optimizeToWebp(buffer)).buffer;
           finalMimeType = "image/webp";
         } catch (sharpError) {
           console.warn("Sharp processing failed, using original:", sharpError);
@@ -302,6 +285,7 @@ adminUploadsRouter.post(
         .from("media-public")
         .upload(storagePath, buffer, {
           contentType: finalMimeType,
+          cacheControl: MEDIA_CACHE_CONTROL,
           upsert: false,
         });
 
