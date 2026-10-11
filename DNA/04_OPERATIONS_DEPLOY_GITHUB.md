@@ -39,6 +39,7 @@ Controlli principali:
 - `npm run test:e2e`
 - `npm run audit` — dal 17/09/2026 e limitato alle dipendenze di produzione (`--omit=dev`): e il controllo che blocca la CI, perche riguarda cio che finisce davvero online
 - `npm run audit:dev` — audit completo (dev incluse); in CI gira come passo `continue-on-error`, informativo, non blocca
+- 12/10/2026: la CI era rossa per nuove falle (1 critica, 7 gravi). Aggiornati `sharp` 0.35.5, `proxy-addr` 2.0.8, `source-map-js` 1.2.2 (`npm audit fix` andava in crash, usato `npm update <pacchetto>`). `tailwindcss-animate` spostato in `devDependencies`: e un plugin usato solo in `tailwind.config.ts` al build, e da `dependencies` trascinava Tailwind (`braces`, `postcss-selector-parser`, senza correzione disponibile) nell'audit di produzione. Render installa anche le dev (fa `npm install` e usa `vite`), quindi il build non cambia
 
 Target completo disponibile:
 
