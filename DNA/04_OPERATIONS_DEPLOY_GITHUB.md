@@ -196,6 +196,12 @@ Gestione env:
 
 I backup restano locali salvo richiesta esplicita contraria.
 
+Foto di Supabase Storage — intervento del 12/10/2026:
+
+- `BACKUP/immagini-supabase-2026-10-12/` contiene gli originali di tutti i 234 file del bucket `media-public` (91 MB), con lo stesso percorso (`public/<nome>`). Per rimettere un file: ricaricarlo allo stesso percorso con `upsert`.
+- Quel giorno sono state ridotte sotto 400 KB le 10 foto usate dal sito che lo superavano (allo stesso indirizzo, database non toccato): due PNG dell'album "Il Locale" da 3,6 e 2,5 MB, le due foto di `/colli`, la foto principale della home, la copertina della galleria e altre 4 foto di galleria. I due `.PNG` ora contengono WebP (`Content-Type: image/webp`): il browser legge il tipo, non l'estensione.
+- Su tutti i 234 file e stato impostato `max-age=31536000`.
+
 ## GitHub
 
 Fatti operativi:
