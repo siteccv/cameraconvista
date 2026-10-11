@@ -53,6 +53,7 @@ Fix (solo codice, nessuna modifica DB/deploy): aggiunto in `colli-supabase-adapt
 - Il SEO resta separato perche e sistema tecnico sensibile
 - Foto pubbliche al massimo ~400 KB (regola dell'owner, 12/10/2026). Le applica `server/image-optimize.ts` a upload e rotazione: WebP, max 1920px, qualita a scalare finche il file sta sotto il limite. Motivo: il traffico in uscita di Supabase Free e 5 GB/mese ed era stato superato a febbraio 2026
 - Le immagini in `media-public` hanno `Cache-Control: max-age=31536000` (un anno). E sicuro solo perche ogni upload crea un nome nuovo (timestamp): **mai sovrascrivere un file allo stesso indirizzo**, i browser terrebbero la versione vecchia per un anno
+- Testo per i crawler servito dentro `#root` e sostituito da React (non hydration, non SSR completo): da' testo a Google e ai motori AI senza toccare l'aspetto del sito. Font caricati senza bloccare la pagina (`client/index.html`), solo famiglie e pesi usati
 - Le foto restano su Supabase Storage: spostarle su Render (si addormenta, niente CDN) o nel build (il CMS non potrebbe piu gestirle) peggiorerebbe il sito
 
 ## Cosa non duplicare

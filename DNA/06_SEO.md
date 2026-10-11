@@ -78,6 +78,27 @@ In produzione il fallback SPA serviva HTML **solo** se `Accept` conteneva `text/
 
 Da `server/static.ts`: se `isKnownPath()` e' true la pagina viene servita **sempre**, qualunque sia l'`Accept`. Il vincolo su `text/html` resta solo per i percorsi sconosciuti, che continuano a rispondere 404. Non reintrodurre il filtro sull'`Accept` per le pagine note: e' la causa verificata dei Soft 404 in massa su Search Console.
 
+## Testo servito dal server e foto precaricata (12/10/2026)
+
+Il sito e una SPA: prima l'HTML aveva `#root` vuoto (0 parole, nessun H1). Ora `server/ssr/page-content.ts`
+(`renderPageHtml`, chiamata da `server/static.ts` e dal dev server in `server/index.ts`) mette dentro `#root`
+una versione semplice del testo visibile: H1, intro, menu, vini, cocktail, menu Colli, gallerie, contatti, link.
+
+- **Stesse fonti delle API pubbliche**: blocchi con `applyPublishedSnapshot`, `getPublishedSnapshot` per
+  menu/vini/cocktail, `getColliMenu`, `getPublicEvents`, gallerie visibili. Pagine nascoste o in bozza: niente testo.
+- **Solo i blocchi che la pagina mostra** (tabella `BUILDERS`): se si aggiunge un blocco visibile a una pagina,
+  aggiungerlo anche li, altrimenti resta fuori dal testo per i crawler.
+- **Per l'utente non cambia nulla**: `createRoot().render` sostituisce il contenuto di `#root`; il testo resta
+  trasparente per 3 s (`server/ssr/inject.ts`), quindi si vede solo se JavaScript e lento o spento.
+  Verificato il 12/10: schermate identiche al pixel prima/dopo su 9 pagine, telefono e computer.
+- **Cache 5 minuti**, servita subito e rinnovata dietro le quinte: dopo una pubblicazione dall'admin il testo
+  per i crawler si aggiorna entro 5 minuti (il sito vero no, legge le API).
+- Contatti presi da `footer_settings`; se mancano, la sezione non compare (i default contengono dati di esempio).
+- `<link rel="preload" as="image" fetchpriority="high">` sulla foto `hero` della pagina: prima il browser la
+  scopriva solo dopo JavaScript e due chiamate API.
+- **Lingua**: `?lang=en` produce il testo in inglese, e dal 12/10 anche l'app mostra l'inglese quando
+  l'indirizzo ha `?lang=en` (`LanguageContext`). Prima chi arrivava dal risultato inglese vedeva l'italiano.
+
 ## Admin SEO
 
 - I meta tag pagina sono gestiti dalla sezione admin SEO

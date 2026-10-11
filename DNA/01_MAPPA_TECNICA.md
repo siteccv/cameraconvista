@@ -23,6 +23,8 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
 - Storage selection: `server/storage.ts`
 - Supabase storage runtime: `server/supabase-storage.ts`
 - Build: `scripts/build.ts`
+- HTML servito (meta SEO + testo per i crawler + precaricamento foto): `server/ssr/page-content.ts`
+- Valori predefiniti usati dal browser: `shared/site-defaults.ts` (il client **non** deve importare valori da `@shared/schema`: trascina zod e drizzle nel bundle, ~300 KB; solo `import type`)
 
 ## Struttura utile
 
