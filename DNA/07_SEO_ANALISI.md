@@ -157,3 +157,25 @@ L'ordine conta: le tre leve accese il 17/09 (scheda Google, titolo home, fix 404
 2. **Misurare l'effetto.** Confrontare con la base del 17/06-16/09: 2393 clic, 38767 impressioni, posizione 5,4, 94% di clic brand. Guardare in particolare la posizione su "cocktail bar bologna" (era 6,6 per la home e 10,7 per `/cocktail-bar`) e le impressioni su bistrot (erano 37) dopo l'aggiunta delle categorie.
 3. **Solo a quel punto decidere** se serve davvero far servire dal server il testo vero delle pagine (causa 2), partendo da `/cocktail-bar`, che risolverebbe anche la 3. Potrebbe non servire piu'.
 4. Chiarire l'orario vero (17.30 o 18.00) e allineare footer e meta description.
+
+## Verifica 12/10/2026 — effetto degli interventi di settembre
+
+Confronto per giorno: luglio (06/07-09/08, 35 giorni) contro dopo gli interventi (18/09-09/10, 22 giorni). Attenzione: stagioni diverse, e la proprieta Dominio di Search Console **non ha dati dal 12/08 al 13/09** (buco nei dati, non calo reale: non leggere i totali mensili di agosto e settembre).
+
+| Search Console (al giorno) | luglio | dopo  |
+| -------------------------- | ------ | ----- |
+| Clic                       | 39,7   | 49,8  |
+| Impressioni                | 629    | 816   |
+| Clic brand                 | 28,3   | 29,1  |
+| Clic generici              | 1,7    | 3,4   |
+| Query distinte             | 1.015  | 1.421 |
+
+- **La scheda Google Business ora e il primo canale.** Il suo link ha `?utm_source=gbp&utm_medium=organic&utm_campaign=profilo` e Search Console lo conta come URL a parte: 571 impressioni e 22 clic al giorno, posizione 4,1 su "aperitivo bologna" e 5,0 su "cocktail bar bologna". E normale, il canonical resta `/`.
+- "cocktail bar bologna": scheda 5,0, home 8,8, `/cocktail-bar` 9,7 (era 10,7). Calati invece "tapas bologna" (4,9 -> 15,2) e "apericena bologna" (4,6 -> 9,9).
+- Google Analytics: utenti al giorno 158 -> 105 (in estate pesava il menu Colli via QR), ma sessioni coinvolte 35% -> 49%, pagine per sessione 1,44 -> 1,95, durata media 122 -> 156 s. ChatGPT porta ~5 visite al giorno.
+- Indicizzazione: home, menu, cocktail-bar, dove-siamo, eventi-privati, lista-vini, galleria, colli/menu tutte "Inviata e indicizzata", canonical coerente, scansione negli ultimi giorni. `/colli` "Rilevata, ma non indicizzata". `/eventi` Soft 404: e visibile (`is_visible=true`) con 0 eventi ed e nella sitemap.
+- Lighthouse mobile (laboratorio): prestazioni 64-66, SEO 100, LCP 6,6-7,0 s (buono sotto 2,5 s). Cause: risorse che bloccano il rendering (~1,6-1,9 s), ~255 KB di JavaScript inutilizzato, immagine principale scoperta solo dopo il JavaScript. Dati utenti reali non letti: API PageSpeed/CrUX non abilitata sul progetto Google.
+- L'HTML servito ha **0 parole e nessun H1** in tutte le pagine: Google lo supera col rendering, ma i crawler di ChatGPT, Claude e Perplexity non eseguono JavaScript e vedono pagine vuote.
+- Il pulsante **Prenota** apre l'app RSVP con `window.open` e **non e misurato** in Analytics: oggi non si sa quante prenotazioni porta il sito. Eventi chiave attivi: `prenota_whatsapp` (Colli), `richiesta_evento`.
+
+Verdetto: struttura sana, non va rifatta. Miglioramenti mirati in ordine: misurare il clic su Prenota; servire dal server il testo principale delle pagine; velocita mobile (precaricare l'immagine principale, alleggerire font e JavaScript).
