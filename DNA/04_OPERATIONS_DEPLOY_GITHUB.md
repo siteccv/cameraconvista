@@ -227,7 +227,7 @@ Strategia commit/push:
 - non versionare `.env`, `BACKUP/`, `node_modules`, `dist`, `coverage`, `test-results` o artefatti generati;
 - commit e push solo su autorizzazione esplicita dell'utente.
 
-Se il push standard fallisce con `403`, usare il fallback documentato in `GITHUB_PUSH_GUIDE.md`.
+Se il push fallisce con `403`, quasi sempre e attivo l'account `gh` di un altro progetto: vedi `GITHUB_PUSH_GUIDE.md`. Dal 12/10/2026 non esiste piu `GITHUB_TOKEN` (scaduto, rimosso da `.env` e App Control): solo CLI `gh`, account `siteccv`.
 
 ## Deploy concettuale
 
@@ -249,7 +249,6 @@ Il publish interno aggiorna i contenuti pubblici ma non sostituisce il deploy de
 - `EVENT_REQUEST_EMAIL`
 - `OPENAI_API_KEY`
 - `PLAYWRIGHT_BASE_URL`
-- `GITHUB_TOKEN`
 
 ### Render: il Postgres diretto non era raggiungibile (16-17/09/2026, risolto da solo)
 

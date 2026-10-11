@@ -87,24 +87,11 @@ gh repo view --json nameWithOwner,defaultBranchRef
 
 Soluzione:
 
-- usare un account GitHub con accesso write/admin al repo `siteccv/cameraconvista`
-- poi rieseguire `gh auth setup-git`
+- l'account con permesso di scrittura e `siteccv`; sul Mac sono collegati piu account e quello attivo cambia con l'ultimo progetto aperto
+- verificare: `gh api repos/siteccv/cameraconvista --jq .permissions.push` deve dare `true`
+- se da `false`: `gh auth switch -u siteccv` (se l'account non e collegato: `gh auth login`), poi `gh auth setup-git`
 
-Fallback operativo documentato nel progetto:
-
-```bash
-set -a
-source .env
-set +a
-AUTH=$(printf 'x-access-token:%s' "$GITHUB_TOKEN" | base64)
-git -c http.https://github.com/.extraheader="AUTHORIZATION: basic $AUTH" push github main
-```
-
-Note:
-
-- usa il `GITHUB_TOKEN` locale senza salvarlo nel remote Git
-- va usato solo se il push standard su `github` fallisce con `403`
-- non stampare mai il token in chiaro nei log o in chat
+Dal 12/10/2026 non esiste piu un `GITHUB_TOKEN`: l'autenticazione passa solo dalla CLI `gh`. Non scrivere token nel `.env`, nel remote o nei comandi.
 
 ### Remote `github` mancante
 
