@@ -14,6 +14,7 @@ import { PAGE_IDS, DOVE_SIAMO_DEFAULTS } from "@/lib/page-defaults";
 import { BookingDialog } from "@/components/home/BookingDialog";
 import type { FooterSettings } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/schema";
+import { mapsLinks } from "@/lib/maps";
 
 export default function DoveSiamo() {
   const { t } = useLanguage();
@@ -46,17 +47,9 @@ export default function DoveSiamo() {
   const footer = footerSettings || defaultFooterSettings;
   const address = footer.contacts.address.replace(/\n/g, ", ");
 
-  const openAppleMaps = () => {
-    const query = encodeURIComponent(address);
-    window.open(`https://maps.apple.com/?q=${query}`, "_blank");
-    setShowMapsModal(false);
-  };
-
-  const openGoogleMaps = () => {
-    const query = encodeURIComponent(address);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
-    setShowMapsModal(false);
-  };
+  const maps = mapsLinks(address);
+  // Chiusura rimandata: un link tolto dalla pagina durante il clic non naviga.
+  const closeMapsModalAfterClick = () => setTimeout(() => setShowMapsModal(false), 0);
 
   const handleHeroTitleSave = (data: {
     textIt: string;
@@ -232,22 +225,36 @@ export default function DoveSiamo() {
                 </div>
                 <div className="space-y-3">
                   <Button
+                    asChild
                     variant="outline"
-                    onClick={openAppleMaps}
                     className="w-full justify-start"
                     data-testid="button-apple-maps"
                   >
-                    <SiApple className="h-5 w-5 mr-3" />
-                    Apple Mappe
+                    <a
+                      href={maps.apple}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={closeMapsModalAfterClick}
+                    >
+                      <SiApple className="h-5 w-5 mr-3" />
+                      Apple Mappe
+                    </a>
                   </Button>
                   <Button
+                    asChild
                     variant="outline"
-                    onClick={openGoogleMaps}
                     className="w-full justify-start"
                     data-testid="button-google-maps"
                   >
-                    <SiGooglemaps className="h-5 w-5 mr-3" />
-                    Google Maps
+                    <a
+                      href={maps.google}
+                      target="_blank"
+                      rel="noopener"
+                      onClick={closeMapsModalAfterClick}
+                    >
+                      <SiGooglemaps className="h-5 w-5 mr-3" />
+                      Google Maps
+                    </a>
                   </Button>
                 </div>
               </div>

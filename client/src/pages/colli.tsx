@@ -19,6 +19,7 @@ import {
   type ColliBookingSettings,
 } from "@shared/colli";
 import type { Page, PageBlock } from "@shared/schema";
+import { mapsLinks } from "@/lib/maps";
 
 const COLORS = {
   cream: "#F4ECDD",
@@ -228,17 +229,9 @@ export default function Colli({ pageId }: ColliProps = {}) {
     ? introBlock?.titleFontSizeMobile || introDef.titleFontSizeMobile || 11
     : introDef.titleFontSizeMobile || 11;
 
-  const openAppleMaps = () => {
-    const query = encodeURIComponent(mapsAddress);
-    window.open(`https://maps.apple.com/?q=${query}`, "_blank");
-    setShowMapsModal(false);
-  };
-
-  const openGoogleMaps = () => {
-    const query = encodeURIComponent(mapsAddress);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, "_blank");
-    setShowMapsModal(false);
-  };
+  const maps = mapsLinks(mapsAddress);
+  // Chiusura rimandata: un link tolto dalla pagina durante il clic non naviga.
+  const closeMapsModalAfterClick = () => setTimeout(() => setShowMapsModal(false), 0);
 
   const ctaContent = (
     <EditableText
@@ -517,22 +510,36 @@ export default function Colli({ pageId }: ColliProps = {}) {
               </div>
               <div className="space-y-3">
                 <Button
+                  asChild
                   variant="outline"
-                  onClick={openAppleMaps}
                   className="w-full justify-start"
                   data-testid="button-colli-apple-maps"
                 >
-                  <SiApple className="mr-3 h-5 w-5" />
-                  Apple Mappe
+                  <a
+                    href={maps.apple}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={closeMapsModalAfterClick}
+                  >
+                    <SiApple className="mr-3 h-5 w-5" />
+                    Apple Mappe
+                  </a>
                 </Button>
                 <Button
+                  asChild
                   variant="outline"
-                  onClick={openGoogleMaps}
                   className="w-full justify-start"
                   data-testid="button-colli-google-maps"
                 >
-                  <SiGooglemaps className="mr-3 h-5 w-5" />
-                  Google Maps
+                  <a
+                    href={maps.google}
+                    target="_blank"
+                    rel="noopener"
+                    onClick={closeMapsModalAfterClick}
+                  >
+                    <SiGooglemaps className="mr-3 h-5 w-5" />
+                    Google Maps
+                  </a>
                 </Button>
               </div>
             </div>

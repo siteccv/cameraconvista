@@ -64,16 +64,22 @@ Please view our new menu before booking.`,
           >
             {t("Annulla", "Cancel")}
           </Button>
+          {/* Link vero (non window.open): Google Analytics conta da solo il clic in uscita.
+              La chiusura e rimandata perche un link staccato dalla pagina non naviga. */}
           <Button
-            onClick={() => {
-              onOpenChange(false);
-              window.open(bookingUrl, "_blank");
-            }}
+            asChild
             style={{ backgroundColor: "#722f37" }}
             className="text-white rounded-full px-6"
             data-testid="button-continue-booking"
           >
-            {t("Continua", "Continue")}
+            <a
+              href={bookingUrl}
+              target="_blank"
+              rel="noopener"
+              onClick={() => setTimeout(() => onOpenChange(false), 0)}
+            >
+              {t("Continua", "Continue")}
+            </a>
           </Button>
         </DialogFooter>
       </DialogContent>
