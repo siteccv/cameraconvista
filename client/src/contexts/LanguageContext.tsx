@@ -13,6 +13,14 @@ const LanguageContext = createContext<LanguageContextValue | null>(null);
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguageState] = useState<Language>(() => {
     if (typeof window !== "undefined") {
+      // ?lang=en e l'indirizzo della versione inglese che Google mostra agli stranieri
+      // (hreflang): deve vincere sulla lingua ricordata, altrimenti chi arriva da li
+      // vede l'italiano e Google trova la stessa pagina in italiano.
+      const fromUrl = new URLSearchParams(window.location.search).get("lang");
+      if (fromUrl === "it" || fromUrl === "en") {
+        localStorage.setItem("ccv_language", fromUrl);
+        return fromUrl;
+      }
       const stored = localStorage.getItem("ccv_language");
       if (stored === "it" || stored === "en") return stored;
     }
