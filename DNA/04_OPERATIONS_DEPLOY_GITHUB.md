@@ -251,7 +251,12 @@ Il publish interno aggiorna i contenuti pubblici ma non sostituisce il deploy de
 - `PLAYWRIGHT_BASE_URL`
 - `GITHUB_TOKEN`
 
-### Render: il Postgres diretto non è raggiungibile (verificato 16-17/09/2026)
+### Render: il Postgres diretto non era raggiungibile (16-17/09/2026, risolto da solo)
+
+**12/10/2026:** il problema non c'è più. Nei log Render `/api/colli/menu` a cache scaduta
+risponde in 0,3-0,65s (anche con traffico reale l'11/10) e non compaiono più avvisi di timeout
+del DB. Nessuna modifica al codice. Se il sintomo torna, la correzione minima è leggere prima
+Supabase REST quando `shouldPreferSupabaseColliAdapter()` è vera. Storico sotto.
 
 Dal servizio Render (Frankfurt, free) la connessione diretta al Postgres Supabase non si
 stabilisce: `Connection terminated due to connection timeout`, sia sul pooler `:5432` sia sul
