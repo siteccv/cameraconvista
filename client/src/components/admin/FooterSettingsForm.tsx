@@ -32,7 +32,7 @@ import {
   parseTimeRange,
 } from "./footerSettingsUtils";
 import type { FooterSettings, FooterHoursEntry, FooterSocialLink } from "@shared/schema";
-import { defaultFooterSettings } from "@shared/schema";
+import { defaultFooterSettings } from "@shared/site-defaults";
 
 const socialTypes = ["instagram", "facebook", "twitter", "linkedin", "youtube", "tiktok"] as const;
 

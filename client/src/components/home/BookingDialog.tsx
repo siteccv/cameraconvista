@@ -9,7 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { type BookingSettings, defaultBookingSettings } from "@shared/schema";
+import type { BookingSettings } from "@shared/schema";
+import { defaultBookingSettings } from "@shared/site-defaults";
 
 interface BookingDialogProps {
   open: boolean;

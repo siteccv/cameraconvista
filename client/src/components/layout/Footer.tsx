@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { SiTiktok } from "react-icons/si";
 import type { FooterSettings, FooterHoursEntry } from "@shared/schema";
-import { defaultFooterSettings } from "@shared/schema";
+import { defaultFooterSettings } from "@shared/site-defaults";
 
 const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   instagram: Instagram,

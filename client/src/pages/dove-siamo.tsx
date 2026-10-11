@@ -13,7 +13,7 @@ import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, DOVE_SIAMO_DEFAULTS } from "@/lib/page-defaults";
 import { BookingDialog } from "@/components/home/BookingDialog";
 import type { FooterSettings } from "@shared/schema";
-import { defaultFooterSettings } from "@shared/schema";
+import { defaultFooterSettings } from "@shared/site-defaults";
 import { mapsLinks } from "@/lib/maps";
 
 export default function DoveSiamo() {

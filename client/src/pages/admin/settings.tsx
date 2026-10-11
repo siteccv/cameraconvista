@@ -23,7 +23,8 @@ import {
 } from "lucide-react";
 import { FooterSettingsForm } from "@/components/admin/FooterSettingsForm";
 import { DEFAULT_COLLI_BOOKING_SETTINGS, type ColliBookingSettings } from "@shared/colli";
-import { defaultBookingSettings, type BookingSettings } from "@shared/schema";
+import type { BookingSettings } from "@shared/schema";
+import { defaultBookingSettings } from "@shared/site-defaults";
 
 type SettingsSection = "main" | "password" | "footer" | "site-links" | "colli-booking" | "booking";
 
