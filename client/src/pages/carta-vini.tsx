@@ -10,6 +10,7 @@ import type { ImageContainerSaveData } from "@/components/admin/ImageContainer";
 import { usePageBlocks } from "@/hooks/use-page-blocks";
 import { PAGE_IDS, CARTA_VINI_DEFAULTS } from "@/lib/page-defaults";
 import type { Wine } from "@shared/schema";
+import { WINE_CATEGORY_ORDER } from "@shared/wine-categories";
 
 export default function CartaVini() {
   const { t } = useLanguage();
@@ -42,15 +43,6 @@ export default function CartaVini() {
     refetchOnWindowFocus: true,
   });
 
-  const CATEGORY_ORDER = [
-    "Bollicine Italiane",
-    "Bollicine Francesi",
-    "Bianchi",
-    "Rossi",
-    "Rosati",
-    "Vini Dolci",
-  ];
-
   const categorizedWines =
     wines?.reduce(
       (acc, wine) => {
@@ -63,7 +55,7 @@ export default function CartaVini() {
       {} as Record<string, Wine[]>,
     ) ?? {};
 
-  const orderedCategories = CATEGORY_ORDER.filter((cat) => categorizedWines[cat]?.length > 0);
+  const orderedCategories = WINE_CATEGORY_ORDER.filter((cat) => categorizedWines[cat]?.length > 0);
 
   const handleHeroTitleSave = (data: {
     textIt: string;

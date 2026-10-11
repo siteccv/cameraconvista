@@ -5,7 +5,8 @@ import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
 import { storage } from "./storage";
-import { mountSeoRoutes, generateSeoHtml, injectSeoIntoHtml } from "./seo";
+import { mountSeoRoutes } from "./seo";
+import { renderPageHtml } from "./ssr/page-content";
 
 const app = express();
 app.set("trust proxy", 1);
@@ -277,9 +278,8 @@ app.use((req, res, next) => {
           chunk.includes("</head>") &&
           chunk.includes('<div id="root">')
         ) {
-          generateSeoHtml(req)
-            .then(({ metaTags, lang }) => {
-              const injected = injectSeoIntoHtml(chunk, metaTags, lang);
+          renderPageHtml(chunk, req)
+            .then((injected) => {
               originalEnd.call(res, injected, "utf-8" as any);
             })
             .catch(() => {

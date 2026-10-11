@@ -37,6 +37,10 @@ for (const [slug, path] of Object.entries(SLUG_TO_PATH)) {
   }
 }
 
+export function slugForPath(pathname: string): string | undefined {
+  return PATH_TO_SLUG[pathname];
+}
+
 // Must mirror the routes in client/src/App.tsx that are not in SLUG_TO_PATH
 const EXTRA_CLIENT_PATHS = new Set(["/home", "/carta-vini"]);
 
@@ -390,8 +394,8 @@ async function buildSeoData(req: Request): Promise<SeoData> {
       alternateName: "Camera con Vista Tapas Bar",
       description: DEFAULT_DESC_IT,
       url: lang === "en" ? hreflangEn : hreflangIt,
-      telephone: footerData.phone || "+39 051 267889",
-      email: footerData.email || "info@cameraconvista.it",
+      telephone: footerData.contacts?.phone || "+39 051 224268",
+      email: footerData.contacts?.email || "info@cameraconvista.it",
       address: {
         "@type": "PostalAddress",
         streetAddress: "Via Santo Stefano 14/2a",

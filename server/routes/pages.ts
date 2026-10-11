@@ -34,7 +34,7 @@ function extractBlockSnapshot(block: PageBlock): Record<string, unknown> {
   return snapshot;
 }
 
-function applyPublishedSnapshot(block: PageBlock): PageBlock {
+export function applyPublishedSnapshot(block: PageBlock): PageBlock {
   const snapshot = block.publishedSnapshot as Record<string, unknown> | null;
   if (!snapshot) return block;
   const merged = { ...block };

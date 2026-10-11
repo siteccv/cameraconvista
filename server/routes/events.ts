@@ -8,33 +8,32 @@ import { requireAuth, parseId } from "./helpers";
 // ========================================
 export const publicEventsRouter = Router();
 
+// Eventi che il pubblico vede: usata dall'API e dal testo servito ai motori di ricerca.
+export async function getPublicEvents(now = new Date()) {
+  const events = await storage.getEvents();
+
+  const visibleEvents = events.filter((event) => {
+    if (!event.active || !event.posterUrl) return false;
+
+    if (event.visibilityMode === "ACTIVE_ONLY") {
+      return true;
+    }
+
+    if (event.visibilityMode === "UNTIL_DAYS_AFTER" && event.startAt && event.visibilityDaysAfter) {
+      const hideAfterDate = new Date(event.startAt);
+      hideAfterDate.setDate(hideAfterDate.getDate() + event.visibilityDaysAfter);
+      return now <= hideAfterDate;
+    }
+
+    return true;
+  });
+
+  return visibleEvents.sort((a, b) => a.sortOrder - b.sortOrder);
+}
+
 publicEventsRouter.get("/", async (req, res) => {
   try {
-    const events = await storage.getEvents();
-    const now = new Date();
-
-    const visibleEvents = events.filter((event) => {
-      if (!event.active || !event.posterUrl) return false;
-
-      if (event.visibilityMode === "ACTIVE_ONLY") {
-        return true;
-      }
-
-      if (
-        event.visibilityMode === "UNTIL_DAYS_AFTER" &&
-        event.startAt &&
-        event.visibilityDaysAfter
-      ) {
-        const hideAfterDate = new Date(event.startAt);
-        hideAfterDate.setDate(hideAfterDate.getDate() + event.visibilityDaysAfter);
-        return now <= hideAfterDate;
-      }
-
-      return true;
-    });
-
-    visibleEvents.sort((a, b) => a.sortOrder - b.sortOrder);
-    res.json(visibleEvents);
+    res.json(await getPublicEvents());
   } catch (error) {
     console.error("Error fetching events:", error);
     res.status(500).json({ error: "Failed to fetch events" });

@@ -1,7 +1,8 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
-import { generateSeoHtml, injectSeoIntoHtml, isKnownPath } from "./seo";
+import { isKnownPath } from "./seo";
+import { renderPageHtml } from "./ssr/page-content";
 
 async function serveHtmlWithSeo(
   distPath: string,
@@ -11,9 +12,7 @@ async function serveHtmlWithSeo(
 ) {
   try {
     const htmlPath = path.resolve(distPath, "index.html");
-    let html = await fs.promises.readFile(htmlPath, "utf-8");
-    const { metaTags, lang } = await generateSeoHtml(req);
-    html = injectSeoIntoHtml(html, metaTags, lang);
+    const html = await renderPageHtml(await fs.promises.readFile(htmlPath, "utf-8"), req);
     res.status(status).set({ "Content-Type": "text/html" }).send(html);
   } catch (err) {
     console.error("Error serving HTML with SEO:", err);

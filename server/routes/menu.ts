@@ -8,7 +8,7 @@ import { requireAuth, parseId } from "./helpers";
 // ========================================
 export const publicMenuRouter = Router();
 
-async function getPublishedSnapshot<T extends { isAvailable?: boolean }>(
+export async function getPublishedSnapshot<T extends { isAvailable?: boolean }>(
   settingKey: string,
 ): Promise<T[]> {
   const setting = await storage.getSiteSetting(settingKey);

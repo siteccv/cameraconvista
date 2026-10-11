@@ -44,7 +44,7 @@ publicColliRouter.get("/menu", async (_req, res) => {
   }
 });
 
-async function getColliMenu(): Promise<ColliMenuResponse> {
+export async function getColliMenu(): Promise<ColliMenuResponse> {
   const now = Date.now();
 
   if (cachedMenu && cachedMenuExpiresAt > now) {
