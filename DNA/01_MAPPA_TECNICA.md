@@ -31,7 +31,7 @@ Dare all'agent una mappa rapida del progetto reale: stack, entrypoint, percorsi 
 - `.github/`
   Workflow GitHub Actions per qualita e keepalive Supabase
 - `attached_assets/`
-  Asset importati dal bundle Vite, inclusi logo CCV, logo Colli e icona navbar Colli
+  Asset importati dal bundle Vite, inclusi logo CCV, logo Colli, icona navbar Colli e logo DeroArts (credito "Website by" nel footer, mostrato in tinta chiara)
 - `client/src/pages/`
   Pagine pubbliche e admin
 - `client/src/components/`
