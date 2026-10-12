@@ -179,3 +179,7 @@ Confronto per giorno: luglio (06/07-09/08, 35 giorni) contro dopo gli interventi
 - Il pulsante **Prenota** apre l'app RSVP con `window.open` e **non e misurato** in Analytics: oggi non si sa quante prenotazioni porta il sito. Eventi chiave attivi: `prenota_whatsapp` (Colli), `richiesta_evento`.
 
 Verdetto: struttura sana, non va rifatta. Miglioramenti mirati in ordine: misurare il clic su Prenota; servire dal server il testo principale delle pagine; velocita mobile (precaricare l'immagine principale, alleggerire font e JavaScript).
+
+### Misurazione delle prenotazioni (dal 12/10/2026)
+
+Il clic su **Prenota** arriva in GA4 come evento `click` (misurazione avanzata, link in uscita) con `link_domain` = `rsvp-p91d.onrender.com`; i pulsanti mappe come `click` verso `maps.apple.com` / `google.com/maps`. Verificato in produzione con il report Tempo reale. Per vederlo come evento chiave va creato in GA4 un evento dedicato da quella condizione (azione dell'owner). GA4 e caricato da GTM (`GTM-M7MXXDG3`), non da `ConsentTracking.tsx`. Le visite "dirette" sono per circa due terzi il menu Colli aperto dal QR.
