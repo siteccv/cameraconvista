@@ -202,6 +202,7 @@ Foto di Supabase Storage — intervento del 12/10/2026:
 - Gli originali di tutti i 234 file del bucket `media-public` (91 MB) sono in `~/Documents/SITE-CCV-ARCHIVIO/immagini-supabase-2026-10-12/`, **fuori dal progetto**: `BACKUP/` contiene solo i backup chiesti dall'owner. Stesso percorso del bucket (`public/<nome>`); per rimettere un file: ricaricarlo allo stesso percorso con `upsert`.
 - Quel giorno sono state ridotte sotto 400 KB le 10 foto usate dal sito che lo superavano (allo stesso indirizzo, database non toccato): due PNG dell'album "Il Locale" da 3,6 e 2,5 MB, le due foto di `/colli`, la foto principale della home, la copertina della galleria e altre 4 foto di galleria. I due `.PNG` ora contengono WebP (`Content-Type: image/webp`): il browser legge il tipo, non l'estensione.
 - Su tutti i 234 file e stato impostato `max-age=31536000`.
+- Lo stesso giorno, con ok dell'owner, sono stati cancellati dal bucket i 139 file (64 MB) non usati da nessuna tabella ne dal codice e assenti dalla libreria media: restano 95 file (19 MB). Copie identiche nell'archivio sopra.
 
 ## GitHub
 
