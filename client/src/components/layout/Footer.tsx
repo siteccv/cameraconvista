@@ -17,6 +17,7 @@ import {
 import { SiTiktok } from "react-icons/si";
 import type { FooterSettings, FooterHoursEntry } from "@shared/schema";
 import { defaultFooterSettings } from "@shared/site-defaults";
+import deroartsLogo from "@assets/deroarts-logo.svg";
 
 const socialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
   instagram: Instagram,
@@ -330,6 +331,25 @@ export function Footer() {
               {t("Preferenze cookie", "Cookie preferences")}
             </button>
           </div>
+          {/* Logo in tinta unita chiara, come il resto della riga: i colori originali
+              (verde scuro) non si leggerebbero sul fondo del footer. */}
+          <a
+            href="https://www.deroarts.com/contatti"
+            target="_blank"
+            rel="noopener"
+            className="group flex items-center gap-2 hover:text-background transition-colors"
+            data-testid="link-deroarts"
+          >
+            <span>Website by</span>
+            <img
+              src={deroartsLogo}
+              alt="DeroArts"
+              width={74}
+              height={16}
+              loading="lazy"
+              className="h-4 w-auto brightness-0 invert opacity-50 group-hover:opacity-100 transition-opacity"
+            />
+          </a>
         </div>
       </div>
     </footer>
