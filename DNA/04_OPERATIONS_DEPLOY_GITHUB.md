@@ -307,7 +307,7 @@ Verifica reale (con prova) eseguita in questa data:
 - **Render (servizio `cameraconvista`, `srv-d61pes7gi27c73espbcg`)**
   - LETTURA: `GET /owners` e `GET /services/{id}/env-vars` → 200 (key con accesso pieno, non solo pubblico).
   - SCRITTURA: **non testata di proposito** — una scrittura Render = deploy/restart/modifica env = azione in produzione. Key capace, ma prova non eseguita per sicurezza.
-  - Deploy: ultimo **riuscito e live** = commit `acc9d11` = `main` locale. Autodeploy attivo su `main`.
+  - Deploy: autodeploy attivo su `main`. Ultimo verificato **live** il 2026-11-05 = commit `13289ad`. Per lo stato attuale chiedere a Render (`GET /services/{id}/deploys?limit=1`), non fidarsi di questa riga.
 - **GitHub (`siteccv/cameraconvista`)**: `gh` autenticato, `main` allineato al remoto (0/0). CI attive: `quality.yml` e `supabase-keepalive.yml` (keepalive verde giornaliero).
   - 17/09/2026: `supabase-keepalive.yml` era passato a `disabled_inactivity` (GitHub lo spegne da solo dopo un periodo senza attività) e non girava dal 15/09. Riattivato via API ed eseguito a mano con esito positivo. **Controllarne lo stato, non solo l'ultimo esito: un workflow spento non lascia run falliti.**
 
@@ -317,7 +317,17 @@ Lo schema Drizzle in `shared/schema.ts` + `shared/colli.ts` definisce 14 `pgTabl
 
 ### Tool/runtime richiesti
 
-Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker richiesto dal progetto. `.env` completo; le variabili opzionali assenti (`VITE_GA_MEASUREMENT_ID`, `VITE_FB_PIXEL_ID`, `RESEND_SENDER_DOMAIN`, `PLAYWRIGHT_BASE_URL`, `SUPABASE_KEEPALIVE_TABLE`, `NODE_ENV`) non sono critiche.
+Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker richiesto dal progetto. `.env` completo; le variabili opzionali assenti (`VITE_GA_MEASUREMENT_ID`, `VITE_FB_PIXEL_ID`, `PLAYWRIGHT_BASE_URL`, `SUPABASE_KEEPALIVE_TABLE`, `NODE_ENV`) non sono critiche.
+
+## Risveglio e sorveglianza (cron-job.org + UptimeRobot)
+
+Gestiti da App Control (RPC `app_control_cronjob_*` / `app_control_uptimerobot_*` con la chiave agent), non dal codice. Stato verificato il 2026-11-05:
+
+- **Supabase:** job cron-job.org `SITECCV - Supabase keepalive` (1 volta al giorno su `/rest/v1/pages`) + workflow GitHub `supabase-keepalive.yml`. Doppia copertura voluta.
+- **Render (free):** job `SITECCV - Render risveglio`, ogni 10 minuti, 24h, su `https://www.cameraconvista.it/robots.txt` (statico, arriva a Render, nessun DB). Creato il 2026-11-05. Il sito è pubblico e non deve mai addormentarsi.
+- **Budget ore Render:** sull'account c'è **un solo** servizio → 24/7 = ~744 delle 750 ore gratuite al mese. Un secondo servizio sullo stesso account sforerebbe: in quel caso ridurre la finestra.
+- **UptimeRobot:** monitor `www.cameraconvista.it/` ogni 5 minuti, 1 destinatario di avviso. Resta **attivo** (il servizio è sempre sveglio, quindi niente falsi allarmi).
+- Il progetto non ha un endpoint `/api/health`: per le prove usare `/robots.txt`.
 
 ## Email transazionali (Resend) — config produzione
 
