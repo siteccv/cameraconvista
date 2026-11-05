@@ -323,7 +323,9 @@ Node 22, npm 10, git, gh, psql 18 presenti. **Nessun** testcontainer/Docker rich
 
 Resend è usato **solo** per il form "Richiesta Evento privato" (`server/routes/event-request.ts`): invia i dati a `info@cameraconvista.it` (`replyTo`=cliente). La richiesta **non è salvata su DB**: se l'email fallisce → 500 e richiesta persa. Miglioramento futuro opzionale (solo su richiesta): salvare le richieste su DB + admin "Richieste".
 
-- In produzione (Render) **non** sono settate `RESEND_API_KEY`/`RESEND_SENDER_DOMAIN`/`EVENT_REQUEST_EMAIL`: la chiave usata è quella nel **DB** `site_settings.resend_api_key` (tipo _sending-only_), mittente `onboarding@resend.dev`, destinatario default `info@cameraconvista.it`.
+- In produzione (Render) **non** sono settate `RESEND_API_KEY`/`EVENT_REQUEST_EMAIL`: la chiave usata è quella nel **DB** `site_settings.resend_api_key` (tipo _sending-only_), destinatario default `info@cameraconvista.it`. `RESEND_SENDER_DOMAIN=cameraconvista.it` è settata su Render dal 15/09/2026 → mittente `noreply@cameraconvista.it`.
+- Formato data nell'email: con il giorno della settimana (`Martedì 24 Novembre 2026`), calcolato in UTC dalla data `YYYY-MM-DD` per non slittare di un giorno col fuso.
+- Mail di prova senza disturbare `info@` né GA4: istanza locale separata `PORT=5007 EVENT_REQUEST_EMAIL=<destinatario> GA4_API_SECRET= npm run dev` + `POST /api/event-request` (la chiave del `.env` è dello stesso account Resend col dominio verificato).
 - Account Resend corretto: **`info@cameraconvista.it`**, workspace `cameraconvista` (accesso via Google/Gmail). API key `site-ccv-backend-prod` con permesso _Sending access_.
 - **Trappola diagnostica:** le chiavi sono _sending-only_ → `GET /domains` risponde **401 `restricted_api_key`**: è NORMALE, la chiave è VALIDA. Non diagnosticare "chiave rotta" da quel 401. Anche "No domains yet" è normale (spedisce da `onboarding@resend.dev`). Mai stampare la chiave completa.
 

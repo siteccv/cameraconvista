@@ -37,9 +37,20 @@ const ENGLISH_MONTHS = [
   "December",
 ];
 
+const ITALIAN_WEEKDAYS = [
+  "Domenica",
+  "Lunedì",
+  "Martedì",
+  "Mercoledì",
+  "Giovedì",
+  "Venerdì",
+  "Sabato",
+];
+
 function formatDateItalian(dateStr: string): string {
   const [year, month, day] = dateStr.split("-").map(Number);
-  return `${day} ${ITALIAN_MONTHS[month - 1]} ${year}`;
+  const weekday = ITALIAN_WEEKDAYS[new Date(Date.UTC(year, month - 1, day)).getUTCDay()];
+  return `${weekday} ${day} ${ITALIAN_MONTHS[month - 1]} ${year}`;
 }
 
 function formatDateEnglish(dateStr: string): string {
