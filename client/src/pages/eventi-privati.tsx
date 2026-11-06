@@ -192,6 +192,9 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
     },
     { block: pkg4Block, def: pkg4Def, href: "/eventi-privati/esclusivo", enabled: true },
   ].filter((item) => item.enabled);
+  // Con 3 formule le card stanno su una riga da desktop (lg), in colonna sotto:
+  // evita la riga 2+1 sui tablet.
+  const threePackages = packageItems.length >= 3;
 
   if (blocksLoading) {
     return (
@@ -282,14 +285,20 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mx-auto max-w-5xl">
+          <div
+            className={`grid grid-cols-1 gap-8 mx-auto ${
+              threePackages ? "lg:grid-cols-3 max-w-6xl" : "md:grid-cols-2 max-w-5xl"
+            }`}
+          >
             {packageItems.map((pkg, index) => {
               const cardContent = (
                 <Card
                   className="hover-elevate cursor-pointer h-full"
                   data-testid={`card-package-${index}`}
                 >
-                  <CardContent className="p-6 md:p-14 flex flex-col items-center text-center">
+                  <CardContent
+                    className={`p-6 md:p-14 ${threePackages ? "lg:p-8 xl:p-10" : ""} h-full flex flex-col items-center text-center`}
+                  >
                     <EditableText
                       textIt={pkg.block?.titleIt || pkg.def.titleIt || ""}
                       textEn={pkg.block?.titleEn || pkg.def.titleEn || ""}
@@ -298,7 +307,7 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                         pkg.block?.titleFontSizeMobile || pkg.def.titleFontSizeMobile || 18
                       }
                       as="h3"
-                      className="font-display mb-2"
+                      className="font-display mb-2 text-balance"
                       applyFontSize
                       onSave={makePackageTitleSave(pkg.block)}
                     />
@@ -310,15 +319,16 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                         pkg.block?.bodyFontSizeMobile || pkg.def.bodyFontSizeMobile || 13
                       }
                       as="p"
-                      className="text-muted-foreground"
+                      className="text-muted-foreground text-balance mb-6"
                       multiline
                       applyFontSize
                       onSave={makePackageBodySave(pkg.block)}
                     />
+                    {/* mt-auto: i pulsanti delle card restano allineati anche con testi di lunghezza diversa */}
                     <Button
                       variant="default"
                       size="sm"
-                      className="mt-6 w-auto rounded-full px-6 py-2 bg-primary text-primary-foreground border border-primary-foreground/20 hover:bg-primary/90 font-medium shadow-sm"
+                      className="mt-auto w-auto rounded-full px-6 py-2 bg-primary text-primary-foreground border border-primary-foreground/20 hover:bg-primary/90 font-medium shadow-sm"
                     >
                       {t("Crea il tuo evento", "Create your event")}
                     </Button>
