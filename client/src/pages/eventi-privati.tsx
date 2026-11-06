@@ -443,6 +443,13 @@ export default function EventiPrivati({ onNavigateSubPage }: EventiPrivatiProps)
                 {t("Aperitivo Privato", "Private Aperitivo")}
               </Button>
             </Link>
+            {PRIVATE_DINNER_ENABLED && (
+              <Link href="/eventi-privati/cena">
+                <Button size="lg" variant="outline" data-testid="button-cta-cena">
+                  {t("Cena Privata", "Private Dinner")}
+                </Button>
+              </Link>
+            )}
             <Link href="/eventi-privati/esclusivo">
               <Button size="lg" variant="outline" data-testid="button-cta-esclusivo">
                 {t("Evento Esclusivo", "Exclusive Event")}

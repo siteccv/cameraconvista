@@ -367,18 +367,18 @@ test("main navigation exposes the optimized Colli icon", async ({ page }) => {
   await expect(page).toHaveURL(/\/colli$/);
 });
 
-test("private events shows aperitivo and exclusive event without dinner card", async ({ page }) => {
+test("private events shows aperitivo, dinner and exclusive event cards", async ({ page }) => {
   await page.goto("/eventi-privati", { waitUntil: "domcontentloaded" });
 
   await expect(page.getByText("Aperitivo", { exact: true })).toBeVisible();
+  await expect(page.getByText("Cena", { exact: true })).toBeVisible();
   await expect(page.getByText("Evento Privato Esclusivo.")).toBeVisible();
-  await expect(page.getByText("Cena", { exact: true })).toHaveCount(0);
-  await expect(page.locator('[data-testid^="card-package-"]')).toHaveCount(2);
+  await expect(page.locator('[data-testid^="card-package-"]')).toHaveCount(3);
 });
 
-test("private dinner direct route redirects to private events", async ({ page }) => {
+test("private dinner route stays on its own page", async ({ page }) => {
   await page.goto("/eventi-privati/cena", { waitUntil: "domcontentloaded" });
-  await expect(page).toHaveURL(/\/eventi-privati$/);
+  await expect(page).toHaveURL(/\/eventi-privati\/cena$/);
 });
 
 test("legacy SEO URLs redirect to their current page", async ({ page }) => {
@@ -404,13 +404,12 @@ test("legacy SEO URLs redirect to their current page", async ({ page }) => {
   await expect(page).toHaveURL(/\/dove-siamo$/);
 });
 
-test("hidden page is noindex, visible pages are indexable", async ({ request }) => {
-  // /eventi è nascosta (is_visible=false): deve dichiarare noindex a Google.
-  const hidden = await (await request.get("/eventi")).text();
-  expect(hidden).toMatch(/<meta name="robots" content="noindex, nofollow"/);
+test("visible pages are indexable, stale events are noindex", async ({ request }) => {
+  // Il caso "pagina nascosta = noindex" non si prova qui: dipende dai dati
+  // (dal 06/11/2026 nessuna pagina pubblica e nascosta).
 
   // Le pagine pubbliche non devono MAI avere noindex.
-  for (const path of ["/", "/menu", "/lista-vini", "/colli"]) {
+  for (const path of ["/", "/menu", "/lista-vini", "/colli", "/eventi-privati/cena"]) {
     const html = await (await request.get(path)).text();
     expect(html, path).not.toMatch(/name="robots" content="noindex/);
   }

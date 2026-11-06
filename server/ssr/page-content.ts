@@ -120,11 +120,11 @@ const BUILDERS: Record<string, Builder> = {
   }),
   "eventi-privati": async (ctx) => ({
     h1: heroTitle(ctx, ctx.lang === "en" ? "Private events" : "Eventi privati"),
-    // package-2 (cena) e spento come nel sito (PRIVATE_DINNER_ENABLED=false), package-3 non e mostrato
+    // stesse formule del sito (PRIVATE_DINNER_ENABLED=true dal 06/11/2026), package-3 non e mostrato
     parts: [
       text(ctx, "intro"),
       ...sections(ctx, ["section-title"]),
-      ...sections(ctx, ["package-1", "package-4"], 3),
+      ...sections(ctx, ["package-1", "package-2", "package-4"], 3),
       ...sections(ctx, ["spaces-title"]),
       ...["spaces-1", "spaces-2", "spaces-3"].map((t) => text(ctx, t)),
       ...sections(ctx, ["cta"]),
@@ -136,6 +136,14 @@ const BUILDERS: Record<string, Builder> = {
       text(ctx, "intro"),
       ...sections(ctx, ["section-a", "section-b", "section-c"], 3),
       ...["gallery-1", "gallery-2", "gallery-3"].map((t) => text(ctx, t)),
+    ],
+  }),
+  "eventi-privati-cena": async (ctx) => ({
+    h1: heroTitle(ctx, "Cena privata"),
+    parts: [
+      text(ctx, "intro"),
+      ...sections(ctx, ["section-a", "section-b", "cta"], 3),
+      ...["gallery-1", "gallery-2"].map((t) => text(ctx, t)),
     ],
   }),
   "eventi-privati-esclusivo": async (ctx) => ({
