@@ -55,6 +55,8 @@ Fix (solo codice, nessuna modifica DB/deploy): aggiunto in `colli-supabase-adapt
 - Le immagini in `media-public` hanno `Cache-Control: max-age=31536000` (un anno). E sicuro solo perche ogni upload crea un nome nuovo (timestamp): **mai sovrascrivere un file allo stesso indirizzo**, i browser terrebbero la versione vecchia per un anno
 - Testo per i crawler servito dentro `#root` e sostituito da React (non hydration, non SSR completo): da' testo a Google e ai motori AI senza toccare l'aspetto del sito. Font caricati senza bloccare la pagina (`client/index.html`), solo famiglie e pesi usati
 - Le foto restano su Supabase Storage: spostarle su Render (si addormenta, niente CDN) o nel build (il CMS non potrebbe piu gestirle) peggiorerebbe il sito
+- Traduzione IT→EN dell'admin (`server/routes/settings.ts`): modello `gpt-6-luna` dal 06/11/2026, perche OpenAI spegne `gpt-4o-mini` il 14/01/2027. Il modello accetta solo `max_completion_tokens` e la `temperature` predefinita
+- resOS dismesso il 05/11/2026: gli eventi non propongono piu link resOS. `resolveEventBookingUrl` (`EventModal.tsx`) sostituisce un link resOS salvato con l'app prenotazioni. La pagina pubblica dell'evento usa comunque il `BookingDialog` globale, non `event.bookingUrl`
 
 ## Cosa non duplicare
 

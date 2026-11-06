@@ -321,7 +321,8 @@ adminSettingsRouter.post("/translate", requireAuth, async (req, res) => {
     const { text, context } = parsed.data;
 
     const apiKey = process.env.OPENAI_API_KEY;
-    const model = "gpt-4o-mini";
+    // gpt-4o-mini viene spento da OpenAI il 14/01/2027; gpt-6-luna e il sostituto indicato.
+    const model = "gpt-6-luna";
 
     if (!apiKey) {
       res.status(500).json({ error: "OpenAI API key not configured. Set OPENAI_API_KEY." });
@@ -350,8 +351,8 @@ Respond with ONLY the English translation, nothing else.`;
         { role: "system", content: systemPrompt },
         { role: "user", content: text },
       ],
-      max_tokens: 1000,
-      temperature: 0.3,
+      // gpt-6-luna accetta solo max_completion_tokens e la temperature predefinita.
+      max_completion_tokens: 2000,
     });
 
     const translation = response.choices[0]?.message?.content?.trim() || "";

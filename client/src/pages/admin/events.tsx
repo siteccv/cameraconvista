@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
-import { EventModal } from "@/components/admin/EventModal";
+import { EventModal, resolveEventBookingUrl } from "@/components/admin/EventModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -138,7 +138,7 @@ export default function AdminEvents() {
       startAt: null,
       active: false,
       bookingEnabled: event.bookingEnabled || false,
-      bookingUrl: event.bookingUrl || "https://cameraconvista.resos.com/booking",
+      bookingUrl: resolveEventBookingUrl(event.bookingUrl),
       visibilityMode: event.visibilityMode || "ACTIVE_ONLY",
       visibilityDaysAfter: event.visibilityDaysAfter || 7,
       sortOrder: events.length,

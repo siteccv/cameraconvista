@@ -23,6 +23,14 @@ import { Image as ImageIcon, Loader2, FolderOpen } from "lucide-react";
 import { TranslateButton } from "./TranslateButton";
 import { MediaPickerModal } from "./MediaPickerModal";
 import type { Event, InsertEvent, Media } from "@shared/schema";
+import { defaultBookingSettings } from "@shared/site-defaults";
+
+// resOS e stato dismesso il 05/11/2026: un link resOS salvato su un evento
+// viene sostituito dall'app prenotazioni, cosi non si ripropone un link morto.
+export function resolveEventBookingUrl(url: string | null | undefined): string {
+  if (!url || url.includes("resos.com")) return defaultBookingSettings.bookingUrl;
+  return url;
+}
 
 interface EventModalProps {
   open: boolean;
@@ -62,7 +70,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
     endAt: null,
     active: false,
     bookingEnabled: false,
-    bookingUrl: "https://cameraconvista.resos.com/booking",
+    bookingUrl: defaultBookingSettings.bookingUrl,
     visibilityMode: "ACTIVE_ONLY",
     visibilityDaysAfter: 7,
     sortOrder: 0,
@@ -139,7 +147,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
         endAt: event.endAt,
         active: event.active,
         bookingEnabled: event.bookingEnabled,
-        bookingUrl: event.bookingUrl || "https://cameraconvista.resos.com/booking",
+        bookingUrl: resolveEventBookingUrl(event.bookingUrl),
         visibilityMode: event.visibilityMode,
         visibilityDaysAfter: event.visibilityDaysAfter || 7,
         sortOrder: event.sortOrder,
@@ -160,7 +168,7 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
         endAt: null,
         active: false,
         bookingEnabled: false,
-        bookingUrl: "https://cameraconvista.resos.com/booking",
+        bookingUrl: defaultBookingSettings.bookingUrl,
         visibilityMode: "ACTIVE_ONLY",
         visibilityDaysAfter: 7,
         sortOrder: 0,
@@ -610,9 +618,9 @@ export function EventModal({ open, onOpenChange, event }: EventModalProps) {
                     <Label htmlFor="bookingUrl">{t("URL Prenotazioni", "Booking URL")}</Label>
                     <Input
                       id="bookingUrl"
-                      value={formData.bookingUrl ?? "https://cameraconvista.resos.com/booking"}
+                      value={formData.bookingUrl ?? defaultBookingSettings.bookingUrl}
                       onChange={(e) => setFormData({ ...formData, bookingUrl: e.target.value })}
-                      placeholder="https://cameraconvista.resos.com/booking"
+                      placeholder={defaultBookingSettings.bookingUrl}
                       data-testid="input-booking-url"
                     />
                   </div>
